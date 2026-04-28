@@ -1,0 +1,239 @@
+/* --- VARIABLES GLOBALES DEL SISTEMA DE DISEÑO --- */
+:root {
+    /* Colores Principales */
+    --primary: #2563eb;        /* Azul principal */
+    --primary-dark: #1d4ed8;   /* Azul oscuro para estados hover */
+    --primary-light: #dbeafe;  /* Azul claro para fondos y acentos */
+    --secondary: #7c3aed;      /* Violeta secundario */
+    --accent: #f59e0b;         /* Naranja para llamadas a la acción */
+    --success: #10b981;        /* Verde para estados positivos */
+    
+    /* Colores de Fondo y Texto */
+    --bg-main: #f8fafc;        /* Gris muy claro para el fondo general */
+    --card-bg: #ffffff;        /* Blanco para las tarjetas */
+    --text-main: #0f172a;      /* Azul oscuro casi negro para texto principal */
+    --text-muted: #64748b;     /* Gris para texto secundario */
+    
+    /* Estética Visual */
+    --border: #e2e8f0;         /* Color de bordes sutiles */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    
+    /* Sombras Provisionales */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    
+    /* Transiciones */
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- ESTILOS GENERALES DEL CUERPO --- */
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    overflow-x: hidden;
+    scroll-behavior: smooth; /* Desplazamiento suave entre anclas */
+}
+
+/* --- PRELOADER: Pantalla de carga inicial --- */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+/* Animación del spinner de carga */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--primary-light);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- BARRA DE NAVEGACIÓN PREMIUM --- */
+.navbar {
+    background: rgba(255, 255, 255, 0.8) !important; /* Efecto traslúcido */
+    backdrop-filter: saturate(180%) blur(20px);      /* Desenfoque de fondo */
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 0;
+}
+
+.navbar-brand {
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.025em;
+    /* Degradado en el logo */
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-link {
+    font-weight: 600;
+    color: var(--text-main) !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.nav-link:hover {
+    background: var(--primary-light);
+    color: var(--primary) !important;
+}
+
+/* Alineación de la lista de navegación */
+.navbar-nav {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+/* Ajustes responsivos para móviles */
+@media (max-width: 991.98px) {
+    .navbar-nav {
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem 0;
+    }
+}
+
+/* --- TARJETAS CON EFECTO GLASSMORFISMO --- */
+.glass-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    transition: var(--transition);
+}
+
+.glass-card:hover {
+    transform: translateY(-8px); /* Efecto de elevación */
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-light);
+}
+
+/* --- SECCIÓN HERO (PORTADA) --- */
+.hero-section {
+    position: relative;
+    padding: 160px 0 100px;
+    /* Degradados radiales sutiles en las esquinas */
+    background: radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+}
+
+.display-3 {
+    letter-spacing: -0.05em;
+    line-height: 1.1;
+}
+
+/* --- BOTONES PERSONALIZADOS --- */
+.btn-primary {
+    background: var(--primary);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.8rem 2rem;
+    font-weight: 700;
+    box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.23);
+}
+
+/* --- SECCIÓN DE PASOS O ETAPAS --- */
+.step-number {
+    width: 50px;
+    height: 50px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+}
+
+/* --- SECCIÓN DE ESTADÍSTICAS --- */
+.stat-item {
+    padding: 2rem;
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+/* --- FOOTER (PIE DE PÁGINA) PROFESIONAL --- */
+footer {
+    background: #2a3346; /* Azul oscuro profundo */
+    color: #f8fafc;
+    padding: 5rem 0 2rem;
+}
+
+.footer-link {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: var(--transition);
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+.footer-link:hover {
+    color: var(--white);
+    padding-left: 5px; /* Pequeño desplazamiento al pasar el mouse */
+}
+
+/* --- CLASES DE UTILIDAD --- */
+.rounded-4 { border-radius: var(--radius-lg) !important; }
+.transition { transition: var(--transition); }
+.hover-lift:hover { transform: translateY(-4px); }
+
+/* --- TARJETAS DE AUTENTICACIÓN (LOGIN/REGISTRO) --- */
+.auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 0; /* Estética cuadrada solicitada */
+    padding: 3.5rem;
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition);
+}
+
+.auth-card:hover {
+    border-color: var(--primary);
+}
+
+/* Estilos para los campos de formulario */
+.form-control {
+    border-radius: 0; /* Estética cuadrada */
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: var(--primary);
+}

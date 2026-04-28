@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- SECCIÓN PRINCIPAL: REGISTRO DE NUEVO USUARIO -->
+<div class="row justify-content-center align-items-center min-vh-75 py-5">
+    <div class="col-md-5">
+        <div class="auth-card animate__animated animate__fadeIn">
+            
+            <!-- ENCABEZADO DE REGISTRO -->
+            <h2 class="fw-800 text-center mb-2">REGISTRO</h2>
+            <p class="text-center text-muted mb-5 small fw-bold">CREA TU CUENTA PROFESIONAL</p>
+            
+            <!-- FORMULARIO DE CREACIÓN (POST) -->
+            <form action="{{ url_for('registro') }}" method="POST">
+                <!-- CAMPO: NOMBRE COMPLETO -->
+                <div class="mb-4">
+                    <label for="nombre" class="form-label small fw-800 text-uppercase text-muted">Nombre Completo</label>
+                    <input type="text" class="form-control" id="nombre" name="nombre" required placeholder="Ej: Juan Pérez">
+                </div>
+                
+                <!-- CAMPO: CORREO ELECTRÓNICO -->
+                <div class="mb-4">
+                    <label for="email" class="form-label small fw-800 text-uppercase text-muted">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="email" name="email" required placeholder="tu@email.com">
+                </div>
+                
+                <!-- CAMPO: CONTRASEÑA -->
+                <div class="mb-4">
+                    <label for="password" class="form-label small fw-800 text-uppercase text-muted">Contraseña</label>
+                    <input type="password" class="form-control" id="password" name="password" required placeholder="********">
+                </div>
+                
+                <!-- BOTÓN DE ACCIÓN: CREAR CUENTA -->
+                <div class="d-grid mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-0 fw-800">CREAR CUENTA</button>
+                </div>
+            </form>
+            
+            <!-- ENLACE A LOGIN -->
+            <p class="text-center mt-4 text-muted small">¿Ya tienes cuenta? <a href="{{ url_for('login') }}" class="text-primary fw-800 text-decoration-none">INICIA SESIÓN</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

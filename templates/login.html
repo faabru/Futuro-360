@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- SECCIÓN PRINCIPAL: INICIO DE SESIÓN -->
+<div class="row justify-content-center align-items-center min-vh-75 py-5">
+    <div class="col-md-5">
+        <div class="auth-card animate__animated animate__fadeIn">
+            
+            <!-- ENCABEZADO DE BIENVENIDA -->
+            <h2 class="fw-800 text-center mb-2">BIENVENIDO</h2>
+            <p class="text-center text-muted mb-5 small fw-bold">INGRESA TUS CREDENCIALES</p>
+            
+            <!-- FORMULARIO DE ACCESO (POST) -->
+            <form action="{{ url_for('login') }}" method="POST">
+                <!-- CAMPO: CORREO ELECTRÓNICO -->
+                <div class="mb-4">
+                    <label for="email" class="form-label small fw-800 text-uppercase text-muted">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="email" name="email" required placeholder="tu@email.com">
+                </div>
+                
+                <!-- CAMPO: CONTRASEÑA -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label for="password" class="form-label small fw-800 text-uppercase text-muted">Contraseña</label>
+                        <a href="{{ url_for('recuperar_password') }}" class="small text-decoration-none mb-2">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <input type="password" class="form-control" id="password" name="password" required placeholder="********">
+                </div>
+                
+                <!-- BOTÓN DE ACCIÓN: INGRESAR -->
+                <div class="d-grid mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-0 fw-800">INGRESAR</button>
+                </div>
+            </form>
+            
+            <!-- ENLACE A REGISTRO -->
+            <p class="text-center mt-4 text-muted small">¿No tienes cuenta? <a href="{{ url_for('registro') }}" class="text-primary fw-800 text-decoration-none">REGÍSTRATE</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

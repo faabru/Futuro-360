@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- SECCIÓN PRINCIPAL: DETALLE DE RESULTADO VOCACIONAL -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="section-card p-5 shadow-lg border-0">
+                
+                <!-- ENCABEZADO DEL RESULTADO -->
+                <div class="text-center mb-5">
+                    <h1 class="display-4 fw-bold text-primary mb-3">Tu Perfil Vocacional ✨</h1>
+                    <p class="text-muted">Análisis detallado basado en tus 30 respuestas.</p>
+                </div>
+
+                <!-- TARJETAS DE RESUMEN RÁPIDO -->
+                <div class="row g-4 mb-5">
+                    <!-- ÁREA DOMINANTE -->
+                    <div class="col-md-4">
+                        <div class="p-4 bg-primary-subtle rounded-4 text-center h-100">
+                            <h6 class="text-primary fw-bold small text-uppercase">Área Dominante</h6>
+                            <h3 class="fw-bold mb-0 text-primary">{{ resultado.area_profesional_sugerida }}</h3>
+                        </div>
+                    </div>
+                    
+                    <!-- FECHA DE REALIZACIÓN -->
+                    <div class="col-md-4">
+                        <div class="p-4 bg-secondary-subtle rounded-4 text-center h-100">
+                            <h6 class="text-secondary fw-bold small text-uppercase">Fecha del Test</h6>
+                            <h3 class="fw-bold mb-0 text-secondary">{{ resultado.fecha_realizacion.strftime('%d/%m/%Y') }}</h3>
+                        </div>
+                    </div>
+                    
+                    <!-- NIVEL DE AFINIDAD -->
+                    <div class="col-md-4">
+                        <div class="p-4 bg-success-subtle rounded-4 text-center h-100">
+                            <h6 class="text-success fw-bold small text-uppercase">Nivel de Afinidad</h6>
+                            <h3 class="fw-bold mb-0 text-success">Alto</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INTERPRETACIÓN DETALLADA -->
+                <div class="mb-5">
+                    <h4 class="fw-bold mb-4 text-primary">Interpretación de Resultados</h4>
+                    <p class="lead text-muted">{{ resultado.detalle }}</p>
+                </div>
+
+                <!-- SECCIÓN DE NOTAS PERSONALES (CRUD) -->
+                <div class="mb-5 p-4 bg-light rounded-4">
+                    <h4 class="fw-bold mb-4 text-primary">Tus Notas Personales</h4>
+                    <form action="{{ url_for('actualizar_resultado', resultado_id=resultado.id) }}" method="POST">
+                        <div class="mb-3">
+                            <textarea name="notas_personales" class="form-control border-0 shadow-sm" rows="3" placeholder="Escribe aquí tus reflexiones sobre este resultado...">{{ resultado.notas_personales or '' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar Notas</button>
+                    </form>
+                </div>
+
+                <!-- CARRERAS RECOMENDADAS -->
+                <h4 class="fw-bold mb-4 text-primary">Carreras Recomendadas para ti</h4>
+                <div class="row g-4">
+                    {% for carrera in carreras %}
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm rounded-4 section-card p-0">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold text-primary mb-3">{{ carrera.nombre }}</h5>
+                                <p class="text-muted small mb-4 line-clamp-2">{{ carrera.descripcion }}</p>
+                                <a href="{{ url_for('detalle_carrera', carrera_id=carrera.id) }}" class="btn btn-link p-0 text-primary fw-bold text-decoration-none">Ver más info <i class="bi bi-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- ACCIONES FINALES -->
+                <div class="text-center mt-5">
+                    <a href="{{ url_for('mis_resultados') }}" class="btn btn-outline-primary rounded-pill px-5">Ver historial de tests</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5 animate__animated animate__fadeIn">
+    {# --- SECCIÓN: BIENVENIDA --- #}
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <h1 class="display-4 fw-800 text-primary mb-2">Bienvenido a Futuro 360</h1>
+            <p class="lead text-muted">Hola, {{ g.user.nombre }}. Te Queremos dar la bienvenida a Futuro 360 aqui vas a encontrar tu carrera ideal y tu perfil profesional.</p>
+        </div>
+    </div>
+
+    {# --- SECCIÓN: LAS 4 HERRAMIENTAS PRINCIPALES --- #}
+    <div class="row g-4 mb-5">
+        <!-- 1. Test Vocacional Pro -->
+        <div class="col-md-6 col-lg-3">
+            <div class="glass-card h-100 border-primary border-opacity-25 hover-lift transition">
+                <div class="mb-4 d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle" style="width: 60px; height: 60px;">
+                    <i class="bi bi-patch-check-fill fs-3 text-primary"></i>
+                </div>
+                <h4 class="fw-bold mb-3">1. Test Pro</h4>
+                <p class="text-muted small mb-4">Realiza nuestro test profesional de 30 dimensiones para un perfil exacto.</p>
+                <a href="{{ url_for('test') }}" class="btn btn-primary btn-sm w-100 rounded-0 fw-bold">COMENZAR</a>
+            </div>
+        </div>
+
+        <!-- 2. Catálogo de Carreras -->
+        <div class="col-md-6 col-lg-3">
+            <div class="glass-card h-100 border-secondary border-opacity-25 hover-lift transition">
+                <div class="mb-4 d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 rounded-circle" style="width: 60px; height: 60px;">
+                    <i class="bi bi-search-heart-fill fs-3 text-secondary"></i>
+                </div>
+                <h4 class="fw-bold mb-3">2. Carreras</h4>
+                <p class="text-muted small mb-4">Explora el catálogo completo con información sobre universidades y campo laboral.</p>
+                <a href="{{ url_for('carreras') }}" class="btn btn-secondary btn-sm w-100 rounded-0 fw-bold">EXPLORAR</a>
+            </div>
+        </div>
+
+        <!-- 3. El Laboratorio (Juego) -->
+        <div class="col-md-6 col-lg-3">
+            <div class="glass-card h-100 border-warning border-opacity-25 hover-lift transition">
+                <div class="mb-4 d-flex align-items-center justify-content-center bg-warning bg-opacity-10 rounded-circle" style="width: 60px; height: 60px;">
+                    <i class="bi bi-controller fs-3 text-warning"></i>
+                </div>
+                <h4 class="fw-bold mb-3">3. El Laboratorio</h4>
+                <p class="text-muted small mb-4">Descubre tus intereses ocultos de forma interactiva y divertida.</p>
+                <a href="{{ url_for('juego') }}" class="btn btn-warning btn-sm w-100 rounded-0 fw-bold text-dark">JUGAR</a>
+            </div>
+        </div>
+
+        <!-- 4. Centro de Noticias -->
+        <div class="col-md-6 col-lg-3">
+            <div class="glass-card h-100 border-success border-opacity-25 hover-lift transition">
+                <div class="mb-4 d-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-circle" style="width: 60px; height: 60px;">
+                    <i class="bi bi-newspaper fs-3 text-success"></i>
+                </div>
+                <h4 class="fw-bold mb-3">4. Noticias</h4>
+                <p class="text-muted small mb-4">Tendencias académicas, becas y novedades de las facultades locales.</p>
+                <a href="{{ url_for('noticias') }}" class="btn btn-success btn-sm w-100 rounded-0 fw-bold">VER NOVEDADES</a>
+            </div>
+        </div>
+    </div>
+
+    {# --- SECCIÓN: ACTIVIDADES RECIENTES (HISTORIAL) --- #}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="glass-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">Historial de Tests Recientes</h5>
+                    <a href="{{ url_for('mis_resultados') }}" class="btn btn-link btn-sm text-decoration-none">Ver todo el historial</a>
+                </div>
+                
+                {# Si el usuario tiene resultados previos #}
+                {% if historial %}
+                    <div class="row g-3">
+                        {% for test in historial %}
+                        <div class="col-md-4">
+                            <div class="card border-0 bg-light rounded-4 h-100 p-3 hover-lift transition">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-primary-light text-primary rounded-pill">{{ test.area_profesional_sugerida }}</span>
+                                    <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ test.fecha_realizacion.strftime('%d/%m/%Y') }}</small>
+                                </div>
+                                <p class="text-muted small mb-3 line-clamp-2 mt-2">{{ test.detalle }}</p>
+                                <a href="{{ url_for('ver_resultado', resultado_id=test.id) }}" class="btn btn-sm btn-outline-primary mt-auto w-100 rounded-pill">Ver Informe Completo</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {# Si el usuario aún no ha realizado ningún test #}
+                {% else %}
+                    <div class="alert bg-primary-light text-primary border-0 rounded-4 py-4 px-4 text-center">
+                        <i class="bi bi-info-circle-fill fs-3 d-block mb-2"></i>
+                        <h6 class="fw-bold">Aún no tienes resultados</h6>
+                        <p class="mb-3 small">¡Bienvenido! Tu sesión está activa. Comienza realizando el <strong>Test Pro</strong> para obtener tus primeras recomendaciones.</p>
+                        <a href="{{ url_for('test') }}" class="btn btn-primary btn-sm rounded-pill px-4">Comenzar mi primer test</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

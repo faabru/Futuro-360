@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- SECCIÓN PRINCIPAL: HISTORIAL DE RESULTADOS (CRUD) -->
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow p-5 mt-5 border-0 bg-white">
+            
+            <!-- ENCABEZADO DE LA SECCIÓN -->
+            <h1 class="text-center mb-5 text-primary fw-bold">Mis Resultados</h1>
+            
+            {% if resultados %}
+                <!-- TABLA DE RESULTADOS EXISTENTES -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light text-primary">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Área Profesional</th>
+                                <th>Detalle</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for resultado in resultados %}
+                                <!-- FILA DE RESULTADO INDIVIDUAL -->
+                                <tr>
+                                    <td class="fw-semibold">{{ resultado.fecha_realizacion.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td><span class="badge bg-primary px-3 py-2 rounded-pill">{{ resultado.area_profesional_sugerida }}</span></td>
+                                    
+                                    <!-- ACCIÓN: VER DETALLE (READ) -->
+                                    <td><a href="{{ url_for('ver_resultado', resultado_id=resultado.id) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">Ver Informe</a></td>
+                                    
+                                    <!-- ACCIÓN: ELIMINAR (DELETE) -->
+                                    <td>
+                                        <form action="{{ url_for('eliminar_resultado', resultado_id=resultado.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este resultado?');">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm">Borrar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <!-- ESTADO VACÍO: SI NO HAY RESULTADOS -->
+                <div class="text-center my-5 py-5 bg-light rounded-4">
+                    <div class="display-1 text-muted mb-3">📂</div>
+                    <p class="lead text-muted mb-4">Aún no has realizado ningún test vocacional.</p>
+                    <a href="{{ url_for('test') }}" class="btn btn-primary btn-lg shadow-sm">Realizar mi primer test</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

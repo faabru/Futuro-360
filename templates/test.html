@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- SECCIÓN PRINCIPAL: TEST VOCACIONAL -->
+<div class="container py-5 animate__animated animate__fadeIn">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card shadow-lg border-0 p-5">
+                
+                <!-- ENCABEZADO Y PROGRESO -->
+                <div class="text-center mb-5">
+                    <h1 class="fw-800 text-primary mb-3">Test Vocacional Pro 30D</h1>
+                    <p class="text-muted">Analizaremos tus aptitudes a través de 30 dimensiones profesionales.</p>
+                    
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small fw-bold">PROGRESO DEL ANÁLISIS</span>
+                            <span id="progress-text" class="fw-800 text-primary small">0%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div id="test-progress-bar" class="progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FORMULARIO DE PREGUNTAS -->
+                <form id="proTestForm" action="{{ url_for('test') }}" method="POST">
+                    <div id="questions-wrapper">
+                        {% for pregunta in preguntas %}
+                        <!-- BLOQUE DE PREGUNTA INDIVIDUAL -->
+                        <div class="question-block mb-5 animate__animated animate__fadeIn" style="display: {% if loop.index <= 5 %}block{% else %}none{% endif %};" data-index="{{ loop.index }}">
+                            <div class="d-flex align-items-center mb-4">
+                                <span class="badge bg-primary me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">{{ loop.index }}</span>
+                                <h5 class="fw-bold mb-0">{{ pregunta.texto_pregunta }}</h5>
+                            </div>
+                            
+                            <!-- OPCIONES DE RESPUESTA -->
+                            <div class="row g-3 ms-4">
+                                <div class="col-md-6">
+                                    <label class="w-100 cursor-pointer">
+                                        <input type="checkbox" name="q_{{ pregunta.id }}" value="{{ pregunta.area_profesional }}" class="btn-check" id="q{{ pregunta.id }}_a1">
+                                        <div class="btn btn-outline-primary w-100 py-3 text-start px-4 rounded-3 border-2 transition hover-lift">
+                                            <i class="bi bi-check2-circle me-2"></i> Me interesa mucho
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="w-100 cursor-pointer">
+                                        <input type="checkbox" name="q_{{ pregunta.id }}" value="{{ pregunta.area_profesional }}" class="btn-check" id="q{{ pregunta.id }}_a2">
+                                        <div class="btn btn-outline-primary w-100 py-3 text-start px-4 rounded-3 border-2 transition hover-lift">
+                                            <i class="bi bi-briefcase me-2"></i> Me veo trabajando en esto
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- NAVEGACIÓN DEL TEST -->
+                    <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                        <button type="button" id="prevBtn" class="btn btn-outline-secondary px-4 rounded-pill fw-bold" style="display: none;">
+                            <i class="bi bi-arrow-left me-2"></i> Anterior
+                        </button>
+                        <div class="ms-auto">
+                            <button type="button" id="nextBtn" class="btn btn-primary px-5 rounded-pill shadow-premium fw-bold">
+                                Siguiente <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                            <button type="submit" id="submitBtn" class="btn btn-success px-5 rounded-pill shadow-premium fw-bold animate__animated animate__pulse animate__infinite" style="display: none;">
+                                Finalizar Análisis <i class="bi bi-stars ms-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LÓGICA DE NAVEGACIÓN (JAVASCRIPT) -->
+<script>
+    let currentStep = 1;
+    const questionsPerStep = 5;
+    const totalQuestions = {{ preguntas|length }};
+    const totalSteps = Math.ceil(totalQuestions / questionsPerStep);
+
+    // Función para actualizar la vista de las preguntas
+    function updateView() {
+        const blocks = document.querySelectorAll('.question-block');
+        blocks.forEach(block => {
+            const idx = parseInt(block.dataset.index);
+            // Mostrar solo las preguntas del paso actual
+            if (idx > (currentStep - 1) * questionsPerStep && idx <= currentStep * questionsPerStep) {
+                block.style.display = 'block';
+                block.classList.add('animate__fadeInUp');
+            } else {
+                block.style.display = 'none';
+                block.classList.remove('animate__fadeInUp');
+            }
+        });
+
+        // Controlar visibilidad de botones
+        document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
+        
+        if (currentStep === totalSteps) {
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('submitBtn').style.display = 'block';
+        } else {
+            document.getElementById('nextBtn').style.display = 'block';
+            document.getElementById('submitBtn').style.display = 'none';
+        }
+
+        // Actualizar barra de progreso
+        const progress = (currentStep / totalSteps) * 100;
+        document.getElementById('test-progress-bar').style.width = progress + '%';
+        document.getElementById('progress-text').innerText = Math.round(progress) + '%';
+        
+        // Volver al inicio de la página suavemente
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Eventos de navegación
+    document.getElementById('nextBtn').addEventListener('click', () => {
+        if (currentStep < totalSteps) {
+            currentStep++;
+            updateView();
+        }
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+        if (currentStep > 1) {
+            currentStep--;
+            updateView();
+        }
+    });
+</script>
+{% endblock %}

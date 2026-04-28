@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{# --- SECCIÓN: HERO (Portada Principal) --- #}
+<section class="hero-section text-center animate__animated animate__fadeIn">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <!-- Título impactante con animación -->
+                <h1 class="display-3 fw-800 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+                    Diseña tu <span class="text-primary">Futuro</span> con precisión.
+                </h1>
+                <!-- Descripción del servicio -->
+                <p class="lead text-muted mb-5 px-lg-5 animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                    Nuestra plataforma utiliza un test profesional de 30 dimensiones para identificar tus talentos y conectarte con las mejores carreras universitarias.
+                </p>
+                <!-- Botones de acción rápida (CTA) -->
+                <div class="d-flex flex-column flex-md-row justify-content-center gap-3 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+                    {% if g.user %}
+                        <a href="{{ url_for('test') }}" class="btn btn-primary btn-lg shadow-premium">Realizar Test Pro</a>
+                        <a href="{{ url_for('carreras') }}" class="btn btn-outline-primary btn-lg border-2">Explorar Carreras</a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg shadow-premium">Realizar Test Pro</a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg border-2">Explorar Carreras</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# --- SECCIÓN: ESTADÍSTICAS (Prueba Social) --- #}
+<section class="py-5 bg-white border-top border-bottom">
+    <div class="container">
+        <div class="row text-center g-4">
+            <!-- Cantidad de usuarios -->
+            <div class="col-md-4 stat-item">
+                <div class="stat-number">+10k</div>
+                <div class="text-muted fw-bold text-uppercase small">Estudiantes Orientados</div>
+            </div>
+            <!-- Porcentaje de efectividad -->
+            <div class="col-md-4 stat-item">
+                <div class="stat-number">98%</div>
+                <div class="text-muted fw-bold text-uppercase small">Precisión en Resultados</div>
+            </div>
+            <!-- Base de datos de carreras -->
+            <div class="col-md-4 stat-item">
+                <div class="stat-number">50+</div>
+                <div class="text-muted fw-bold text-uppercase small">Carreras Mapeadas</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# --- SECCIÓN: HERRAMIENTAS PRINCIPALES (Grid de Funcionalidades) --- #}
+<section class="py-5 my-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-800">Todo lo que necesitas en un solo lugar</h2>
+            <p class="text-muted">Cuatro herramientas poderosas para tu éxito académico</p>
+        </div>
+        <div class="row g-4">
+            <!-- 1. Test Vocacional -->
+            <div class="col-md-6">
+                <div class="glass-card h-100">
+                    <div class="mb-4">
+                        <i class="bi bi-patch-check-fill fs-1 text-primary"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">1. Test Vocacional</h3>
+                    <p class="text-muted mb-4">Un análisis de preguntas que evalúa aptitudes, intereses y personalidad para darte el resultado más preciso.</p>
+                    {% if g.user %}
+                        <a href="{{ url_for('test') }}" class="btn btn-link p-0 text-primary fw-bold text-decoration-none stretched-link">Empezar Test <i class="bi bi-chevron-right ms-1"></i></a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-link p-0 text-primary fw-bold text-decoration-none stretched-link">Empezar Test <i class="bi bi-chevron-right ms-1"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- 2. Buscador de Carreras -->
+            <div class="col-md-6">
+                <div class="glass-card h-100">
+                    <div class="mb-4">
+                        <i class="bi bi-search-heart-fill fs-1 text-secondary"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">2. Buscador Inteligente</h3>
+                    <p class="text-muted mb-4">Explora todas las carreras universitarias con información detallada de cada carrera.</p>
+                    {% if g.user %}
+                        <a href="{{ url_for('carreras') }}" class="btn btn-link p-0 text-secondary fw-bold text-decoration-none stretched-link">Buscar Carreras <i class="bi bi-chevron-right ms-1"></i></a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-link p-0 text-secondary fw-bold text-decoration-none stretched-link">Buscar Carreras <i class="bi bi-chevron-right ms-1"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- 3. Juego Interactivo -->
+            <div class="col-md-6">
+                <div class="glass-card h-100">
+                    <div class="mb-4">
+                        <i class="bi bi-controller fs-1 text-warning"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">3. El Laboratorio (Juego)</h3>
+                    <p class="text-muted mb-4">Descubre tus pasiones ocultas a través de un juego interactivo para descubrir tus intereses y tu carrera ideal.</p>
+                    {% if g.user %}
+                        <a href="{{ url_for('juego') }}" class="btn btn-link p-0 text-warning fw-bold text-decoration-none stretched-link">Jugar Ahora <i class="bi bi-chevron-right ms-1"></i></a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-link p-0 text-warning fw-bold text-decoration-none stretched-link">Jugar Ahora <i class="bi bi-chevron-right ms-1"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- 4. Noticias Estudiantiles -->
+            <div class="col-md-6">
+                <div class="glass-card h-100">
+                    <div class="mb-4">
+                        <i class="bi bi-newspaper fs-1 text-success"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">4. News Center</h3>
+                    <p class="text-muted mb-4">Noticias actualizadas de La Gaceta y Universia sobre fechas de ingreso, becas y tendencias académicas.</p>
+                    {% if g.user %}
+                        <a href="{{ url_for('noticias') }}" class="btn btn-link p-0 text-success fw-bold text-decoration-none stretched-link">Ver Noticias <i class="bi bi-chevron-right ms-1"></i></a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-link p-0 text-success fw-bold text-decoration-none stretched-link">Ver Noticias <i class="bi bi-chevron-right ms-1"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# --- SECCIÓN: PASOS (Guía de Uso) --- #}
+<section class="py-5 bg-primary-light">
+    <div class="container py-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-800">¿Cómo funciona?</h2>
+        </div>
+        <div class="row g-4">
+            <!-- Paso 1 -->
+            <div class="col-md-4">
+                <div class="text-center p-4">
+                    <div class="step-number mx-auto">1</div>
+                    <h5 class="fw-bold">Regístrate</h5>
+                    <p class="text-muted small">Crea tu cuenta gratuita para guardar tu progreso y resultados.</p>
+                </div>
+            </div>
+            <!-- Paso 2 -->
+            <div class="col-md-4">
+                <div class="text-center p-4">
+                    <div class="step-number mx-auto">2</div>
+                    <h5 class="fw-bold">Realiza el Test</h5>
+                    <p class="text-muted small">Contesta las preguntas de forma sincera sobre tus gustos.</p>
+                </div>
+            </div>
+            <!-- Paso 3 -->
+            <div class="col-md-4">
+                <div class="text-center p-4">
+                    <div class="step-number mx-auto">3</div>
+                    <h5 class="fw-bold">Obtén tu Informe</h5>
+                    <p class="text-muted small">Recibe un análisis detallado y sugerencias de carreras.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

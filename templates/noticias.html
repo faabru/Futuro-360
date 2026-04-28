@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- SECCIÓN PRINCIPAL: NOTICIAS Y TENDENCIAS ACADÉMICAS -->
+<div class="container py-5">
+    
+    <!-- ENCABEZADO Y BÚSQUEDA DE NOTICIAS -->
+    <div class="row align-items-center mb-5">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold text-primary mb-3">Noticias & Tendencias 📰</h1>
+            <p class="lead text-muted">Mantente al día con lo que sucede en las facultades y el mundo universitario.</p>
+        </div>
+        <div class="col-lg-6">
+            <div class="input-group input-group-lg shadow-sm">
+                <span class="input-group-text bg-white border-0"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control border-0" placeholder="Buscar noticias de La Gaceta, UNT...">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- FILTROS LATERALES (FECHA Y FUENTES) -->
+        <div class="col-lg-3 mb-4">
+            <div class="section-card p-4 border-0 shadow-sm">
+                <!-- FILTRO POR TEMPORALIDAD -->
+                <h5 class="fw-bold mb-4">Filtrar por Fecha</h5>
+                <div class="list-group list-group-flush">
+                    <button class="list-group-item list-group-item-action border-0 px-0 active rounded-3 mb-2">Hoy</button>
+                    <button class="list-group-item list-group-item-action border-0 px-0 rounded-3 mb-2">Ayer</button>
+                    <button class="list-group-item list-group-item-action border-0 px-0 rounded-3 mb-2">Esta semana</button>
+                    <button class="list-group-item list-group-item-action border-0 px-0 rounded-3 mb-2">Este mes</button>
+                    <button class="list-group-item list-group-item-action border-0 px-0 rounded-3">Este año</button>
+                </div>
+
+                <!-- FILTRO POR FUENTE DE INFORMACIÓN -->
+                <h5 class="fw-bold mt-5 mb-4">Fuentes</h5>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" checked id="f1">
+                    <label class="form-check-label" for="f1">La Gaceta</label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" checked id="f2">
+                    <label class="form-check-label" for="f2">Universia</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" checked id="f3">
+                    <label class="form-check-label" for="f3">Facultades (Oficial)</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- LISTADO DE NOTICIAS (READ) -->
+        <div class="col-lg-9">
+            {% for noticia in noticias %}
+            <div class="card border-0 shadow-sm mb-4 overflow-hidden rounded-4 section-card p-0">
+                <div class="row g-0">
+                    <!-- MINIATURA DE LA NOTICIA -->
+                    <div class="col-md-4">
+                        <img src="https://images.unsplash.com/photo-1523050335102-c32509b45f09?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" class="img-fluid h-100 object-fit-cover" alt="News Image">
+                    </div>
+                    
+                    <!-- CONTENIDO DE LA NOTICIA -->
+                    <div class="col-md-8">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold">{{ noticia.fuente }}</span>
+                                <small class="text-muted">{{ noticia.fecha }}</small>
+                            </div>
+                            <h3 class="fw-bold mb-3 h4">{{ noticia.titulo }}</h3>
+                            <p class="text-muted small mb-4">Descubre las novedades más importantes sobre el ingreso universitario y las tendencias en las facultades más destacadas de la región...</p>
+                            
+                            <!-- BOTÓN DE ACCIÓN: LEER MÁS -->
+                            <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-4">Leer más</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

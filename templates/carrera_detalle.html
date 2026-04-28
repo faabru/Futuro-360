@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- SECCIÓN PRINCIPAL: DETALLE DE CARRERA ESPECÍFICA -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="section-card p-0 overflow-hidden shadow-lg border-0">
+                <div class="row g-0">
+                    <!-- COLUMNA DE IMAGEN -->
+                    <div class="col-md-6">
+                        <img src="https://images.unsplash.com/photo-1541339907198-e08756ebafe3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" class="img-fluid h-100 object-fit-cover" alt="{{ carrera.nombre }}">
+                    </div>
+                    
+                    <!-- COLUMNA DE CONTENIDO -->
+                    <div class="col-md-6 p-5">
+                        <!-- ENCABEZADO Y NAVEGACIÓN -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold">{{ carrera.area_profesional }}</span>
+                            <a href="{{ url_for('carreras') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm">Volver</a>
+                        </div>
+                        
+                        <h1 class="display-5 fw-bold mb-4 text-primary">{{ carrera.nombre }}</h1>
+                        <p class="lead mb-4 text-muted">{{ carrera.descripcion }}</p>
+                        
+                        <!-- PERFIL PROFESIONAL -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-briefcase text-primary me-2"></i> ¿A qué se dedica?</h5>
+                            <p class="text-muted small">Los graduados en esta carrera se encargan de liderar procesos clave en su área, aplicando conocimientos avanzados para resolver problemas complejos en el ámbito profesional...</p>
+                        </div>
+
+                        <!-- DONDE ESTUDIAR (INSTITUCIONES) -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla?</h5>
+                            <ul class="list-unstyled text-muted small">
+                                <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> Universidad Nacional de Tucumán (UNT)</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> Universidad Tecnológica Nacional (UTN)</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> Institutos Superiores de la región</li>
+                            </ul>
+                        </div>
+
+                        <!-- ACCIÓN: SOLICITAR INFO -->
+                        <div class="d-grid">
+                            <button class="btn btn-primary btn-lg shadow-sm">Solicitar más información</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

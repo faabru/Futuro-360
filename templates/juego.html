@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- SECCIÓN PRINCIPAL: MINI-JUEGO DE INTERESES -->
+<div class="container py-5">
+    
+    <!-- ENCABEZADO DEL JUEGO -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-primary">Intereses en Juego 🎮</h1>
+        <p class="lead text-muted">Descubre qué te apasiona a través de situaciones cotidianas.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div id="game-container" class="section-card text-center p-5 shadow-lg border-0">
+                
+                <!-- PANTALLA DE INICIO -->
+                <div id="start-screen">
+                    <div class="display-1 mb-4">🚀</div>
+                    <h3>¿Listo para descubrir tus gustos?</h3>
+                    <p class="mb-4">Te presentaremos varios escenarios. Elige el que más te atraiga sin pensarlo mucho.</p>
+                    <button onclick="startGame()" class="btn btn-primary btn-lg px-5">¡Empezar!</button>
+                </div>
+
+                <!-- PANTALLA DE PREGUNTAS (DINÁMICA) -->
+                <div id="question-screen" style="display: none;">
+                    <h4 id="scenario-text" class="mb-5 fw-bold"></h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <button onclick="choose(0)" id="opt-0" class="btn btn-outline-primary w-100 py-4 h-100"></button>
+                        </div>
+                        <div class="col-md-6">
+                            <button onclick="choose(1)" id="opt-1" class="btn btn-outline-secondary w-100 py-4 h-100"></button>
+                        </div>
+                    </div>
+                    
+                    <!-- BARRA DE PROGRESO DEL JUEGO -->
+                    <div class="mt-5">
+                        <div class="progress">
+                            <div id="game-progress" class="progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANTALLA DE RESULTADOS FINALES -->
+                <div id="result-screen" style="display: none;">
+                    <div class="display-2 mb-4">✨</div>
+                    <h3 class="fw-bold mb-3">¡Descubrimiento completado!</h3>
+                    <p id="game-result-text" class="lead mb-4"></p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{{ url_for('test') }}" class="btn btn-primary">Ir al Test Profesional</a>
+                        <button onclick="location.reload()" class="btn btn-outline-secondary">Jugar de nuevo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LÓGICA DEL JUEGO (JAVASCRIPT) -->
+<script>
+    // Configuración de los escenarios del juego
+    const scenarios = [
+        {
+            text: "Te regalan un kit de herramientas. ¿Qué haces primero?",
+            options: [
+                { text: "Desarmo la radio para ver cómo funciona por dentro", area: "Tecnología" },
+                { text: "Ayudo a un vecino a arreglar su silla rota", area: "Servicio Social" }
+            ]
+        },
+        {
+            text: "Estás en un museo. ¿A qué sala vas?",
+            options: [
+                { text: "Sala de innovaciones científicas y robots", area: "Tecnología" },
+                { text: "Sala de cuadros clásicos y esculturas", area: "Artes" }
+            ]
+        },
+        {
+            text: "Hay un problema en el curso. ¿Cómo actúas?",
+            options: [
+                { text: "Organizo a todos para encontrar una solución justa", area: "Liderazgo" },
+                { text: "Analizo los datos y busco una explicación lógica", area: "Investigación" }
+            ]
+        }
+    ];
+
+    let currentIdx = 0;
+    let scores = {};
+
+    // Iniciar el juego ocultando la pantalla inicial
+    function startGame() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('question-screen').style.display = 'block';
+        showScenario();
+    }
+
+    // Mostrar el escenario actual en pantalla
+    function showScenario() {
+        const scenario = scenarios[currentIdx];
+        document.getElementById('scenario-text').innerText = scenario.text;
+        document.getElementById('opt-0').innerText = scenario.options[0].text;
+        document.getElementById('opt-1').innerText = scenario.options[1].text;
+        document.getElementById('game-progress').style.width = ((currentIdx / scenarios.length) * 100) + '%';
+    }
+
+    // Procesar la elección del usuario
+    function choose(optIdx) {
+        const area = scenarios[currentIdx].options[optIdx].area;
+        scores[area] = (scores[area] || 0) + 1;
+        
+        currentIdx++;
+        if(currentIdx < scenarios.length) {
+            showScenario();
+        } else {
+            showResults();
+        }
+    }
+
+    // Mostrar el resultado final basado en las elecciones
+    function showResults() {
+        document.getElementById('question-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        
+        // Calcular el área predominante
+        let maxArea = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+        document.getElementById('game-result-text').innerText = `Parece que tienes una gran inclinación hacia: ${maxArea}. ¡Sigue explorando!`;
+    }
+</script>
+{% endblock %}
