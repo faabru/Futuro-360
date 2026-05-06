@@ -1,8 +1,10 @@
 # Importación de librerías necesarias para el funcionamiento del servidor web
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g
 import os
+import traceback
 from functools import wraps
 from dotenv import load_dotenv
+import json
 from werkzeug.security import generate_password_hash, check_password_hash
 from database_handler import obtener_db, inicializar_app
 
@@ -207,7 +209,16 @@ def dashboard():
         ORDER BY t.fecha_realizacion DESC
         LIMIT 3
     """, (g.user['id'],))
-    historial = cursor.fetchall()
+    historial_raw = cursor.fetchall()
+    
+    historial = []
+    for item in historial_raw:
+        try:
+            detalle_data = json.loads(item['detalle'])
+            item['detalle_texto'] = detalle_data.get('texto', item['detalle'])
+        except:
+            item['detalle_texto'] = item['detalle']
+        historial.append(item)
     
     return render_template('dashboard.html', historial=historial)
 
@@ -231,34 +242,97 @@ def test():
     cursor = db.cursor(dictionary=True)
 
     if request.method == 'POST':
-        # Captura de respuestas del test
         respuestas = request.form.to_dict()
         puntuacion = {}
 
-        # Contabilizamos las áreas según las respuestas marcadas
         for id_pregunta, area in respuestas.items():
-            puntuacion[area] = puntuacion.get(area, 0) + 1
+            if area and area.strip():
+                puntuacion[area] = puntuacion.get(area, 0) + 1
 
-        # Determinamos el área con mayor puntaje (la sugerida)
-        area_ganadora = max(puntuacion, key=puntuacion.get) if puntuacion else "Indefinido"
+        if not puntuacion:
+            flash('Por favor, respondé al menos una pregunta antes de finalizar.', 'warning')
+            return redirect(url_for('test'))
 
-        # Guardamos el registro del intento del test
-        cursor.execute("INSERT INTO tests (usuario_id) VALUES (%s)", (g.user['id'],))
-        id_test = cursor.lastrowid
+        area_ganadora = max(puntuacion, key=puntuacion.get)
+        puntaje_ganador = puntuacion[area_ganadora]
+        
+        # Mapeo de áreas a IDs de la base de datos real (normalizado)
+        mapeo_areas = {
+            'tecnología': 1, 'ingeniería': 1, 'ciencias exactas': 1,
+            'salud': 2, 'ciencias de la salud': 2,
+            'derecho': 3, 'salud mental': 3, 'ciencias sociales': 3,
+            'arte y diseño': 4,
+            'humanidades': 5, 'comunicación': 5,
+            'ciencias naturales': 6, 'agronomía': 6,
+            'negocios': 7, 'economía y negocios': 7
+        }
+        
+        # Normalizamos la búsqueda (minúsculas y sin espacios extra)
+        area_ganadora_key = area_ganadora.lower().strip()
+        
+        # Corrección de mapeo específica para evitar errores de claves foráneas
+        if 'tecnolog' in area_ganadora_key or 'ingenier' in area_ganadora_key or 'exactas' in area_ganadora_key:
+            area_id = 1
+        elif 'salud' in area_ganadora_key:
+            area_id = 2
+        elif 'social' in area_ganadora_key or 'derecho' in area_ganadora_key or 'psicolog' in area_ganadora_key:
+            area_id = 3
+        elif 'arte' in area_ganadora_key or 'dise' in area_ganadora_key:
+            area_id = 4
+        elif 'humanidades' in area_ganadora_key or 'comunicaci' in area_ganadora_key or 'letras' in area_ganadora_key:
+            area_id = 5
+        elif 'naturales' in area_ganadora_key or 'agronom' in area_ganadora_key or 'biolog' in area_ganadora_key:
+            area_id = 6
+        elif 'negocios' in area_ganadora_key or 'econom' in area_ganadora_key:
+            area_id = 7
+        else:
+            area_id = 1 # Fallback seguro a Ciencias Exactas
 
-        # Guardamos el resultado detallado asociado al test
-        detalle_resultado = f"Según tus respuestas, presentas una fuerte afinidad con el área de {area_ganadora}."
-        cursor.execute("INSERT INTO resultados (test_id, area_profesional_sugerida, detalle) VALUES (%s, %s, %s)",
-                       (id_test, area_ganadora, detalle_resultado))
-        db.commit()
+        texto_detalle = f"Según tus respuestas, presentás una fuerte afinidad con el área de {area_ganadora}. Esta área representa tu mayor puntaje con {puntaje_ganador} respuestas afines."
+        detalle_json = json.dumps({"texto": texto_detalle}, ensure_ascii=False)
 
-        # Redirigimos al usuario a ver su informe recién generado
-        return redirect(url_for('ver_resultado', resultado_id=cursor.lastrowid))
+        try:
+            cursor.execute("INSERT INTO tests (usuario_id, completado) VALUES (%s, %s)", (g.user['id'], 1))
+            id_test = cursor.lastrowid
+            
+            cursor.execute(
+                "INSERT INTO resultados (test_id, area_profesional_sugerida, area_id, puntaje, detalle) VALUES (%s, %s, %s, %s, %s)",
+                (id_test, area_ganadora, area_id, puntaje_ganador, detalle_json)
+            )
+            db.commit()
+            return redirect(url_for('ver_resultado', resultado_id=cursor.lastrowid))
+        except Exception as e:
+            db.rollback()
+            # Log de error detallado
+            print("--- ERROR AL GUARDAR RESULTADO ---")
+            print(f"User ID: {g.user['id']}")
+            print(f"Area Ganadora: '{area_ganadora}' (key: '{area_ganadora_key}')")
+            print(f"Area ID Mapeado: {area_id}")
+            print(f"Detalle JSON: {detalle_json}")
+            traceback.print_exc()
+            flash('Ocurrió un error al guardar tu resultado. Por favor, intenta de nuevo.', 'danger')
+            return redirect(url_for('test'))
 
     # Cargar las preguntas dinámicas desde la base de datos para mostrar el formulario
-    cursor.execute("SELECT * FROM preguntas")
-    preguntas = cursor.fetchall()
-    return render_template('test.html', preguntas=preguntas)
+    cursor.execute("SELECT * FROM preguntas ORDER BY id")
+    preguntas_raw = cursor.fetchall()
+
+    preguntas_con_opciones = []
+    for p in preguntas_raw:
+        cursor.execute(
+            "SELECT texto_opcion, area_profesional FROM opciones_pregunta WHERE pregunta_id = %s",
+            (p['id'],)
+        )
+        opciones = cursor.fetchall()
+        preguntas_con_opciones.append({
+            'id': p['id'],
+            'texto_pregunta': p['texto_pregunta'],
+            'opciones': [{'texto': o['texto_opcion'], 'area': o['area_profesional']} for o in opciones]
+        })
+
+    import json
+    preguntas_json = json.dumps(preguntas_con_opciones, ensure_ascii=False)
+    return render_template('test.html', preguntas=preguntas_raw, preguntas_json=preguntas_json)
 
 # Ruta para ver el detalle de un resultado específico
 @app.route('/resultado/<int:resultado_id>')
@@ -278,6 +352,13 @@ def ver_resultado(resultado_id):
     if not resultado:
         flash('No se pudo encontrar el resultado solicitado.', 'danger')
         return redirect(url_for('mis_resultados'))
+
+    # Procesar el detalle JSON
+    try:
+        detalle_data = json.loads(resultado['detalle'])
+        resultado['detalle_texto'] = detalle_data.get('texto', resultado['detalle'])
+    except:
+        resultado['detalle_texto'] = resultado['detalle']
 
     # Obtenemos carreras sugeridas que pertenezcan al mismo área del resultado
     cursor.execute("SELECT * FROM carreras WHERE area_profesional = %s", (resultado['area_profesional_sugerida'],))
@@ -336,7 +417,7 @@ def eliminar_resultado(resultado_id):
     test = cursor.fetchone()
 
     if test:
-        cursor.execute("DELETE FROM tests WHERE id = %s", (test[0],))
+        cursor.execute("DELETE FROM tests WHERE id = %s", (test['test_id'],))
         db.commit()
         flash('El resultado ha sido eliminado de tu historial.', 'info')
 

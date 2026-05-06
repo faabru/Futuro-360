@@ -80,7 +80,7 @@
                                     <span class="badge bg-primary-light text-primary rounded-pill">{{ test.area_profesional_sugerida }}</span>
                                     <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ test.fecha_realizacion.strftime('%d/%m/%Y') }}</small>
                                 </div>
-                                <p class="text-muted small mb-3 line-clamp-2 mt-2">{{ test.detalle }}</p>
+                                <p class="text-muted small mb-3 line-clamp-2 mt-2">{{ test.detalle_texto }}</p>
                                 <a href="{{ url_for('ver_resultado', resultado_id=test.id) }}" class="btn btn-sm btn-outline-primary mt-auto w-100 rounded-pill">Ver Informe Completo</a>
                             </div>
                         </div>

@@ -97,58 +97,74 @@
     </main>
 
     {# --- COMPONENTE: PIE DE PÁGINA (FOOTER) --- #}
-    <footer>
+    <footer class="footer-modern py-5">
         <div class="container">
             <div class="row g-5">
-                <!-- Información de la marca -->
-                <div class="col-lg-5">
-                    <h4 class="fw-bold mb-4">FUTURO 360</h4>
-                    <p class="text-muted pe-lg-5">Empoderando a la próxima generación de profesionales a través de tecnología, datos y orientación personalizada. Tu futuro empieza con una decisión informada.</p>
-                    <div class="d-flex gap-3 mt-4">
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle"><i class="bi bi-linkedin"></i></a>
-                        <a href="#" class="btn btn-outline-light btn-sm rounded-circle"><i class="bi bi-twitter-x"></i></a>
+                <!-- Información de la marca y Newsletter -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-brand mb-4">
+                        <h3 class="fw-bold text-white"><i class="bi bi-intersect me-2 text-primary"></i>FUTURO 360</h3>
+                    </div>
+                    <p class="text-muted mb-4 pe-lg-4">
+                        La plataforma líder en orientación vocacional impulsada por inteligencia de datos y empatía humana.
+                    </p>
+                    <h6 class="text-white fw-bold mb-3">Suscríbete a novedades</h6>
+                    <div class="input-group mb-4 shadow-sm">
+                        <input type="email" class="form-control bg-dark border-0 text-white" placeholder="Tu email" aria-label="Email">
+                        <button class="btn btn-primary px-3" type="button"><i class="bi bi-send"></i></button>
+                    </div>
+                    <div class="social-links d-flex gap-3">
+                        <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
                     </div>
                 </div>
 
-                <!-- Enlaces de la plataforma -->
-                <div class="col-lg-2 col-6">
-                    <h6 class="fw-bold text-white mb-4">Plataforma</h6>
-                    <ul class="list-unstyled">
-                        <li><a href="{{ url_for('test') }}" class="footer-link">Test Vocacional</a></li>
-                        <li><a href="{{ url_for('carreras') }}" class="footer-link">Guía de Carreras</a></li>
-                        <li><a href="{{ url_for('juego') }}" class="footer-link">Mini Juego</a></li>
-                        <li><a href="{{ url_for('noticias') }}" class="footer-link">Noticias</a></li>
+                <!-- Explorar -->
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="text-white fw-bold mb-4 text-uppercase small ls-2">Explorar</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2"><a href="{{ url_for('test') }}">Test Pro</a></li>
+                        <li class="mb-2"><a href="{{ url_for('carreras') }}">Catálogo</a></li>
+                        <li class="mb-2"><a href="{{ url_for('noticias') }}">Noticias</a></li>
+                        <li class="mb-2"><a href="{{ url_for('juego') }}">Laboratorio</a></li>
                     </ul>
                 </div>
 
-                <!-- Enlaces de comunidad -->
-                <div class="col-lg-2 col-6">
-                    <h6 class="fw-bold text-white mb-4">Comunidad</h6>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="footer-link">Sobre Nosotros</a></li>
-                        <li><a href="#" class="footer-link">Contacto</a></li>
-                        <li><a href="#" class="footer-link">Ayuda</a></li>
-                        <li><a href="#" class="footer-link">Privacidad</a></li>
+                <!-- Soporte -->
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="text-white fw-bold mb-4 text-uppercase small ls-2">Soporte</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2"><a href="#">Sobre Nosotros</a></li>
+                        <li class="mb-2"><a href="#">Preguntas Frecuentes</a></li>
+                        <li class="mb-2"><a href="#">Privacidad</a></li>
+                        <li class="mb-2"><a href="#">Términos</a></li>
                     </ul>
                 </div>
 
-                <!-- Formulario de contacto rápido -->
-                <div class="col-lg-3">
-                    <h6 class="fw-bold text-white mb-4">Consultas & Comentarios</h6>
-                    <p class="text-muted small mb-4">¿Tienes alguna duda o sugerencia? Déjanos tu mensaje aquí.</p>
-                    <form action="{{ url_for('enviar_comentario') }}" method="POST">
-                        <div class="mb-2">
-                            <textarea name="mensaje" class="form-control bg-transparent border-secondary text-white rounded-0 small py-1" rows="2" placeholder="Tu comentario" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-sm w-100 rounded-0 fw-bold">ENVIAR CONSULTA</button>
-                    </form>
+                <!-- Contacto Directo -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="contact-card p-4 rounded-4 bg-dark-subtle border border-secondary border-opacity-25">
+                        <h6 class="text-white fw-bold mb-3">¿Tienes alguna duda?</h6>
+                        <p class="text-muted small mb-4">Envíanos un mensaje directo y nuestro equipo de orientación te responderá en breve.</p>
+                        <form action="{{ url_for('enviar_comentario') }}" method="POST">
+                            <div class="mb-3">
+                                <textarea name="mensaje" class="form-control bg-dark border-0 text-white small" rows="2" placeholder="Tu consulta aquí..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fw-bold">ENVIAR CONSULTA</button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
-            <!-- Copyright -->
-            <div class="text-center pt-5 mt-5 border-top border-secondary">
-                <p class="text-muted small mb-0">&copy; 2026 Futuro 360. Desarrollado para estudiantes de todo el mundo.</p>
+            <!-- Línea final -->
+            <div class="footer-bottom mt-5 pt-4 border-top border-secondary border-opacity-25 d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <p class="text-muted small mb-md-0 mb-3">&copy; 2026 Futuro 360. Todos los derechos reservados.</p>
+                <div class="footer-bottom-links d-flex gap-4">
+                    <span class="text-muted small"><i class="bi bi-geo-alt me-1"></i> Tucumán, Argentina</span>
+                    <span class="text-muted small"><i class="bi bi-envelope me-1"></i> hola@futuro360.com</span>
+                </div>
             </div>
         </div>
     </footer>

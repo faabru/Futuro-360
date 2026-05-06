@@ -1,137 +1,178 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<!-- SECCIÓN PRINCIPAL: TEST VOCACIONAL -->
-<div class="container py-5 animate__animated animate__fadeIn">
+
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="glass-card shadow-lg border-0 p-5">
-                
-                <!-- ENCABEZADO Y PROGRESO -->
-                <div class="text-center mb-5">
-                    <h1 class="fw-800 text-primary mb-3">Test Vocacional Pro 30D</h1>
-                    <p class="text-muted">Analizaremos tus aptitudes a través de 30 dimensiones profesionales.</p>
-                    
-                    <div class="mt-4">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-lg animate__animated animate__fadeIn">
+                <div class="card-body p-5">
+                    <!-- Progreso -->
+                    <div class="mb-5">
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted small fw-bold">PROGRESO DEL ANÁLISIS</span>
-                            <span id="progress-text" class="fw-800 text-primary small">0%</span>
+                            <span class="text-muted small fw-bold" id="progress-text">Pregunta 1 de ...</span>
+                            <span class="text-primary small fw-bold" id="progress-percent">0%</span>
                         </div>
-                        <div class="progress" style="height: 8px;">
-                            <div id="test-progress-bar" class="progress-bar" style="width: 0%"></div>
+                        <div class="progress" style="height: 8px; border-radius: 10px;">
+                            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%"></div>
                         </div>
+                    </div>
+
+                    <!-- Contenedor de Pregunta -->
+                    <div id="test-content">
+                        <h2 class="fw-bold mb-4" id="question-text">Cargando pregunta...</h2>
+                        <div id="options-container" class="d-grid gap-3">
+                            <!-- Las opciones se cargarán aquí -->
+                        </div>
+                    </div>
+
+                    <!-- Botón de Confirmar -->
+                    <div class="mt-5 text-end">
+                        <button id="next-btn" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm fw-bold" disabled>
+                            Confirmar <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
                     </div>
                 </div>
-
-                <!-- FORMULARIO DE PREGUNTAS -->
-                <form id="proTestForm" action="{{ url_for('test') }}" method="POST">
-                    <div id="questions-wrapper">
-                        {% for pregunta in preguntas %}
-                        <!-- BLOQUE DE PREGUNTA INDIVIDUAL -->
-                        <div class="question-block mb-5 animate__animated animate__fadeIn" style="display: {% if loop.index <= 5 %}block{% else %}none{% endif %};" data-index="{{ loop.index }}">
-                            <div class="d-flex align-items-center mb-4">
-                                <span class="badge bg-primary me-3 rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px;">{{ loop.index }}</span>
-                                <h5 class="fw-bold mb-0">{{ pregunta.texto_pregunta }}</h5>
-                            </div>
-                            
-                            <!-- OPCIONES DE RESPUESTA -->
-                            <div class="row g-3 ms-4">
-                                <div class="col-md-6">
-                                    <label class="w-100 cursor-pointer">
-                                        <input type="checkbox" name="q_{{ pregunta.id }}" value="{{ pregunta.area_profesional }}" class="btn-check" id="q{{ pregunta.id }}_a1">
-                                        <div class="btn btn-outline-primary w-100 py-3 text-start px-4 rounded-3 border-2 transition hover-lift">
-                                            <i class="bi bi-check2-circle me-2"></i> Me interesa mucho
-                                        </div>
-                                    </label>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="w-100 cursor-pointer">
-                                        <input type="checkbox" name="q_{{ pregunta.id }}" value="{{ pregunta.area_profesional }}" class="btn-check" id="q{{ pregunta.id }}_a2">
-                                        <div class="btn btn-outline-primary w-100 py-3 text-start px-4 rounded-3 border-2 transition hover-lift">
-                                            <i class="bi bi-briefcase me-2"></i> Me veo trabajando en esto
-                                        </div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    <!-- NAVEGACIÓN DEL TEST -->
-                    <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
-                        <button type="button" id="prevBtn" class="btn btn-outline-secondary px-4 rounded-pill fw-bold" style="display: none;">
-                            <i class="bi bi-arrow-left me-2"></i> Anterior
-                        </button>
-                        <div class="ms-auto">
-                            <button type="button" id="nextBtn" class="btn btn-primary px-5 rounded-pill shadow-premium fw-bold">
-                                Siguiente <i class="bi bi-arrow-right ms-2"></i>
-                            </button>
-                            <button type="submit" id="submitBtn" class="btn btn-success px-5 rounded-pill shadow-premium fw-bold animate__animated animate__pulse animate__infinite" style="display: none;">
-                                Finalizar Análisis <i class="bi bi-stars ms-2"></i>
-                            </button>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
 </div>
 
-<!-- LÓGICA DE NAVEGACIÓN (JAVASCRIPT) -->
+<!-- Formulario oculto para el envío final -->
+<form id="final-form" action="{{ url_for('test') }}" method="POST" style="display: none;">
+</form>
+
+<style>
+    .option-btn { 
+        border: 2px solid #f0f0f0 !important; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        background-color: white;
+        color: #333;
+    }
+    .option-btn:hover { 
+        background-color: #f8f9fa; 
+        border-color: #dee2e6 !important;
+        transform: translateY(-2px); 
+    }
+    .option-btn.active { 
+        background-color: #f0f7ff; 
+        border-color: #0d6efd !important; 
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    }
+    .option-circle { 
+        width: 22px; 
+        height: 22px; 
+        border: 2px solid #dee2e6; 
+        border-radius: 50%; 
+        background: white; 
+        flex-shrink: 0; 
+        transition: all 0.2s ease;
+    }
+    .option-btn.active .option-circle { 
+        border-color: #0d6efd; 
+        background: radial-gradient(#0d6efd 50%, white 52%); 
+    }
+    #question-text {
+        color: #2d3436;
+        line-height: 1.4;
+    }
+</style>
+
 <script>
-    let currentStep = 1;
-    const questionsPerStep = 5;
-    const totalQuestions = {{ preguntas|length }};
-    const totalSteps = Math.ceil(totalQuestions / questionsPerStep);
+    // Inyectamos el JSON de las preguntas
+    const preguntas = {{ preguntas_json | safe }};
+    let currentStep = 0;
+    const answers = {};
 
-    // Función para actualizar la vista de las preguntas
-    function updateView() {
-        const blocks = document.querySelectorAll('.question-block');
-        blocks.forEach(block => {
-            const idx = parseInt(block.dataset.index);
-            // Mostrar solo las preguntas del paso actual
-            if (idx > (currentStep - 1) * questionsPerStep && idx <= currentStep * questionsPerStep) {
-                block.style.display = 'block';
-                block.classList.add('animate__fadeInUp');
-            } else {
-                block.style.display = 'none';
-                block.classList.remove('animate__fadeInUp');
-            }
-        });
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const nextBtn = document.getElementById('next-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const progressPercent = document.getElementById('progress-percent');
+    const finalForm = document.getElementById('final-form');
 
-        // Controlar visibilidad de botones
-        document.getElementById('prevBtn').style.display = currentStep > 1 ? 'block' : 'none';
-        
-        if (currentStep === totalSteps) {
-            document.getElementById('nextBtn').style.display = 'none';
-            document.getElementById('submitBtn').style.display = 'block';
-        } else {
-            document.getElementById('nextBtn').style.display = 'block';
-            document.getElementById('submitBtn').style.display = 'none';
+    function loadQuestion() {
+        if (currentStep >= preguntas.length) {
+            submitTest();
+            return;
         }
 
-        // Actualizar barra de progreso
-        const progress = (currentStep / totalSteps) * 100;
-        document.getElementById('test-progress-bar').style.width = progress + '%';
-        document.getElementById('progress-text').innerText = Math.round(progress) + '%';
+        const q = preguntas[currentStep];
         
-        // Volver al inicio de la página suavemente
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Animación de salida y entrada
+        const testContent = document.getElementById('test-content');
+        testContent.classList.remove('animate__fadeInUp');
+        testContent.classList.add('animate__fadeOutDown');
+
+        setTimeout(() => {
+            questionText.innerText = q.texto_pregunta;
+            optionsContainer.innerHTML = '';
+            nextBtn.disabled = true;
+
+            // Actualizar progreso
+            const percent = Math.round((currentStep / preguntas.length) * 100);
+            progressBar.style.width = `${percent}%`;
+            progressText.innerText = `Pregunta ${currentStep + 1} de ${preguntas.length}`;
+            progressPercent.innerText = `${percent}%`;
+
+            q.opciones.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn option-btn text-start p-3 rounded-3 animate__animated animate__fadeInUp';
+                btn.style.animationDelay = `${index * 0.1}s`;
+                btn.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <div class="option-circle me-3"></div>
+                        <span class="fw-medium">${opt.texto}</span>
+                    </div>
+                `;
+                
+                btn.onclick = () => {
+                    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    answers[q.id] = opt.area;
+                    nextBtn.disabled = false;
+                };
+                
+                optionsContainer.appendChild(btn);
+            });
+
+            testContent.classList.remove('animate__fadeOutDown');
+            testContent.classList.add('animate__fadeInUp');
+        }, 300);
     }
 
-    // Eventos de navegación
-    document.getElementById('nextBtn').addEventListener('click', () => {
-        if (currentStep < totalSteps) {
-            currentStep++;
-            updateView();
-        }
-    });
+    nextBtn.onclick = () => {
+        currentStep++;
+        loadQuestion();
+    };
 
-    document.getElementById('prevBtn').addEventListener('click', () => {
-        if (currentStep > 1) {
-            currentStep--;
-            updateView();
+    function submitTest() {
+        // Mostrar estado de carga final
+        document.getElementById('test-content').innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status"></div>
+                <h4 class="fw-bold">Procesando tus resultados...</h4>
+            </div>
+        `;
+        nextBtn.style.display = 'none';
+
+        // Crear inputs ocultos en el form final
+        for (const [id, area] of Object.entries(answers)) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = id;
+            input.value = area;
+            finalForm.appendChild(input);
         }
-    });
+        
+        setTimeout(() => {
+            finalForm.submit();
+        }, 1000);
+    }
+
+    // Inicializar el test
+    loadQuestion();
 </script>
+
 {% endblock %}
