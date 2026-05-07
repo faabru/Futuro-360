@@ -20,11 +20,9 @@
                 
                 <!-- CAMPO: CONTRASEÑA -->
                 <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <label for="password" class="form-label small fw-800 text-uppercase text-muted">Contraseña</label>
-                        <a href="{{ url_for('recuperar_password') }}" class="small text-decoration-none mb-2">¿Olvidaste tu contraseña?</a>
-                    </div>
+                    <label for="password" class="form-label small fw-800 text-uppercase text-muted">Contraseña</label>
                     <input type="password" class="form-control" id="password" name="password" required placeholder="********">
+                    <a href="{{ url_for('recuperar_password') }}" class="small text-decoration-none d-block mt-2">¿Olvidaste tu contraseña?</a>
                 </div>
                 
                 <!-- BOTÓN DE ACCIÓN: INGRESAR -->

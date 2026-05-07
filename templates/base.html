@@ -97,74 +97,80 @@
     </main>
 
     {# --- COMPONENTE: PIE DE PÁGINA (FOOTER) --- #}
-    <footer class="footer-modern py-5">
+    <footer class="footer-modern py-5 mt-5">
         <div class="container">
-            <div class="row g-5">
-                <!-- Información de la marca y Newsletter -->
-                <div class="col-lg-4 col-md-6">
+            <!-- Sección Superior del Footer con 5 columnas -->
+            <div class="row g-5 mb-5">
+                <!-- Columna 1: Logo y Suscripción -->
+                <div class="col-lg-2">
                     <div class="footer-brand mb-4">
-                        <h3 class="fw-bold text-white"><i class="bi bi-intersect me-2 text-primary"></i>FUTURO 360</h3>
+                        <h4 class="fw-bold text-white mb-1">Futuro 360</h4>
+                        <p class="text-muted small mb-4">Tu camino hacia el futuro</p>
                     </div>
-                    <p class="text-muted mb-4 pe-lg-4">
-                        La plataforma líder en orientación vocacional impulsada por inteligencia de datos y empatía humana.
-                    </p>
-                    <h6 class="text-white fw-bold mb-3">Suscríbete a novedades</h6>
-                    <div class="input-group mb-4 shadow-sm">
-                        <input type="email" class="form-control bg-dark border-0 text-white" placeholder="Tu email" aria-label="Email">
-                        <button class="btn btn-primary px-3" type="button"><i class="bi bi-send"></i></button>
+                    <h6 class="text-white fw-bold mb-3" style="font-size: 0.95rem;">Suscríbete Ahora</h6>
+                    <div class="input-group mb-4">
+                        <input type="email" class="form-control form-control-sm bg-white border-0" placeholder="Tu email" aria-label="Email">
+                        <button class="btn btn-dark btn-sm px-3" type="button"><i class="bi bi-envelope"></i></button>
                     </div>
-                    <div class="social-links d-flex gap-3">
-                        <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
-                        <a href="#" class="social-icon"><i class="bi bi-twitter-x"></i></a>
-                        <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
-                    </div>
+                    <button class="btn btn-dark btn-sm fw-bold w-100">Suscribir</button>
                 </div>
 
-                <!-- Explorar -->
-                <div class="col-lg-2 col-md-6 col-6">
-                    <h6 class="text-white fw-bold mb-4 text-uppercase small ls-2">Explorar</h6>
-                    <ul class="list-unstyled footer-links">
-                        <li class="mb-2"><a href="{{ url_for('test') }}">Test Pro</a></li>
-                        <li class="mb-2"><a href="{{ url_for('carreras') }}">Catálogo</a></li>
-                        <li class="mb-2"><a href="{{ url_for('noticias') }}">Noticias</a></li>
-                        <li class="mb-2"><a href="{{ url_for('juego') }}">Laboratorio</a></li>
-                    </ul>
-                </div>
-
-                <!-- Soporte -->
-                <div class="col-lg-2 col-md-6 col-6">
-                    <h6 class="text-white fw-bold mb-4 text-uppercase small ls-2">Soporte</h6>
+                <!-- Columna 2: Information -->
+                <div class="col-lg-2">
+                    <h6 class="text-dark fw-bold mb-4" style="font-size: 0.95rem;">Información</h6>
                     <ul class="list-unstyled footer-links">
                         <li class="mb-2"><a href="#">Sobre Nosotros</a></li>
-                        <li class="mb-2"><a href="#">Preguntas Frecuentes</a></li>
-                        <li class="mb-2"><a href="#">Privacidad</a></li>
-                        <li class="mb-2"><a href="#">Términos</a></li>
+                        <li class="mb-2"><a href="#">Más Búsqueda</a></li>
+                        <li class="mb-2"><a href="{{ url_for('noticias') }}">Blog</a></li>
+                        <li class="mb-2"><a href="#">Testimonios</a></li>
+                        <li class="mb-2"><a href="#">Eventos</a></li>
                     </ul>
                 </div>
 
-                <!-- Contacto Directo -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="contact-card p-4 rounded-4 bg-dark-subtle border border-secondary border-opacity-25">
-                        <h6 class="text-white fw-bold mb-3">¿Tienes alguna duda?</h6>
-                        <p class="text-muted small mb-4">Envíanos un mensaje directo y nuestro equipo de orientación te responderá en breve.</p>
-                        <form action="{{ url_for('enviar_comentario') }}" method="POST">
-                            <div class="mb-3">
-                                <textarea name="mensaje" class="form-control bg-dark border-0 text-white small" rows="2" placeholder="Tu consulta aquí..." required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-sm w-100 py-2 fw-bold">ENVIAR CONSULTA</button>
-                        </form>
+                <!-- Columna 3: Helpful Links -->
+                <div class="col-lg-2">
+                    <h6 class="text-dark fw-bold mb-4" style="font-size: 0.95rem;">Enlaces Útiles</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2"><a href="{{ url_for('test') }}">Servicios</a></li>
+                        <li class="mb-2"><a href="#">Soporte</a></li>
+                        <li class="mb-2"><a href="#">Términos y Condiciones</a></li>
+                        <li class="mb-2"><a href="#">Política de Privacidad</a></li>
+                    </ul>
+                </div>
+
+                <!-- Columna 4: Our Services -->
+                <div class="col-lg-2">
+                    <h6 class="text-dark fw-bold mb-4" style="font-size: 0.95rem;">Nuestros Servicios</h6>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2"><a href="{{ url_for('carreras') }}">Catálogo de Carreras</a></li>
+                        <li class="mb-2"><a href="{{ url_for('test') }}">Test Pro</a></li>
+                        <li class="mb-2"><a href="{{ url_for('juego') }}">Laboratorio</a></li>
+                        <li class="mb-2"><a href="#">Recursos</a></li>
+                    </ul>
+                </div>
+
+                <!-- Columna 5: Contact Us -->
+                <div class="col-lg-2">
+                    <h6 class="text-dark fw-bold mb-4" style="font-size: 0.95rem;">Contáctanos</h6>
+                    <div class="mb-3">
+                        <p class="text-muted small mb-2"><i class="bi bi-telephone me-2"></i>+54 9999 999 999</p>
+                        <p class="text-muted small mb-3"><i class="bi bi-envelope me-2"></i>hola@futuro360.com</p>
+                    </div>
+                    <div class="social-links d-flex gap-2">
+                        <a href="#" class="social-icon-footer"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-icon-footer"><i class="bi bi-google"></i></a>
+                        <a href="#" class="social-icon-footer"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-icon-footer"><i class="bi bi-instagram"></i></a>
                     </div>
                 </div>
             </div>
 
-            <!-- Línea final -->
-            <div class="footer-bottom mt-5 pt-4 border-top border-secondary border-opacity-25 d-flex flex-column flex-md-row justify-content-between align-items-center">
-                <p class="text-muted small mb-md-0 mb-3">&copy; 2026 Futuro 360. Todos los derechos reservados.</p>
-                <div class="footer-bottom-links d-flex gap-4">
-                    <span class="text-muted small"><i class="bi bi-geo-alt me-1"></i> Tucumán, Argentina</span>
-                    <span class="text-muted small"><i class="bi bi-envelope me-1"></i> hola@futuro360.com</span>
-                </div>
+            <!-- Línea divisoria -->
+            <hr class="my-4" style="border-color: rgba(0,0,0,0.1);">
+
+            <!-- Pie de página final -->
+            <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center text-center text-md-start">
+                <p class="text-muted small mb-2 mb-md-0">&copy; 2026 Futuro 360. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>

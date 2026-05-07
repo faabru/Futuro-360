@@ -1,10 +1,10 @@
 # Importación de librerías necesarias para el funcionamiento del servidor web
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g
+import json
 import os
 import traceback
 from functools import wraps
 from dotenv import load_dotenv
-import json
 from werkzeug.security import generate_password_hash, check_password_hash
 from database_handler import obtener_db, inicializar_app
 
@@ -61,12 +61,10 @@ def requiere_admin(f):
 @app.route('/registro', methods=['GET', 'POST'])
 def registro():
     if request.method == 'POST':
-        # Captura de datos del formulario
         nombre = request.form['nombre']
         email = request.form['email']
         password_raw = request.form['password']
 
-        # Validación: longitud de contraseña (M1)
         if len(password_raw) < 8:
             flash('La contraseña debe tener al menos 8 caracteres.', 'danger')
             return render_template('registro.html')
@@ -74,22 +72,18 @@ def registro():
         db = obtener_db()
         cursor = db.cursor(dictionary=True)
         
-        # Validación: email ya registrado (M1)
         cursor.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
         if cursor.fetchone():
             flash('El correo electrónico ya se encuentra registrado.', 'warning')
             return render_template('registro.html')
 
-        # Encriptación de la contraseña por seguridad
         password = generate_password_hash(password_raw)
 
         try:
-            # Inserción del nuevo usuario en la base de datos
             cursor.execute("INSERT INTO usuarios (nombre, email, password) VALUES (%s, %s, %s)",
                            (nombre, email, password))
             db.commit()
             
-            # Iniciar sesión automáticamente después de un registro exitoso
             cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
             usuario = cursor.fetchone()
             session.clear()
@@ -98,7 +92,6 @@ def registro():
             flash('¡Registro exitoso! Bienvenido a Futuro 360.', 'success')
             return redirect(url_for('dashboard'))
         except Exception as e:
-            # Manejo de errores
             flash(f'Error al registrar el usuario: {e}', 'danger')
 
     return render_template('registro.html')
@@ -115,7 +108,6 @@ def login():
         cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
         usuario = cursor.fetchone()
 
-        # Verificación de que el usuario existe y la contraseña es correcta
         if usuario and check_password_hash(usuario['password'], password):
             session.clear()
             session['user_id'] = usuario['id']
@@ -144,7 +136,6 @@ def recuperar_password():
         cursor.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
         usuario = cursor.fetchone()
         
-        # Siempre mostramos el mismo mensaje por seguridad
         flash('Si el correo está registrado, recibirás las instrucciones en breve.', 'info')
         return redirect(url_for('login'))
         
@@ -152,7 +143,6 @@ def recuperar_password():
 
 # --- SECCIÓN: GESTIÓN DE PERFIL (R, U, D de CRUD) ---
 
-# Ruta para ver y actualizar el perfil del usuario
 @app.route('/perfil', methods=['GET', 'POST'])
 @requiere_login
 def perfil():
@@ -162,7 +152,6 @@ def perfil():
 
         db = obtener_db()
         cursor = db.cursor()
-        # Actualización de datos del usuario
         cursor.execute("UPDATE usuarios SET nombre = %s, email = %s WHERE id = %s",
                        (nombre, email, g.user['id']))
         db.commit()
@@ -171,13 +160,11 @@ def perfil():
 
     return render_template('perfil.html', user=g.user)
 
-# Ruta para eliminar la cuenta del usuario (Baja de CRUD)
 @app.route('/perfil/eliminar', methods=['POST'])
 @requiere_login
 def eliminar_usuario():
     db = obtener_db()
     cursor = db.cursor()
-    # Eliminación física del registro del usuario
     cursor.execute("DELETE FROM usuarios WHERE id = %s", (g.user['id'],))
     db.commit()
     session.clear()
@@ -186,23 +173,20 @@ def eliminar_usuario():
 
 # --- SECCIÓN: RUTAS DE LA PÁGINA ---
 
-# Página de inicio (Home)
 @app.route('/')
 def index():
-    # Si el usuario ya está logueado, lo enviamos directo al panel de control
     if g.user:
         return redirect(url_for('dashboard'))
     return render_template('index.html')
 
-# Panel de Control (Dashboard) del usuario
 @app.route('/dashboard')
 @requiere_login
 def dashboard():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
-    # Obtenemos los últimos 3 resultados del test para mostrar en el panel
     cursor.execute("""
-        SELECT r.id, r.area_profesional_sugerida, t.fecha_realizacion, r.detalle
+        SELECT r.id, r.area_profesional_sugerida, t.fecha_realizacion,
+               LEFT(r.detalle, 120) as detalle
         FROM resultados r
         JOIN tests t ON r.test_id = t.id
         WHERE t.usuario_id = %s
@@ -222,7 +206,6 @@ def dashboard():
     
     return render_template('dashboard.html', historial=historial)
 
-# Listado de todas las carreras disponibles
 @app.route('/carreras')
 @requiere_login
 def carreras():
@@ -234,7 +217,6 @@ def carreras():
 
 # --- SECCIÓN: TEST VOCACIONAL (CRUD de Resultados) ---
 
-# Ruta para realizar el test vocacional
 @app.route('/test', methods=['GET', 'POST'])
 @requiere_login
 def test():
@@ -242,78 +224,94 @@ def test():
     cursor = db.cursor(dictionary=True)
 
     if request.method == 'POST':
-        respuestas = request.form.to_dict()
+        # Recolectar respuestas — soporta múltiples selecciones por pregunta
         puntuacion = {}
+        for key in request.form.keys():
+            if key.startswith('q_') or key.isdigit():
+                areas = request.form.getlist(key)
+                for area in areas:
+                    if area and area.strip():
+                        puntuacion[area.strip()] = puntuacion.get(area.strip(), 0) + 1
 
-        for id_pregunta, area in respuestas.items():
-            if area and area.strip():
-                puntuacion[area] = puntuacion.get(area, 0) + 1
-
+        # Validar que el usuario respondió algo
         if not puntuacion:
             flash('Por favor, respondé al menos una pregunta antes de finalizar.', 'warning')
             return redirect(url_for('test'))
 
+        # Calcular área ganadora
         area_ganadora = max(puntuacion, key=puntuacion.get)
         puntaje_ganador = puntuacion[area_ganadora]
-        
-        # Mapeo de áreas a IDs de la base de datos real (normalizado)
-        mapeo_areas = {
-            'tecnología': 1, 'ingeniería': 1, 'ciencias exactas': 1,
-            'salud': 2, 'ciencias de la salud': 2,
-            'derecho': 3, 'salud mental': 3, 'ciencias sociales': 3,
-            'arte y diseño': 4,
-            'humanidades': 5, 'comunicación': 5,
-            'ciencias naturales': 6, 'agronomía': 6,
-            'negocios': 7, 'economía y negocios': 7
-        }
-        
-        # Normalizamos la búsqueda (minúsculas y sin espacios extra)
+
+        # Construir detalle descriptivo como JSON válido (requerido por la BD)
+        resumen = ', '.join([
+            f"{a}: {p} pts"
+            for a, p in sorted(puntuacion.items(), key=lambda x: x[1], reverse=True)
+        ])
+        detalle_resultado_texto = (
+            f"Tu área de mayor afinidad es {area_ganadora} con {puntaje_ganador} respuestas. "
+            f"Desglose: {resumen}."
+        )
+        # El campo detalle tiene CHECK(json_valid) en la BD — siempre guardamos JSON
+        detalle_resultado_json = json.dumps({"texto": detalle_resultado_texto}, ensure_ascii=False)
+
+        # Mapeo de área ganadora a area_id (FK requerida por la BD)
         area_ganadora_key = area_ganadora.lower().strip()
-        
-        # Corrección de mapeo específica para evitar errores de claves foráneas
-        if 'tecnolog' in area_ganadora_key or 'ingenier' in area_ganadora_key or 'exactas' in area_ganadora_key:
+        area_id = 1  # Fallback seguro
+        if 'tecnolog' in area_ganadora_key or 'ingenier' in area_ganadora_key:
             area_id = 1
         elif 'salud' in area_ganadora_key:
             area_id = 2
-        elif 'social' in area_ganadora_key or 'derecho' in area_ganadora_key or 'psicolog' in area_ganadora_key:
+        elif 'derecho' in area_ganadora_key or 'social' in area_ganadora_key:
             area_id = 3
         elif 'arte' in area_ganadora_key or 'dise' in area_ganadora_key:
             area_id = 4
-        elif 'humanidades' in area_ganadora_key or 'comunicaci' in area_ganadora_key or 'letras' in area_ganadora_key:
+        elif 'humanidades' in area_ganadora_key or 'comunicaci' in area_ganadora_key:
             area_id = 5
-        elif 'naturales' in area_ganadora_key or 'agronom' in area_ganadora_key or 'biolog' in area_ganadora_key:
+        elif 'naturales' in area_ganadora_key or 'agronom' in area_ganadora_key:
             area_id = 6
         elif 'negocios' in area_ganadora_key or 'econom' in area_ganadora_key:
             area_id = 7
-        else:
-            area_id = 1 # Fallback seguro a Ciencias Exactas
-
-        texto_detalle = f"Según tus respuestas, presentás una fuerte afinidad con el área de {area_ganadora}. Esta área representa tu mayor puntaje con {puntaje_ganador} respuestas afines."
-        detalle_json = json.dumps({"texto": texto_detalle}, ensure_ascii=False)
 
         try:
-            cursor.execute("INSERT INTO tests (usuario_id, completado) VALUES (%s, %s)", (g.user['id'], 1))
-            id_test = cursor.lastrowid
-            
+            # Insertar el test
             cursor.execute(
-                "INSERT INTO resultados (test_id, area_profesional_sugerida, area_id, puntaje, detalle) VALUES (%s, %s, %s, %s, %s)",
-                (id_test, area_ganadora, area_id, puntaje_ganador, detalle_json)
+                "INSERT INTO tests (usuario_id, completado) VALUES (%s, %s)",
+                (g.user['id'], 1)
             )
+            id_test = cursor.lastrowid
+
+            # Intento A: con todos los campos
+            resultado_id = None
+            try:
+                cursor.execute(
+                    """INSERT INTO resultados
+                       (test_id, area_profesional_sugerida, area_id, puntaje, detalle)
+                       VALUES (%s, %s, %s, %s, %s)""",
+                    (id_test, area_ganadora, area_id, puntaje_ganador, detalle_resultado_json)
+                )
+                resultado_id = cursor.lastrowid
+            except Exception as e1:
+                # Intento B: sin puntaje como fallback
+                cursor.execute(
+                    """INSERT INTO resultados
+                       (test_id, area_profesional_sugerida, area_id, detalle)
+                       VALUES (%s, %s, %s, %s)""",
+                    (id_test, area_ganadora, area_id, detalle_resultado_json)
+                )
+                resultado_id = cursor.lastrowid
+
             db.commit()
-            return redirect(url_for('ver_resultado', resultado_id=cursor.lastrowid))
+            flash(f'¡Test completado! Tu área principal es: {area_ganadora}.', 'success')
+            return redirect(url_for('ver_resultado', resultado_id=resultado_id))
+
         except Exception as e:
-            db.rollback()
-            # Log de error detallado
-            print("--- ERROR AL GUARDAR RESULTADO ---")
-            print(f"User ID: {g.user['id']}")
-            print(f"Area Ganadora: '{area_ganadora}' (key: '{area_ganadora_key}')")
-            print(f"Area ID Mapeado: {area_id}")
-            print(f"Detalle JSON: {detalle_json}")
             traceback.print_exc()
-            flash('Ocurrió un error al guardar tu resultado. Por favor, intenta de nuevo.', 'danger')
+            db.rollback()
+            flash(f'Error al guardar: {str(e)}', 'danger')
             return redirect(url_for('test'))
 
-    # Cargar las preguntas dinámicas desde la base de datos para mostrar el formulario
+    # GET: cargar preguntas con sus opciones
+    # NOTA: json ya está importado al inicio del archivo — NO repetir import aquí
     cursor.execute("SELECT * FROM preguntas ORDER BY id")
     preguntas_raw = cursor.fetchall()
 
@@ -330,7 +328,6 @@ def test():
             'opciones': [{'texto': o['texto_opcion'], 'area': o['area_profesional']} for o in opciones]
         })
 
-    import json
     preguntas_json = json.dumps(preguntas_con_opciones, ensure_ascii=False)
     return render_template('test.html', preguntas=preguntas_raw, preguntas_json=preguntas_json)
 
@@ -340,7 +337,6 @@ def test():
 def ver_resultado(resultado_id):
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
-    # Consulta que une el resultado con la fecha del test
     cursor.execute("""
         SELECT r.*, t.fecha_realizacion
         FROM resultados r
@@ -353,16 +349,32 @@ def ver_resultado(resultado_id):
         flash('No se pudo encontrar el resultado solicitado.', 'danger')
         return redirect(url_for('mis_resultados'))
 
-    # Procesar el detalle JSON
+    # Procesar el detalle JSON para mostrarlo como texto legible
     try:
         detalle_data = json.loads(resultado['detalle'])
         resultado['detalle_texto'] = detalle_data.get('texto', resultado['detalle'])
     except:
         resultado['detalle_texto'] = resultado['detalle']
 
-    # Obtenemos carreras sugeridas que pertenezcan al mismo área del resultado
-    cursor.execute("SELECT * FROM carreras WHERE area_profesional = %s", (resultado['area_profesional_sugerida'],))
+    # Buscar carreras sugeridas — búsqueda flexible en 3 niveles
+    area = resultado['area_profesional_sugerida']
+    
+    cursor.execute(
+        "SELECT * FROM carreras WHERE area_profesional = %s LIMIT 6",
+        (area,)
+    )
     carreras_sugeridas = cursor.fetchall()
+    
+    if not carreras_sugeridas:
+        cursor.execute(
+            "SELECT * FROM carreras WHERE area_profesional LIKE %s LIMIT 6",
+            (f"%{area}%",)
+        )
+        carreras_sugeridas = cursor.fetchall()
+    
+    if not carreras_sugeridas:
+        cursor.execute("SELECT * FROM carreras LIMIT 6")
+        carreras_sugeridas = cursor.fetchall()
 
     return render_template('resultado_detalle.html', resultado=resultado, carreras=carreras_sugeridas)
 
@@ -373,14 +385,14 @@ def mis_resultados():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
     cursor.execute("""
-        SELECT r.id, r.area_profesional_sugerida, t.fecha_realizacion
+        SELECT r.id, r.area_profesional_sugerida, t.fecha_realizacion,
+               LEFT(r.detalle, 80) as detalle
         FROM resultados r
         JOIN tests t ON r.test_id = t.id
         WHERE t.usuario_id = %s
         ORDER BY t.fecha_realizacion DESC
     """, (g.user['id'],))
     resultados = cursor.fetchall()
-
     return render_template('mis_resultados.html', resultados=resultados)
 
 # Actualizar notas personales en un resultado (U de CRUD)
@@ -391,7 +403,6 @@ def actualizar_resultado(resultado_id):
 
     db = obtener_db()
     cursor = db.cursor()
-    # Actualizamos el campo de notas personales en la tabla resultados
     cursor.execute("""
         UPDATE resultados r
         JOIN tests t ON r.test_id = t.id
@@ -408,7 +419,6 @@ def actualizar_resultado(resultado_id):
 def eliminar_resultado(resultado_id):
     db = obtener_db()
     cursor = db.cursor()
-    # Al eliminar el test, se elimina el resultado automáticamente por el CASCADE en la BD
     cursor.execute("""
         SELECT test_id FROM resultados r
         JOIN tests t ON r.test_id = t.id
@@ -425,25 +435,33 @@ def eliminar_resultado(resultado_id):
 
 # --- SECCIÓN: HERRAMIENTAS ADICIONALES ---
 
-# Ruta para el mini-juego interactivo
 @app.route('/juego')
 @requiere_login
 def juego():
-    return render_template('juego.html')
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM carreras")
+    carreras_list = cursor.fetchall()
+    carreras_json = json.dumps(carreras_list, ensure_ascii=False)
+    return render_template('juego.html', carreras_json=carreras_json)
 
-# Ruta para el centro de noticias y tendencias
 @app.route('/noticias')
 @requiere_login
 def noticias():
-    # Datos simulados de noticias académicas
     items_noticias = [
-        {"id": 1, "titulo": "Nuevas becas estratégicas para ingeniería", "fuente": "La Gaceta", "fecha": "14/04/2026", "categoria": "hoy"},
-        {"id": 2, "titulo": "Tendencias en carreras tecnológicas 2026", "fuente": "Universia", "fecha": "13/04/2026", "categoria": "ayer"},
-        {"id": 3, "titulo": "Apertura de inscripciones en facultades de artes", "fuente": "La Gaceta", "fecha": "10/04/2026", "categoria": "esta semana"},
+        {"id": 1, "titulo": "Nuevas becas estratégicas para ingeniería", "fuente": "La Gaceta", "fecha": "07/05/2026", "categoria": "hoy", "descripcion": "La Universidad Nacional de Tucumán abre 50 nuevas becas completas para carreras de ingeniería con énfasis en sostenibilidad ambiental.", "url": "#", "area": "Ingeniería"},
+        {"id": 2, "titulo": "Tendencias: IA y programación dominan las inscripciones 2026", "fuente": "Universia", "fecha": "06/05/2026", "categoria": "ayer", "descripcion": "Según datos estadísticos, las carreras tecnológicas crecen un 35% en demanda. La inteligencia artificial lidera preferencias de estudiantes.", "url": "#", "area": "Tecnología"},
+        {"id": 3, "titulo": "Apertura de inscripciones en facultades de artes", "fuente": "La Gaceta", "fecha": "05/05/2026", "categoria": "esta semana", "descripcion": "Comienza el período de inscripción para diseño gráfico, música y artes visuales. Hasta el 31 de mayo.", "url": "#", "area": "Arte y Diseño"},
+        {"id": 4, "titulo": "Crecimiento en carreras de salud mental post-pandemia", "fuente": "Universia", "fecha": "04/05/2026", "categoria": "esta semana", "descripcion": "Psicología y psicopedagogía registran un aumento del 42% en solicitudes. Los jóvenes buscan carreras de impacto social.", "url": "#", "area": "Salud Mental"},
+        {"id": 5, "titulo": "Universidades lanzan programas de doble titulación", "fuente": "La Gaceta", "fecha": "02/05/2026", "categoria": "este mes", "descripcion": "UNT e UNSTA ofrecen nuevas opciones de carrera compartida entre facultades. Primeras cohortes comienzan en agosto.", "url": "#", "area": "General"},
+        {"id": 6, "titulo": "Tendencias: Profesiones verdes ganan terreno", "fuente": "Universia", "fecha": "01/05/2026", "categoria": "este mes", "descripcion": "Ingeniería ambiental, agronomía sostenible y energías renovables son las carreras de futuro. Empleadores buscan especialistas.", "url": "#", "area": "Agronomía"},
+        {"id": 7, "titulo": "Negocios digitales: la carrera más solicitada", "fuente": "La Gaceta", "fecha": "30/04/2026", "categoria": "este mes", "descripcion": "El emprendimiento digital crece exponencialmente. Universidades lanzan nuevos programas en fintech y marketing online.", "url": "#", "area": "Negocios"},
+        {"id": 8, "titulo": "Derecho especializado en compliance gana protagonismo", "fuente": "Facultades (Oficial)", "fecha": "28/04/2026", "categoria": "este mes", "descripcion": "Las empresas buscan abogados especializados en normativas internacionales. Nuevas orientaciones en la carrera de Abogacía.", "url": "#", "area": "Derecho"},
+        {"id": 9, "titulo": "Comunicación digital: del aula a las redes", "fuente": "La Gaceta", "fecha": "25/04/2026", "categoria": "este año", "descripcion": "Comunicadores digitales son los más demandados en el mercado laboral. Facultades adaptan planes de estudio.", "url": "#", "area": "Comunicación"},
+        {"id": 10, "titulo": "Medicina: especialidades de mayor demanda en 2026", "fuente": "Universia", "fecha": "22/04/2026", "categoria": "este año", "descripcion": "Telemedicina, salud mental e inmunología lideran las preferencias de especialización médica.", "url": "#", "area": "Salud"},
     ]
     return render_template('noticias.html', noticias=items_noticias)
 
-# Ruta para ver el detalle de una carrera universitaria
 @app.route('/carrera/<int:carrera_id>')
 @requiere_login
 def detalle_carrera(carrera_id):
@@ -456,7 +474,6 @@ def detalle_carrera(carrera_id):
         return redirect(url_for('carreras'))
     return render_template('carrera_detalle.html', carrera=carrera)
 
-# Ruta para enviar consultas o comentarios desde el footer
 @app.route('/comentar', methods=['POST'])
 def enviar_comentario():
     nombre = request.form.get('nombre')
@@ -469,7 +486,6 @@ def enviar_comentario():
 
     db = obtener_db()
     cursor = db.cursor()
-    # Guardar la consulta en la tabla de comentarios
     cursor.execute("INSERT INTO comentarios (nombre, email, mensaje) VALUES (%s, %s, %s)",
                    (nombre, email, mensaje))
     db.commit()
@@ -484,15 +500,12 @@ def admin_dashboard():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
     
-    # Obtener todos los usuarios
     cursor.execute("SELECT id, nombre, email, rol, fecha_registro FROM usuarios")
     usuarios = cursor.fetchall()
     
-    # Obtener todas las carreras
     cursor.execute("SELECT * FROM carreras")
     carreras = cursor.fetchall()
     
-    # Obtener todas las preguntas
     cursor.execute("SELECT * FROM preguntas")
     preguntas = cursor.fetchall()
     
@@ -605,15 +618,16 @@ def eliminar_pregunta(id):
     flash('Pregunta eliminada exitosamente.', 'info')
     return redirect(url_for('admin_preguntas'))
 
-# Punto de entrada de la aplicación
+# --- MANEJO DE ERRORES ---
+
 @app.errorhandler(404)
 def pagina_no_encontrada(e):
     return render_template('404.html'), 404
 
 @app.errorhandler(500)
 def error_interno(e):
-    return render_template('base.html', content="<div class='container py-5 text-center'><h1>500</h1><p>Algo salió mal en nuestros servidores. Por favor, intenta más tarde.</p></div>"), 500
+    return render_template('base.html', content="<div class='container py-5 text-center'><h1>500</h1><p>Algo salió mal. Por favor, intenta más tarde.</p></div>"), 500
 
+# Punto de entrada de la aplicación
 if __name__ == '__main__':
-    # Ejecución en modo desarrollo (debug)
     app.run(debug=True)
