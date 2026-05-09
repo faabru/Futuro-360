@@ -151,7 +151,7 @@ def perfil():
         email = request.form['email']
 
         db = obtener_db()
-        cursor = db.cursor()
+        cursor = db.cursor(dictionary=True)
         cursor.execute("UPDATE usuarios SET nombre = %s, email = %s WHERE id = %s",
                        (nombre, email, g.user['id']))
         db.commit()
@@ -395,7 +395,6 @@ def mis_resultados():
     resultados = cursor.fetchall()
     return render_template('mis_resultados.html', resultados=resultados)
 
-# Actualizar notas personales en un resultado (U de CRUD)
 @app.route('/resultado/actualizar/<int:resultado_id>', methods=['POST'])
 @requiere_login
 def actualizar_resultado(resultado_id):
@@ -418,18 +417,26 @@ def actualizar_resultado(resultado_id):
 @requiere_login
 def eliminar_resultado(resultado_id):
     db = obtener_db()
-    cursor = db.cursor()
-    cursor.execute("""
-        SELECT test_id FROM resultados r
-        JOIN tests t ON r.test_id = t.id
-        WHERE r.id = %s AND t.usuario_id = %s
-    """, (resultado_id, g.user['id']))
-    test = cursor.fetchone()
+    # IMPORTANTE: dictionary=True para poder acceder por nombre de columna 
+    cursor = db.cursor(dictionary=True)
 
-    if test:
-        cursor.execute("DELETE FROM tests WHERE id = %s", (test['test_id'],))
-        db.commit()
-        flash('El resultado ha sido eliminado de tu historial.', 'info')
+    # Buscar el test_id asociado al resultado, verificando que pertenece al usuario 
+    cursor.execute(""" 
+        SELECT t.id as test_id 
+        FROM resultados r 
+        JOIN tests t ON r.test_id = t.id 
+        WHERE r.id = %s AND t.usuario_id = %s 
+    """, (resultado_id, g.user['id'])) 
+    test = cursor.fetchone() 
+
+    if test: 
+        # Eliminar el test — el resultado se elimina solo por CASCADE en la BD 
+        cursor2 = db.cursor() 
+        cursor2.execute("DELETE FROM tests WHERE id = %s", (test['test_id'],)) 
+        db.commit() 
+        flash('El resultado ha sido eliminado de tu historial.', 'info') 
+    else: 
+        flash('No se encontró el resultado o no tenés permiso para eliminarlo.', 'danger') 
 
     return redirect(url_for('mis_resultados'))
 
