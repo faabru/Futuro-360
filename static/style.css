@@ -1,21 +1,21 @@
 /* --- VARIABLES GLOBALES DEL SISTEMA DE DISEÑO --- */
 :root {
-    /* Colores Principales */
-    --primary: #2563eb;        /* Azul principal */
-    --primary-dark: #1d4ed8;   /* Azul oscuro para estados hover */
-    --primary-light: #dbeafe;  /* Azul claro para fondos y acentos */
-    --secondary: #7c3aed;      /* Violeta secundario */
-    --accent: #f59e0b;         /* Naranja para llamadas a la acción */
-    --success: #10b981;        /* Verde para estados positivos */
-    
+    /* Colores Principales - Escala de Azules */
+    --primary: #2F8EAB;        /* Azul principal (500) */
+    --primary-dark: #142B38;   /* Azul oscuro para estados hover (950) */
+    --primary-light: #B7E0EA;  /* Azul claro para fondos y acentos (200) */
+    --secondary: #42A6C2;      /* Azul secundario (400) */
+    --accent: #84CADC;         /* Azul acento (300) */
+    --success: #2A7390;        /* Azul verde para estados positivos (600) */
+
     /* Colores de Fondo y Texto */
-    --bg-main: #f8fafc;        /* Gris muy claro para el fondo general */
+    --bg-main: #F0F9FB;        /* Azul muy claro para el fondo general (50) */
     --card-bg: #ffffff;        /* Blanco para las tarjetas */
-    --text-main: #0f172a;      /* Azul oscuro casi negro para texto principal */
-    --text-muted: #64748b;     /* Gris para texto secundario */
-    
+    --text-main: #142B38;      /* Azul oscuro casi negro para texto principal (950) */
+    --text-muted: #2A7390;     /* Azul grisáceo para texto secundario (600) */
+
     /* Estética Visual */
-    --border: #e2e8f0;         /* Color de bordes sutiles */
+    --border: #D8F0F5;         /* Color de bordes sutiles (100) */
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 20px;
@@ -187,24 +187,50 @@ body {
 }
 
 /* --- FOOTER (PIE DE PÁGINA) PROFESIONAL --- */
-footer {
-    background: #2a3346; /* Azul oscuro profundo */
-    color: #f8fafc;
-    padding: 5rem 0 2rem;
+.footer-modern {
+    background: #142B38;
+    color: #84CADC;
+    position: relative;
+    overflow: hidden;
 }
 
-.footer-link {
-    color: #94a3b8;
+.footer-links a {
+    color: #84CADC;
     text-decoration: none;
-    transition: var(--transition);
-    display: block;
-    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
 }
 
-.footer-link:hover {
-    color: var(--white);
-    padding-left: 5px; /* Pequeño desplazamiento al pasar el mouse */
+.footer-links a:hover {
+    color: var(--primary);
+    transform: translateX(5px);
+    display: inline-block;
 }
+
+.social-icon {
+    width: 38px;
+    height: 38px;
+    background: rgba(230, 227, 227, 0.904);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-3px);
+}
+
+.contact-card {
+    background: rgba(255,255,255,0.03) !important;
+}
+
+.ls-2 { letter-spacing: 0.1em; }
 
 /* --- CLASES DE UTILIDAD --- */
 .rounded-4 { border-radius: var(--radius-lg) !important; }

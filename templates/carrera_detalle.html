@@ -31,11 +31,13 @@
 
                         <!-- DONDE ESTUDIAR (INSTITUCIONES) -->
                         <div class="mb-5">
-                            <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla?</h5>
+                            <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla en Tucumán?</h5>
                             <ul class="list-unstyled text-muted small">
-                                <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> Universidad Nacional de Tucumán (UNT)</li>
-                                <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> Universidad Tecnológica Nacional (UTN)</li>
-                                <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> Institutos Superiores de la región</li>
+                                {% for inst in carrera.instituciones.split(',') %}
+                                <li class="mb-2">
+                                    <i class="bi bi-check2-circle text-success me-2"></i> {{ inst.strip() }}
+                                </li>
+                                {% endfor %}
                             </ul>
                         </div>
 

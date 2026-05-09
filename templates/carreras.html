@@ -3,103 +3,144 @@
 {% block content %}
 <!-- SECCIÓN PRINCIPAL: GUÍA DE CARRERAS -->
 <div class="container py-5">
-    
-    <!-- ENCABEZADO Y BÚSQUEDA -->
-    <div class="row align-items-center mb-5">
-        <div class="col-lg-6">
+
+    <!-- ENCABEZADO -->
+    <div class="row mb-5">
+        <div class="col-lg-8">
             <h1 class="display-4 fw-bold text-primary mb-3">Guía de Carreras 🎓</h1>
-            <p class="lead text-muted">Explora y filtra las opciones académicas para tu futuro.</p>
+            <p class="lead text-muted">Explora las opciones académicas para tu futuro.</p>
         </div>
-        <div class="col-lg-6">
+    </div>
+
+    <!-- FILTROS Y BÚSQUEDA -->
+    <div class="row mb-5 g-3">
+        <!-- DROPDOWN DE ÁREAS -->
+        <div class="col-md-4">
+            <label for="areaFilter" class="form-label fw-bold small text-uppercase text-muted mb-2">Área Profesional</label>
+            <select id="areaFilter" class="form-select form-select-lg rounded-3 border-2 border-primary-subtle shadow-sm">
+                <option value="all">Todas las áreas</option>
+                <option value="Tecnología">Tecnología</option>
+                <option value="Salud">Salud</option>
+                <option value="Salud Mental">Salud Mental</option>
+                <option value="Negocios">Negocios</option>
+                <option value="Diseño">Diseño</option>
+                <option value="Derecho">Derecho</option>
+                <option value="Humanidades">Humanidades</option>
+                <option value="Ciencias Naturales">Ciencias Naturales</option>
+                <option value="Agronomía">Agronomía</option>
+                <option value="Arte y Diseño">Arte y Diseño</option>
+                <option value="Ingeniería">Ingeniería</option>
+                <option value="Comunicación">Comunicación</option>
+            </select>
+        </div>
+
+        <!-- BÚSQUEDA POR NOMBRE -->
+        <div class="col-md-8">
+            <label for="careerSearch" class="form-label fw-bold small text-uppercase text-muted mb-2">Buscar Carrera</label>
             <div class="input-group input-group-lg shadow-sm">
-                <span class="input-group-text bg-white border-0"><i class="bi bi-search"></i></span>
-                <input type="text" id="careerSearch" class="form-control border-0" placeholder="Buscar carrera (ej: Ingeniería, Psicología)...">
+                <span class="input-group-text bg-white border-2 border-primary-subtle rounded-start-3"><i class="bi bi-search"></i></span>
+                <input type="text" id="careerSearch" class="form-control border-2 border-primary-subtle rounded-end-3" placeholder="Buscar por nombre...">
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- FILTROS LATERALES -->
-        <div class="col-lg-3 mb-4">
-            <div class="section-card p-4 border-0 shadow-sm">
-                <h5 class="fw-bold mb-4">Área Profesional</h5>
-                <div class="list-group list-group-flush" id="areaFilters">
-                    <button class="list-group-item list-group-item-action border-0 px-0 active rounded-3 mb-2" data-filter="all">Todas las áreas</button>
-                    <button class="list-group-item list-group-item-action border-0 px-0 rounded-3 mb-2" data-filter="Tecnología">Tecnología</button>
-                    <button class="list-group-item list-group-item-action border-0 px-0 rounded-3 mb-2" data-filter="Salud">Salud</button>
-                    <button class="list-group-item list-group-item-action border-0 px-0 rounded-3 mb-2" data-filter="Salud Mental">Salud Mental</button>
-                    <button class="list-group-item list-group-item-action border-0 px-0 rounded-3 mb-2" data-filter="Negocios">Negocios</button>
-                    <button class="list-group-item list-group-item-action border-0 px-0 rounded-3" data-filter="Diseño">Diseño</button>
-                </div>
-            </div>
-        </div>
+    <!-- CONTADOR DE RESULTADOS -->
+    <div class="mb-3">
+        <small class="text-muted" id="resultCounter">Mostrando <span id="visibleCount">0</span> de <span id="totalCount">0</span> carreras</small>
+    </div>
 
-        <!-- LISTADO DINÁMICO DE CARRERAS (READ) -->
-        <div class="col-lg-9">
-            <div class="row g-4" id="careerList">
-                {% for carrera in carreras %}
-                <div class="col-md-6 career-item" data-area="{{ carrera.area_profesional }}">
-                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden section-card p-0">
-                        <!-- IMAGEN DE LA CARRERA -->
-                        <img src="https://images.unsplash.com/photo-1541339907198-e08756ebafe3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" class="card-img-top object-fit-cover" height="200" alt="{{ carrera.nombre }}">
-                        
-                        <!-- CUERPO DE LA TARJETA -->
-                        <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold">{{ carrera.area_profesional }}</span>
-                            </div>
-                            <h4 class="fw-bold mb-3 text-primary">{{ carrera.nombre }}</h4>
-                            <p class="text-muted small mb-4 line-clamp-3">{{ carrera.descripcion }}</p>
-                            
-                            <!-- BOTÓN DE ACCIÓN: VER DETALLE -->
-                            <div class="d-grid">
-                                <a href="{{ url_for('detalle_carrera', carrera_id=carrera.id) }}" class="btn btn-outline-primary rounded-pill shadow-sm">Ver detalles</a>
-                            </div>
-                        </div>
+    <!-- LISTADO DINÁMICO DE CARRERAS (READ) -->
+    <div class="row g-4" id="careerList">
+        {% for carrera in carreras %}
+        <div class="col-md-6 col-lg-4 career-item" data-area="{{ carrera.area_profesional }}">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden section-card p-0 career-card">
+                <!-- IMAGEN DE LA CARRERA -->
+                <img src="https://images.unsplash.com/photo-1541339907198-e08756ebafe3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" class="card-img-top object-fit-cover" height="200" alt="{{ carrera.nombre }}">
+
+                <!-- CUERPO DE LA TARJETA -->
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold small">{{ carrera.area_profesional }}</span>
+                    </div>
+                    <h5 class="fw-bold mb-3 text-primary career-name">{{ carrera.nombre }}</h5>
+                    <p class="text-muted small mb-4 line-clamp-2">{{ carrera.descripcion }}</p>
+
+                    <!-- BOTÓN DE ACCIÓN: VER DETALLE -->
+                    <div class="d-grid">
+                        <a href="{{ url_for('detalle_carrera', carrera_id=carrera.id) }}" class="btn btn-outline-primary btn-sm rounded-pill shadow-sm">Ver detalles</a>
                     </div>
                 </div>
-                {% endfor %}
             </div>
         </div>
+        {% endfor %}
+    </div>
+
+    <!-- ESTADO VACÍO -->
+    <div class="text-center py-5" id="emptyState" style="display: none;">
+        <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+        <p class="text-muted mt-3">No hay carreras que coincidan con tus filtros. Intenta cambiar la búsqueda.</p>
     </div>
 </div>
 
 <!-- LÓGICA DE FILTRADO (JAVASCRIPT) -->
 <script>
     const searchInput = document.getElementById('careerSearch');
+    const areaFilter = document.getElementById('areaFilter');
     const careerItems = document.querySelectorAll('.career-item');
-    const filterButtons = document.querySelectorAll('#areaFilters button');
+    const emptyState = document.getElementById('emptyState');
+    const resultCounter = document.getElementById('resultCounter');
 
-    // Función principal de filtrado por búsqueda y categoría
+    function updateCareerCount() {
+        const visible = Array.from(careerItems).filter(item => item.style.display !== 'none').length;
+        const total = careerItems.length;
+        document.getElementById('visibleCount').innerText = visible;
+        document.getElementById('totalCount').innerText = total;
+        emptyState.style.display = visible === 0 ? 'block' : 'none';
+    }
+
     function filterCareers() {
         const query = searchInput.value.toLowerCase();
-        const activeFilter = document.querySelector('#areaFilters .active').dataset.filter;
+        const activeArea = areaFilter.value;
 
         careerItems.forEach(item => {
-            const name = item.querySelector('h4').innerText.toLowerCase();
+            const careerName = item.querySelector('.career-name').innerText.toLowerCase();
             const area = item.dataset.area;
-            const matchesSearch = name.includes(query);
-            const matchesFilter = activeFilter === 'all' || area === activeFilter;
+            const matchesSearch = careerName.includes(query);
+            const matchesFilter = activeArea === 'all' || area === activeArea;
 
-            // Mostrar u ocultar según coincidan ambos filtros
             if (matchesSearch && matchesFilter) {
                 item.style.display = 'block';
             } else {
                 item.style.display = 'none';
             }
         });
+
+        updateCareerCount();
     }
 
-    // Escuchar cambios en la barra de búsqueda
     searchInput.addEventListener('input', filterCareers);
+    areaFilter.addEventListener('change', filterCareers);
 
-    // Escuchar clics en los botones de categoría
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            filterCareers();
-        });
-    });
+    // Inicializar contador
+    updateCareerCount();
 </script>
+
+<style>
+    #areaFilter {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%230d6efd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+        padding-right: 2.5rem;
+    }
+
+    .career-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .career-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1) !important;
+    }
+</style>
 {% endblock %}
