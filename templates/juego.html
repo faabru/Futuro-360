@@ -82,6 +82,13 @@
                         <div class="display-2 mb-4">✨</div>
                         <h3 class="fw-bold mb-3">¡Descubrimiento completado!</h3>
                         <p id="game-result-text" class="lead mb-4"></p>
+                        
+                        <!-- CARRERAS RECOMENDADAS -->
+                        <div class="mb-5" id="game-recommended-careers" style="display: none;">
+                            <h5 class="fw-bold mb-3 text-primary">Carreras Recomendadas para ti</h5>
+                            <div class="row g-3" id="game-careers-container"></div>
+                        </div>
+                        
                         <div class="d-flex justify-content-center gap-3">
                             <a href="{{ url_for('test') }}" class="btn btn-primary">Ir al Test Profesional</a>
                             <button onclick="selectGame(null)" class="btn btn-outline-secondary">Volver a juegos</button>
@@ -231,6 +238,188 @@
                 { text: "Organizo a todos para encontrar una solución justa", area: "Liderazgo" },
                 { text: "Analizo los datos y busco una explicación lógica", area: "Investigación" }
             ]
+        },
+        {
+            text: "En tu tiempo libre prefieres...",
+            options: [
+                { text: "Crear contenido para redes sociales y editar videos", area: "Comunicación Digital" },
+                { text: "Hacer deporte o actividades al aire libre", area: "Deportes" }
+            ]
+        },
+        {
+            text: "Cuando viajas, te interesa...",
+            options: [
+                { text: "Conocer la historia, museos y cultura del lugar", area: "Humanidades" },
+                { text: "Explorar la naturaleza, paisajes y ecosistemas únicos", area: "Agronomía" }
+            ]
+        },
+        {
+            text: "Te dan dinero para un proyecto. ¿Qué haces?",
+            options: [
+                { text: "Creo un negocio propio o invierto en una idea", area: "Negocios" },
+                { text: "Lo uso para ayudar a quienes lo necesitan", area: "Servicio Social" }
+            ]
+        },
+        {
+            text: "Ves una injusticia. ¿Cuál es tu reacción?",
+            options: [
+                { text: "Busco las leyes o regulaciones que amparen a la persona", area: "Derecho" },
+                { text: "Organizo un grupo para cambiar la situación juntos", area: "Liderazgo" }
+            ]
+        },
+        {
+            text: "Alguien se siente mal. ¿Qué haces?",
+            options: [
+                { text: "Le doy primeros auxilios y busco ayuda médica", area: "Salud" },
+                { text: "Lo escucho y lo ayudo a procesar sus emociones", area: "Psicología" }
+            ]
+        },
+        {
+            text: "En una clase difícil, tú...",
+            options: [
+                { text: "Dominas el tema y explicas a otros cómo lo entendiste", area: "Educación" },
+                { text: "Busca en libros y fuentes para entender más profundamente", area: "Investigación" }
+            ]
+        },
+        {
+            text: "Te proponen diseñar algo. ¿Qué prefieres?",
+            options: [
+                { text: "Crear un logo, interfaz o algo visualmente atractivo", area: "Diseño Gráfico" },
+                { text: "Programar la lógica y funcionalidad del proyecto", area: "Tecnología" }
+            ]
+        },
+        {
+            text: "Te fascina...",
+            options: [
+                { text: "Entender por qué suceden las cosas en la naturaleza", area: "Ciencias Naturales" },
+                { text: "Crear algo nuevo que la gente pueda usar o disfrutar", area: "Innovación" }
+            ]
+        },
+        {
+            text: "En grupo prefieres ser...",
+            options: [
+                { text: "El que lidera y toma decisiones importantes", area: "Liderazgo" },
+                { text: "El que ejecuta las ideas con precisión y eficiencia", area: "Administración" }
+            ]
+        },
+        {
+            text: "Tus redes sociales contienen principalmente...",
+            options: [
+                { text: "Fotos, videos y contenido creativo y artístico", area: "Artes" },
+                { text: "Artículos sobre tecnología, ciencia y tendencias", area: "Ciencia" }
+            ]
+        },
+        {
+            text: "Si tuvieras un negocio, te preocuparía más...",
+            options: [
+                { text: "La estrategia, finanzas y crecimiento empresarial", area: "Negocios" },
+                { text: "Que el producto sea de calidad y satisfaga al cliente", area: "Servicio al Cliente" }
+            ]
+        },
+        {
+            text: "Una película te atrae si tiene...",
+            options: [
+                { text: "Acción, suspenso o giros inesperados", area: "Entretenimiento" },
+                { text: "Mensajes profundos o crítica social", area: "Humanidades" }
+            ]
+        },
+        {
+            text: "Prefieres trabajar...",
+            options: [
+                { text: "Solo, con autonomía para hacer las cosas a tu manera", area: "Independencia" },
+                { text: "En equipo, colaborando y compartiendo responsabilidades", area: "Trabajo Colaborativo" }
+            ]
+        },
+        {
+            text: "Si hay cambios en el plan, tú...",
+            options: [
+                { text: "Te adaptas rápido y encuentras nuevas soluciones", area: "Flexibilidad" },
+                { text: "Prefieres tener un plan claro y organizado", area: "Administración" }
+            ]
+        },
+        {
+            text: "Te emociona la idea de...",
+            options: [
+                { text: "Conectar con personas y construir comunidades", area: "Comunicación Social" },
+                { text: "Resolver problemas complejos con lógica y precisión", area: "Ingeniería" }
+            ]
+        },
+        {
+            text: "En redes sobre qué vídeos ves más?",
+            options: [
+                { text: "Tutoriales de cómo hacer o construir cosas", area: "Técnica" },
+                { text: "Conversaciones interesantes sobre la vida", area: "Comunicación" }
+            ]
+        },
+        {
+            text: "Si encontraras una planta enferma, tú...",
+            options: [
+                { text: "Investigarías qué enfermedad tiene y cómo curarla", area: "Agronomía" },
+                { text: "La aprovecharías para hacer un arte o composición", area: "Artes" }
+            ]
+        },
+        {
+            text: "Tu libro ideal sería sobre...",
+            options: [
+                { text: "Historias de emprendedores y startups", area: "Negocios" },
+                { text: "Descubrimientos científicos o tecnológicos", area: "Ciencia" }
+            ]
+        },
+        {
+            text: "Prefieres invertir tu dinero en...",
+            options: [
+                { text: "Cursos online para aprender nuevas habilidades", area: "Educación" },
+                { text: "Experimentos o equipos para probar ideas", area: "Investigación" }
+            ]
+        },
+        {
+            text: "Cuando ves publicidad, te fijas más en...",
+            options: [
+                { text: "El diseño, colores y cómo se presenta", area: "Diseño Publicitario" },
+                { text: "El mensaje y si es convincente", area: "Marketing" }
+            ]
+        },
+        {
+            text: "Te atrae especialmente...",
+            options: [
+                { text: "Viajar, conocer culturas y aprender idiomas", area: "Turismo" },
+                { text: "Quedarte en casa pero aprender del mundo online", area: "Digital" }
+            ]
+        },
+        {
+            text: "Si fueras profesor, tu estilo sería...",
+            options: [
+                { text: "Clases dinámicas, participativas y entretenidas", area: "Educación Innovadora" },
+                { text: "Explicaciones profundas con ejemplos complejos", area: "Investigación Académica" }
+            ]
+        },
+        {
+            text: "Tus amigos te piden que...",
+            options: [
+                { text: "Les aconsejes y los escuches en momentos difíciles", area: "Psicología Social" },
+                { text: "Les enseñes algo que haces bien", area: "Educación" }
+            ]
+        },
+        {
+            text: "Te motiva especialmente...",
+            options: [
+                { text: "Ver resultados tangibles de tu trabajo inmediatamente", area: "Técnica" },
+                { text: "Saber que estás haciendo un impacto positivo a largo plazo", area: "Impacto Social" }
+            ]
+        },
+        {
+            text: "En una conversación, tú...",
+            options: [
+                { text: "Hablas de datos, números y información verificada", area: "Análisis de Datos" },
+                { text: "Compartes historias, experiencias y vivencias", area: "Narrativa" }
+            ]
+        },
+        {
+            text: "Frente a una actividad rutinaria, prefieres...",
+            options: [
+                { text: "Hacerla exactamente como se debe, sin cambios", area: "Precisión" },
+                { text: "Buscar una forma más creativa o eficiente de hacerla", area: "Innovación" }
+            ]
         }
     ];
 
@@ -277,6 +466,32 @@
 
         let maxArea = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
         document.getElementById('game-result-text').innerText = `Parece que tienes una gran inclinación hacia: ${maxArea}. ¡Sigue explorando!`;
+        
+        // Buscar carreras recomendadas
+        const recommendedCareers = careers.filter(c => 
+            c.area_profesional.toLowerCase().includes(maxArea.toLowerCase()) ||
+            maxArea.toLowerCase().includes(c.area_profesional.toLowerCase())
+        ).slice(0, 3);
+        
+        if (recommendedCareers.length > 0) {
+            document.getElementById('game-recommended-careers').style.display = 'block';
+            let careersHtml = '';
+            recommendedCareers.forEach(career => {
+                careersHtml += `
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-3 p-4 h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <h6 class="fw-bold mb-2 text-white">${career.nombre}</h6>
+                            <p class="small mb-3 opacity-75">${career.area_profesional}</p>
+                            <p class="small mb-3" style="flex-grow: 1;">${career.descripcion.substring(0, 80)}...</p>
+                            <a href="/carrera/${career.id}" class="btn btn-light btn-sm rounded-2 text-primary">Ver más</a>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('game-careers-container').innerHTML = careersHtml;
+        } else {
+            document.getElementById('game-recommended-careers').style.display = 'none';
+        }
     }
 
     // ===== JUEGO 2: DESCUBRE TU CARRERA =====
