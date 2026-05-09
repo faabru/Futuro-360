@@ -452,22 +452,64 @@ def juego():
     carreras_json = json.dumps(carreras_list, ensure_ascii=False)
     return render_template('juego.html', carreras_json=carreras_json)
 
-@app.route('/noticias')
-@requiere_login
-def noticias():
-    items_noticias = [
-        {"id": 1, "titulo": "Nuevas becas estratégicas para ingeniería", "fuente": "La Gaceta", "fecha": "07/05/2026", "categoria": "hoy", "descripcion": "La Universidad Nacional de Tucumán abre 50 nuevas becas completas para carreras de ingeniería con énfasis en sostenibilidad ambiental.", "url": "#", "area": "Ingeniería"},
-        {"id": 2, "titulo": "Tendencias: IA y programación dominan las inscripciones 2026", "fuente": "Universia", "fecha": "06/05/2026", "categoria": "ayer", "descripcion": "Según datos estadísticos, las carreras tecnológicas crecen un 35% en demanda. La inteligencia artificial lidera preferencias de estudiantes.", "url": "#", "area": "Tecnología"},
-        {"id": 3, "titulo": "Apertura de inscripciones en facultades de artes", "fuente": "La Gaceta", "fecha": "05/05/2026", "categoria": "esta semana", "descripcion": "Comienza el período de inscripción para diseño gráfico, música y artes visuales. Hasta el 31 de mayo.", "url": "#", "area": "Arte y Diseño"},
-        {"id": 4, "titulo": "Crecimiento en carreras de salud mental post-pandemia", "fuente": "Universia", "fecha": "04/05/2026", "categoria": "esta semana", "descripcion": "Psicología y psicopedagogía registran un aumento del 42% en solicitudes. Los jóvenes buscan carreras de impacto social.", "url": "#", "area": "Salud Mental"},
-        {"id": 5, "titulo": "Universidades lanzan programas de doble titulación", "fuente": "La Gaceta", "fecha": "02/05/2026", "categoria": "este mes", "descripcion": "UNT e UNSTA ofrecen nuevas opciones de carrera compartida entre facultades. Primeras cohortes comienzan en agosto.", "url": "#", "area": "General"},
-        {"id": 6, "titulo": "Tendencias: Profesiones verdes ganan terreno", "fuente": "Universia", "fecha": "01/05/2026", "categoria": "este mes", "descripcion": "Ingeniería ambiental, agronomía sostenible y energías renovables son las carreras de futuro. Empleadores buscan especialistas.", "url": "#", "area": "Agronomía"},
-        {"id": 7, "titulo": "Negocios digitales: la carrera más solicitada", "fuente": "La Gaceta", "fecha": "30/04/2026", "categoria": "este mes", "descripcion": "El emprendimiento digital crece exponencialmente. Universidades lanzan nuevos programas en fintech y marketing online.", "url": "#", "area": "Negocios"},
-        {"id": 8, "titulo": "Derecho especializado en compliance gana protagonismo", "fuente": "Facultades (Oficial)", "fecha": "28/04/2026", "categoria": "este mes", "descripcion": "Las empresas buscan abogados especializados en normativas internacionales. Nuevas orientaciones en la carrera de Abogacía.", "url": "#", "area": "Derecho"},
-        {"id": 9, "titulo": "Comunicación digital: del aula a las redes", "fuente": "La Gaceta", "fecha": "25/04/2026", "categoria": "este año", "descripcion": "Comunicadores digitales son los más demandados en el mercado laboral. Facultades adaptan planes de estudio.", "url": "#", "area": "Comunicación"},
-        {"id": 10, "titulo": "Medicina: especialidades de mayor demanda en 2026", "fuente": "Universia", "fecha": "22/04/2026", "categoria": "este año", "descripcion": "Telemedicina, salud mental e inmunología lideran las preferencias de especialización médica.", "url": "#", "area": "Salud"},
-    ]
-    return render_template('noticias.html', noticias=items_noticias)
+@app.route('/noticias') 
+@requiere_login 
+def noticias(): 
+    db = obtener_db() 
+    cursor = db.cursor(dictionary=True) 
+ 
+    # Filtros recibidos por query string 
+    filtro_fecha = request.args.get('fecha', 'todas') 
+    filtro_fuente = request.args.get('fuente', 'todas') 
+    filtro_categoria = request.args.get('categoria', 'todas') 
+    busqueda = request.args.get('q', '').strip() 
+ 
+    # Construir query dinámica con filtros 
+    query = "SELECT * FROM noticias WHERE 1=1" 
+    params = [] 
+ 
+    if filtro_fecha == 'hoy': 
+        query += " AND fecha = CURDATE()" 
+    elif filtro_fecha == 'ayer': 
+        query += " AND fecha = DATE_SUB(CURDATE(), INTERVAL 1 DAY)" 
+    elif filtro_fecha == 'semana': 
+        query += " AND fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)" 
+    elif filtro_fecha == 'mes': 
+        query += " AND fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)" 
+ 
+    if filtro_fuente != 'todas': 
+        query += " AND fuente = %s" 
+        params.append(filtro_fuente) 
+ 
+    if filtro_categoria != 'todas': 
+        query += " AND categoria = %s" 
+        params.append(filtro_categoria) 
+ 
+    if busqueda: 
+        query += " AND (titulo LIKE %s OR descripcion LIKE %s OR fuente LIKE %s)" 
+        params.extend([f"%{busqueda}%", f"%{busqueda}%", f"%{busqueda}%"]) 
+ 
+    query += " ORDER BY fecha DESC, id DESC LIMIT 20" 
+ 
+    cursor.execute(query, params) 
+    items_noticias = cursor.fetchall() 
+ 
+    # Obtener fuentes y categorías únicas para los filtros 
+    cursor.execute("SELECT DISTINCT fuente FROM noticias ORDER BY fuente") 
+    fuentes = [row['fuente'] for row in cursor.fetchall()] 
+ 
+    cursor.execute("SELECT DISTINCT categoria FROM noticias ORDER BY categoria") 
+    categorias = [row['categoria'] for row in cursor.fetchall()] 
+ 
+    return render_template('noticias.html', 
+        noticias=items_noticias, 
+        fuentes=fuentes, 
+        categorias=categorias, 
+        filtro_fecha=filtro_fecha, 
+        filtro_fuente=filtro_fuente, 
+        filtro_categoria=filtro_categoria, 
+        busqueda=busqueda 
+    ) 
 
 @app.route('/carrera/<int:carrera_id>')
 @requiere_login
@@ -624,6 +666,18 @@ def eliminar_pregunta(id):
     db.commit()
     flash('Pregunta eliminada exitosamente.', 'info')
     return redirect(url_for('admin_preguntas'))
+
+@app.route('/admin/noticias/actualizar-rss', methods=['POST']) 
+@requiere_admin 
+def actualizar_rss(): 
+    """Ruta para que el admin actualice las noticias desde RSS manualmente""" 
+    try: 
+        from rss_fetcher import actualizar_noticias_rss 
+        insertadas = actualizar_noticias_rss() 
+        flash(f'RSS actualizado correctamente. {insertadas} nuevas noticias agregadas.', 'success') 
+    except Exception as e: 
+        flash(f'Error al actualizar RSS: {str(e)}', 'danger') 
+    return redirect(url_for('admin_dashboard')) 
 
 # --- MANEJO DE ERRORES ---
 

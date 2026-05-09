@@ -1,277 +1,163 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
+{% block content %} 
 
-{% block content %}
-<!-- SECCIÓN PRINCIPAL: NOTICIAS Y TENDENCIAS ACADÉMICAS -->
 <div class="container-fluid py-5" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh;">
-    <div class="container">
+  <div class="container">
 
-        <!-- ENCABEZADO PRINCIPAL -->
-        <div class="row mb-5">
-            <div class="col-lg-12">
-                <h1 class="display-4 fw-bold text-primary mb-2">📰 Noticias & Tendencias</h1>
-                <p class="lead text-muted mb-4">Mantente informado sobre las tendencias académicas, oportunidades de formación y cambios en el mundo universitario.</p>
-
-                <!-- BUSCADOR PRINCIPAL -->
-                <div class="row g-3">
-                    <div class="col-md-8">
-                        <div class="input-group input-group-lg shadow-sm">
-                            <span class="input-group-text bg-white border-2 border-primary-subtle rounded-start-3"><i class="bi bi-search"></i></span>
-                            <input type="text" id="newsSearch" class="form-control border-2 border-primary-subtle rounded-end-3" placeholder="Buscar noticias por título, área o fuente...">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <select id="areaFilter" class="form-select form-select-lg rounded-3 border-2 border-primary-subtle shadow-sm">
-                            <option value="">Todas las áreas</option>
-                            <option value="Ingeniería">Ingeniería</option>
-                            <option value="Tecnología">Tecnología</option>
-                            <option value="Salud">Salud</option>
-                            <option value="Salud Mental">Salud Mental</option>
-                            <option value="Negocios">Negocios</option>
-                            <option value="Derecho">Derecho</option>
-                            <option value="Arte y Diseño">Arte y Diseño</option>
-                            <option value="Comunicación">Comunicación</option>
-                            <option value="Agronomía">Agronomía</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- LAYOUT: FILTROS + NOTICIAS -->
-        <div class="row g-4">
-
-            <!-- PANEL DE FILTROS -->
-            <div class="col-lg-3">
-                <div class="card border-0 shadow-sm rounded-4 sticky-top p-4" style="top: 100px;">
-                    <h5 class="fw-bold mb-4 text-primary">Filtrar por Fecha</h5>
-                    <div class="d-grid gap-2" id="dateFilters">
-                        <button class="btn btn-outline-primary btn-sm rounded-3 text-start filter-btn active" data-filter="all">
-                            <i class="bi bi-calendar3"></i> Todas
-                        </button>
-                        <button class="btn btn-outline-primary btn-sm rounded-3 text-start filter-btn" data-filter="hoy">
-                            <i class="bi bi-calendar-day"></i> Hoy
-                        </button>
-                        <button class="btn btn-outline-primary btn-sm rounded-3 text-start filter-btn" data-filter="ayer">
-                            <i class="bi bi-calendar-event"></i> Ayer
-                        </button>
-                        <button class="btn btn-outline-primary btn-sm rounded-3 text-start filter-btn" data-filter="esta semana">
-                            <i class="bi bi-calendar-week"></i> Esta semana
-                        </button>
-                        <button class="btn btn-outline-primary btn-sm rounded-3 text-start filter-btn" data-filter="este mes">
-                            <i class="bi bi-calendar2-month"></i> Este mes
-                        </button>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <h5 class="fw-bold mb-4 text-primary">Fuentes</h5>
-                    <div class="d-grid gap-2">
-                        <div class="form-check">
-                            <input class="form-check-input source-check" type="checkbox" checked value="La Gaceta" id="f1">
-                            <label class="form-check-label small fw-500" for="f1">La Gaceta</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input source-check" type="checkbox" checked value="Universia" id="f2">
-                            <label class="form-check-label small fw-500" for="f2">Universia</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input source-check" type="checkbox" checked value="Facultades (Oficial)" id="f3">
-                            <label class="form-check-label small fw-500" for="f3">Facultades (Oficial)</label>
-                        </div>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="d-grid">
-                        <button class="btn btn-primary btn-sm rounded-3 fw-bold" onclick="resetFilters()">
-                            <i class="bi bi-arrow-clockwise"></i> Resetear Filtros
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- LISTADO DE NOTICIAS -->
-            <div class="col-lg-9">
-                <div id="newsContainer" class="row g-4">
-                    {% for noticia in noticias %}
-                    <div class="col-md-6 news-item"
-                         data-categoria="{{ noticia.categoria }}"
-                         data-fuente="{{ noticia.fuente }}"
-                         data-titulo="{{ noticia.titulo|lower }}"
-                         data-area="{{ noticia.area }}">
-                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 news-card" style="transition: transform 0.3s, box-shadow 0.3s;">
-                            <!-- IMAGEN -->
-                            <div style="height: 200px; overflow: hidden; position: relative;">
-                                <img src="https://images.unsplash.com/photo-1632331684328-c1b503d263bf?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" class="w-100 h-100 object-fit-cover" alt="{{ noticia.titulo }}">
-                                <div style="position: absolute; top: 10px; right: 10px;">
-                                    <span class="badge bg-success rounded-pill">{{ noticia.area }}</span>
-                                </div>
-                            </div>
-
-                            <!-- CONTENIDO -->
-                            <div class="card-body p-4">
-                                <div class="mb-2 d-flex justify-content-between align-items-center">
-                                    <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold small">{{ noticia.fuente }}</span>
-                                    <small class="text-muted"><i class="bi bi-calendar3"></i> {{ noticia.fecha }}</small>
-                                </div>
-
-                                <h5 class="fw-bold mb-3 noticia-titulo text-dark">{{ noticia.titulo }}</h5>
-                                <p class="text-muted small mb-4" style="line-height: 1.6;">{{ noticia.descripcion[:100] }}...</p>
-
-                                <!-- BOTÓN -->
-                                <a href="#" class="btn btn-primary btn-sm rounded-pill px-4 w-100">
-                                    <i class="bi bi-arrow-right"></i> Leer más
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-
-                <!-- SIN RESULTADOS -->
-                <div id="noResults" class="col-12 text-center py-5 d-none">
-                    <div class="display-1 text-muted mb-3">
-                        <i class="bi bi-inbox"></i>
-                    </div>
-                    <h4 class="text-muted">No se encontraron noticias</h4>
-                    <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN DE INSIGHTS / ESTADÍSTICAS -->
-        <div class="row g-4 mt-5">
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
-                    <div class="display-5 text-primary mb-2">📈</div>
-                    <h6 class="fw-bold">+35%</h6>
-                    <p class="small text-muted">Crecimiento en Tecnología</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
-                    <div class="display-5 text-success mb-2">🏥</div>
-                    <h6 class="fw-bold">+42%</h6>
-                    <p class="small text-muted">Salud Mental en demanda</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
-                    <div class="display-5 text-info mb-2">🌱</div>
-                    <h6 class="fw-bold">+28%</h6>
-                    <p class="small text-muted">Carreras Verdes</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
-                    <div class="display-5 text-warning mb-2">💼</div>
-                    <h6 class="fw-bold">+50%</h6>
-                    <p class="small text-muted">Empleabilidad Digital</p>
-                </div>
-            </div>
-        </div>
+    <!-- Hero Section -->
+    <div class="row mb-5 text-center">
+      <div class="col-lg-8 mx-auto">
+        <h1 class="display-4 fw-bold text-primary mb-3">
+          <i class="bi bi-newspaper me-2"></i>Noticias & Tendencias
+        </h1>
+        <p class="lead text-muted">
+          Mantente informado sobre tendencias académicas y oportunidades universitarias.
+        </p>
+      </div>
     </div>
+
+    <!-- Buscador y Filtros Rápidos -->
+    <div class="card border-0 shadow-sm rounded-4 mb-5 p-4 bg-white">
+      <form action="{{ url_for('noticias') }}" method="GET" class="row g-3">
+        
+        <div class="col-md-5">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+            <input type="text" name="q" class="form-control border-start-0" placeholder="Buscar por título, contenido o fuente..." value="{{ busqueda }}">
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <select name="categoria" class="form-select" onchange="this.form.submit()">
+            <option value="todas">Todas las áreas</option>
+            {% for cat in categorias %}
+              <option value="{{ cat }}" {% if filtro_categoria == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-filter me-2"></i>Buscar
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="row g-4">
+      
+      <!-- Barra Lateral de Filtros -->
+      <div class="col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 20px;">
+          
+          <h5 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2"></i>Filtrar por Fecha</h5>
+          <div class="list-group list-group-flush mb-4">
+            {% for valor, label in [('todas','Todas'),('hoy','Hoy'),('ayer','Ayer'),('semana','Esta semana'),('mes','Este mes')] %}
+              <a href="{{ url_for('noticias', fecha=valor, fuente=filtro_fuente, categoria=filtro_categoria, q=busqueda) }}" 
+                 class="list-group-item list-group-item-action border-0 px-0 d-flex justify-content-between align-items-center {% if filtro_fecha == valor %}text-primary fw-bold{% endif %}">
+                {{ label }}
+                {% if filtro_fecha == valor %}<i class="bi bi-check-circle-fill"></i>{% endif %}
+              </a>
+            {% endfor %}
+          </div>
+
+          <h5 class="fw-bold mb-3"><i class="bi bi-broadcast me-2"></i>Fuentes</h5>
+          <div class="list-group list-group-flush">
+            <a href="{{ url_for('noticias', fecha=filtro_fecha, fuente='todas', categoria=filtro_categoria, q=busqueda) }}" 
+               class="list-group-item list-group-item-action border-0 px-0 {% if filtro_fuente == 'todas' %}text-primary fw-bold{% endif %}">
+              Todas
+            </a>
+            {% for f in fuentes %}
+              <a href="{{ url_for('noticias', fecha=filtro_fecha, fuente=f, categoria=filtro_categoria, q=busqueda) }}" 
+                 class="list-group-item list-group-item-action border-0 px-0 {% if filtro_fuente == f %}text-primary fw-bold{% endif %}">
+                {{ f }}
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Resultados de Noticias -->
+      <div class="col-lg-9">
+        {% if noticias %}
+          <div class="row g-4">
+
+            {% for noticia in noticias %}
+            <div class="col-md-6 animate__animated animate__fadeInUp">
+              <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden news-card bg-white">
+                
+                <!-- Imagen con fallback -->
+                <div class="position-relative" style="height: 200px;">
+                  {% if noticia.imagen %}
+                    <img src="{{ noticia.imagen }}" class="w-100 h-100 object-fit-cover" alt="{{ noticia.titulo }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
+                  {% else %}
+                    <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted">
+                      <i class="bi bi-image-alt display-4"></i>
+                    </div>
+                  {% endif %}
+                  <div class="position-absolute top-0 end-0 p-3">
+                    <span class="badge bg-primary rounded-pill shadow-sm">{{ noticia.categoria }}</span>
+                  </div>
+                </div>
+
+                <div class="card-body p-4">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-primary fw-bold small"><i class="bi bi-bookmark-fill me-1"></i>{{ noticia.fuente }}</span>
+                    <small class="text-muted">
+                      <i class="bi bi-clock me-1"></i>
+                      {% if noticia.fecha %}{{ noticia.fecha.strftime('%d/%m/%Y') }}{% endif %}
+                    </small>
+                  </div>
+
+                  <h5 class="card-title fw-bold mb-3 text-dark">{{ noticia.titulo }}</h5>
+                  
+                  <p class="card-text text-muted mb-4" style="font-size: 0.95rem; line-height: 1.6;">
+                    {{ noticia.descripcion or 'Sin descripción disponible.' }}
+                  </p>
+
+                  <div class="mt-auto pt-3 border-top">
+                    {% if noticia.link and noticia.link != '#' %}
+                      <a href="{{ noticia.link }}" target="_blank" class="btn btn-outline-primary rounded-pill w-100 fw-bold">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>Leer más
+                      </a>
+                    {% else %}
+                      <button class="btn btn-light disabled rounded-pill w-100">Sin enlace disponible</button>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+
+          </div>
+        {% else %}
+          <!-- No results state -->
+          <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+            <div class="display-1 text-muted mb-4">
+              <i class="bi bi-search"></i>
+            </div>
+            <h3 class="fw-bold">No hay noticias disponibles</h3>
+            <p class="text-muted mb-4">
+              No se encontraron noticias con los filtros seleccionados.
+            </p>
+            <div class="d-flex justify-content-center">
+              <a href="{{ url_for('noticias') }}" class="btn btn-primary rounded-pill px-5">
+                Ver todas las noticias
+              </a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('newsSearch');
-    const areaFilter = document.getElementById('areaFilter');
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    const sourceChecks = document.querySelectorAll('.source-check');
-    const newsItems = document.querySelectorAll('.news-item');
-    const noResults = document.getElementById('noResults');
-
-    function filterNews() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const activeDateFilter = document.querySelector('.filter-btn.active').dataset.filter;
-        const activeArea = areaFilter.value;
-        const activeSources = Array.from(sourceChecks)
-            .filter(check => check.checked)
-            .map(check => check.value);
-
-        let visibleCount = 0;
-
-        newsItems.forEach(item => {
-            const matchesSearch = item.dataset.titulo.includes(searchTerm) ||
-                                item.dataset.fuente.toLowerCase().includes(searchTerm);
-            const matchesDate = activeDateFilter === 'all' || item.dataset.categoria === activeDateFilter;
-            const matchesArea = activeArea === '' || item.dataset.area === activeArea;
-            const matchesSource = activeSources.includes(item.dataset.fuente);
-
-            if (matchesSearch && matchesDate && matchesSource && matchesArea) {
-                item.classList.remove('d-none');
-                visibleCount++;
-            } else {
-                item.classList.add('d-none');
-            }
-        });
-
-        if (visibleCount === 0) {
-            noResults.classList.remove('d-none');
-        } else {
-            noResults.classList.add('d-none');
-        }
-    }
-
-    function resetFilters() {
-        searchInput.value = '';
-        areaFilter.value = '';
-        filterBtns.forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.filter === 'all') btn.classList.add('active');
-        });
-        sourceChecks.forEach(check => check.checked = true);
-        filterNews();
-    }
-
-    // Agregar hover effect a tarjetas
-    document.querySelectorAll('.news-card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-10px)';
-            this.style.boxShadow = '0 1rem 3rem rgba(0,0,0,0.15)';
-        });
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = '';
-        });
-    });
-
-    searchInput.addEventListener('input', filterNews);
-    areaFilter.addEventListener('change', filterNews);
-
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            filterBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            filterNews();
-        });
-    });
-
-    sourceChecks.forEach(check => {
-        check.addEventListener('change', filterNews);
-    });
-
-    // Hacer global la función resetFilters
-    window.resetFilters = resetFilters;
-});
-</script>
-
 <style>
-    .news-card {
-        cursor: pointer;
-    }
-
-    .object-fit-cover {
-        object-fit: cover;
-    }
-
-    #areaFilter {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%230d6efd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 0.75rem center;
-        background-size: 16px 12px;
-        padding-right: 2.5rem;
-    }
+  .news-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .news-card:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.1) !important; }
+  .object-fit-cover { object-fit: cover; }
 </style>
+
 {% endblock %}
