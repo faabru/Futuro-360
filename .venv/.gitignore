@@ -1,0 +1,40 @@
+# =============================================
+# FUTURO 360 — .gitignore
+# =============================================
+
+# Variables de entorno — NUNCA subir a GitHub
+.env
+
+# Entorno virtual de Python
+.venv/
+venv/
+env/
+
+# Caché de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos temporales y logs
+*.log
+*.tmp
+*.bak
+
+# Base de datos local (si usás SQLite)
+*.db
+*.sqlite3
+
+# Configuración del IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Archivos de Trae
+.trae/
