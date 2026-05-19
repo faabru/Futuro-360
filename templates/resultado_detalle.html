@@ -46,16 +46,6 @@
                     <p class="lead text-muted">{{ resultado.detalle_texto }}</p>
                 </div>
 
-                <!-- SECCIÓN DE NOTAS PERSONALES (CRUD) -->
-                <div class="mb-5 p-4 bg-light rounded-4">
-                    <h4 class="fw-bold mb-4 text-primary">Tus Notas Personales</h4>
-                    <form action="{{ url_for('actualizar_resultado', resultado_id=resultado.id) }}" method="POST">
-                        <div class="mb-3">
-                            <textarea name="notas_personales" class="form-control border-0 shadow-sm" rows="3" placeholder="Escribe aquí tus reflexiones sobre este resultado...">{{ resultado.notas_personales or '' }}</textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary rounded-pill px-4">Guardar Notas</button>
-                    </form>
-                </div>
 
                 <!-- CARRERAS RECOMENDADAS -->
                 <h4 class="fw-bold mb-4 text-primary">Carreras Recomendadas para vos</h4>
