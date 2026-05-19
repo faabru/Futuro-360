@@ -3,9 +3,11 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import json
 import os
 import traceback
+import random
 from functools import wraps
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_mail import Mail, Message
 from database_handler import obtener_db, inicializar_app
 
 # Cargar las variables de entorno desde el archivo .env (configuración de BD y llaves secretas)
@@ -14,6 +16,18 @@ load_dotenv()
 # Inicialización de la aplicación Flask
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
+
+# --- CONFIGURACIÓN DE EMAIL (Flask-Mail) ---
+# Para usar Gmail: activar "Contraseñas de aplicación" en tu cuenta Google
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_DEFAULT_CHARSET'] = 'utf-8'
+
+mail = Mail(app) 
 
 # Inicializar la conexión a la base de datos con la aplicación
 inicializar_app(app)
@@ -125,21 +139,152 @@ def logout():
     flash('Has cerrado sesión correctamente.', 'info')
     return redirect(url_for('index'))
 
-# Ruta para recuperación de contraseña (simulada)
-@app.route('/recuperar-password', methods=['GET', 'POST'])
-def recuperar_password():
-    if request.method == 'POST':
-        email = request.form['email']
-        
-        db = obtener_db()
-        cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
-        usuario = cursor.fetchone()
-        
-        flash('Si el correo está registrado, recibirás las instrucciones en breve.', 'info')
-        return redirect(url_for('login'))
-        
-    return render_template('recuperar_password.html')
+# --- RECUPERACIÓN DE CONTRASEÑA --- 
+ 
+@app.route('/recuperar-password', methods=['GET', 'POST']) 
+def recuperar_password(): 
+    """PASO 1: El usuario ingresa su email y recibe el código por correo""" 
+    if request.method == 'POST': 
+        email = request.form.get('email', '').strip() 
+ 
+        db = obtener_db() 
+        cursor = db.cursor(dictionary=True) 
+        cursor.execute("SELECT id FROM usuarios WHERE email = %s", (email,)) 
+        usuario = cursor.fetchone() 
+ 
+        if usuario: 
+            # Generar código de 6 dígitos entre 100000 y 999999 
+            codigo = str(random.randint(100000, 999999)) 
+ 
+            # Eliminar códigos anteriores del mismo email 
+            cursor2 = db.cursor() 
+            cursor2.execute("DELETE FROM password_resets WHERE email = %s", (email,)) 
+ 
+            # Guardar el código en la BD con expiración de 15 minutos 
+            cursor2.execute(""" 
+                INSERT INTO password_resets (email, codigo, expira_en) 
+                VALUES (%s, %s, DATE_ADD(NOW(), INTERVAL 15 MINUTE)) 
+            """, (email, codigo)) 
+            db.commit() 
+ 
+            # Enviar el email con el código 
+            try: 
+                msg = Message( 
+                    subject='Codigo de verificacion - Futuro 360', 
+                    recipients=[email] 
+                ) 
+                # Cuerpo en texto plano (sin tildes ni eñes para evitar errores ASCII)
+                msg.body = f"Tu codigo de verificacion es: {codigo}"
+                
+                # Cuerpo HTML usando entidades para caracteres especiales
+                msg.html = f""" 
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+                    <div style="background-color: #0d6efd; padding: 20px; text-align: center; color: white;">
+                        <h1 style="margin: 0;">Futuro 360</h1>
+                    </div>
+                    <div style="padding: 30px; line-height: 1.6; color: #333;">
+                        <h2 style="color: #0d6efd;">Recuperaci&oacute;n de contrase&ntilde;a</h2>
+                        <p>Recibimos una solicitud para restablecer tu contrase&ntilde;a. Us&aacute; el siguiente c&oacute;digo de verificaci&oacute;n:</p>
+                        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; margin: 20px 0;">
+                            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #0d6efd;">{codigo}</span>
+                        </div>
+                        <p style="font-size: 0.9em; color: #666;">Este c&oacute;digo expira en 15 minutos.</p>
+                        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                        <p style="font-size: 0.8em; color: #999;">Si no solicitaste este cambio, pod&eacute;s ignorar este email de forma segura.</p>
+                    </div>
+                </div>
+                """ 
+                mail.send(msg) 
+                flash('✅ Te enviamos un código de 6 dígitos a tu correo. Revisá también la carpeta de spam.', 'success') 
+            except Exception as e: 
+                flash(f'Error al enviar el email: {str(e)}', 'danger') 
+                return render_template('recuperar_password.html') 
+        else: 
+            # Por seguridad, siempre mostramos el mismo mensaje 
+            flash('✅ Si el correo está registrado, recibirás el código en breve.', 'info') 
+ 
+        # Guardamos el email en sesión para usarlo en el siguiente paso 
+        session['reset_email'] = email 
+        return redirect(url_for('verificar_codigo')) 
+ 
+    return render_template('recuperar_password.html') 
+ 
+ 
+@app.route('/verificar-codigo', methods=['GET', 'POST']) 
+def verificar_codigo(): 
+    """PASO 2: El usuario ingresa el código de 6 dígitos recibido por email""" 
+    email = session.get('reset_email') 
+    if not email: 
+        flash('Sesión expirada. Por favor comenzá de nuevo.', 'warning') 
+        return redirect(url_for('recuperar_password')) 
+ 
+    if request.method == 'POST': 
+        # Unir los 6 dígitos ingresados en campos separados 
+        digitos = [request.form.get(f'd{i}', '') for i in range(1, 7)] 
+        codigo_ingresado = ''.join(digitos).strip() 
+ 
+        db = obtener_db() 
+        cursor = db.cursor(dictionary=True) 
+        cursor.execute(""" 
+            SELECT * FROM password_resets 
+            WHERE email = %s AND codigo = %s AND usado = 0 AND expira_en > NOW() 
+        """, (email, codigo_ingresado)) 
+        reset = cursor.fetchone() 
+ 
+        if reset: 
+            # Marcar el código como usado 
+            cursor2 = db.cursor() 
+            cursor2.execute("UPDATE password_resets SET usado = 1 WHERE id = %s", (reset['id'],)) 
+            db.commit() 
+            # Guardar en sesión que el código fue verificado 
+            session['reset_verificado'] = True 
+            flash('✅ Código verificado correctamente. Ahora podés crear tu nueva contraseña.', 'success') 
+            return redirect(url_for('nueva_password')) 
+        else: 
+            flash('❌ Código incorrecto o expirado. Verificá el email o solicitá uno nuevo.', 'danger') 
+ 
+    return render_template('verificar_codigo.html', email=email) 
+ 
+ 
+@app.route('/nueva-password', methods=['GET', 'POST']) 
+def nueva_password(): 
+    """PASO 3: El usuario ingresa y confirma su nueva contraseña""" 
+    email = session.get('reset_email') 
+    verificado = session.get('reset_verificado') 
+ 
+    if not email or not verificado: 
+        flash('Acceso no autorizado. Por favor comenzá de nuevo.', 'warning') 
+        return redirect(url_for('recuperar_password')) 
+ 
+    if request.method == 'POST': 
+        password_nueva = request.form.get('password_nueva', '') 
+        password_confirmar = request.form.get('password_confirmar', '') 
+ 
+        if len(password_nueva) < 8: 
+            flash('La contraseña debe tener al menos 8 caracteres.', 'danger') 
+            return render_template('nueva_password.html') 
+ 
+        if password_nueva != password_confirmar: 
+            flash('Las contraseñas no coinciden. Intentá de nuevo.', 'danger') 
+            return render_template('nueva_password.html') 
+ 
+        # Actualizar la contraseña en la BD 
+        db = obtener_db() 
+        cursor = db.cursor() 
+        cursor.execute( 
+            "UPDATE usuarios SET password = %s WHERE email = %s", 
+            (generate_password_hash(password_nueva), email) 
+        ) 
+        db.commit() 
+ 
+        # Limpiar la sesión de recuperación 
+        session.pop('reset_email', None) 
+        session.pop('reset_verificado', None) 
+ 
+        flash('🎉 ¡Contraseña actualizada correctamente! Ya podés iniciar sesión.', 'success') 
+        return redirect(url_for('login')) 
+ 
+    return render_template('nueva_password.html') 
 
 # --- SECCIÓN: GESTIÓN DE PERFIL (R, U, D de CRUD) ---
 
