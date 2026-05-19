@@ -20,26 +20,20 @@
     <div class="card border-0 shadow-sm rounded-4 mb-5 p-4 bg-white">
       <form action="{{ url_for('noticias') }}" method="GET" class="row g-3">
         
-        <div class="col-md-5">
+        <div class="col-md-7">
           <div class="input-group">
             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-            <input type="text" name="q" class="form-control border-start-0" placeholder="Buscar por título, contenido o fuente..." value="{{ busqueda }}">
+            <input type="text" name="q" class="form-control border-start-0" placeholder="Buscar por título, contenido o fuente..." value="{{ busqueda }}" onchange="this.form.submit()">
           </div>
         </div>
 
-        <div class="col-md-4">
+        <div class="col-md-5">
           <select name="categoria" class="form-select" onchange="this.form.submit()">
             <option value="todas">Todas las áreas</option>
             {% for cat in categorias %}
               <option value="{{ cat }}" {% if filtro_categoria == cat %}selected{% endif %}>{{ cat }}</option>
             {% endfor %}
           </select>
-        </div>
-
-        <div class="col-md-3">
-          <button type="submit" class="btn btn-primary w-100">
-            <i class="bi bi-filter me-2"></i>Buscar
-          </button>
         </div>
 
       </form>
