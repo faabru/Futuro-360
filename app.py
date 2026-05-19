@@ -32,6 +32,41 @@ mail = Mail(app)
 # Inicializar la conexión a la base de datos con la aplicación
 inicializar_app(app)
 
+# Modo de desarrollo para emails: si DEV_MAIL=console, los emails se escriben a disco en vez de enviarse
+DEV_MAIL_CONSOLE = os.getenv('DEV_MAIL', '').lower() == 'console'
+
+def enviar_email(msg):
+    """Envía el email usando Flask-Mail o lo guarda en disco si estamos en modo consola de desarrollo."""
+    if DEV_MAIL_CONSOLE:
+        try:
+            from pathlib import Path
+            import datetime
+            outdir = Path('sent_emails')
+            outdir.mkdir(exist_ok=True)
+            ts = datetime.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
+            safe_subject = (msg.subject or 'sin_asunto').replace(' ', '_')
+            filename = outdir / f"{ts}_{safe_subject}.html"
+            body = ''
+            if getattr(msg, 'html', None):
+                body = msg.html
+            else:
+                body = msg.body or ''
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(f"To: {msg.recipients}\nFrom: {msg.sender}\nSubject: {msg.subject}\n\n")
+                f.write(body)
+            print(f"✅ Email guardado en: {filename}")
+        except Exception as e:
+            print(f"❌ Error al guardar email en disco: {e}")
+            # En caso de error al escribir, intentar el envío normal
+            mail.send(msg)
+    else:
+        try:
+            mail.send(msg)
+            print(f"✅ Email enviado a: {msg.recipients}")
+        except Exception as e:
+            print(f"❌ Error al enviar email: {e}")
+            raise
+
 # --- MIDDLEWARE: Función que se ejecuta antes de cada petición ---
 # Su objetivo es cargar la información del usuario logueado en la variable global 'g.user'
 @app.before_request
@@ -167,17 +202,17 @@ def recuperar_password():
             """, (email, codigo)) 
             db.commit() 
  
-            # Enviar el email con el código 
-            try: 
-                msg = Message( 
-                    subject='Codigo de verificacion - Futuro 360', 
-                    recipients=[email] 
-                ) 
+            # Enviar el email con el código
+            try:
+                msg = Message(
+                    subject='Codigo de verificacion - Futuro 360',
+                    recipients=[email]
+                )
                 # Cuerpo en texto plano (sin tildes ni eñes para evitar errores ASCII)
                 msg.body = f"Tu codigo de verificacion es: {codigo}"
-                
+
                 # Cuerpo HTML usando entidades para caracteres especiales
-                msg.html = f""" 
+                msg.html = f"""
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
                     <div style="background-color: #0d6efd; padding: 20px; text-align: center; color: white;">
                         <h1 style="margin: 0;">Futuro 360</h1>
@@ -193,11 +228,17 @@ def recuperar_password():
                         <p style="font-size: 0.8em; color: #999;">Si no solicitaste este cambio, pod&eacute;s ignorar este email de forma segura.</p>
                     </div>
                 </div>
-                """ 
-                mail.send(msg) 
-                flash('✅ Te enviamos un código de 6 dígitos a tu correo. Revisá también la carpeta de spam.', 'success') 
-            except Exception as e: 
-                flash(f'Error al enviar el email: {str(e)}', 'danger') 
+                """
+                print(f"DEBUG: Intentando enviar email a {email}")
+                print(f"DEBUG: Config SMTP - Server: {app.config['MAIL_SERVER']}, Port: {app.config['MAIL_PORT']}, TLS: {app.config['MAIL_USE_TLS']}")
+                print(f"DEBUG: Username: {app.config['MAIL_USERNAME']}, Password: {'*' * len(app.config['MAIL_PASSWORD'])}")
+                enviar_email(msg)
+                flash('✅ Te enviamos un código de 6 dígitos a tu correo. Revisá también la carpeta de spam.', 'success')
+            except Exception as e:
+                print(f"DEBUG: EXCEPTION - {type(e).__name__}: {str(e)}")
+                import traceback
+                traceback.print_exc()
+                flash(f'Error al enviar el email: {str(e)}', 'danger')
                 return render_template('recuperar_password.html') 
         else: 
             # Por seguridad, siempre mostramos el mismo mensaje 
