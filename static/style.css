@@ -186,44 +186,90 @@ body {
     margin-bottom: 0.5rem;
 }
 
-/* --- FOOTER (PIE DE PÁGINA) PROFESIONAL --- */
+/* --- FOOTER (PIE DE PÁGINA) REDISEÑADO --- */
 .footer-modern {
-    background: #142B38;
-    color: #84CADC;
+    background: #050505; /* Fondo negro profundo */
+    color: #ffffff;
     position: relative;
-    overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.footer-links a {
-    color: #84CADC;
+.footer-slogan {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.7);
+    max-width: 600px;
+    line-height: 1.5;
+}
+
+.text-info {
+    color: #00D1FF !important; /* Cian brillante de la imagen */
+}
+
+.icon-box-footer {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00D1FF;
+    font-size: 1.2rem;
+}
+
+.footer-links-new a {
+    color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
     transition: all 0.3s ease;
-    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
 }
 
-.footer-links a:hover {
-    color: var(--primary);
-    transform: translateX(5px);
-    display: inline-block;
+.footer-links-new a:hover {
+    color: #00D1FF;
+    transform: translateX(8px);
 }
 
-.social-icon {
-    width: 38px;
-    height: 38px;
-    background: rgba(230, 227, 227, 0.904);
-    color: #fff;
+.contact-icon-circle {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #00D1FF;
+}
+
+.social-circle-link {
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
     text-decoration: none;
     transition: all 0.3s ease;
 }
 
-.social-icon:hover {
-    background: var(--primary);
-    color: #fff;
-    transform: translateY(-3px);
+.social-circle-link:hover {
+    background: #00D1FF;
+    color: #050505;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 209, 255, 0.3);
+}
+
+.footer-bottom-new {
+    background: rgba(255, 255, 255, 0.02) !important;
+    backdrop-filter: blur(10px);
+}
+
+.footer-bottom-new .text-secondary {
+    color: rgba(255, 255, 255, 0.4) !important;
 }
 
 .contact-card {

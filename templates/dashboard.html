@@ -14,49 +14,57 @@
     <div class="row g-4 mb-5">
         <!-- 1. Test Vocacional Pro -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100 border-primary border-opacity-25 hover-lift transition">
-                <div class="mb-4 d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle" style="width: 60px; height: 60px;">
+            <div class="glass-card h-100 border-primary border-opacity-25 hover-lift transition d-flex flex-column">
+                <div class="mb-4 d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mx-auto" style="width: 60px; height: 60px;">
                     <i class="bi bi-patch-check-fill fs-3 text-primary"></i>
                 </div>
-                <h4 class="fw-bold mb-3">1. Test Pro</h4>
-                <p class="text-muted small mb-4">Realiza nuestro test profesional de 30 dimensiones para un perfil exacto.</p>
-                <a href="{{ url_for('test') }}" class="btn btn-primary btn-sm w-100 rounded-0 fw-bold">COMENZAR</a>
+                <h4 class="fw-bold mb-3 text-center">1. Test Pro</h4>
+                <p class="text-muted small mb-4 text-center">Realiza nuestro test profesional de 30 dimensiones para un perfil exacto.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('test') }}" class="btn btn-primary btn-sm w-100 rounded-pill fw-bold py-2">COMENZAR</a>
+                </div>
             </div>
         </div>
 
         <!-- 2. Catálogo de Carreras -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100 border-secondary border-opacity-25 hover-lift transition">
-                <div class="mb-4 d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 rounded-circle" style="width: 60px; height: 60px;">
+            <div class="glass-card h-100 border-secondary border-opacity-25 hover-lift transition d-flex flex-column">
+                <div class="mb-4 d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 rounded-circle mx-auto" style="width: 60px; height: 60px;">
                     <i class="bi bi-search-heart-fill fs-3 text-secondary"></i>
                 </div>
-                <h4 class="fw-bold mb-3">2. Carreras</h4>
-                <p class="text-muted small mb-4">Explora el catálogo completo con información sobre universidades y campo laboral.</p>
-                <a href="{{ url_for('carreras') }}" class="btn btn-secondary btn-sm w-100 rounded-0 fw-bold">EXPLORAR</a>
+                <h4 class="fw-bold mb-3 text-center">2. Carreras</h4>
+                <p class="text-muted small mb-4 text-center">Explora el catálogo completo con información sobre universidades y campo laboral.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('carreras') }}" class="btn btn-secondary btn-sm w-100 rounded-pill fw-bold py-2">EXPLORAR</a>
+                </div>
             </div>
         </div>
 
         <!-- 3. El Laboratorio (Juego) -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100 border-warning border-opacity-25 hover-lift transition">
-                <div class="mb-4 d-flex align-items-center justify-content-center bg-warning bg-opacity-10 rounded-circle" style="width: 60px; height: 60px;">
+            <div class="glass-card h-100 border-warning border-opacity-25 hover-lift transition d-flex flex-column">
+                <div class="mb-4 d-flex align-items-center justify-content-center bg-warning bg-opacity-10 rounded-circle mx-auto" style="width: 60px; height: 60px;">
                     <i class="bi bi-controller fs-3 text-warning"></i>
                 </div>
-                <h4 class="fw-bold mb-3">3. El Laboratorio</h4>
-                <p class="text-muted small mb-4">Descubre tus intereses ocultos de forma interactiva y divertida.</p>
-                <a href="{{ url_for('juego') }}" class="btn btn-warning btn-sm w-100 rounded-0 fw-bold text-dark">JUGAR</a>
+                <h4 class="fw-bold mb-3 text-center">3. Game</h4>
+                <p class="text-muted small mb-4 text-center">Descubre tus intereses ocultos de forma interactiva y divertida.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('juego') }}" class="btn btn-warning btn-sm w-100 rounded-pill fw-bold py-2 text-dark">JUGAR</a>
+                </div>
             </div>
         </div>
 
         <!-- 4. Centro de Noticias -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100 border-success border-opacity-25 hover-lift transition">
-                <div class="mb-4 d-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-circle" style="width: 60px; height: 60px;">
+            <div class="glass-card h-100 border-success border-opacity-25 hover-lift transition d-flex flex-column">
+                <div class="mb-4 d-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-circle mx-auto" style="width: 60px; height: 60px;">
                     <i class="bi bi-newspaper fs-3 text-success"></i>
                 </div>
-                <h4 class="fw-bold mb-3">4. Noticias</h4>
-                <p class="text-muted small mb-4">Tendencias académicas, becas y novedades de las facultades locales.</p>
-                <a href="{{ url_for('noticias') }}" class="btn btn-success btn-sm w-100 rounded-0 fw-bold">VER NOVEDADES</a>
+                <h4 class="fw-bold mb-3 text-center">4. Noticias</h4>
+                <p class="text-muted small mb-4 text-center">Tendencias académicas, becas y novedades de las facultades locales.</p>
+                <div class="mt-auto">
+                    <a href="{{ url_for('noticias') }}" class="btn btn-success btn-sm w-100 rounded-pill fw-bold py-2">NOVEDADES</a>
+                </div>
             </div>
         </div>
     </div>
