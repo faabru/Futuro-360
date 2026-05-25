@@ -7,7 +7,7 @@ import random
 from functools import wraps
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_mail import Mail, Message
+import resend
 from database_handler import obtener_db, inicializar_app
 
 # Cargar las variables de entorno desde el archivo .env (configuración de BD y llaves secretas)
@@ -17,17 +17,9 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
 
-# --- CONFIGURACIÓN DE EMAIL (Flask-Mail) ---
-# Para usar Gmail: activar "Contraseñas de aplicación" en tu cuenta Google
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
-app.config['MAIL_DEFAULT_CHARSET'] = 'utf-8'
-
-mail = Mail(app) 
+# --- CONFIGURACIÓN DE RESEND (envío de emails) --- 
+resend.api_key = os.getenv('RESEND_API_KEY') 
+MAIL_FROM = "Futuro 360 <onboarding@resend.dev>" 
 
 # Inicializar la conexión a la base de datos con la aplicación
 inicializar_app(app)
@@ -178,7 +170,7 @@ def logout():
  
 @app.route('/recuperar-password', methods=['GET', 'POST']) 
 def recuperar_password(): 
-    """PASO 1: El usuario ingresa su email y recibe el código por correo""" 
+    """PASO 1: El usuario ingresa su email y recibe el código PIN por Resend""" 
     if request.method == 'POST': 
         email = request.form.get('email', '').strip() 
  
@@ -188,63 +180,53 @@ def recuperar_password():
         usuario = cursor.fetchone() 
  
         if usuario: 
-            # Generar código de 6 dígitos entre 100000 y 999999 
+            # Generar código PIN de 6 dígitos 
             codigo = str(random.randint(100000, 999999)) 
  
-            # Eliminar códigos anteriores del mismo email 
+            # Eliminar códigos anteriores y guardar el nuevo con expiración de 15 min 
             cursor2 = db.cursor() 
             cursor2.execute("DELETE FROM password_resets WHERE email = %s", (email,)) 
- 
-            # Guardar el código en la BD con expiración de 15 minutos 
             cursor2.execute(""" 
                 INSERT INTO password_resets (email, codigo, expira_en) 
                 VALUES (%s, %s, DATE_ADD(NOW(), INTERVAL 15 MINUTE)) 
             """, (email, codigo)) 
             db.commit() 
  
-            # Enviar el email con el código
-            try:
-                msg = Message(
-                    subject='Codigo de verificacion - Futuro 360',
-                    recipients=[email]
-                )
-                # Cuerpo en texto plano (sin tildes ni eñes para evitar errores ASCII)
-                msg.body = f"Tu codigo de verificacion es: {codigo}"
-
-                # Cuerpo HTML usando entidades para caracteres especiales
-                msg.html = f"""
-                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
-                    <div style="background-color: #0d6efd; padding: 20px; text-align: center; color: white;">
-                        <h1 style="margin: 0;">Futuro 360</h1>
-                    </div>
-                    <div style="padding: 30px; line-height: 1.6; color: #333;">
-                        <h2 style="color: #0d6efd;">Recuperaci&oacute;n de contrase&ntilde;a</h2>
-                        <p>Recibimos una solicitud para restablecer tu contrase&ntilde;a. Us&aacute; el siguiente c&oacute;digo de verificaci&oacute;n:</p>
-                        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; margin: 20px 0;">
-                            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #0d6efd;">{codigo}</span>
+            # Enviar email con Resend 
+            try: 
+                resend.Emails.send({ 
+                    "from": MAIL_FROM, 
+                    "to": [email], 
+                    "subject": "🔐 Tu código de verificación - Futuro 360", 
+                    "html": f""" 
+                    <div style=\"font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;\">
+                        <div style=\"background-color: #0d6efd; padding: 20px; text-align: center; color: white;\">
+                            <h1 style=\"margin: 0;\">🎓 Futuro 360</h1>
                         </div>
-                        <p style="font-size: 0.9em; color: #666;">Este c&oacute;digo expira en 15 minutos.</p>
-                        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-                        <p style="font-size: 0.8em; color: #999;">Si no solicitaste este cambio, pod&eacute;s ignorar este email de forma segura.</p>
+                        <div style=\"padding: 30px; line-height: 1.6; color: #333;\">
+                            <h2 style=\"color: #0d6efd; text-align: center;\">Recuperación de contraseña</h2>
+                            <p style=\"text-align: center;\">Ingresá este código en la plataforma para continuar:</p>
+                            <div style=\"background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; margin: 20px 0;\">
+                                <span style=\"font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #0d6efd;\">{codigo}</span>
+                            </div>
+                            <p style=\"text-align: center; font-size: 0.9em; color: #666;\">⏱️ Este código expira en 15 minutos.</p>
+                            <hr style=\"border: 0; border-top: 1px solid #eee; margin: 20px 0;\">
+                            <p style=\"text-align: center; font-size: 0.8em; color: #999;\">Si no solicitaste este cambio, ignorá este mensaje.</p>
+                        </div>
+                        <div style=\"background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 0.75em; color: #999;\">
+                            Futuro 360 · Orientación Vocacional · Tucumán, Argentina
+                        </div>
                     </div>
-                </div>
-                """
-                print(f"DEBUG: Intentando enviar email a {email}")
-                print(f"DEBUG: Config SMTP - Server: {app.config['MAIL_SERVER']}, Port: {app.config['MAIL_PORT']}, TLS: {app.config['MAIL_USE_TLS']}")
-                print(f"DEBUG: Username: {app.config['MAIL_USERNAME']}, Password: {'*' * len(app.config['MAIL_PASSWORD'])}")
-                enviar_email(msg)
-                flash('✅ Te enviamos un código de 6 dígitos a tu correo. Revisá también la carpeta de spam.', 'success')
-            except Exception as e:
-                print(f"DEBUG: EXCEPTION - {type(e).__name__}: {str(e)}")
-                import traceback
-                traceback.print_exc()
-                flash(f'Error al enviar el email: {str(e)}', 'danger')
+                    """ 
+                }) 
+                flash('✅ Te enviamos un código de 6 dígitos a tu correo. Revisá también spam.', 'success') 
+            except Exception as e: 
+                flash(f'Error al enviar el email: {str(e)}', 'danger') 
                 return render_template('recuperar_password.html') 
         else: 
-            # Por seguridad, siempre mostramos el mismo mensaje 
+            # Siempre el mismo mensaje por seguridad 
             flash('✅ Si el correo está registrado, recibirás el código en breve.', 'info') 
  
-        # Guardamos el email en sesión para usarlo en el siguiente paso 
         session['reset_email'] = email 
         return redirect(url_for('verificar_codigo')) 
  
@@ -253,14 +235,13 @@ def recuperar_password():
  
 @app.route('/verificar-codigo', methods=['GET', 'POST']) 
 def verificar_codigo(): 
-    """PASO 2: El usuario ingresa el código de 6 dígitos recibido por email""" 
+    """PASO 2: El usuario ingresa el código de 6 dígitos""" 
     email = session.get('reset_email') 
     if not email: 
         flash('Sesión expirada. Por favor comenzá de nuevo.', 'warning') 
         return redirect(url_for('recuperar_password')) 
  
     if request.method == 'POST': 
-        # Unir los 6 dígitos ingresados en campos separados 
         digitos = [request.form.get(f'd{i}', '') for i in range(1, 7)] 
         codigo_ingresado = ''.join(digitos).strip() 
  
@@ -273,23 +254,24 @@ def verificar_codigo():
         reset = cursor.fetchone() 
  
         if reset: 
-            # Marcar el código como usado 
             cursor2 = db.cursor() 
-            cursor2.execute("UPDATE password_resets SET usado = 1 WHERE id = %s", (reset['id'],)) 
+            cursor2.execute( 
+                "UPDATE password_resets SET usado = 1 WHERE id = %s", 
+                (reset['id'],) 
+            ) 
             db.commit() 
-            # Guardar en sesión que el código fue verificado 
             session['reset_verificado'] = True 
-            flash('✅ Código verificado correctamente. Ahora podés crear tu nueva contraseña.', 'success') 
+            flash('✅ Código verificado. Ahora podés crear tu nueva contraseña.', 'success') 
             return redirect(url_for('nueva_password')) 
         else: 
-            flash('❌ Código incorrecto o expirado. Verificá el email o solicitá uno nuevo.', 'danger') 
+            flash('❌ Código incorrecto o expirado. Intentá de nuevo o solicitá uno nuevo.', 'danger') 
  
     return render_template('verificar_codigo.html', email=email) 
  
  
 @app.route('/nueva-password', methods=['GET', 'POST']) 
 def nueva_password(): 
-    """PASO 3: El usuario ingresa y confirma su nueva contraseña""" 
+    """PASO 3: El usuario ingresa su nueva contraseña""" 
     email = session.get('reset_email') 
     verificado = session.get('reset_verificado') 
  
@@ -309,7 +291,6 @@ def nueva_password():
             flash('Las contraseñas no coinciden. Intentá de nuevo.', 'danger') 
             return render_template('nueva_password.html') 
  
-        # Actualizar la contraseña en la BD 
         db = obtener_db() 
         cursor = db.cursor() 
         cursor.execute( 
@@ -318,11 +299,10 @@ def nueva_password():
         ) 
         db.commit() 
  
-        # Limpiar la sesión de recuperación 
         session.pop('reset_email', None) 
         session.pop('reset_verificado', None) 
  
-        flash('🎉 ¡Contraseña actualizada correctamente! Ya podés iniciar sesión.', 'success') 
+        flash('🎉 ¡Contraseña actualizada! Ya podés iniciar sesión.', 'success') 
         return redirect(url_for('login')) 
  
     return render_template('nueva_password.html') 

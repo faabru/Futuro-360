@@ -59,20 +59,27 @@
 
                     <!-- PANTALLA DE PREGUNTAS (DINÁMICA) -->
                     <div id="question-screen" style="display: none;">
-                        <h4 id="scenario-text" class="mb-5 fw-bold"></h4>
-                        <div class="row g-3">
+                        <div class="glass-card border-0 shadow-sm p-4 mb-5 bg-light">
+                            <h4 id="scenario-text" class="mb-0 fw-bold text-dark"></h4>
+                        </div>
+
+                        <div class="row g-4 mb-5">
                             <div class="col-md-6">
-                                <button onclick="choose(0)" id="opt-0" class="btn btn-outline-primary w-100 py-4 h-100"></button>
+                                <button onclick="choose(0)" id="opt-0" class="btn btn-white w-100 py-4 h-100 shadow-sm border-2 border-primary border-opacity-10 hover-lift transition fw-semibold text-primary"></button>
                             </div>
                             <div class="col-md-6">
-                                <button onclick="choose(1)" id="opt-1" class="btn btn-outline-secondary w-100 py-4 h-100"></button>
+                                <button onclick="choose(1)" id="opt-1" class="btn btn-white w-100 py-4 h-100 shadow-sm border-2 border-secondary border-opacity-10 hover-lift transition fw-semibold text-secondary"></button>
                             </div>
                         </div>
 
-                        <!-- BARRA DE PROGRESO DEL JUEGO -->
-                        <div class="mt-5">
-                            <div class="progress">
-                                <div id="game-progress" class="progress-bar" style="width: 0%"></div>
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold">
+                                    <span id="current-question-num">1</span> de <span id="total-questions-num">0</span>
+                                </span>
+                            </div>
+                            <div class="progress" style="height: 10px; border-radius: 5px;">
+                                <div id="game-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
@@ -112,41 +119,45 @@
                     <!-- PANTALLA DE PROFESIONES -->
                     <div id="discovery-screen" style="display: none;">
                         <!-- TARJETA DE PROFESIÓN -->
-                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-5" style="background: linear-gradient(135deg, #142B38 0%, #2F8EAB 100%);">
                             <div class="card-body text-white text-center p-5">
                                 <div class="display-4 mb-3" id="career-icon">🎓</div>
-                                <h4 id="career-name" class="fw-bold mb-2"></h4>
-                                <p id="career-area" class="mb-3 opacity-75"></p>
-                                <p id="career-description" class="lead"></p>
+                                <h3 id="career-name" class="fw-bold mb-3"></h3>
+                                <p class="small text-uppercase opacity-75 mb-2 fw-bold">Introducción</p>
+                                <p id="career-description" class="lead mb-0 opacity-90"></p>
                             </div>
                         </div>
 
                         <!-- BOTONES DE ACCIÓN -->
-                        <div class="row g-3 mb-4">
+                        <div class="row g-3 mb-5">
                             <div class="col-4">
-                                <button onclick="discoveryChoose('no')" class="btn btn-outline-danger w-100 py-3 fw-bold rounded-3">
-                                    <i class="bi bi-hand-thumbs-down"></i> No me gusta
+                                <button onclick="discoveryChoose('no')" class="btn btn-white w-100 py-3 fw-bold rounded-3 border-2 border-danger border-opacity-10 text-danger hover-lift transition">
+                                    <i class="bi bi-x-circle me-2"></i> No es lo mío
                                 </button>
                             </div>
                             <div class="col-4">
-                                <button onclick="discoveryChoose('info')" class="btn btn-outline-info w-100 py-3 fw-bold rounded-3">
-                                    <i class="bi bi-info-circle"></i> Más info
+                                <button onclick="discoveryChoose('info')" class="btn btn-white w-100 py-3 fw-bold rounded-3 border-2 border-info border-opacity-10 text-info hover-lift transition">
+                                    <i class="bi bi-info-circle me-2"></i> Info
                                 </button>
                             </div>
                             <div class="col-4">
-                                <button onclick="discoveryChoose('yes')" class="btn btn-outline-success w-100 py-3 fw-bold rounded-3">
-                                    <i class="bi bi-hand-thumbs-up"></i> Me gusta
+                                <button onclick="discoveryChoose('yes')" class="btn btn-white w-100 py-3 fw-bold rounded-3 border-2 border-success border-opacity-10 text-success hover-lift transition">
+                                    <i class="bi bi-check-circle me-2"></i> Me interesa
                                 </button>
                             </div>
                         </div>
 
-                        <!-- BARRA DE PROGRESO -->
-                        <div class="progress" style="height: 8px;">
-                            <div id="discovery-progress" class="progress-bar bg-success" style="width: 0%"></div>
+                        <!-- BARRA DE PROGRESO ABAJO -->
+                        <div class="mt-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold">
+                                    <span id="discovery-counter-new">1</span> de <span id="discovery-total-new">0</span>
+                                </span>
+                            </div>
+                            <div class="progress" style="height: 10px; border-radius: 5px;">
+                                <div id="discovery-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 0%"></div>
+                            </div>
                         </div>
-                        <small class="text-muted d-block mt-2">
-                            <span id="discovery-counter">0</span> / <span id="discovery-total">0</span>
-                        </small>
                     </div>
 
                     <!-- PANTALLA DE RESULTADOS -->
@@ -175,15 +186,32 @@
                     </div>
 
                     <!-- PANTALLA DE DETALLES -->
-                    <div id="discovery-details" style="display: none;" class="text-center">
-                        <button onclick="discoveryBack()" class="btn btn-sm btn-outline-secondary mb-4"><i class="bi bi-arrow-left"></i> Atrás</button>
-                        <div class="card border-0 shadow-sm rounded-4 p-5 mb-4" style="background: #f8f9ff;">
-                            <h4 id="details-name" class="fw-bold mb-3 text-primary"></h4>
-                            <p id="details-area" class="text-muted mb-3"></p>
-                            <p id="details-description" class="lead mb-4"></p>
-                            <p id="details-institutions" class="text-muted small"></p>
+                    <div id="discovery-details" style="display: none;" class="text-start">
+                        <div class="glass-card border-0 shadow-lg rounded-4 overflow-hidden">
+                            <div class="p-4 bg-primary bg-opacity-10 d-flex align-items-center justify-content-between">
+                                <h4 id="details-name" class="fw-bold mb-0 text-primary"></h4>
+                                <button onclick="discoveryBack()" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="bi bi-arrow-left me-1"></i> Volver
+                                </button>
+                            </div>
+                            <div class="p-5">
+                                <div class="mb-4">
+                                    <h6 class="text-uppercase text-muted fw-bold mb-2 small"><i class="bi bi-grid-fill me-2"></i>Área Profesional</h6>
+                                    <p id="details-area" class="lead fw-semibold text-dark mb-0"></p>
+                                </div>
+                                
+                                <div class="mb-5">
+                                    <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-briefcase text-primary me-2"></i> ¿A qué se dedica?</h5>
+                                    <p id="details-description" class="text-muted small" style="line-height: 1.8;"></p>
+                                </div>
+
+                                <div class="d-grid">
+                                    <a id="details-link" href="#" class="btn btn-primary btn-lg rounded-3 py-3 fw-bold shadow-sm">
+                                        <i class="bi bi-mortarboard-fill me-2"></i> Ver Carrera Completa
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                        <button onclick="discoveryBack()" class="btn btn-primary">Continuar descubrimiento</button>
                     </div>
                 </div>
             </div>
@@ -445,7 +473,12 @@
         document.getElementById('scenario-text').innerText = scenario.text;
         document.getElementById('opt-0').innerText = scenario.options[0].text;
         document.getElementById('opt-1').innerText = scenario.options[1].text;
-        document.getElementById('game-progress').style.width = ((currentIdx / scenarios.length) * 100) + '%';
+        
+        // Actualizar progreso y contador
+        const progress = (currentIdx / scenarios.length) * 100;
+        document.getElementById('game-progress').style.width = progress + '%';
+        document.getElementById('current-question-num').innerText = currentIdx + 1;
+        document.getElementById('total-questions-num').innerText = scenarios.length;
     }
 
     function choose(optIdx) {
@@ -523,13 +556,16 @@
 
         const career = careers[discoveryCurrentIdx];
         document.getElementById('career-name').innerText = career.nombre;
-        document.getElementById('career-area').innerText = career.area_profesional;
-        document.getElementById('career-description').innerText = career.descripcion;
+        // Mostrar un texto breve (máximo 80 caracteres)
+        const breveDescripcion = career.descripcion.length > 85 ? 
+            career.descripcion.substring(0, 85) + '...' : 
+            career.descripcion;
+        document.getElementById('career-description').innerText = breveDescripcion;
 
         const progress = ((discoveryCurrentIdx / careers.length) * 100);
         document.getElementById('discovery-progress').style.width = progress + '%';
-        document.getElementById('discovery-counter').innerText = discoveryCurrentIdx + 1;
-        document.getElementById('discovery-total').innerText = careers.length;
+        document.getElementById('discovery-counter-new').innerText = discoveryCurrentIdx + 1;
+        document.getElementById('discovery-total-new').innerText = careers.length;
     }
 
     function discoveryChoose(choice) {
@@ -544,9 +580,11 @@
             document.getElementById('discovery-screen').style.display = 'none';
             document.getElementById('discovery-details').style.display = 'block';
             document.getElementById('details-name').innerText = career.nombre;
-            document.getElementById('details-area').innerText = 'Área: ' + career.area_profesional;
-            document.getElementById('details-description').innerText = career.descripcion;
-            document.getElementById('details-institutions').innerText = 'Instituciones: ' + (career.instituciones || 'Información no disponible');
+            document.getElementById('details-area').innerText = career.area_profesional;
+            document.getElementById('details-description').innerText = `Los graduados en ${career.nombre} se encargan de liderar procesos clave en su área, principalmente en el ${career.descripcion.toLowerCase()} Aplicando conocimientos técnicos y estratégicos para resolver problemas complejos en el ámbito profesional de ${career.area_profesional}.`;
+            
+            // Actualizar el link para ver la carrera completa
+            document.getElementById('details-link').href = '/carrera/' + career.id;
             return;
         }
 
