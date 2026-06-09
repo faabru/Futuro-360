@@ -54,15 +54,6 @@ CREATE TABLE IF NOT EXISTS opciones_pregunta (
   FOREIGN KEY (pregunta_id) REFERENCES preguntas(id) ON DELETE CASCADE
 );
 
--- Tabla de Comentarios/Consultas
-CREATE TABLE IF NOT EXISTS comentarios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100),
-    email VARCHAR(100),
-    mensaje TEXT,
-    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- DATOS DE INICIALIZACIÓN (PARTE 2)
 SET SQL_SAFE_UPDATES = 0;
 
