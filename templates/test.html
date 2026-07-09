@@ -137,6 +137,27 @@
                 optionsContainer.appendChild(btn);
             });
 
+            // Agregar la opción "Ninguna de las anteriores" (valor 0 puntos / no suma a ningún área)
+            const btnNinguna = document.createElement('button');
+            btnNinguna.type = 'button';
+            btnNinguna.className = 'btn option-btn text-start p-3 rounded-3 animate__animated animate__fadeInUp';
+            btnNinguna.style.animationDelay = `${q.opciones.length * 0.1}s`;
+            btnNinguna.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <div class="option-circle me-3"></div>
+                    <span class="fw-medium text-muted">Ninguna de las anteriores</span>
+                </div>
+            `;
+            
+            btnNinguna.onclick = () => {
+                document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+                btnNinguna.classList.add('active');
+                answers[q.id] = null; // Valor nulo para no sumar puntos
+                nextBtn.disabled = false;
+            };
+            
+            optionsContainer.appendChild(btnNinguna);
+
             testContent.classList.remove('animate__fadeOutDown');
             testContent.classList.add('animate__fadeInUp');
         }, 300);

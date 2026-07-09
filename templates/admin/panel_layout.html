@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5 animate__animated animate__fadeIn">
+        <div class="col-lg-8">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill mb-3">
+                <i class="bi bi-shield-lock me-1"></i> Panel Administrador
+            </span>
+            <h1 class="display-5 fw-bold text-primary mb-2">{% block panel_title %}Administración{% endblock %}</h1>
+            <p class="lead text-muted mb-0">{% block panel_subtitle %}Gestioná el contenido de Futuro 360 desde acá.{% endblock %}</p>
+        </div>
+        <div class="col-lg-4 d-flex align-items-end justify-content-lg-end mt-3 mt-lg-0">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Volver al sitio
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('admin_dashboard') }}" class="text-decoration-none">
+                <div class="section-card p-4 text-center h-100 admin-nav-card {{ 'border-primary border-2' if request.endpoint == 'admin_dashboard' else '' }}">
+                    <i class="bi bi-speedometer2 fs-2 text-primary d-block mb-2"></i>
+                    <span class="fw-bold text-dark small">Inicio</span>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('admin_carreras') }}" class="text-decoration-none">
+                <div class="section-card p-4 text-center h-100 admin-nav-card {{ 'border-primary border-2' if request.endpoint in ['admin_carreras', 'editar_carrera_visual', 'nueva_carrera'] else '' }}">
+                    <i class="bi bi-mortarboard fs-2 text-primary d-block mb-2"></i>
+                    <span class="fw-bold text-dark small">Carreras</span>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('admin_preguntas') }}" class="text-decoration-none">
+                <div class="section-card p-4 text-center h-100 admin-nav-card {{ 'border-primary border-2' if request.endpoint == 'admin_preguntas' else '' }}">
+                    <i class="bi bi-question-circle fs-2 text-primary d-block mb-2"></i>
+                    <span class="fw-bold text-dark small">Preguntas</span>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('admin_noticias') }}" class="text-decoration-none">
+                <div class="section-card p-4 text-center h-100 admin-nav-card {{ 'border-primary border-2' if request.endpoint == 'admin_noticias' else '' }}">
+                    <i class="bi bi-newspaper fs-2 text-primary d-block mb-2"></i>
+                    <span class="fw-bold text-dark small">Noticias</span>
+                </div>
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{{ url_for('admin_game_carreras') }}" class="text-decoration-none">
+                <div class="section-card p-4 text-center h-100 admin-nav-card {{ 'border-primary border-2' if request.endpoint == 'admin_game_carreras' else '' }}">
+                    <i class="bi bi-controller fs-2 text-primary d-block mb-2"></i>
+                    <span class="fw-bold text-dark small">Juego</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    {% block panel_content %}{% endblock %}
+</div>
+
+<style>
+    .admin-nav-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+    .admin-nav-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1.2rem rgba(47, 142, 171, 0.15) !important;
+    }
+</style>
+{% endblock %}

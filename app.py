@@ -377,9 +377,54 @@ def dashboard():
 def carreras():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM carreras")
+
+    filtro = request.args.get('filtro', 'populares')  # ahora puede ser: populares | todas | [área profesional]
+    busqueda = request.args.get('q', '').strip()
+
+    # Determinar si el filtro es un área profesional, populares o todas
+    cursor.execute("SELECT DISTINCT area_profesional FROM carreras ORDER BY area_profesional")
+    areas_disponibles = [r['area_profesional'] for r in cursor.fetchall()]
+    
+    area_actual = 'todas'
+    filtro_actual = filtro
+    es_populares = filtro == 'populares'
+
+    # Construir la consulta base
+    query_where = " WHERE 1=1"
+    params = []
+
+    if es_populares:
+        # Primero intentamos filtrar por populares (popular=1)
+        # Pero si no hay resultados, mostraremos todas las carreras ordenadas por popularidad
+        pass  # No filtramos por popular=1, solo ordenamos por popularidad descendente
+    elif filtro in areas_disponibles:
+        area_actual = filtro
+        filtro_actual = 'todas'
+        query_where += " AND area_profesional = %s"
+        params.append(area_actual)
+
+    if busqueda:
+        query_where += " AND nombre LIKE %s"
+        params.append(f"%{busqueda}%")
+
+    # Construir la consulta final
+    query = "SELECT * FROM carreras" + query_where + " ORDER BY popular DESC, nombre ASC"
+    
+    # Añadir LIMIT solo si es 'populares' y no hay búsqueda
+    if es_populares and not busqueda:
+        query += " LIMIT 6"
+
+    cursor.execute(query, params)
     lista_carreras = cursor.fetchall()
-    return render_template('carreras.html', carreras=lista_carreras)
+
+    return render_template('carreras.html',
+        carreras=lista_carreras,
+        filtro_actual=filtro,
+        area_actual=area_actual,
+        busqueda=busqueda,
+        areas_disponibles=areas_disponibles
+    )
+
 
 # --- SECCIÓN: TEST VOCACIONAL (CRUD de Resultados) ---
 
@@ -390,14 +435,15 @@ def test():
     cursor = db.cursor(dictionary=True)
 
     if request.method == 'POST':
-        # Recolectar respuestas — soporta múltiples selecciones por pregunta
         puntuacion = {}
         for key in request.form.keys():
             if key.startswith('q_') or key.isdigit():
                 areas = request.form.getlist(key)
                 for area in areas:
-                    if area and area.strip():
-                        puntuacion[area.strip()] = puntuacion.get(area.strip(), 0) + 1
+                    area_limpia = area.strip() if area else ''
+                    # Ignorar valores nulos, vacíos, 'Neutral' o 'Ninguna de las anteriores' — no suman puntos
+                    if area_limpia and area_limpia != 'Neutral' and area_limpia.lower() != 'ninguna de las anteriores':
+                        puntuacion[area_limpia] = puntuacion.get(area_limpia, 0) + 1
 
         # Validar que el usuario respondió algo
         if not puntuacion:
@@ -578,33 +624,35 @@ def actualizar_resultado(resultado_id):
     flash('Tus notas han sido guardadas correctamente.', 'success')
     return redirect(url_for('ver_resultado', resultado_id=resultado_id))
 
-# Eliminar un resultado específico (D de CRUD)
-@app.route('/resultado/eliminar/<int:resultado_id>', methods=['POST'])
-@requiere_login
-def eliminar_resultado(resultado_id):
-    db = obtener_db()
-    # IMPORTANTE: dictionary=True para poder acceder por nombre de columna 
-    cursor = db.cursor(dictionary=True)
+# ELIMINADO por requisito de la tutora: los resultados no se pueden borrar,
+# deben quedar almacenados permanentemente como historial académico.
+# @app.route('/resultado/eliminar/<int:resultado_id>', methods=['POST'])
+# @requiere_login
+# def eliminar_resultado(resultado_id):
+#     db = obtener_db()
+#     # IMPORTANTE: dictionary=True para poder acceder por nombre de columna 
+#     cursor = db.cursor(dictionary=True)
+# 
+#     # Buscar el test_id asociado al resultado, verificando que pertenece al usuario 
+#     cursor.execute(""" 
+#         SELECT t.id as test_id 
+#         FROM resultados r 
+#         JOIN tests t ON r.test_id = t.id 
+#         WHERE r.id = %s AND t.usuario_id = %s 
+#     """, (resultado_id, g.user['id'])) 
+#     test = cursor.fetchone() 
+# 
+#     if test: 
+#         # Eliminar el test — el resultado se elimina solo por CASCADE en la BD 
+#         cursor2 = db.cursor() 
+#         cursor2.execute("DELETE FROM tests WHERE id = %s", (test['test_id'],)) 
+#         db.commit() 
+#         flash('El resultado ha sido eliminado de tu historial.', 'info') 
+#     else: 
+#         flash('No se encontró el resultado o no tenés permiso para eliminarlo.', 'danger') 
+# 
+#     return redirect(url_for('mis_resultados'))
 
-    # Buscar el test_id asociado al resultado, verificando que pertenece al usuario 
-    cursor.execute(""" 
-        SELECT t.id as test_id 
-        FROM resultados r 
-        JOIN tests t ON r.test_id = t.id 
-        WHERE r.id = %s AND t.usuario_id = %s 
-    """, (resultado_id, g.user['id'])) 
-    test = cursor.fetchone() 
-
-    if test: 
-        # Eliminar el test — el resultado se elimina solo por CASCADE en la BD 
-        cursor2 = db.cursor() 
-        cursor2.execute("DELETE FROM tests WHERE id = %s", (test['test_id'],)) 
-        db.commit() 
-        flash('El resultado ha sido eliminado de tu historial.', 'info') 
-    else: 
-        flash('No se encontró el resultado o no tenés permiso para eliminarlo.', 'danger') 
-
-    return redirect(url_for('mis_resultados'))
 
 # --- SECCIÓN: HERRAMIENTAS ADICIONALES ---
 
@@ -613,10 +661,24 @@ def eliminar_resultado(resultado_id):
 def juego():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM carreras")
-    carreras_list = cursor.fetchall()
-    carreras_json = json.dumps(carreras_list, ensure_ascii=False)
-    return render_template('juego.html', carreras_json=carreras_json)
+    cursor.execute("""
+        SELECT gc.*, c.nombre as carrera_nombre, c.id as carrera_id, c.area_profesional
+        FROM game_carreras gc
+        JOIN carreras c ON gc.carrera_id = c.id
+        WHERE gc.activo = 1
+        ORDER BY gc.orden
+    """)
+    carreras_juego = cursor.fetchall()
+    # También pasamos el JSON para compatibilidad con la lógica existente del juego
+    carreras_json = json.dumps(
+        [{'id': r['carrera_id'], 'nombre': r['carrera_nombre'],
+          'area_profesional': r['area_profesional'],
+          'descripcion': r['descripcion_card'] or '',
+          'titulo_card': r['titulo_card'] or r['carrera_nombre'],
+          'texto_boton': r['texto_boton'] or 'Ver carrera'} for r in carreras_juego],
+        ensure_ascii=False
+    )
+    return render_template('juego.html', carreras_json=carreras_json, carreras_juego=carreras_juego)
 
 @app.route('/noticias') 
 @requiere_login 
@@ -689,6 +751,101 @@ def detalle_carrera(carrera_id):
         return redirect(url_for('carreras'))
     return render_template('carrera_detalle.html', carrera=carrera)
 
+@app.route('/carrera/<int:carrera_id>/buscar-universidades')
+@requiere_login
+def buscar_universidades(carrera_id):
+    """
+    Busca en la web universidades de Tucumán que dicten esta carrera utilizando Google Custom Search API.
+    Versión optimizada con manejo de errores robusto y validaciones completas.
+    """
+    # Importar librerías necesarias (pueden estar en el top del archivo, pero por seguridad lo hacemos aquí también)
+    import requests as req_lib
+    from urllib.parse import quote_plus
+
+    # Paso 1: Validación inicial de la carrera en la base de datos
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM carreras WHERE id = %s", (carrera_id,))
+    carrera = cursor.fetchone()
+
+    if not carrera:
+        return {"error": "Carrera no encontrada", "resultados": []}, 404
+
+    # Paso 2: Validación de variables de entorno
+    api_key = os.getenv('GOOGLE_SEARCH_API_KEY')
+    engine_id = os.getenv('GOOGLE_SEARCH_ENGINE_ID')
+
+    if not api_key or not engine_id:
+        return {
+            "error": "Configuración incompleta: Falta GOOGLE_SEARCH_API_KEY o GOOGLE_SEARCH_ENGINE_ID en .env",
+            "resultados": [],
+            "status": "configuration_error"
+        }, 500
+
+    # Paso 3: Validación y preparación de la consulta
+    # Construir una consulta enfocada en la carrera y la ubicación
+    query_base = f"{carrera['nombre']} universidad facultad Tucumán"
+    
+    if not query_base:
+        return {"error": "Consulta vacía", "resultados": []}, 400
+
+    # Paso 4: Realizar la llamada a la API con manejo de errores robusto
+    try:
+        resp = req_lib.get(
+            "https://www.googleapis.com/customsearch/v1",
+            params={
+                "key": api_key,
+                "cx": engine_id,
+                "q": query_base,
+                "num": 5,  # Máximo de resultados por página (Google permite max 10)
+                "safe": "active"
+            },
+            timeout=10
+        )
+
+        # Verificar código de estado HTTP
+        if resp.status_code != 200:
+            error_data = resp.json() if resp.headers.get('content-type') == 'application/json' else {}
+            error_msg = error_data.get('error', {}).get('message', f'Error HTTP {resp.status_code}')
+            return {
+                "error": f"Error en la API de Google: {error_msg}",
+                "resultados": [],
+                "status": "api_error"
+            }, resp.status_code
+
+        # Paso 5: Procesar la respuesta exitosa
+        data = resp.json()
+        resultados = []
+
+        for item in data.get("items", []):
+            resultados.append({
+                "titulo": item.get("title", ""),
+                "link": item.get("link", "#"),
+                "descripcion": item.get("snippet", "")
+            })
+
+        return {"resultados": resultados, "total": len(resultados), "status": "success"}, 200
+
+    except req_lib.exceptions.RequestException as e:
+        return {
+            "error": f"Error de conexión con Google: {str(e)}",
+            "resultados": [],
+            "status": "connection_error"
+        }, 503
+    except json.JSONDecodeError as e:
+        return {
+            "error": f"Error al procesar la respuesta de Google: {str(e)}",
+            "resultados": [],
+            "status": "parsing_error"
+        }, 500
+    except Exception as e:
+        return {
+            "error": f"Error interno del servidor: {str(e)}",
+            "resultados": [],
+            "status": "server_error"
+        }, 500
+
+
 @app.route('/comentar', methods=['POST'])
 def enviar_comentario():
     nombre = request.form.get('nombre')
@@ -743,15 +900,25 @@ def nueva_carrera():
         nombre = request.form['nombre']
         descripcion = request.form['descripcion']
         area_profesional = request.form['area_profesional']
-        
+
         db = obtener_db()
         cursor = db.cursor()
-        cursor.execute("INSERT INTO carreras (nombre, descripcion, area_profesional) VALUES (%s, %s, %s)",
-                       (nombre, descripcion, area_profesional))
+        cursor.execute(
+            "INSERT INTO carreras (nombre, descripcion, area_profesional, instituciones) VALUES (%s, %s, %s, %s)",
+            (nombre, descripcion, area_profesional, '')
+        )
+        carrera_id_nueva = cursor.lastrowid
+        # Agregar automáticamente al juego "Descubre tu carrera" (inactiva por defecto,
+        # el admin la activa manualmente desde el panel del juego)
+        cursor.execute(
+            """INSERT INTO game_carreras (carrera_id, titulo_card, descripcion_card, activo)
+               VALUES (%s, %s, %s, 0)""",
+            (carrera_id_nueva, nombre, descripcion)
+        )
         db.commit()
-        flash('Carrera creada exitosamente.', 'success')
+        flash('Carrera creada. Las instituciones se completarán con el buscador web en el detalle de la carrera.', 'success')
         return redirect(url_for('admin_carreras'))
-    
+
     return render_template('admin/carrera_form.html', carrera=None)
 
 @app.route('/admin/carreras/editar/<int:id>', methods=['GET', 'POST'])
@@ -791,46 +958,61 @@ def eliminar_carrera(id):
 def admin_preguntas():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM preguntas")
+    cursor.execute("SELECT * FROM preguntas ORDER BY id")
     preguntas = cursor.fetchall()
+    for p in preguntas:
+        cursor.execute("SELECT * FROM opciones_pregunta WHERE pregunta_id = %s", (p['id'],))
+        p['opciones'] = cursor.fetchall()
     return render_template('admin/preguntas_lista.html', preguntas=preguntas)
+
 
 @app.route('/admin/preguntas/nueva', methods=['POST'])
 @requiere_admin
 def nueva_pregunta():
     texto_pregunta = request.form['texto_pregunta']
-    area_profesional = request.form['area_profesional']
-    
     db = obtener_db()
     cursor = db.cursor()
     cursor.execute("INSERT INTO preguntas (texto_pregunta, area_profesional) VALUES (%s, %s)",
-                   (texto_pregunta, area_profesional))
+                   (texto_pregunta, 'General'))
+    pregunta_id = cursor.lastrowid
+
+    # Procesar las opciones enviadas dinámicamente (texto_opcion_N y area_opcion_N)
+    i = 1
+    while f'texto_opcion_{i}' in request.form:
+        texto_opcion = request.form.get(f'texto_opcion_{i}', '').strip()
+        area_opcion = request.form.get(f'area_opcion_{i}', '').strip()
+        if texto_opcion and area_opcion:
+            cursor.execute(
+                "INSERT INTO opciones_pregunta (pregunta_id, texto_opcion, area_profesional) VALUES (%s, %s, %s)",
+                (pregunta_id, texto_opcion, area_opcion)
+            )
+        i += 1
+
     db.commit()
-    flash('Pregunta agregada exitosamente.', 'success')
+    flash('Pregunta agregada con sus opciones exitosamente.', 'success')
     return redirect(url_for('admin_preguntas'))
 
-@app.route('/admin/preguntas/editar/<int:id>', methods=['POST'])
-@requiere_admin
-def editar_pregunta(id):
-    texto_pregunta = request.form['texto_pregunta']
-    area_profesional = request.form['area_profesional']
-    
-    db = obtener_db()
-    cursor = db.cursor()
-    cursor.execute("UPDATE preguntas SET texto_pregunta = %s, area_profesional = %s WHERE id = %s",
-                   (texto_pregunta, area_profesional, id))
-    db.commit()
-    flash('Pregunta actualizada exitosamente.', 'success')
-    return redirect(url_for('admin_preguntas'))
 
 @app.route('/admin/preguntas/eliminar/<int:id>', methods=['POST'])
 @requiere_admin
 def eliminar_pregunta(id):
     db = obtener_db()
     cursor = db.cursor()
+    # Las opciones se eliminan automáticamente por ON DELETE CASCADE
     cursor.execute("DELETE FROM preguntas WHERE id = %s", (id,))
     db.commit()
-    flash('Pregunta eliminada exitosamente.', 'info')
+    flash('Pregunta y sus opciones eliminadas.', 'info')
+    return redirect(url_for('admin_preguntas'))
+
+
+@app.route('/admin/preguntas/opcion/eliminar/<int:id>', methods=['POST'])
+@requiere_admin
+def eliminar_opcion_pregunta(id):
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM opciones_pregunta WHERE id = %s", (id,))
+    db.commit()
+    flash('Opción eliminada.', 'info')
     return redirect(url_for('admin_preguntas'))
 
 @app.route('/admin/noticias/actualizar-rss', methods=['POST']) 
@@ -844,6 +1026,100 @@ def actualizar_rss():
     except Exception as e: 
         flash(f'Error al actualizar RSS: {str(e)}', 'danger') 
     return redirect(url_for('admin_dashboard')) 
+
+# --- SECCIÓN: ADMIN JUEGO CARRERAS ---
+
+@app.route('/admin/game/carreras')
+@requiere_admin
+def admin_game_carreras():
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT gc.*, c.nombre as carrera_nombre, c.area_profesional
+        FROM game_carreras gc
+        JOIN carreras c ON gc.carrera_id = c.id
+        ORDER BY gc.orden, c.nombre
+    """)
+    items = cursor.fetchall()
+    return render_template('admin/game_carreras.html', items=items)
+
+
+@app.route('/admin/game/carreras/toggle/<int:id>', methods=['POST'])
+@requiere_admin
+def toggle_game_carrera(id):
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("UPDATE game_carreras SET activo = NOT activo WHERE id = %s", (id,))
+    db.commit()
+    flash('Estado actualizado en el juego.', 'success')
+    return redirect(url_for('admin_game_carreras'))
+
+
+@app.route('/admin/game/carreras/editar/<int:id>', methods=['POST'])
+@requiere_admin
+def editar_game_carrera(id):
+    texto_boton = request.form.get('texto_boton', 'Ver carrera')
+    titulo_card = request.form.get('titulo_card', '')
+    descripcion_card = request.form.get('descripcion_card', '')
+
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        UPDATE game_carreras 
+        SET texto_boton = %s, titulo_card = %s, descripcion_card = %s
+        WHERE id = %s
+    """, (texto_boton, titulo_card, descripcion_card, id))
+    db.commit()
+    flash('Tarjeta del juego actualizada.', 'success')
+    return redirect(url_for('admin_game_carreras'))
+
+
+# --- SECCIÓN: ADMIN NOTICIAS ---
+
+@app.route('/admin/noticias')
+@requiere_admin
+def admin_noticias():
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM noticias ORDER BY fecha DESC")
+    noticias = cursor.fetchall()
+    cursor.execute("SELECT DISTINCT fuente FROM noticias ORDER BY fuente")
+    fuentes = [r['fuente'] for r in cursor.fetchall()]
+    return render_template('admin/noticias_lista.html', noticias=noticias, fuentes=fuentes)
+
+
+@app.route('/admin/noticias/nueva', methods=['POST'])
+@requiere_admin
+def nueva_noticia():
+    titulo = request.form['titulo']
+    descripcion = request.form['descripcion']
+    imagen = request.form.get('imagen', '')
+    fuente = request.form['fuente']
+    fecha = request.form['fecha']
+    link = request.form.get('link', '#')
+    categoria = request.form.get('categoria', 'General')
+
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        INSERT INTO noticias (titulo, descripcion, imagen, fuente, fecha, link, categoria, es_externa)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, 0)
+    """, (titulo, descripcion, imagen, fuente, fecha, link, categoria))
+    db.commit()
+    flash('Noticia agregada exitosamente.', 'success')
+    return redirect(url_for('admin_noticias'))
+
+
+@app.route('/admin/noticias/eliminar/<int:id>', methods=['POST'])
+@requiere_admin
+def eliminar_noticia(id):
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM noticias WHERE id = %s", (id,))
+    db.commit()
+    flash('Noticia eliminada.', 'info')
+    return redirect(url_for('admin_noticias'))
+
 
 # --- MANEJO DE ERRORES ---
 

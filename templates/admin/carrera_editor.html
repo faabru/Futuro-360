@@ -1,0 +1,90 @@
+{% extends "admin/panel_layout.html" %}
+
+{% block panel_title %}Editor de Carrera{% endblock %}
+{% block panel_subtitle %}Editá la información visual, la imagen y el contenido de la carrera.{% endblock %}
+
+{% block panel_content %}
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="section-card p-4 sticky-top" style="top: 90px;">
+            <h5 class="fw-bold text-primary mb-3"><i class="bi bi-eye me-2"></i>Vista previa</h5>
+            <div class="rounded-4 overflow-hidden border">
+                <img id="previewImg" src="{{ html_data.imagen_url if html_data else '/static/carreras/placeholder.svg' }}" class="w-100 object-fit-cover" style="height: 180px;" alt="Vista previa">
+                <div class="p-4 bg-white">
+                    <span class="badge bg-primary-subtle text-primary mb-2" id="previewArea">{{ carrera.area_profesional if carrera else 'Área' }}</span>
+                    <h5 class="fw-bold text-primary" id="previewNombre">{{ carrera.nombre if carrera else 'Nombre de la carrera' }}</h5>
+                    <p class="text-muted small mb-0" id="previewDesc">{{ carrera.descripcion if carrera else 'Descripción breve...' }}</p>
+                </div>
+            </div>
+            {% if carrera %}
+            <div class="mt-3 d-grid gap-2">
+                <a href="{{ url_for('detalle_carrera', carrera_id=carrera.id) }}" class="btn btn-outline-primary btn-sm rounded-pill" target="_blank">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> Ver en el sitio
+                </a>
+                <small class="text-muted text-center">Archivo: <code>carreras/{{ html_data.slug if html_data else '...' }}.html</code></small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="section-card p-4 p-md-5">
+            <form method="POST" enctype="multipart/form-data" id="editorForm"
+                  action="{{ url_for('editar_carrera_visual', id=carrera.id) if carrera else url_for('nueva_carrera') }}">
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Nombre de la carrera</label>
+                    <input type="text" name="nombre" id="inputNombre" class="form-control form-control-lg"
+                           value="{{ carrera.nombre if carrera else '' }}" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Área profesional</label>
+                    <input type="text" name="area_profesional" id="inputArea" class="form-control"
+                           value="{{ carrera.area_profesional if carrera else '' }}" required
+                           placeholder="Ej: Tecnología, Salud, Ingeniería...">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Descripción breve</label>
+                    <textarea name="descripcion" id="inputDesc" class="form-control" rows="3" required>{{ carrera.descripcion if carrera else '' }}</textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">¿A qué se dedica? (perfil profesional)</label>
+                    <textarea name="perfil" id="inputPerfil" class="form-control" rows="4">{{ html_data.perfil if html_data and html_data.perfil else (carrera.descripcion if carrera else '') }}</textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Imagen de la carrera</label>
+                    <input type="file" name="imagen" id="inputImagen" class="form-control" accept="image/jpeg,image/png,image/webp,image/gif">
+                    <small class="text-muted">Se guarda en <code>static/carreras/</code>. Formatos: JPG, PNG, WEBP.</small>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                        <i class="bi bi-save me-1"></i> Guardar cambios
+                    </button>
+                    <a href="{{ url_for('admin_carreras') }}" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const inputNombre = document.getElementById('inputNombre');
+    const inputArea = document.getElementById('inputArea');
+    const inputDesc = document.getElementById('inputDesc');
+    const inputImagen = document.getElementById('inputImagen');
+    const previewImg = document.getElementById('previewImg');
+
+    function syncPreview() {
+        document.getElementById('previewNombre').textContent = inputNombre.value || 'Nombre de la carrera';
+        document.getElementById('previewArea').textContent = inputArea.value || 'Área';
+        document.getElementById('previewDesc').textContent = inputDesc.value || 'Descripción breve...';
+    }
+    [inputNombre, inputArea, inputDesc].forEach(el => el.addEventListener('input', syncPreview));
+
+    inputImagen.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            previewImg.src = URL.createObjectURL(file);
+        }
+    });
+</script>
+{% endblock %}

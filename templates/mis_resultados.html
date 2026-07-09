@@ -17,8 +17,7 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Área Profesional</th>
-                                <th>Detalle</th>
-                                <th>Acciones</th>
+                                <th>Acción</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -30,13 +29,6 @@
                                     
                                     <!-- ACCIÓN: VER DETALLE (READ) -->
                                     <td><a href="{{ url_for('ver_resultado', resultado_id=resultado.id) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">Ver Informe</a></td>
-                                    
-                                    <!-- ACCIÓN: ELIMINAR (DELETE) -->
-                                    <td>
-                                        <form action="{{ url_for('eliminar_resultado', resultado_id=resultado.id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este resultado?');">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm">Borrar</button>
-                                        </form>
-                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>

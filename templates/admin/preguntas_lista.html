@@ -22,57 +22,33 @@
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Pregunta</th>
-                        <th>Área Asociada</th>
-                        <th class="text-end">Acciones</th>
+                        <th style="width: 40%;">Pregunta</th>
+                        <th style="width: 45%;">Opciones de Respuesta</th>
+                        <th class="text-end" style="width: 15%;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for pregunta in preguntas %}
+                    {% for p in preguntas %}
                     <tr>
-                        <td>{{ pregunta.texto_pregunta }}</td>
-                        <td><span class="badge bg-light text-primary border">{{ pregunta.area_profesional }}</span></td>
-                        <td class="text-end">
-                            <div class="btn-group">
-                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editarPreguntaModal{{ pregunta.id }}">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <form action="{{ url_for('eliminar_pregunta', id=pregunta.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta pregunta?')">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                        <td class="fw-semibold">{{ p.texto_pregunta }}</td>
+                        <td>
+                            {% for op in p.opciones %}
+                            <div class="badge bg-light text-dark border m-1 p-2 d-inline-flex align-items-center shadow-sm rounded-3">
+                                <span class="fw-semibold text-primary me-2">[{{ op.area_profesional }}]</span> {{ op.texto_opcion }}
+                                <form action="{{ url_for('eliminar_opcion_pregunta', id=op.id) }}" method="POST" class="ms-2 d-inline" onsubmit="return confirm('¿Estás seguro de eliminar esta opción?')">
+                                    <button type="submit" class="btn-close" style="font-size: 0.5rem;" aria-label="Eliminar opción"></button>
                                 </form>
                             </div>
+                            {% endfor %}
+                        </td>
+                        <td class="text-end">
+                            <form action="{{ url_for('eliminar_pregunta', id=p.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta pregunta y todas sus opciones?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm">
+                                    <i class="bi bi-trash me-1"></i> Borrar
+                                </button>
+                            </form>
                         </td>
                     </tr>
-
-                    <!-- Modal Editar Pregunta -->
-                    <div class="modal fade" id="editarPreguntaModal{{ pregunta.id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content border-0 shadow">
-                                <form action="{{ url_for('editar_pregunta', id=pregunta.id) }}" method="POST">
-                                    <div class="modal-header border-0 py-3">
-                                        <h5 class="modal-title fw-bold">Editar Pregunta</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body p-4">
-                                        <div class="mb-3">
-                                            <label class="form-label fw-bold">Texto de la Pregunta</label>
-                                            <input type="text" name="texto_pregunta" class="form-control" value="{{ pregunta.texto_pregunta }}" required>
-                                        </div>
-                                        <div class="mb-0">
-                                            <label class="form-label fw-bold">Área Profesional</label>
-                                            <input type="text" name="area_profesional" class="form-control" value="{{ pregunta.area_profesional }}" required>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer border-0">
-                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                     {% endfor %}
                 </tbody>
             </table>
@@ -86,18 +62,30 @@
         <div class="modal-content border-0 shadow">
             <form action="{{ url_for('nueva_pregunta') }}" method="POST">
                 <div class="modal-header border-0 py-3">
-                    <h5 class="modal-title fw-bold">Agregar Nueva Pregunta</h5>
+                    <h5 class="modal-title fw-bold">Nueva Pregunta del Test</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Texto de la Pregunta</label>
-                        <input type="text" name="texto_pregunta" class="form-control" placeholder="Ej: ¿Te gusta el dibujo técnico?" required>
+                        <label class="form-label fw-bold">Texto de la pregunta</label>
+                        <input type="text" name="texto_pregunta" class="form-control" placeholder="¿Cómo te definirías?" required>
                     </div>
-                    <div class="mb-0">
-                        <label class="form-label fw-bold">Área Profesional</label>
-                        <input type="text" name="area_profesional" class="form-control" placeholder="Ej: Diseño" required>
+
+                    <label class="form-label fw-bold mb-2">Opciones de respuesta</label>
+                    <div id="contenedor-opciones-nuevas">
+                        <div class="row g-2 mb-2 option-row">
+                            <div class="col-8">
+                                <input type="text" name="texto_opcion_1" class="form-control" placeholder="Texto de la opción 1" required>
+                            </div>
+                            <div class="col-4">
+                                <input type="text" name="area_opcion_1" class="form-control" placeholder="Área" required>
+                            </div>
+                        </div>
                     </div>
+                    
+                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="agregarFilaOpcion()">
+                        <i class="bi bi-plus-circle me-1"></i> Agregar otra opción
+                    </button>
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
@@ -107,4 +95,23 @@
         </div>
     </div>
 </div>
+
+<script>
+let opcionCounter = 1;
+function agregarFilaOpcion() {
+    opcionCounter++;
+    const container = document.getElementById('contenedor-opciones-nuevas');
+    const newRow = document.createElement('div');
+    newRow.className = 'row g-2 mb-2 option-row';
+    newRow.innerHTML = `
+        <div class="col-8">
+            <input type="text" name="texto_opcion_${opcionCounter}" class="form-control" placeholder="Texto de la opción ${opcionCounter}" required>
+        </div>
+        <div class="col-4">
+            <input type="text" name="area_opcion_${opcionCounter}" class="form-control" placeholder="Área" required>
+        </div>
+    `;
+    container.appendChild(newRow);
+}
+</script>
 {% endblock %}
