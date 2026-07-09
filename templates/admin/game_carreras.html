@@ -1,0 +1,81 @@
+{% extends "admin/panel_layout.html" %}
+
+{% block panel_title %}Game: Descubre tu Carrera{% endblock %}
+{% block panel_subtitle %}Activá o desactivá qué carreras aparecen en el juego. Solo se eliminan si la carrera se borra del catálogo.{% endblock %}
+
+{% block panel_content %}
+    <div class="section-card p-0 overflow-hidden">
+        <div class="table-responsive p-3">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Carrera</th>
+                        <th>Título en el juego</th>
+                        <th>Texto del botón</th>
+                        <th>Activa en el juego</th>
+                        <th class="text-end">Editar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>
+                            <span class="fw-semibold">{{ item.carrera_nombre }}</span>
+                            <br><small class="text-muted">{{ item.area_profesional }}</small>
+                        </td>
+                        <td>{{ item.titulo_card }}</td>
+                        <td>{{ item.texto_boton }}</td>
+                        <td>
+                            <form action="{{ url_for('toggle_game_carrera', id=item.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm {{ 'btn-success' if item.activo else 'btn-outline-secondary' }}">
+                                    {% if item.activo %}✓ Activa{% else %}Inactiva{% endif %}
+                                </button>
+                            </form>
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editarGameModal{{ item.id }}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </td>
+                    </tr>
+
+                    <div class="modal fade" id="editarGameModal{{ item.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content border-0 shadow">
+                                <form action="{{ url_for('editar_game_carrera', id=item.id) }}" method="POST">
+                                    <div class="modal-header border-0 py-3">
+                                        <h5 class="modal-title fw-bold">Editar tarjeta del juego</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body p-4">
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Título en la tarjeta</label>
+                                            <input type="text" name="titulo_card" class="form-control" value="{{ item.titulo_card }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Descripción breve</label>
+                                            <textarea name="descripcion_card" class="form-control" rows="3" required>{{ item.descripcion_card }}</textarea>
+                                        </div>
+                                        <div class="mb-0">
+                                            <label class="form-label fw-bold">Texto del botón</label>
+                                            <input type="text" name="texto_boton" class="form-control" value="{{ item.texto_boton or 'Ver carrera' }}">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer border-0">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Guardar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No hay carreras vinculadas al juego. Creá una carrera nueva desde el admin.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

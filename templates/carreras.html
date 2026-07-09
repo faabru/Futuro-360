@@ -13,24 +13,16 @@
     </div>
 
     <!-- FILTROS Y BÚSQUEDA -->
-    <div class="row mb-5 g-3">
-        <!-- DROPDOWN DE ÁREAS -->
+    <form method="GET" action="{{ url_for('carreras') }}" id="filterForm" class="row mb-5 g-3">
+        <!-- DROPDOWN DE ÁREAS (Incluye Populares) -->
         <div class="col-md-4">
             <label for="areaFilter" class="form-label fw-bold small text-uppercase text-muted mb-2">Área Profesional</label>
-            <select id="areaFilter" class="form-select form-select-lg rounded-3 border-2 border-primary-subtle shadow-sm">
-                <option value="all">Todas las áreas</option>
-                <option value="Tecnología">Tecnología</option>
-                <option value="Salud">Salud</option>
-                <option value="Salud Mental">Salud Mental</option>
-                <option value="Negocios">Negocios</option>
-                <option value="Diseño">Diseño</option>
-                <option value="Derecho">Derecho</option>
-                <option value="Humanidades">Humanidades</option>
-                <option value="Ciencias Naturales">Ciencias Naturales</option>
-                <option value="Agronomía">Agronomía</option>
-                <option value="Arte y Diseño">Arte y Diseño</option>
-                <option value="Ingeniería">Ingeniería</option>
-                <option value="Comunicación">Comunicación</option>
+            <select id="areaFilter" name="filtro" class="form-select form-select-lg rounded-3 border-2 border-primary-subtle shadow-sm" onchange="document.getElementById('filterForm').submit();">
+                <option value="populares" {% if filtro_actual == 'populares' %}selected{% endif %}>⭐ Populares</option>
+                <option value="todas" {% if filtro_actual == 'todas' and area_actual == 'todas' %}selected{% endif %}>Todas las áreas</option>
+                {% for area in areas_disponibles %}
+                <option value="{{ area }}" {% if area_actual == area and filtro_actual != 'populares' %}selected{% endif %}>{{ area }}</option>
+                {% endfor %}
             </select>
         </div>
 
@@ -39,10 +31,10 @@
             <label for="careerSearch" class="form-label fw-bold small text-uppercase text-muted mb-2">Buscar Carrera</label>
             <div class="input-group input-group-lg shadow-sm">
                 <span class="input-group-text bg-white border-2 border-primary-subtle rounded-start-3"><i class="bi bi-search"></i></span>
-                <input type="text" id="careerSearch" class="form-control border-2 border-primary-subtle rounded-end-3" placeholder="Buscar por nombre...">
+                <input type="text" id="careerSearch" name="q" class="form-control border-2 border-primary-subtle rounded-end-3" placeholder="Buscar por nombre..." value="{{ busqueda }}">
             </div>
         </div>
-    </div>
+    </form>
 
     <!-- CONTADOR DE RESULTADOS -->
     <div class="mb-3">
@@ -106,7 +98,7 @@
             const careerName = item.querySelector('.career-name').innerText.toLowerCase();
             const area = item.dataset.area;
             const matchesSearch = careerName.includes(query);
-            const matchesFilter = activeArea === 'all' || area === activeArea;
+            const matchesFilter = activeArea === 'all' || activeArea === 'todas' || area === activeArea;
 
             if (matchesSearch && matchesFilter) {
                 item.style.display = 'block';

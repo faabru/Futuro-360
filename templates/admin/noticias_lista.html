@@ -1,0 +1,102 @@
+{% extends "admin/panel_layout.html" %}
+
+{% block panel_title %}Gestión de Noticias{% endblock %}
+{% block panel_subtitle %}Publicá noticias manualmente o gestioná las existentes.{% endblock %}
+
+{% block panel_content %}
+<div class="d-flex justify-content-end mb-4">
+        <button type="button" class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#nuevaNoticiaModal">
+            <i class="bi bi-plus-lg me-1"></i> Nueva Noticia
+        </button>
+    </div>
+
+    <div class="section-card p-0 overflow-hidden">
+        <div class="table-responsive p-3">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Título</th>
+                        <th>Fuente</th>
+                        <th>Fecha</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for n in noticias %}
+                    <tr>
+                        <td class="fw-semibold">{{ n.titulo }}</td>
+                        <td><span class="badge bg-light text-primary border">{{ n.fuente }}</span></td>
+                        <td>{{ n.fecha }}</td>
+                        <td class="text-end">
+                            <form action="{{ url_for('eliminar_noticia', id=n.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar esta noticia?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">No hay noticias registradas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nueva Noticia -->
+<div class="modal fade" id="nuevaNoticiaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <form action="{{ url_for('nueva_noticia') }}" method="POST">
+                <div class="modal-header border-0 py-3">
+                    <h5 class="modal-title fw-bold">Nueva Noticia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Título</label>
+                        <input type="text" name="titulo" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">URL de imagen</label>
+                        <input type="url" name="imagen" class="form-control" placeholder="https://...">
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Fuente</label>
+                            <input type="text" name="fuente" class="form-control" list="fuentesList" required placeholder="Ej: Futuro 360">
+                            <datalist id="fuentesList">
+                                {% for f in fuentes %}
+                                <option value="{{ f }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Fecha</label>
+                            <input type="date" name="fecha" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Categoría</label>
+                        <input type="text" name="categoria" class="form-control" value="General">
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label fw-bold">URL original (link)</label>
+                        <input type="url" name="link" class="form-control" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Publicar Noticia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
