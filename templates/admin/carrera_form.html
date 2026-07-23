@@ -23,8 +23,27 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="descripcion" class="form-label fw-bold">Descripción</label>
-                            <textarea name="descripcion" id="descripcion" class="form-control" rows="5" required placeholder="Describe brevemente la carrera...">{{ carrera.descripcion if carrera else '' }}</textarea>
+                            <label for="descripcion" class="form-label fw-bold">Descripción Corta</label>
+                            <textarea name="descripcion" id="descripcion" class="form-control" rows="3" required placeholder="Describe brevemente la carrera...">{{ carrera.descripcion if carrera else '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="a_que_se_dedica" class="form-label fw-bold">¿A qué se dedica? (Detalle largo)</label>
+                            <textarea name="a_que_se_dedica" id="a_que_se_dedica" class="form-control" rows="5" placeholder="Los graduados en esta carrera se encargan de...">{{ carrera.a_que_se_dedica if carrera else '' }}</textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="imagen_portada" class="form-label fw-bold">Imagen de Portada (URL)</label>
+                                <input type="url" name="imagen_portada" id="imagen_portada" class="form-control" value="{{ carrera.imagen_portada if carrera else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
+                                <small class="text-muted">Se mostrará en la grilla de carreras.</small>
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <label for="imagen_principal" class="form-label fw-bold">Imagen Principal (URL)</label>
+                                <input type="url" name="imagen_principal" id="imagen_principal" class="form-control" value="{{ carrera.imagen_principal if carrera else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
+                                <small class="text-muted">Se mostrará grande en el detalle de la carrera.</small>
+                            </div>
                         </div>
 
                         <div class="d-flex gap-2">
