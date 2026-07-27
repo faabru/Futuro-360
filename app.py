@@ -391,7 +391,6 @@ def carreras():
         areas_disponibles=areas_disponibles
     )
 
-
 # --- SECCIÓN: TEST VOCACIONAL (CRUD de Resultados) ---
 
 @app.route('/test', methods=['GET', 'POST'])
