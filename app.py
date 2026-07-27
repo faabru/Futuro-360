@@ -24,40 +24,6 @@ MAIL_FROM = "Futuro 360 <onboarding@resend.dev>"
 # Inicializar la conexión a la base de datos con la aplicación
 inicializar_app(app)
 
-# Modo de desarrollo para emails: si DEV_MAIL=console, los emails se escriben a disco en vez de enviarse
-DEV_MAIL_CONSOLE = os.getenv('DEV_MAIL', '').lower() == 'console'
-
-def enviar_email(msg):
-    """Envía el email usando Flask-Mail o lo guarda en disco si estamos en modo consola de desarrollo."""
-    if DEV_MAIL_CONSOLE:
-        try:
-            from pathlib import Path
-            import datetime
-            outdir = Path('sent_emails')
-            outdir.mkdir(exist_ok=True)
-            ts = datetime.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
-            safe_subject = (msg.subject or 'sin_asunto').replace(' ', '_')
-            filename = outdir / f"{ts}_{safe_subject}.html"
-            body = ''
-            if getattr(msg, 'html', None):
-                body = msg.html
-            else:
-                body = msg.body or ''
-            with open(filename, 'w', encoding='utf-8') as f:
-                f.write(f"To: {msg.recipients}\nFrom: {msg.sender}\nSubject: {msg.subject}\n\n")
-                f.write(body)
-            print(f"✅ Email guardado en: {filename}")
-        except Exception as e:
-            print(f"❌ Error al guardar email en disco: {e}")
-            # En caso de error al escribir, intentar el envío normal
-            mail.send(msg)
-    else:
-        try:
-            mail.send(msg)
-            print(f"✅ Email enviado a: {msg.recipients}")
-        except Exception as e:
-            print(f"❌ Error al enviar email: {e}")
-            raise
 
 # --- MIDDLEWARE: Función que se ejecuta antes de cada petición ---
 # Su objetivo es cargar la información del usuario logueado en la variable global 'g.user'
@@ -425,7 +391,6 @@ def carreras():
         areas_disponibles=areas_disponibles
     )
 
-
 # --- SECCIÓN: TEST VOCACIONAL (CRUD de Resultados) ---
 
 @app.route('/test', methods=['GET', 'POST'])
@@ -661,6 +626,8 @@ def actualizar_resultado(resultado_id):
 def juego():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
+
+    # Carreras activas en el juego
     cursor.execute("""
         SELECT gc.*, c.nombre as carrera_nombre, c.id as carrera_id, c.area_profesional
         FROM game_carreras gc
@@ -669,7 +636,15 @@ def juego():
         ORDER BY gc.orden
     """)
     carreras_juego = cursor.fetchall()
-    # También pasamos el JSON para compatibilidad con la lógica existente del juego
+
+    # Preguntas activas del mini-juego "Intereses en Juego"
+    cursor.execute("""
+        SELECT * FROM game_preguntas
+        WHERE activo = 1
+        ORDER BY orden, id
+    """)
+    game_preguntas = cursor.fetchall()
+
     carreras_json = json.dumps(
         [{'id': r['carrera_id'], 'nombre': r['carrera_nombre'],
           'area_profesional': r['area_profesional'],
@@ -678,7 +653,23 @@ def juego():
           'texto_boton': r['texto_boton'] or 'Ver carrera'} for r in carreras_juego],
         ensure_ascii=False
     )
-    return render_template('juego.html', carreras_json=carreras_json, carreras_juego=carreras_juego)
+
+    preguntas_json = json.dumps(
+        [{'id': p['id'],
+          'texto': p['texto_pregunta'],
+          'opciones': [
+              {'texto': p['opcion_a_texto'], 'area': p['opcion_a_area']},
+              {'texto': p['opcion_b_texto'], 'area': p['opcion_b_area']}
+          ]} for p in game_preguntas],
+        ensure_ascii=False
+    )
+
+    return render_template('juego.html',
+        carreras_json=carreras_json,
+        carreras_juego=carreras_juego,
+        preguntas_json=preguntas_json,
+        game_preguntas=game_preguntas
+    )
 
 @app.route('/noticias') 
 @requiere_login 
@@ -749,7 +740,18 @@ def detalle_carrera(carrera_id):
     if not carrera:
         flash('No pudimos encontrar información sobre esa carrera.', 'danger')
         return redirect(url_for('carreras'))
-    return render_template('carrera_detalle.html', carrera=carrera)
+
+    # Verificar si existe un template HTML individual para esta carrera
+    # Ejemplo: templates/carreras/carrera_39.html para Arquitectura (id=39)
+    template_individual = f'carreras/carrera_{carrera_id}.html'
+    template_path = os.path.join(app.template_folder, template_individual)
+
+    if os.path.exists(template_path):
+        # Usar el template personalizado de esta carrera específica
+        return render_template(template_individual, carrera=carrera)
+    else:
+        # Fallback al template genérico — ninguna carrera queda sin página
+        return render_template('carrera_detalle.html', carrera=carrera)
 
 @app.route('/carrera/<int:carrera_id>/buscar-universidades')
 @requiere_login
@@ -771,76 +773,39 @@ def buscar_universidades(carrera_id):
     if not carrera:
         return {"error": "Carrera no encontrada", "resultados": []}, 404
 
-    # Paso 2: Validación de variables de entorno
-    api_key = os.getenv('GOOGLE_SEARCH_API_KEY')
-    engine_id = os.getenv('GOOGLE_SEARCH_ENGINE_ID')
-
-    if not api_key or not engine_id:
-        return {
-            "error": "Configuración incompleta: Falta GOOGLE_SEARCH_API_KEY o GOOGLE_SEARCH_ENGINE_ID en .env",
-            "resultados": [],
-            "status": "configuration_error"
-        }, 500
+    # Paso 2: (Omitido) Variables de Google Search ya no son necesarias
+    # api_key = os.getenv('GOOGLE_SEARCH_API_KEY')
+    # engine_id = os.getenv('GOOGLE_SEARCH_ENGINE_ID')
 
     # Paso 3: Validación y preparación de la consulta
     # Construir una consulta enfocada en la carrera y la ubicación
-    query_base = f"{carrera['nombre']} universidad facultad Tucumán"
+    query_base = f"{carrera['nombre']} universidad facultad Tucumán site:edu.ar OR site:gov.ar"
     
     if not query_base:
         return {"error": "Consulta vacía", "resultados": []}, 400
 
-    # Paso 4: Realizar la llamada a la API con manejo de errores robusto
+    # Paso 4: Realizar la llamada a DuckDuckGo Search API
     try:
-        resp = req_lib.get(
-            "https://www.googleapis.com/customsearch/v1",
-            params={
-                "key": api_key,
-                "cx": engine_id,
-                "q": query_base,
-                "num": 5,  # Máximo de resultados por página (Google permite max 10)
-                "safe": "active"
-            },
-            timeout=10
-        )
-
-        # Verificar código de estado HTTP
-        if resp.status_code != 200:
-            error_data = resp.json() if resp.headers.get('content-type') == 'application/json' else {}
-            error_msg = error_data.get('error', {}).get('message', f'Error HTTP {resp.status_code}')
-            return {
-                "error": f"Error en la API de Google: {error_msg}",
-                "resultados": [],
-                "status": "api_error"
-            }, resp.status_code
-
-        # Paso 5: Procesar la respuesta exitosa
-        data = resp.json()
+        from ddgs import DDGS
+        
         resultados = []
-
-        for item in data.get("items", []):
+        with DDGS() as ddgs:
+            # ddgs.text devuelve diccionarios con: title, href, body
+            results = list(ddgs.text(query_base, max_results=5))
+            
+        # Paso 5: Procesar la respuesta exitosa
+        for item in results:
             resultados.append({
                 "titulo": item.get("title", ""),
-                "link": item.get("link", "#"),
-                "descripcion": item.get("snippet", "")
+                "url": item.get("href", "#"),
+                "descripcion": item.get("body", "")
             })
 
         return {"resultados": resultados, "total": len(resultados), "status": "success"}, 200
 
-    except req_lib.exceptions.RequestException as e:
-        return {
-            "error": f"Error de conexión con Google: {str(e)}",
-            "resultados": [],
-            "status": "connection_error"
-        }, 503
-    except json.JSONDecodeError as e:
-        return {
-            "error": f"Error al procesar la respuesta de Google: {str(e)}",
-            "resultados": [],
-            "status": "parsing_error"
-        }, 500
     except Exception as e:
         return {
-            "error": f"Error interno del servidor: {str(e)}",
+            "error": f"Error interno del servidor al buscar en DDG: {str(e)}",
             "resultados": [],
             "status": "server_error"
         }, 500
@@ -897,15 +862,18 @@ def admin_carreras():
 @requiere_admin
 def nueva_carrera():
     if request.method == 'POST':
-        nombre = request.form['nombre']
-        descripcion = request.form['descripcion']
-        area_profesional = request.form['area_profesional']
+        nombre = request.form.get('nombre', '')
+        descripcion = request.form.get('descripcion', '')
+        area_profesional = request.form.get('area_profesional', '')
+        imagen_portada = request.form.get('imagen_portada', '')
+        imagen_principal = request.form.get('imagen_principal', '')
+        a_que_se_dedica = request.form.get('a_que_se_dedica', '')
 
         db = obtener_db()
         cursor = db.cursor()
         cursor.execute(
-            "INSERT INTO carreras (nombre, descripcion, area_profesional, instituciones) VALUES (%s, %s, %s, %s)",
-            (nombre, descripcion, area_profesional, '')
+            "INSERT INTO carreras (nombre, descripcion, area_profesional, instituciones, imagen_portada, imagen_principal, a_que_se_dedica) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            (nombre, descripcion, area_profesional, '', imagen_portada, imagen_principal, a_que_se_dedica)
         )
         carrera_id_nueva = cursor.lastrowid
         # Agregar automáticamente al juego "Descubre tu carrera" (inactiva por defecto,
@@ -928,12 +896,17 @@ def editar_carrera(id):
     cursor = db.cursor(dictionary=True)
     
     if request.method == 'POST':
-        nombre = request.form['nombre']
-        descripcion = request.form['descripcion']
-        area_profesional = request.form['area_profesional']
+        nombre = request.form.get('nombre', '')
+        descripcion = request.form.get('descripcion', '')
+        area_profesional = request.form.get('area_profesional', '')
+        imagen_portada = request.form.get('imagen_portada', '')
+        imagen_principal = request.form.get('imagen_principal', '')
+        a_que_se_dedica = request.form.get('a_que_se_dedica', '')
         
-        cursor.execute("UPDATE carreras SET nombre = %s, descripcion = %s, area_profesional = %s WHERE id = %s",
-                       (nombre, descripcion, area_profesional, id))
+        cursor.execute(
+            "UPDATE carreras SET nombre = %s, descripcion = %s, area_profesional = %s, imagen_portada = %s, imagen_principal = %s, a_que_se_dedica = %s WHERE id = %s",
+            (nombre, descripcion, area_profesional, imagen_portada, imagen_principal, a_que_se_dedica, id)
+        )
         db.commit()
         flash('Carrera actualizada exitosamente.', 'success')
         return redirect(url_for('admin_carreras'))
@@ -1072,6 +1045,65 @@ def editar_game_carrera(id):
     db.commit()
     flash('Tarjeta del juego actualizada.', 'success')
     return redirect(url_for('admin_game_carreras'))
+
+
+# --- ADMIN: INTERESES EN JUEGO (preguntas del mini-juego) ---
+
+@app.route('/admin/game/preguntas')
+@requiere_admin
+def admin_game_preguntas():
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM game_preguntas ORDER BY orden, id")
+    preguntas = cursor.fetchall()
+    return render_template('admin/game_preguntas.html', preguntas=preguntas)
+
+
+@app.route('/admin/game/preguntas/nueva', methods=['POST'])
+@requiere_admin
+def nueva_game_pregunta():
+    texto_pregunta = request.form.get('texto_pregunta', '').strip()
+    opcion_a_texto = request.form.get('opcion_a_texto', '').strip()
+    opcion_a_area  = request.form.get('opcion_a_area', '').strip()
+    opcion_b_texto = request.form.get('opcion_b_texto', '').strip()
+    opcion_b_area  = request.form.get('opcion_b_area', '').strip()
+
+    if not all([texto_pregunta, opcion_a_texto, opcion_a_area, opcion_b_texto, opcion_b_area]):
+        flash('Todos los campos son obligatorios.', 'danger')
+        return redirect(url_for('admin_game_preguntas'))
+
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        INSERT INTO game_preguntas
+        (texto_pregunta, opcion_a_texto, opcion_a_area, opcion_b_texto, opcion_b_area)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (texto_pregunta, opcion_a_texto, opcion_a_area, opcion_b_texto, opcion_b_area))
+    db.commit()
+    flash('Pregunta agregada al juego exitosamente.', 'success')
+    return redirect(url_for('admin_game_preguntas'))
+
+
+@app.route('/admin/game/preguntas/toggle/<int:id>', methods=['POST'])
+@requiere_admin
+def toggle_game_pregunta(id):
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("UPDATE game_preguntas SET activo = NOT activo WHERE id = %s", (id,))
+    db.commit()
+    flash('Estado de la pregunta actualizado.', 'success')
+    return redirect(url_for('admin_game_preguntas'))
+
+
+@app.route('/admin/game/preguntas/eliminar/<int:id>', methods=['POST'])
+@requiere_admin
+def eliminar_game_pregunta(id):
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM game_preguntas WHERE id = %s", (id,))
+    db.commit()
+    flash('Pregunta eliminada del juego.', 'info')
+    return redirect(url_for('admin_game_preguntas'))
 
 
 # --- SECCIÓN: ADMIN NOTICIAS ---

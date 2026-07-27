@@ -1,6 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% set fallback_area = {
+    'Tecnología':        'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=500&q=80',
+    'Ingeniería':        'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500&q=80',
+    'Salud':             'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500&q=80',
+    'Agronomía':         'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=500&q=80',
+    'Arte y Diseño':     'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80',
+    'Negocios':          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&q=80',
+    'Derecho':           'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=500&q=80',
+    'Humanidades':       'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=500&q=80',
+    'Comunicación':      'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=500&q=80',
+    'Salud Mental':      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=500&q=80',
+    'Ciencias Naturales':'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=500&q=80'
+} %}
+
 <!-- SECCIÓN PRINCIPAL: GUÍA DE CARRERAS -->
 <div class="container py-5">
 
@@ -47,7 +61,22 @@
         <div class="col-md-6 col-lg-4 career-item" data-area="{{ carrera.area_profesional }}">
             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden section-card p-0 career-card">
                 <!-- IMAGEN DE LA CARRERA -->
-                <img src="https://images.unsplash.com/photo-1541339907198-e08756ebafe3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" class="card-img-top object-fit-cover" height="200" alt="{{ carrera.nombre }}">
+                {% if carrera.imagen_portada %}
+                <img
+                    src="{{ url_for('static', filename=carrera.imagen_portada) }}"
+                    onerror="this.onerror=null; this.src='{{ fallback_area.get(carrera.area_profesional, url_for('static', filename='carreras/placeholder.svg')) }}';"
+                    class="card-img-top object-fit-cover"
+                    style="height: 220px; object-position: center;"
+                    alt="{{ carrera.nombre }}"
+                    loading="lazy">
+                {% else %}
+                <img
+                    src="{{ fallback_area.get(carrera.area_profesional, url_for('static', filename='carreras/placeholder.svg')) }}"
+                    class="card-img-top object-fit-cover"
+                    style="height: 220px; object-position: center;"
+                    alt="{{ carrera.nombre }}"
+                    loading="lazy">
+                {% endif %}
 
                 <!-- CUERPO DE LA TARJETA -->
                 <div class="card-body p-4">

@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{#
+  ════════════════════════════════════════════════════════════
+  _base_carrera.html  —  MODELO DE REFERENCIA (no se usa en rutas)
+  ════════════════════════════════════════════════════════════
+  Para crear el template de una carrera nueva:
+    1. Copiá este archivo y renombralo  carrera_<id>.html
+       Ejemplo:  carrera_39.html  →  Arquitectura (id=39)
+    2. Completá las secciones marcadas con ▸ PERSONALIZAR ◂
+    3. Guardá el archivo en  templates/carreras/
+  La ruta /carrera/<id> lo detectará automáticamente.
+  ════════════════════════════════════════════════════════════
+#}
+
+{% block content %}
+
+{# ── IMAGEN ──────────────────────────────────────────────────
+   La imagen principal viene de la BD (campo imagen_principal).
+   Para personalizarla:
+     1. Agrega el archivo en static/imagenes/
+     2. Actualiza imagen_principal en la tabla carreras via SQL
+            o desde /admin/carreras
+   ▸ PERSONALIZAR ◂  si necesitás forzar una imagen distinta a la BD:
+     descomentá y ajustá la línea siguiente:
+   {# % set override_imagen = url_for('static', filename='imagenes/mi-imagen.jpg') % #}
+   ───────────────────────────────────────────────────────── #}
+{% set fallback_area = {
+    'Tecnología':        'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería':        'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&h=800&fit=crop&q=80',
+    'Salud':             'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1200&h=800&fit=crop&q=80',
+    'Salud Mental':      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1200&h=800&fit=crop&q=80',
+    'Ciencias Naturales':'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=1200&h=800&fit=crop&q=80',
+    'Agronomía':         'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1200&h=800&fit=crop&q=80',
+    'Negocios':          'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop&q=80',
+    'Derecho':           'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&h=800&fit=crop&q=80',
+    'Humanidades':       'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=1200&h=800&fit=crop&q=80',
+    'Arte y Diseño':     'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop&q=80',
+    'Comunicación':      'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=800&fit=crop&q=80'
+} %}
+
+<!-- SECCIÓN PRINCIPAL: DETALLE DE CARRERA ESPECÍFICA -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="section-card p-0 overflow-hidden shadow-lg border-0">
+                <div class="row g-0">
+
+                    <!-- COLUMNA DE IMAGEN -->
+                    <div class="col-md-6">
+                        {% if carrera.imagen_principal %}
+                        <img
+                            src="{{ url_for('static', filename=carrera.imagen_principal) }}"
+                            onerror="this.onerror=null; this.src='{{ fallback_area.get(carrera.area_profesional, url_for('static', filename='carreras/placeholder.svg')) }}';"
+                            class="img-fluid h-100 object-fit-cover"
+                            style="object-position: center; min-height: 400px;"
+                            alt="{{ carrera.nombre }}"
+                            loading="lazy">
+                        {% else %}
+                        <img
+                            src="{{ fallback_area.get(carrera.area_profesional, url_for('static', filename='carreras/placeholder.svg')) }}"
+                            class="img-fluid h-100 object-fit-cover"
+                            style="object-position: center; min-height: 400px;"
+                            alt="{{ carrera.nombre }}"
+                            loading="lazy">
+                        {% endif %}
+                    </div>
+
+                    <!-- COLUMNA DE CONTENIDO -->
+                    <div class="col-md-6 p-5">
+
+                        <!-- ENCABEZADO Y NAVEGACIÓN -->
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold">
+                                {{ carrera.area_profesional }}
+                            </span>
+                            <a href="{{ url_for('carreras') }}"
+                               class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm">
+                                Volver
+                            </a>
+                        </div>
+
+                        <h1 class="display-5 fw-bold mb-4 text-primary">{{ carrera.nombre }}</h1>
+                        <p class="lead mb-4 text-muted">{{ carrera.descripcion }}</p>
+
+                        <!-- PERFIL PROFESIONAL -->
+                        {# ── ▸ PERSONALIZAR ◂ ──────────────────────────────────
+                           Reemplazá el texto por una descripción específica
+                           de lo que hace un profesional en esta carrera.
+                           ──────────────────────────────────────────────────── #}
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-3">
+                                <i class="bi bi-briefcase text-primary me-2"></i> ¿A qué se dedica?
+                            </h5>
+                            <p class="text-muted small">
+                                {# ▸ PERSONALIZAR: Reemplazá este párrafo con texto propio ◂ #}
+                                {{ carrera.a_que_se_dedica if carrera.a_que_se_dedica else
+                                   'Los graduados en esta carrera se encargan de liderar procesos clave
+                                    en su área, aplicando conocimientos avanzados para resolver problemas
+                                    complejos en el ámbito profesional.' }}
+                            </p>
+                        </div>
+
+                        <!-- DÓNDE ESTUDIARLA EN TUCUMÁN -->
+                        <div class="mb-5" id="seccion-instituciones">
+                            <h5 class="fw-bold mb-3">
+                                <i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla en Tucumán?
+                            </h5>
+
+                            {% if carrera.instituciones %}
+                            <ul class="list-unstyled mb-3">
+                                {% for inst in carrera.instituciones.split(',') %}
+                                <li class="mb-1">
+                                    <i class="bi bi-building text-primary me-2"></i>{{ inst.strip() }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+
+                            <!-- BOTÓN BUSCAR EN INTERNET -->
+                            <button id="btn-buscar-uni"
+                                    class="btn btn-outline-primary btn-sm rounded-pill mt-2 shadow-sm d-inline-flex align-items-center gap-2">
+                                <i class="bi bi-search"></i>
+                                Buscar en internet
+                            </button>
+
+                            <!-- Spinner de carga -->
+                            <div id="loading-busqueda" class="mt-3" style="display:none;">
+                                <span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>
+                                <span class="text-muted small">Buscando información...</span>
+                            </div>
+
+                            <!-- Contenedor de resultados DuckDuckGo -->
+                            <div id="resultados-busqueda" class="mt-3"></div>
+
+                        </div>
+
+                    </div><!-- /col-md-6 contenido -->
+                </div><!-- /row g-0 -->
+            </div><!-- /section-card -->
+        </div><!-- /col-lg-10 -->
+    </div><!-- /row -->
+</div><!-- /container -->
+
+<script>
+/**
+ * buscarUniversidades(carreraId)
+ * Llama a /carrera/<id>/buscar-universidades (DuckDuckGo vía DDGS)
+ * La API devuelve JSON con campo "url" (no "link") en cada resultado.
+ */
+async function buscarUniversidades(carreraId) {
+    const btn       = document.getElementById('btn-buscar-uni');
+    const loading   = document.getElementById('loading-busqueda');
+    const contenedor = document.getElementById('resultados-busqueda');
+
+    btn.disabled = true;
+    loading.style.display = 'block';
+    contenedor.innerHTML  = '';
+
+    try {
+        const resp = await fetch(`/carrera/${carreraId}/buscar-universidades`);
+        const data = await resp.json();
+
+        loading.style.display = 'none';
+        btn.disabled = false;
+
+        if (!data.resultados || data.resultados.length === 0) {
+            contenedor.innerHTML = `
+                <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    No se encontraron resultados. Intentá de nuevo.
+                </div>`;
+            return;
+        }
+
+        let html = '<ul class="list-group list-group-flush mt-2">';
+        data.resultados.forEach(r => {
+            html += `
+                <li class="list-group-item px-0 border-0 py-2">
+                    <a href="${r.url}" target="_blank" rel="noopener noreferrer"
+                       class="fw-semibold text-primary text-decoration-none d-block">
+                        ${r.titulo}
+                    </a>
+                    <span class="text-muted small d-block">${r.descripcion}</span>
+                    <span class="text-muted small">${r.url}</span>
+                </li>`;
+        });
+        html += '</ul>';
+        contenedor.innerHTML = html;
+
+    } catch (e) {
+        loading.style.display = 'none';
+        btn.disabled = false;
+        contenedor.innerHTML = `
+            <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
+                <i class="bi bi-wifi-off me-1"></i>
+                Error al buscar. Verificá tu conexión e intentá de nuevo.
+            </div>`;
+    }
+}
+
+// Vincular el botón al llamar a la función con el id de carrera de la BD
+document.getElementById('btn-buscar-uni').addEventListener('click', function () {
+    buscarUniversidades({{ carrera.id }});
+});
+</script>
+
+{% endblock %}

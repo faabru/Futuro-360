@@ -8,17 +8,26 @@
             <p class="text-muted">Gestiona usuarios, carreras y las preguntas del test vocacional.</p>
         </div>
         <div class="col-md-4 text-md-end">
-            <div class="btn-group">
+            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
                 <a href="{{ url_for('admin_carreras') }}" class="btn btn-outline-primary">
                     <i class="bi bi-mortarboard me-1"></i> Carreras
                 </a>
                 <a href="{{ url_for('admin_preguntas') }}" class="btn btn-outline-primary">
-                    <i class="bi bi-question-circle me-1"></i> Preguntas
+                    <i class="bi bi-question-circle me-1"></i> Preguntas Test
                 </a>
-                <form action="{{ url_for('actualizar_rss') }}" method="POST" class="d-inline"> 
-                   <button type="submit" class="btn btn-warning"> 
-                      <i class="bi bi-rss-fill me-1"></i> Actualizar RSS 
-                   </button> 
+                <a href="{{ url_for('admin_noticias') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-newspaper me-1"></i> Noticias
+                </a>
+                <a href="{{ url_for('admin_game_carreras') }}" class="btn btn-outline-success">
+                    <i class="bi bi-card-list me-1"></i> Game: Carreras
+                </a>
+                <a href="{{ url_for('admin_game_preguntas') }}" class="btn btn-outline-success">
+                    <i class="bi bi-joystick me-1"></i> Game: Preguntas
+                </a>
+                <form action="{{ url_for('actualizar_rss') }}" method="POST" class="d-inline">
+                   <button type="submit" class="btn btn-warning">
+                      <i class="bi bi-rss-fill me-1"></i> Actualizar RSS
+                   </button>
                 </form>
             </div>
         </div>
