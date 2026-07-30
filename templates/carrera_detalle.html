@@ -88,12 +88,17 @@
                             contenedor.innerHTML = '';
 
                             fetch(`/carrera/${carreraId}/buscar-universidades`)
-                                .then(response => response.json())
+                                .then(response => {
+                                    // Si la sesión expiró, el servidor devuelve 401 con JSON
+                                    if (response.status === 401) {
+                                        return response.json().then(d => { throw {tipo: 'sesion', msg: d.error}; });
+                                    }
+                                    return response.json();
+                                })
                                 .then(data => {
                                     btn.disabled = false;
                                     btn.innerHTML = '<i class="bi bi-search"></i> Buscar en internet';
 
-                                    // Si la API devolvió un error explícito, mostrar fallback
                                     if (data.error || !data.resultados || data.resultados.length === 0) {
                                         contenedor.innerHTML = `
                                             <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
@@ -119,16 +124,25 @@
                                     html += '</ul>';
                                     contenedor.innerHTML = html;
                                 })
-                                .catch(() => {
+                                .catch(err => {
                                     btn.disabled = false;
                                     btn.innerHTML = '<i class="bi bi-search"></i> Buscar en internet';
-                                    contenedor.innerHTML = `
-                                        <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
-                                            <i class="bi bi-wifi-off me-1"></i>
-                                            Sin conexión al servidor.
-                                            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
-                                               class="alert-link ms-1">Buscar en Google →</a>
-                                        </div>`;
+                                    if (err && err.tipo === 'sesion') {
+                                        contenedor.innerHTML = `
+                                            <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
+                                                <i class="bi bi-lock me-1"></i>
+                                                Sesión expirada.
+                                                <a href="/login" class="alert-link ms-1">Iniciá sesión nuevamente →</a>
+                                            </div>`;
+                                    } else {
+                                        contenedor.innerHTML = `
+                                            <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
+                                                <i class="bi bi-wifi-off me-1"></i>
+                                                Sin conexión al servidor.
+                                                <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
+                                                   class="alert-link ms-1">Buscar en Google →</a>
+                                            </div>`;
+                                    }
                                 });
                         });
                         </script>
