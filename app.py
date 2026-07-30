@@ -754,8 +754,10 @@ def detalle_carrera(carrera_id):
         return render_template('carrera_detalle.html', carrera=carrera)
 
 @app.route('/carrera/<int:carrera_id>/buscar-universidades')
-@requiere_login
 def buscar_universidades(carrera_id):
+    # Verificar sesión manualmente para poder responder JSON si no está logueado
+    if g.user is None:
+        return {"error": "Sesión expirada. Por favor iniciá sesión nuevamente.", "resultados": [], "status": "unauthorized"}, 401
     """
     Busca en la web universidades de Tucumán que dicten esta carrera utilizando Google Custom Search API.
     Versión optimizada con manejo de errores robusto y validaciones completas.
@@ -1163,6 +1165,85 @@ def pagina_no_encontrada(e):
 def error_interno(e):
     return render_template('base.html', content="<div class='container py-5 text-center'><h1>500</h1><p>Algo salió mal. Por favor, intenta más tarde.</p></div>"), 500
 
+# ─────────────────────────────────────────────────────────────────────────────
+# AUTO-SINCRONIZACIÓN DE IMÁGENES
+# Se ejecuta UNA VEZ al arrancar Flask. Actualiza imagen_portada e
+# imagen_principal en la BD para las carreras que las tengan en NULL.
+# Si los datos ya están cargados, el costo es prácticamente cero.
+# ─────────────────────────────────────────────────────────────────────────────
+def sincronizar_imagenes():
+    """
+    Escanea static/imagenes/ y actualiza los campos imagen_portada / imagen_principal
+    de cada carrera que tenga esos campos en NULL.
+    No toca registros que ya tienen imagen asignada.
+    """
+    imagenes_dir = os.path.join(app.static_folder, 'imagenes')
+    if not os.path.isdir(imagenes_dir):
+        return  # carpeta no existe, nada que hacer
+
+    # Construir índice: nombre_archivo_sin_ext_lower → ruta_relativa_a_static
+    index = {}
+    for fname in os.listdir(imagenes_dir):
+        ruta_relativa = 'imagenes/' + fname
+        # Clave: nombre del archivo en minúsculas sin extensión
+        clave = os.path.splitext(fname)[0].lower()
+        index[clave] = ruta_relativa
+
+    try:
+        conn = obtener_db()
+        cursor = conn.cursor(dictionary=True)
+
+        # Traer solo carreras sin imágenes (optimización: evita tocar las ya completas)
+        cursor.execute("""
+            SELECT id, nombre, area_profesional, imagen_portada, imagen_principal
+            FROM carreras
+            WHERE imagen_portada IS NULL OR imagen_portada = ''
+               OR imagen_principal IS NULL OR imagen_principal = ''
+        """)
+        carreras_sin_imagen = cursor.fetchall()
+
+        if not carreras_sin_imagen:
+            cursor.close()
+            return  # Todas las carreras ya tienen imagen → nada que hacer
+
+        actualizadas = 0
+        for carrera in carreras_sin_imagen:
+            area  = (carrera['area_profesional'] or '').lower().strip()
+            nombre = (carrera['nombre'] or '').lower().strip()
+
+            # Buscar portada y principal en el índice por coincidencia parcial
+            portada   = None
+            principal = None
+            for clave, ruta in index.items():
+                if area in clave and nombre in clave:
+                    if 'portada' in clave:
+                        portada = ruta
+                    elif 'principal' in clave:
+                        principal = ruta
+
+            if portada or principal:
+                cursor.execute("""
+                    UPDATE carreras
+                    SET imagen_portada   = COALESCE(NULLIF(imagen_portada, ''), %s),
+                        imagen_principal = COALESCE(NULLIF(imagen_principal, ''), %s)
+                    WHERE id = %s
+                """, (portada, principal, carrera['id']))
+                actualizadas += 1
+
+        conn.commit()
+        cursor.close()
+
+        if actualizadas:
+            app.logger.info(f'[imagenes] Auto-sync: {actualizadas} carreras actualizadas.')
+        else:
+            app.logger.info('[imagenes] Auto-sync: sin cambios necesarios.')
+
+    except Exception as e:
+        app.logger.warning(f'[imagenes] Auto-sync error (no crítico): {e}')
+
+
 # Punto de entrada de la aplicación
 if __name__ == '__main__':
+    with app.app_context():
+        sincronizar_imagenes()
     app.run(debug=True)
