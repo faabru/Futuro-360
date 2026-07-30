@@ -10,6 +10,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import resend
 from database_handler import obtener_db, inicializar_app
 
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
+
 # Cargar las variables de entorno desde el archivo .env (configuración de BD y llaves secretas)
 load_dotenv()
 
@@ -23,6 +26,69 @@ MAIL_FROM = "Futuro 360 <onboarding@resend.dev>"
 
 # Inicializar la conexión a la base de datos con la aplicación
 inicializar_app(app)
+
+# ═══════════════════════════════════════
+# SCHEDULER — Actualización automática de noticias
+# Se ejecuta cada 6 horas sin necesidad de intervención manual
+# ═══════════════════════════════════════
+def tarea_actualizar_noticias():
+    """Tarea programada: actualiza noticias RSS automáticamente"""
+    with app.app_context():
+        try:
+            from rss_fetcher import actualizar_noticias_rss
+            insertadas = actualizar_noticias_rss(max_por_fuente=6, scraping_imagen=True)
+            print(f"[Scheduler] Noticias actualizadas automáticamente: {insertadas} nuevas")
+        except Exception as e:
+            print(f"[Scheduler] Error al actualizar noticias: {e}")
+
+def tarea_limpiar_noticias_viejas():
+    """Tarea programada: elimina noticias de más de 30 días para no llenar la BD"""
+    with app.app_context():
+        try:
+            db = obtener_db()
+            cursor = db.cursor()
+            cursor.execute("""
+                DELETE FROM noticias
+                WHERE es_externa = 1
+                AND fecha < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            """)
+            eliminadas = cursor.rowcount
+            db.commit()
+            if eliminadas > 0:
+                print(f"[Scheduler] Noticias viejas eliminadas: {eliminadas}")
+        except Exception as e:
+            print(f"[Scheduler] Error al limpiar noticias: {e}")
+
+# Iniciar el scheduler solo si no estamos en modo debug con reloader
+# (evita que se inicien 2 schedulers en desarrollo)
+if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+    scheduler = BackgroundScheduler(timezone='America/Argentina/Tucuman')
+
+    # Actualizar noticias cada 6 horas
+    scheduler.add_job(
+        func=tarea_actualizar_noticias,
+        trigger='interval',
+        hours=6,
+        id='actualizar_noticias',
+        replace_existing=True
+    )
+
+    # Limpiar noticias viejas cada día a las 3am
+    scheduler.add_job(
+        func=tarea_limpiar_noticias_viejas,
+        trigger='cron',
+        hour=3,
+        minute=0,
+        id='limpiar_noticias',
+        replace_existing=True
+    )
+
+    scheduler.start()
+    print("[Scheduler] Iniciado — noticias se actualizan cada 6 horas automáticamente")
+
+    # Asegurar que el scheduler se detenga cuando Flask se cierre
+    atexit.register(lambda: scheduler.shutdown())
+
 
 
 # --- MIDDLEWARE: Función que se ejecuta antes de cada petición ---

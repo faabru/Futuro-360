@@ -4,6 +4,31 @@
 {% block panel_subtitle %}Publicá noticias manualmente o gestioná las existentes.{% endblock %}
 
 {% block panel_content %}
+
+<!-- BANNER RSS AUTOMÁTICO -->
+<div class="card border-0 bg-primary-subtle rounded-4 p-4 mb-4">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <div class="fs-1 text-primary">🤖</div>
+      <div>
+        <h6 class="fw-bold text-primary mb-1">Sistema automático activo</h6>
+        <p class="mb-0 text-muted small">
+          Las noticias se actualizan automáticamente cada 6 horas
+          desde {{ fuentes|length }} fuentes RSS educativas.
+          Las noticias de más de 30 días se eliminan automáticamente para mantener el contenido fresco.
+        </p>
+      </div>
+    </div>
+    <div>
+      <form action="{{ url_for('actualizar_rss') }}" method="POST" class="m-0">
+        <button type="submit" class="btn btn-primary rounded-pill px-4 btn-sm fw-bold">
+          <i class="bi bi-arrow-clockwise me-1"></i> Actualizar ahora
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="d-flex justify-content-end mb-4">
         <button type="button" class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#nuevaNoticiaModal">
             <i class="bi bi-plus-lg me-1"></i> Nueva Noticia
