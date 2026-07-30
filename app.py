@@ -990,17 +990,20 @@ def eliminar_opcion_pregunta(id):
     flash('Opción eliminada.', 'info')
     return redirect(url_for('admin_preguntas'))
 
-@app.route('/admin/noticias/actualizar-rss', methods=['POST']) 
-@requiere_admin 
-def actualizar_rss(): 
-    """Ruta para que el admin actualice las noticias desde RSS manualmente""" 
-    try: 
-        from rss_fetcher import actualizar_noticias_rss 
-        insertadas = actualizar_noticias_rss() 
-        flash(f'RSS actualizado correctamente. {insertadas} nuevas noticias agregadas.', 'success') 
-    except Exception as e: 
-        flash(f'Error al actualizar RSS: {str(e)}', 'danger') 
-    return redirect(url_for('admin_dashboard')) 
+@app.route('/admin/noticias/actualizar-rss', methods=['POST'])
+@requiere_admin
+def actualizar_rss():
+    """El admin puede actualizar las noticias desde RSS manualmente"""
+    try:
+        from rss_fetcher import actualizar_noticias_rss
+        insertadas = actualizar_noticias_rss(max_por_fuente=8, scraping_imagen=True)
+        if insertadas > 0:
+            flash(f'✅ RSS actualizado. Se agregaron {insertadas} noticias nuevas.', 'success')
+        else:
+            flash('ℹ️ RSS actualizado. No hay noticias nuevas por el momento.', 'info')
+    except Exception as e:
+        flash(f'❌ Error al actualizar RSS: {str(e)}', 'danger')
+    return redirect(url_for('admin_noticias')) 
 
 # --- SECCIÓN: ADMIN JUEGO CARRERAS ---
 
