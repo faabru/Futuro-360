@@ -1,63 +1,71 @@
-{% extends "base.html" %}
+{% extends "admin/panel_layout.html" %}
 
-{% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card border-0 shadow-sm animate__animated animate__fadeInUp">
-                <div class="card-header bg-white py-4 border-0">
-                    <h2 class="fw-bold mb-0 text-center">
-                        {% if carrera %}Editar Carrera{% else %}Nueva Carrera{% endif %}
-                    </h2>
-                </div>
-                <div class="card-body p-4">
-                    <form method="POST">
-                        <div class="mb-4">
-                            <label for="nombre" class="form-label fw-bold">Nombre de la Carrera</label>
-                            <input type="text" name="nombre" id="nombre" class="form-control" value="{{ carrera.nombre if carrera else '' }}" required placeholder="Ej: Ingeniería Informática">
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="area_profesional" class="form-label fw-bold">Área Profesional</label>
-                            <input type="text" name="area_profesional" id="area_profesional" class="form-control" value="{{ carrera.area_profesional if carrera else '' }}" required placeholder="Ej: Tecnología">
-                        </div>
+{% block panel_title %}{% if carrera %}Editar Carrera{% else %}Nueva Carrera{% endif %}{% endblock %}
+{% block panel_subtitle %}Completá los datos de la carrera y sus imágenes.{% endblock %}
 
-                        <div class="mb-4">
-                            <label for="descripcion" class="form-label fw-bold">Descripción Corta</label>
-                            <textarea name="descripcion" id="descripcion" class="form-control" rows="3" required placeholder="Describe brevemente la carrera...">{{ carrera.descripcion if carrera else '' }}</textarea>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="a_que_se_dedica" class="form-label fw-bold">¿A qué se dedica? (Detalle largo)</label>
-                            <textarea name="a_que_se_dedica" id="a_que_se_dedica" class="form-control" rows="5" placeholder="Los graduados en esta carrera se encargan de...">{{ carrera.a_que_se_dedica if carrera else '' }}</textarea>
-                        </div>
+{% block panel_actions %}
+<a href="{{ url_for('admin_carreras') }}" class="btn btn-outline-secondary rounded-pill px-4">
+    <i class="bi bi-arrow-left me-1"></i> Volver a Carreras
+</a>
+{% endblock %}
 
-                        <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <label for="imagen_portada" class="form-label fw-bold">Imagen de Portada (URL)</label>
-                                <input type="url" name="imagen_portada" id="imagen_portada" class="form-control" value="{{ carrera.imagen_portada if carrera else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
-                                <small class="text-muted">Se mostrará en la grilla de carreras.</small>
-                            </div>
-                            
-                            <div class="col-md-6 mb-4">
-                                <label for="imagen_principal" class="form-label fw-bold">Imagen Principal (URL)</label>
-                                <input type="url" name="imagen_principal" id="imagen_principal" class="form-control" value="{{ carrera.imagen_principal if carrera else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
-                                <small class="text-muted">Se mostrará grande en el detalle de la carrera.</small>
-                            </div>
+{% block panel_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="admin-card">
+            <div class="admin-card-body p-4 p-md-5">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label for="nombre" class="form-label fw-bold">Nombre de la Carrera</label>
+                        <input type="text" name="nombre" id="nombre" class="form-control form-control-lg" value="{{ carrera.nombre if carrera else '' }}" required placeholder="Ej: Ingeniería Informática">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="area_profesional" class="form-label fw-bold">Área Profesional</label>
+                        <input type="text" name="area_profesional" id="area_profesional" class="form-control" value="{{ carrera.area_profesional if carrera else '' }}" required placeholder="Ej: Tecnología">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="descripcion" class="form-label fw-bold">Descripción Corta</label>
+                        <textarea name="descripcion" id="descripcion" class="form-control" rows="3" required placeholder="Describe brevemente la carrera...">{{ carrera.descripcion if carrera else '' }}</textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="a_que_se_dedica" class="form-label fw-bold">¿A qué se dedica? (Detalle largo)</label>
+                        <textarea name="a_que_se_dedica" id="a_que_se_dedica" class="form-control" rows="5" placeholder="Los graduados en esta carrera se encargan de...">{{ carrera.a_que_se_dedica if carrera else '' }}</textarea>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6 mb-4">
+                            <label for="imagen_portada" class="form-label fw-bold">Imagen de Portada</label>
+                            <input type="url" name="imagen_portada" id="imagen_portada" class="form-control" value="{{ carrera.imagen_portada if carrera else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
+                            <small class="text-muted d-block mt-2">O subí una imagen desde tu dispositivo:</small>
+                            <input type="file" name="imagen_portada_file" id="imagen_portada_file" class="form-control mt-2 crop-imagen" accept="image/jpeg,image/png,image/gif,image/webp">
+                            <small class="text-muted">Se mostrará en la grilla de carreras. Si subís un archivo, se usa en lugar de la URL.</small>
                         </div>
 
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary px-4">
-                                <i class="bi bi-save me-1"></i> Guardar Cambios
-                            </button>
-                            <a href="{{ url_for('admin_carreras') }}" class="btn btn-outline-secondary px-4">
-                                Cancelar
-                            </a>
+                        <div class="col-md-6 mb-4">
+                            <label for="imagen_principal" class="form-label fw-bold">Imagen Principal</label>
+                            <input type="url" name="imagen_principal" id="imagen_principal" class="form-control" value="{{ carrera.imagen_principal if carrera else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
+                            <small class="text-muted d-block mt-2">O subí una imagen desde tu dispositivo:</small>
+                            <input type="file" name="imagen_principal_file" id="imagen_principal_file" class="form-control mt-2 crop-imagen" accept="image/jpeg,image/png,image/gif,image/webp">
+                            <small class="text-muted">Se mostrará grande en el detalle de la carrera. Si subís un archivo, se usa en lugar de la URL.</small>
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="admin-btn-primary px-4">
+                            <i class="bi bi-save me-1"></i> Guardar Cambios
+                        </button>
+                        <a href="{{ url_for('admin_carreras') }}" class="btn btn-outline-secondary px-4">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+{% include "admin/_modal_crop.html" %}
 {% endblock %}

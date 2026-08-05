@@ -3,80 +3,300 @@
 {% block panel_title %}Gestión de Noticias{% endblock %}
 {% block panel_subtitle %}Publicá noticias manualmente o gestioná las existentes.{% endblock %}
 
+{% block panel_actions %}
+<button type="button" class="admin-btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaNoticiaModal">
+    <i class="bi bi-plus-lg me-1"></i> Nueva Noticia
+</button>
+<a href="#filtrosFechaCard" class="btn btn-outline-secondary rounded-pill px-4" data-bs-toggle="collapse" role="button" aria-expanded="false">
+    <i class="bi bi-calendar-event me-1"></i> Filtros de Fecha
+</a>
+<a href="#fuentesCard" class="btn btn-outline-secondary rounded-pill px-4" data-bs-toggle="collapse" role="button" aria-expanded="false">
+    <i class="bi bi-collection me-1"></i> Gestionar Fuentes
+</a>
+{% endblock %}
+
 {% block panel_content %}
 
-<!-- BANNER RSS AUTOMÁTICO -->
-<div class="card border-0 bg-primary-subtle rounded-4 p-4 mb-4">
-  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-    <div class="d-flex align-items-center gap-3">
-      <div class="fs-1 text-primary">🤖</div>
-      <div>
-        <h6 class="fw-bold text-primary mb-1">Sistema automático activo</h6>
-        <p class="mb-0 text-muted small">
-          Las noticias se actualizan automáticamente cada 6 horas
-          desde {{ fuentes|length }} fuentes RSS educativas.
-          Las noticias de más de 30 días se eliminan automáticamente para mantener el contenido fresco.
+<!-- Gestión de filtros de fecha -->
+<div class="collapse mb-4" id="filtrosFechaCard">
+    <div class="admin-panel">
+        <div class="admin-panel-body">
+        <h6 class="fw-bold mb-1"><i class="bi bi-calendar-event text-primary me-1"></i> Filtros de Fecha</h6>
+        <p class="text-muted small mb-3">
+            Editá las etiquetas, activá/desactivá y ordená las opciones que aparecen en
+            "Filtrar por Fecha" de la sección Noticias del sitio. También podés agregar
+            filtros propios con la condición SQL del rango de fechas.
         </p>
-      </div>
-    </div>
-    <div>
-      <form action="{{ url_for('actualizar_rss') }}" method="POST" class="m-0">
-        <button type="submit" class="btn btn-primary rounded-pill px-4 btn-sm fw-bold">
-          <i class="bi bi-arrow-clockwise me-1"></i> Actualizar ahora
-        </button>
-      </form>
-    </div>
-  </div>
-</div>
 
-<div class="d-flex justify-content-end mb-4">
-        <button type="button" class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#nuevaNoticiaModal">
-            <i class="bi bi-plus-lg me-1"></i> Nueva Noticia
-        </button>
-    </div>
+        <div class="border rounded-3 bg-light p-3 mb-3">
+            <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-plus-circle me-1"></i> Agregar filtro de fecha</h6>
+            <form action="{{ url_for('nueva_filtro_fecha') }}" method="POST" class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold">Nombre del filtro (lo que ve el visitante)</label>
+                    <input type="text" name="etiqueta" class="form-control" placeholder="Ej: Primer semestre 2026" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Mostrar noticias desde</label>
+                    <input type="date" name="desde" class="form-control" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold">Hasta (opcional)</label>
+                    <input type="date" name="hasta" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check form-switch mb-1">
+                        <input class="form-check-input" type="checkbox" name="activo" id="nuevoFechaActivo" checked>
+                        <label class="form-check-label small" for="nuevoFechaActivo">Visible en el sitio</label>
+                    </div>
+                    <button type="submit" class="admin-btn-primary btn-sm w-100">
+                        <i class="bi bi-plus-lg me-1"></i> Agregar
+                    </button>
+                </div>
+            </form>
+        </div>
 
-    <div class="section-card p-0 overflow-hidden">
-        <div class="table-responsive p-3">
-            <table class="table table-hover align-middle">
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Título</th>
-                        <th>Fuente</th>
-                        <th>Fecha</th>
-                        <th class="text-end">Acciones</th>
+                        <th style="width:120px">Orden</th>
+                        <th>Etiqueta</th>
+                        <th style="width:110px">Visible</th>
+                        <th style="width:60px"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for n in noticias %}
+                    {% for f in filtros_fecha %}
                     <tr>
-                        <td class="fw-semibold">{{ n.titulo }}</td>
-                        <td><span class="badge bg-light text-primary border">{{ n.fuente }}</span></td>
-                        <td>{{ n.fecha }}</td>
+                        <td class="text-nowrap">
+                            <form action="{{ url_for('mover_filtro_fecha', id=f.id, direccion='arriba') }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary {{ 'disabled opacity-50' if loop.first }}" title="Subir">
+                                    <i class="bi bi-arrow-up"></i>
+                                </button>
+                            </form>
+                            <form action="{{ url_for('mover_filtro_fecha', id=f.id, direccion='abajo') }}" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary {{ 'disabled opacity-50' if loop.last }}" title="Bajar">
+                                    <i class="bi bi-arrow-down"></i>
+                                </button>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="{{ url_for('editar_filtro_fecha', id=f.id) }}" method="POST" class="d-flex align-items-center gap-2">
+                                <input type="text" name="etiqueta" value="{{ f.etiqueta }}" class="form-control form-control-sm" style="max-width:220px" required>
+                                <button type="submit" class="btn btn-sm btn-primary text-nowrap" title="Guardar etiqueta">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="{{ url_for('editar_filtro_fecha', id=f.id) }}" method="POST">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="activo" id="fechaActivo{{ f.id }}" {% if f.activo %}checked{% endif %} data-ajax="toggle">
+                                    <label class="form-check-label small" for="fechaActivo{{ f.id }}">
+                                        {% if f.activo %}Sí{% else %}No{% endif %}
+                                    </label>
+                                </div>
+                            </form>
+                        </td>
                         <td class="text-end">
-                            <form action="{{ url_for('eliminar_noticia', id=n.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Eliminar esta noticia?')">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <form action="{{ url_for('eliminar_filtro_fecha', id=f.id) }}" method="POST" data-ajax="delete" data-confirm="¿Eliminar el filtro {{ f.etiqueta }}?">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar filtro">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
                         </td>
                     </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="4" class="text-center text-muted py-4">No hay noticias registradas.</td>
-                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gestión de fuentes -->
+<div class="collapse mb-4" id="fuentesCard">
+    <div class="admin-panel">
+        <div class="admin-panel-body">
+        <h6 class="fw-bold mb-1"><i class="bi bi-collection text-primary me-1"></i> Fuentes</h6>
+        <p class="text-muted small mb-3">
+            Agregá, renombrá, activá o desactivá las fuentes que aparecen en la barra
+            "Fuentes" de la sección Noticias del sitio.
+        </p>
+        <form action="{{ url_for('nueva_fuente') }}" method="POST" class="d-flex gap-2 mb-3">
+            <input type="text" name="nombre" class="form-control" placeholder="Ej: La Nación" required>
+            <button type="submit" class="admin-btn-primary text-nowrap">
+                <i class="bi bi-plus-lg me-1"></i> Agregar
+            </button>
+        </form>
+        {% if fuentes_tabla %}
+        <div class="d-flex flex-wrap gap-2">
+            {% for f in fuentes_tabla %}
+            <span class="admin-badge admin-badge-muted {{ 'opacity-50' if not f.activo }}">
+                {{ f.nombre }}
+                {% if not f.activo %}<span class="ms-1 text-secondary">(oculta)</span>{% endif %}
+                <form action="{{ url_for('toggle_fuente', id=f.id) }}" method="POST" style="display:inline;" title="Mostrar/ocultar" data-ajax="toggle">
+                    <button type="submit" class="btn btn-link btn-sm p-0 ms-1 {{ 'text-success' if f.activo else 'text-secondary' }}">
+                        <i class="bi {{ 'bi-eye' if f.activo else 'bi-eye-slash' }}"></i>
+                    </button>
+                </form>
+                <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-primary" title="Renombrar"
+                        data-bs-toggle="modal" data-bs-target="#editarFuenteModal"
+                        data-url="{{ url_for('editar_fuente', id=f.id) }}"
+                        data-nombre="{{ f.nombre }}">
+                    <i class="bi bi-pencil"></i>
+                </button>
+                <form action="{{ url_for('eliminar_fuente', id=f.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Eliminar la fuente {{ f.nombre }}?">
+                    <button type="submit" class="btn btn-link btn-sm p-0 ms-1 text-danger" title="Eliminar fuente">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                </form>
+            </span>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0 small">Aún no hay fuentes registradas. Agregá las fuentes que uses habitualmente.</p>
+        {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal renombrar fuente -->
+<div class="modal fade" id="editarFuenteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editarFuenteForm" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Renombrar fuente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label fw-bold">Nombre de la fuente</label>
+                    <input type="text" id="editarFuenteNombre" name="nombre" class="form-control" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="admin-btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="filter-bar mb-4">
+    <form method="GET" action="{{ url_for('admin_noticias') }}" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label fw-bold small">Buscar</label>
+            <input type="text" name="q" class="form-control" placeholder="Título, descripción o fuente..." value="{{ busqueda }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold small">Fecha</label>
+            <select name="fecha" class="form-select">
+                {% for f in filtros_fecha %}
+                <option value="{{ f.valor }}" {% if filtro_fecha == f.valor %}selected{% endif %}>{{ f.etiqueta }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-bold small">Fuente</label>
+            <select name="fuente" class="form-select">
+                <option value="todas" {% if filtro_fuente == 'todas' %}selected{% endif %}>Todas</option>
+                {% for f in fuentes %}
+                <option value="{{ f }}" {% if filtro_fuente == f %}selected{% endif %}>{{ f }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-bold small">Área / Categoría</label>
+            <select name="categoria" class="form-select">
+                <option value="todas" {% if filtro_categoria == 'todas' %}selected{% endif %}>Todas</option>
+                {% for c in categorias %}
+                <option value="{{ c }}" {% if filtro_categoria == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-fill">
+                <i class="bi bi-search me-1"></i> Filtrar
+            </button>
+            <a href="{{ url_for('admin_noticias') }}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Área</th>
+                    <th>Fuente</th>
+                    <th>Fecha</th>
+                    <th>Imagen</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for n in noticias %}
+                <tr>
+                    <td class="fw-semibold">
+                        {{ n.titulo }}
+                        {% if n.link and n.link != '#' %}
+                        <a href="{{ n.link }}" target="_blank" class="ms-1 small text-primary" title="Ver original"><i class="bi bi-box-arrow-up-right"></i></a>
+                        {% endif %}
+                    </td>
+                    <td><span class="admin-badge admin-badge-muted">{{ n.categoria }}</span></td>
+                    <td><span class="admin-badge admin-badge-primary">{{ n.fuente }}</span></td>
+                    <td>{{ n.fecha }}</td>
+                    <td>
+                        {% if n.imagen %}
+                        <img src="{{ n.imagen if not n.imagen.startswith('imagenes/') else url_for('static', filename=n.imagen) }}" alt="{{ n.titulo }}" style="width:60px;height:40px;object-fit:cover;border-radius:8px;" onerror="this.style.display='none'">
+                        {% else %}
+                        <span class="text-muted small">Sin imagen</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="icon-btn" title="Editar"
+                                data-bs-toggle="modal" data-bs-target="#editarNoticiaModal"
+                                data-url="{{ url_for('editar_noticia', id=n.id) }}"
+                                data-titulo="{{ n.titulo }}"
+                                data-descripcion="{{ n.descripcion }}"
+                                data-imagen="{{ n.imagen }}"
+                                data-fuente="{{ n.fuente }}"
+                                data-fecha="{{ n.fecha }}"
+                                data-link="{{ n.link }}"
+                                data-categoria="{{ n.categoria }}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <form action="{{ url_for('eliminar_noticia', id=n.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Eliminar esta noticia?">
+                            <button type="submit" class="icon-btn danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6"><div class="admin-empty"><i class="bi bi-newspaper"></i>No hay noticias que coincidan con los filtros.</div></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
 <!-- Modal Nueva Noticia -->
 <div class="modal fade" id="nuevaNoticiaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content border-0 shadow">
-            <form action="{{ url_for('nueva_noticia') }}" method="POST">
-                <div class="modal-header border-0 py-3">
+        <div class="modal-content">
+            <form action="{{ url_for('nueva_noticia') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-header">
                     <h5 class="modal-title fw-bold">Nueva Noticia</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -89,9 +309,16 @@
                         <label class="form-label fw-bold">Descripción</label>
                         <textarea name="descripcion" class="form-control" rows="3" required></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">URL de imagen</label>
-                        <input type="url" name="imagen" class="form-control" placeholder="https://...">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Imagen desde archivo</label>
+                            <input type="file" name="imagen_file" class="form-control crop-imagen" accept=".png,.jpg,.jpeg,.gif,.webp">
+                            <div class="form-text">Si se sube, tiene prioridad sobre la URL.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">URL de imagen</label>
+                            <input type="url" name="imagen" class="form-control" placeholder="https://...">
+                        </div>
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -108,20 +335,119 @@
                             <input type="date" name="fecha" class="form-control" required>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Categoría</label>
-                        <input type="text" name="categoria" class="form-control" value="General">
-                    </div>
-                    <div class="mb-0">
-                        <label class="form-label fw-bold">URL original (link)</label>
-                        <input type="url" name="link" class="form-control" placeholder="https://...">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Área / Categoría</label>
+                            <input type="text" name="categoria" class="form-control" list="categoriasList" value="General">
+                            <datalist id="categoriasList">
+                                {% for c in categorias %}
+                                <option value="{{ c }}">
+                                {% endfor %}
+                            </datalist>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">URL original (link)</label>
+                            <input type="url" name="link" class="form-control" placeholder="https://...">
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Publicar Noticia</button>
+                    <button type="submit" class="admin-btn-primary">Publicar Noticia</button>
                 </div>
             </form>
         </div>
     </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const editModal = document.getElementById('editarFuenteModal');
+        if (editModal) {
+            editModal.addEventListener('show.bs.modal', function (event) {
+                const btn = event.relatedTarget;
+                document.getElementById('editarFuenteForm').action = btn.getAttribute('data-url');
+                document.getElementById('editarFuenteNombre').value = btn.getAttribute('data-nombre');
+            });
+        }
+
+        const editNoticiaModal = document.getElementById('editarNoticiaModal');
+        if (editNoticiaModal) {
+            editNoticiaModal.addEventListener('show.bs.modal', function (event) {
+                const btn = event.relatedTarget;
+                const form = document.getElementById('editarNoticiaForm');
+                form.action = btn.getAttribute('data-url');
+                form.elements['titulo'].value = btn.getAttribute('data-titulo') || '';
+                form.elements['descripcion'].value = btn.getAttribute('data-descripcion') || '';
+                form.elements['imagen'].value = btn.getAttribute('data-imagen') || '';
+                form.elements['fuente'].value = btn.getAttribute('data-fuente') || '';
+                form.elements['fecha'].value = btn.getAttribute('data-fecha') || '';
+                form.elements['link'].value = btn.getAttribute('data-link') || '';
+                form.elements['categoria'].value = btn.getAttribute('data-categoria') || 'General';
+                form.elements['imagen_file'].value = '';
+            });
+        }
+    });
+</script>
+
+<!-- Modal Editar Noticia -->
+<div class="modal fade" id="editarNoticiaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="editarNoticiaForm" method="POST" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Editar Noticia</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Título</label>
+                        <input type="text" name="titulo" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Imagen desde archivo</label>
+                            <input type="file" name="imagen_file" class="form-control crop-imagen" accept=".png,.jpg,.jpeg,.gif,.webp">
+                            <div class="form-text">Si se sube, reemplaza a la imagen actual. Dejá en blanco para conservarla.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">URL de imagen</label>
+                            <input type="url" name="imagen" class="form-control" placeholder="https://...">
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Fuente</label>
+                            <input type="text" name="fuente" class="form-control" list="fuentesList" required placeholder="Ej: Futuro 360">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Fecha</label>
+                            <input type="date" name="fecha" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Área / Categoría</label>
+                            <input type="text" name="categoria" class="form-control" list="categoriasList" value="General">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">URL original (link)</label>
+                            <input type="url" name="link" class="form-control" placeholder="https://...">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="admin-btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% include "admin/_modal_crop.html" %}
 {% endblock %}

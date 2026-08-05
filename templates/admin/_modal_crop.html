@@ -1,0 +1,100 @@
+<!-- MODAL DE RECORTE DE IMAGEN (Cropper.js) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+
+<div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 py-3">
+                <h5 class="modal-title fw-bold"><i class="bi bi-crop me-2 text-primary"></i>Ajustar imagen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <p class="text-muted small mb-2">Mové los bordes para encuadrar la foto. Podés rotarla y hacer zoom.</p>
+                <div class="bg-dark rounded-3 p-2">
+                    <img id="crop-imagen" src="" alt="Imagen a recortar" style="max-width:100%; display:block;">
+                </div>
+            </div>
+            <div class="modal-footer border-0 d-flex justify-content-between">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary" id="crop-rotar" title="Rotar">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="crop-zoom-in" title="Zoom +">
+                        <i class="bi bi-zoom-in"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="crop-zoom-out" title="Zoom -">
+                        <i class="bi bi-zoom-out"></i>
+                    </button>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="crop-aplicar">
+                        <i class="bi bi-check-lg me-1"></i> Aplicar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script>
+(function () {
+    let cropper = null;
+    let inputActual = null;
+
+    document.addEventListener('change', function (e) {
+        const input = e.target;
+        if (!input.classList.contains('crop-imagen')) return;
+        const file = input.files && input.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) return;
+
+        inputActual = input;
+        const img = document.getElementById('crop-imagen');
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            img.src = ev.target.result;
+            img.onload = function () {
+                if (cropper) { cropper.destroy(); cropper = null; }
+                const ratio = parseFloat(input.getAttribute('data-ratio'));
+                cropper = new Cropper(img, {
+                    aspectRatio: isNaN(ratio) ? NaN : ratio,
+                    viewMode: 1,
+                    autoCropArea: 1,
+                });
+            };
+        };
+        reader.readAsDataURL(file);
+
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('cropModal'));
+        modal.show();
+    });
+
+    document.getElementById('crop-rotar').addEventListener('click', function () {
+        if (cropper) cropper.rotate(-90);
+    });
+    document.getElementById('crop-zoom-in').addEventListener('click', function () {
+        if (cropper) cropper.zoom(0.1);
+    });
+    document.getElementById('crop-zoom-out').addEventListener('click', function () {
+        if (cropper) cropper.zoom(-0.1);
+    });
+    document.getElementById('crop-aplicar').addEventListener('click', function () {
+        if (!cropper || !inputActual) return;
+        const canvas = cropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1920, imageSmoothingQuality: 'high' });
+        canvas.toBlob(function (blob) {
+            const nombreOriginal = (inputActual.files[0] && inputActual.files[0].name) || 'imagen.jpg';
+            const nombre = nombreOriginal.replace(/\.[^.]+$/, '') + '.jpg';
+            const archivo = new File([blob], nombre, { type: 'image/jpeg' });
+            const dt = new DataTransfer();
+            dt.items.add(archivo);
+            inputActual.files = dt.files;
+            cropper.destroy();
+            cropper = null;
+            inputActual = null;
+            bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
+        }, 'image/jpeg', 0.92);
+    });
+})();
+</script>

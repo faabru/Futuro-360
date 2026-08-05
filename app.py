@@ -1,17 +1,18 @@
 # Importación de librerías necesarias para el funcionamiento del servidor web
-from flask import Flask, render_template, request, redirect, url_for, session, flash, g
+from flask import Flask, render_template, request, redirect, url_for, session, flash, g, jsonify, get_flashed_messages
 import json
 import os
+import time
 import traceback
 import random
+import re
+from datetime import datetime
 from functools import wraps
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import resend
 from database_handler import obtener_db, inicializar_app
-
-from apscheduler.schedulers.background import BackgroundScheduler
-import atexit
 
 # Cargar las variables de entorno desde el archivo .env (configuración de BD y llaves secretas)
 load_dotenv()
@@ -24,72 +25,14 @@ app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
 resend.api_key = os.getenv('RESEND_API_KEY') 
 MAIL_FROM = "Futuro 360 <onboarding@resend.dev>" 
 
+# --- CREDENCIALES DEL LOGIN DE ADMINISTRACIÓN ---
+# Acceso exclusivo desde la navbar al panel de administración.
+# No depende de la base de datos de usuarios.
+ADMIN_USUARIO = "usuario123"
+ADMIN_PASSWORD = "123456789"
+
 # Inicializar la conexión a la base de datos con la aplicación
 inicializar_app(app)
-
-# ═══════════════════════════════════════
-# SCHEDULER — Actualización automática de noticias
-# Se ejecuta cada 6 horas sin necesidad de intervención manual
-# ═══════════════════════════════════════
-def tarea_actualizar_noticias():
-    """Tarea programada: actualiza noticias RSS automáticamente"""
-    with app.app_context():
-        try:
-            from rss_fetcher import actualizar_noticias_rss
-            insertadas = actualizar_noticias_rss(max_por_fuente=6, scraping_imagen=True)
-            print(f"[Scheduler] Noticias actualizadas automáticamente: {insertadas} nuevas")
-        except Exception as e:
-            print(f"[Scheduler] Error al actualizar noticias: {e}")
-
-def tarea_limpiar_noticias_viejas():
-    """Tarea programada: elimina noticias de más de 30 días para no llenar la BD"""
-    with app.app_context():
-        try:
-            db = obtener_db()
-            cursor = db.cursor()
-            cursor.execute("""
-                DELETE FROM noticias
-                WHERE es_externa = 1
-                AND fecha < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-            """)
-            eliminadas = cursor.rowcount
-            db.commit()
-            if eliminadas > 0:
-                print(f"[Scheduler] Noticias viejas eliminadas: {eliminadas}")
-        except Exception as e:
-            print(f"[Scheduler] Error al limpiar noticias: {e}")
-
-# Iniciar el scheduler solo si no estamos en modo debug con reloader
-# (evita que se inicien 2 schedulers en desarrollo)
-if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-    scheduler = BackgroundScheduler(timezone='America/Argentina/Tucuman')
-
-    # Actualizar noticias cada 6 horas
-    scheduler.add_job(
-        func=tarea_actualizar_noticias,
-        trigger='interval',
-        hours=6,
-        id='actualizar_noticias',
-        replace_existing=True
-    )
-
-    # Limpiar noticias viejas cada día a las 3am
-    scheduler.add_job(
-        func=tarea_limpiar_noticias_viejas,
-        trigger='cron',
-        hour=3,
-        minute=0,
-        id='limpiar_noticias',
-        replace_existing=True
-    )
-
-    scheduler.start()
-    print("[Scheduler] Iniciado — noticias se actualizan cada 6 horas automáticamente")
-
-    # Asegurar que el scheduler se detenga cuando Flask se cierre
-    atexit.register(lambda: scheduler.shutdown())
-
-
 
 # --- MIDDLEWARE: Función que se ejecuta antes de cada petición ---
 # Su objetivo es cargar la información del usuario logueado en la variable global 'g.user'
@@ -106,6 +49,23 @@ def cargar_usuario_logueado():
 
 # --- DECORADORES DE AUTORIZACIÓN ---
 
+def es_ajax():
+    """True si la petición fue hecha con fetch/AJAX (X-Requested-With)."""
+    return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+
+def ajax_o_redirect(f):
+    """Si la petición es AJAX responde JSON con ok=True; si no, ejecuta la ruta normal."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        resultado = f(*args, **kwargs)
+        if es_ajax():
+            # Limpiar mensajes flash acumulados para no arrastrarlos al recargar
+            list(get_flashed_messages())
+            return jsonify(ok=True)
+        return resultado
+    return decorated_function
+
 def requiere_login(f):
     """Decorador para rutas que requieren que el usuario esté logueado"""
     @wraps(f)
@@ -120,7 +80,11 @@ def requiere_admin(f):
     """Decorador para rutas que requieren privilegios de administrador"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # Acceso concedido desde el login exclusivo de administración (navbar)
+        if session.get('admin_autenticado'):
+            return f(*args, **kwargs)
         if g.user is None:
+            flash('Debes iniciar sesión para acceder a esta página.', 'warning')
             return redirect(url_for('login'))
         if g.user.get('rol') != 'admin':
             flash('No tienes permisos para acceder a esta sección.', 'danger')
@@ -401,8 +365,36 @@ def dashboard():
         except:
             item['detalle_texto'] = item['detalle']
         historial.append(item)
-    
-    return render_template('dashboard.html', historial=historial)
+
+    # Total de tests realizados por el usuario
+    cursor.execute("""
+        SELECT COUNT(*) AS total, MAX(t.fecha_realizacion) AS ultima_fecha
+        FROM tests t
+        WHERE t.usuario_id = %s
+    """, (g.user['id'],))
+    stats_tests = cursor.fetchone()
+    total_tests = stats_tests['total'] if stats_tests else 0
+    ultima_fecha_test = stats_tests['ultima_fecha'] if stats_tests else None
+
+    # Total de carreras y de noticias recientes para la sección de novedades
+    cursor.execute("SELECT COUNT(*) AS total FROM carreras")
+    total_carreras = cursor.fetchone()['total']
+
+    cursor.execute("""
+        SELECT id, titulo, fuente, fecha
+        FROM noticias
+        WHERE fecha IS NOT NULL
+        ORDER BY fecha DESC
+        LIMIT 3
+    """)
+    noticias_recientes = cursor.fetchall()
+
+    return render_template('dashboard.html',
+        historial=historial,
+        total_tests=total_tests,
+        ultima_fecha_test=ultima_fecha_test,
+        total_carreras=total_carreras,
+        noticias_recientes=noticias_recientes)
 
 @app.route('/carreras')
 @requiere_login
@@ -413,40 +405,24 @@ def carreras():
     filtro = request.args.get('filtro', 'populares')  # ahora puede ser: populares | todas | [área profesional]
     busqueda = request.args.get('q', '').strip()
 
-    # Determinar si el filtro es un área profesional, populares o todas
+    # Determinar si el filtro es un área profesional, populares o todas.
+    # Las áreas disponibles vienen de la tabla de orientaciones (gestionada desde
+    # el panel admin) + las áreas ya asignadas a carreras en la base.
+    asegurar_tabla_orientaciones()
+    cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
+    areas_registradas = [r['nombre'] for r in cursor.fetchall()]
     cursor.execute("SELECT DISTINCT area_profesional FROM carreras ORDER BY area_profesional")
-    areas_disponibles = [r['area_profesional'] for r in cursor.fetchall()]
+    areas_carreras = [r['area_profesional'] for r in cursor.fetchall()]
+    areas_disponibles = list(dict.fromkeys(areas_registradas + areas_carreras))
     
     area_actual = 'todas'
     filtro_actual = filtro
     es_populares = filtro == 'populares'
 
-    # Construir la consulta base
-    query_where = " WHERE 1=1"
-    params = []
-
-    if es_populares:
-        # Primero intentamos filtrar por populares (popular=1)
-        # Pero si no hay resultados, mostraremos todas las carreras ordenadas por popularidad
-        pass  # No filtramos por popular=1, solo ordenamos por popularidad descendente
-    elif filtro in areas_disponibles:
-        area_actual = filtro
-        filtro_actual = 'todas'
-        query_where += " AND area_profesional = %s"
-        params.append(area_actual)
-
-    if busqueda:
-        query_where += " AND nombre LIKE %s"
-        params.append(f"%{busqueda}%")
-
-    # Construir la consulta final
-    query = "SELECT * FROM carreras" + query_where + " ORDER BY popular DESC, nombre ASC"
-    
-    # Añadir LIMIT solo si es 'populares' y no hay búsqueda
-    if es_populares and not busqueda:
-        query += " LIMIT 6"
-
-    cursor.execute(query, params)
+    # Traemos todas las carreras: el filtrado por área y la búsqueda se realizan
+    # en el cliente (JS) para no recargar la página al buscar o filtrar.
+    query = "SELECT * FROM carreras ORDER BY popular DESC, nombre ASC"
+    cursor.execute(query)
     lista_carreras = cursor.fetchall()
 
     return render_template('carreras.html',
@@ -693,6 +669,9 @@ def juego():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
 
+    # Asegura las columnas de los botones en game_carreras
+    asegurar_columnas_botones_game(db, cursor)
+
     # Carreras activas en el juego
     cursor.execute("""
         SELECT gc.*, c.nombre as carrera_nombre, c.id as carrera_id, c.area_profesional
@@ -716,7 +695,10 @@ def juego():
           'area_profesional': r['area_profesional'],
           'descripcion': r['descripcion_card'] or '',
           'titulo_card': r['titulo_card'] or r['carrera_nombre'],
-          'texto_boton': r['texto_boton'] or 'Ver carrera'} for r in carreras_juego],
+          'texto_boton': r['texto_boton'] or 'Ver carrera',
+          'boton_no': r.get('boton_no') or 'No es lo mío',
+          'boton_info': r.get('boton_info') or 'Info',
+          'boton_yes': r.get('boton_yes') or 'Me interesa'} for r in carreras_juego],
         ensure_ascii=False
     )
 
@@ -748,53 +730,70 @@ def noticias():
     filtro_fuente = request.args.get('fuente', 'todas') 
     filtro_categoria = request.args.get('categoria', 'todas') 
     busqueda = request.args.get('q', '').strip() 
- 
+
+    asegurar_tabla_filtros_fecha()
+
     # Construir query dinámica con filtros 
     query = "SELECT * FROM noticias WHERE 1=1" 
     params = [] 
- 
-    if filtro_fecha == 'hoy': 
-        query += " AND fecha = CURDATE()" 
-    elif filtro_fecha == 'ayer': 
-        query += " AND fecha = DATE_SUB(CURDATE(), INTERVAL 1 DAY)" 
-    elif filtro_fecha == 'semana': 
-        query += " AND fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)" 
-    elif filtro_fecha == 'mes': 
-        query += " AND fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)" 
+
+    # Filtro por fecha: usa la condición guardada en la tabla filtros_fecha
+    if filtro_fecha != 'todas': 
+        cursor.execute("SELECT condicion FROM filtros_fecha WHERE valor = %s", (filtro_fecha,)) 
+        fila_fecha = cursor.fetchone() 
+        if fila_fecha and fila_fecha['condicion']: 
+            query += " AND " + fila_fecha['condicion'] 
+
  
     if filtro_fuente != 'todas': 
         query += " AND fuente = %s" 
         params.append(filtro_fuente) 
  
-    if filtro_categoria != 'todas': 
-        query += " AND categoria = %s" 
-        params.append(filtro_categoria) 
- 
-    if busqueda: 
-        query += " AND (titulo LIKE %s OR descripcion LIKE %s OR fuente LIKE %s)" 
-        params.extend([f"%{busqueda}%", f"%{busqueda}%", f"%{busqueda}%"]) 
- 
-    query += " ORDER BY fecha DESC, id DESC LIMIT 20" 
+    # La búsqueda por texto y la categoría se filtran en el cliente (JS) para
+    # no recargar la página. La fecha y la fuente se mantienen del lado servidor.
+    query += " ORDER BY fecha DESC, id DESC" 
  
     cursor.execute(query, params) 
     items_noticias = cursor.fetchall() 
  
-    # Obtener fuentes y categorías únicas para los filtros 
-    cursor.execute("SELECT DISTINCT fuente FROM noticias ORDER BY fuente") 
-    fuentes = [row['fuente'] for row in cursor.fetchall()] 
- 
-    cursor.execute("SELECT DISTINCT categoria FROM noticias ORDER BY categoria") 
-    categorias = [row['categoria'] for row in cursor.fetchall()] 
- 
-    return render_template('noticias.html', 
-        noticias=items_noticias, 
-        fuentes=fuentes, 
-        categorias=categorias, 
-        filtro_fecha=filtro_fecha, 
-        filtro_fuente=filtro_fuente, 
-        filtro_categoria=filtro_categoria, 
-        busqueda=busqueda 
-    ) 
+    # Obtener fuentes y categorías únicas para los filtros.
+    # Las fuentes visibles son las registradas (activas) en la tabla fuentes,
+    # más las fuentes de noticias que todavía no están registradas en la tabla.
+    # Las categorías incluyen las orientaciones registradas en el panel admin.
+    asegurar_tabla_fuentes()
+    cursor.execute("SELECT nombre FROM fuentes WHERE activo = 1 ORDER BY nombre")
+    fuentes_activas = [row['nombre'] for row in cursor.fetchall()]
+    cursor.execute("SELECT nombre FROM fuentes")
+    todas_registradas = [row['nombre'] for row in cursor.fetchall()]
+    cursor.execute("SELECT nombre FROM fuentes_eliminadas")
+    fuentes_eliminadas = [row['nombre'] for row in cursor.fetchall()]
+    cursor.execute("SELECT DISTINCT fuente FROM noticias ORDER BY fuente")
+    fuentes_noticias = [row['fuente'] for row in cursor.fetchall()]
+    fuentes = list(dict.fromkeys(
+        fuentes_activas + [f for f in fuentes_noticias if f not in todas_registradas and f not in fuentes_eliminadas]
+    ))
+
+    asegurar_tabla_orientaciones()
+    cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
+    areas_registradas = [row['nombre'] for row in cursor.fetchall()]
+    cursor.execute("SELECT DISTINCT categoria FROM noticias ORDER BY categoria")
+    categorias_noticias = [row['categoria'] for row in cursor.fetchall()]
+    categorias = list(dict.fromkeys(areas_registradas + categorias_noticias))
+
+    asegurar_tabla_filtros_fecha()
+    cursor.execute("SELECT valor, etiqueta FROM filtros_fecha WHERE activo = 1 ORDER BY orden, id")
+    filtros_fecha = cursor.fetchall()
+
+    return render_template('noticias.html',
+        noticias=items_noticias,
+        fuentes=fuentes,
+        categorias=categorias,
+        filtros_fecha=filtros_fecha,
+        filtro_fecha=filtro_fecha,
+        filtro_fuente=filtro_fuente,
+        filtro_categoria=filtro_categoria,
+        busqueda=busqueda
+    )
 
 @app.route('/carrera/<int:carrera_id>')
 @requiere_login
@@ -899,24 +898,149 @@ def enviar_comentario():
 
 # --- SECCIÓN: PANEL DE ADMINISTRACIÓN ---
 
+# Login exclusivo del administrador (acceso rápido desde la navbar)
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    """Login independiente para el panel de administración"""
+    if session.get('admin_autenticado'):
+        return redirect(url_for('admin_dashboard'))
+
+    if request.method == 'POST':
+        usuario = request.form.get('usuario', '').strip()
+        password = request.form.get('password', '')
+
+        if usuario == ADMIN_USUARIO and password == ADMIN_PASSWORD:
+            session['admin_autenticado'] = True
+            flash('¡Bienvenido al panel de administración!', 'success')
+            return redirect(url_for('admin_dashboard'))
+
+        flash('Usuario o contraseña incorrectos.', 'danger')
+
+    return render_template('admin/login.html')
+
+@app.route('/admin/logout')
+def admin_logout():
+    """Cierra la sesión exclusiva de administración"""
+    session.pop('admin_autenticado', None)
+    flash('Sesión de administrador cerrada.', 'info')
+    return redirect(url_for('admin_login'))
+
 @app.route('/admin')
 @requiere_admin
 def admin_dashboard():
+    asegurar_tabla_orientaciones()
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
-    
-    cursor.execute("SELECT id, nombre, email, rol, fecha_registro FROM usuarios")
+
+    cursor.execute("SELECT id, nombre, email, rol, created_at FROM usuarios")
     usuarios = cursor.fetchall()
-    
+
     cursor.execute("SELECT * FROM carreras")
     carreras = cursor.fetchall()
-    
+
     cursor.execute("SELECT * FROM preguntas")
     preguntas = cursor.fetchall()
-    
-    return render_template('admin/dashboard.html', usuarios=usuarios, carreras=carreras, preguntas=preguntas)
+
+    cursor.execute("SELECT COUNT(*) AS total FROM noticias")
+    total_noticias = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) AS total FROM noticias WHERE fecha = CURDATE()")
+    noticias_hoy = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) AS total FROM game_carreras WHERE activo = 1")
+    carreras_juego_activas = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) AS total FROM game_preguntas WHERE activo = 1")
+    preguntas_juego_activas = cursor.fetchone()['total']
+
+    cursor.execute("SELECT * FROM orientaciones ORDER BY nombre")
+    orientaciones = cursor.fetchall()
+
+    return render_template('admin/dashboard.html',
+        usuarios=usuarios, carreras=carreras, preguntas=preguntas,
+        total_noticias=total_noticias, noticias_hoy=noticias_hoy,
+        carreras_juego_activas=carreras_juego_activas,
+        preguntas_juego_activas=preguntas_juego_activas,
+        orientaciones=orientaciones)
+
+
+# --- SECCIÓN: ORIENTACIONES (áreas profesionales) ---
+
+def asegurar_tabla_orientaciones():
+    """Crea la tabla de orientaciones si no existe y la llena con las áreas
+    actuales de las carreras (para que el filtro nunca quede vacío)."""
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS orientaciones (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nombre VARCHAR(100) NOT NULL UNIQUE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    """)
+    cursor.execute("""
+        INSERT IGNORE INTO orientaciones (nombre)
+        SELECT DISTINCT area_profesional FROM carreras
+        WHERE area_profesional IS NOT NULL AND area_profesional <> ''
+    """)
+    db.commit()
+
+
+@app.route('/admin/orientaciones/nueva', methods=['POST'])
+@requiere_admin
+def nueva_orientacion():
+    nombre = request.form.get('nombre', '').strip()
+    if not nombre:
+        flash('El nombre de la orientación no puede estar vacío.', 'danger')
+        return redirect(url_for('admin_dashboard'))
+
+    asegurar_tabla_orientaciones()
+    db = obtener_db()
+    cursor = db.cursor()
+    try:
+        cursor.execute("INSERT INTO orientaciones (nombre) VALUES (%s)", (nombre,))
+        db.commit()
+        flash(f'Orientación "{nombre}" agregada. Ya aparece en los filtros de búsqueda.', 'success')
+    except Exception:
+        db.rollback()
+        flash('Esa orientación ya está registrada.', 'warning')
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/orientaciones/eliminar/<int:id>', methods=['POST'])
+@requiere_admin
+@ajax_o_redirect
+def eliminar_orientacion(id):
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM orientaciones WHERE id = %s", (id,))
+    db.commit()
+    flash('Orientación eliminada.', 'info')
+    return redirect(url_for('admin_dashboard'))
 
 # CRUD de Carreras
+
+EXTENSIONES_IMAGEN = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def guardar_imagen_carrera(archivo):
+    """Guarda una imagen subida desde el formulario en static/imagenes/.
+    Devuelve la ruta relativa 'imagenes/<nombre>' o None si no hay archivo válido."""
+    if archivo is None or not archivo.filename:
+        return None
+
+    nombre_original = secure_filename(archivo.filename)
+    if not nombre_original:
+        return None
+
+    ext = nombre_original.rsplit('.', 1)[-1].lower() if '.' in nombre_original else ''
+    if ext not in EXTENSIONES_IMAGEN:
+        return None
+
+    # Nombre único para evitar colisiones (prefijo con timestamp)
+    nombre = f"carrera_{int(time.time())}_{nombre_original}"
+    ruta = os.path.join(app.static_folder, 'imagenes', nombre)
+    archivo.save(ruta)
+    return f"imagenes/{nombre}"
+
 @app.route('/admin/carreras')
 @requiere_admin
 def admin_carreras():
@@ -933,9 +1057,17 @@ def nueva_carrera():
         nombre = request.form.get('nombre', '')
         descripcion = request.form.get('descripcion', '')
         area_profesional = request.form.get('area_profesional', '')
+        a_que_se_dedica = request.form.get('a_que_se_dedica', '')
+
+        # Imágenes: si se sube un archivo, se usa en lugar de la URL
         imagen_portada = request.form.get('imagen_portada', '')
         imagen_principal = request.form.get('imagen_principal', '')
-        a_que_se_dedica = request.form.get('a_que_se_dedica', '')
+        imagen_portada_subida = guardar_imagen_carrera(request.files.get('imagen_portada_file'))
+        imagen_principal_subida = guardar_imagen_carrera(request.files.get('imagen_principal_file'))
+        if imagen_portada_subida:
+            imagen_portada = imagen_portada_subida
+        if imagen_principal_subida:
+            imagen_principal = imagen_principal_subida
 
         db = obtener_db()
         cursor = db.cursor()
@@ -967,9 +1099,17 @@ def editar_carrera(id):
         nombre = request.form.get('nombre', '')
         descripcion = request.form.get('descripcion', '')
         area_profesional = request.form.get('area_profesional', '')
+        a_que_se_dedica = request.form.get('a_que_se_dedica', '')
+
+        # Imágenes: si se sube un archivo, se usa en lugar de la URL
         imagen_portada = request.form.get('imagen_portada', '')
         imagen_principal = request.form.get('imagen_principal', '')
-        a_que_se_dedica = request.form.get('a_que_se_dedica', '')
+        imagen_portada_subida = guardar_imagen_carrera(request.files.get('imagen_portada_file'))
+        imagen_principal_subida = guardar_imagen_carrera(request.files.get('imagen_principal_file'))
+        if imagen_portada_subida:
+            imagen_portada = imagen_portada_subida
+        if imagen_principal_subida:
+            imagen_principal = imagen_principal_subida
         
         cursor.execute(
             "UPDATE carreras SET nombre = %s, descripcion = %s, area_profesional = %s, imagen_portada = %s, imagen_principal = %s, a_que_se_dedica = %s WHERE id = %s",
@@ -985,6 +1125,7 @@ def editar_carrera(id):
 
 @app.route('/admin/carreras/eliminar/<int:id>', methods=['POST'])
 @requiere_admin
+@ajax_o_redirect
 def eliminar_carrera(id):
     db = obtener_db()
     cursor = db.cursor()
@@ -1004,7 +1145,10 @@ def admin_preguntas():
     for p in preguntas:
         cursor.execute("SELECT * FROM opciones_pregunta WHERE pregunta_id = %s", (p['id'],))
         p['opciones'] = cursor.fetchall()
-    return render_template('admin/preguntas_lista.html', preguntas=preguntas)
+    asegurar_tabla_orientaciones()
+    cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
+    orientaciones = [o['nombre'] for o in cursor.fetchall()]
+    return render_template('admin/preguntas_lista.html', preguntas=preguntas, orientaciones=orientaciones)
 
 
 @app.route('/admin/preguntas/nueva', methods=['POST'])
@@ -1036,6 +1180,7 @@ def nueva_pregunta():
 
 @app.route('/admin/preguntas/eliminar/<int:id>', methods=['POST'])
 @requiere_admin
+@ajax_o_redirect
 def eliminar_pregunta(id):
     db = obtener_db()
     cursor = db.cursor()
@@ -1048,6 +1193,7 @@ def eliminar_pregunta(id):
 
 @app.route('/admin/preguntas/opcion/eliminar/<int:id>', methods=['POST'])
 @requiere_admin
+@ajax_o_redirect
 def eliminar_opcion_pregunta(id):
     db = obtener_db()
     cursor = db.cursor()
@@ -1056,20 +1202,28 @@ def eliminar_opcion_pregunta(id):
     flash('Opción eliminada.', 'info')
     return redirect(url_for('admin_preguntas'))
 
-@app.route('/admin/noticias/actualizar-rss', methods=['POST'])
+# --- SECCIÓN: ADMIN JUEGO ---
+
+@app.route('/admin/game')
 @requiere_admin
-def actualizar_rss():
-    """El admin puede actualizar las noticias desde RSS manualmente"""
-    try:
-        from rss_fetcher import actualizar_noticias_rss
-        insertadas = actualizar_noticias_rss(max_por_fuente=8, scraping_imagen=True)
-        if insertadas > 0:
-            flash(f'✅ RSS actualizado. Se agregaron {insertadas} noticias nuevas.', 'success')
-        else:
-            flash('ℹ️ RSS actualizado. No hay noticias nuevas por el momento.', 'info')
-    except Exception as e:
-        flash(f'❌ Error al actualizar RSS: {str(e)}', 'danger')
-    return redirect(url_for('admin_noticias')) 
+def admin_game_index():
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT COUNT(*) AS n FROM game_carreras WHERE activo = 1")
+    carreras_activas = cursor.fetchone()['n']
+    cursor.execute("SELECT COUNT(*) AS n FROM game_carreras")
+    carreras_total = cursor.fetchone()['n']
+
+    cursor.execute("SELECT COUNT(*) AS n FROM game_preguntas WHERE activo = 1")
+    preguntas_activas = cursor.fetchone()['n']
+    cursor.execute("SELECT COUNT(*) AS n FROM game_preguntas")
+    preguntas_total = cursor.fetchone()['n']
+
+    return render_template('admin/game_index.html',
+        carreras_activas=carreras_activas, carreras_total=carreras_total,
+        preguntas_activas=preguntas_activas, preguntas_total=preguntas_total)
+
 
 # --- SECCIÓN: ADMIN JUEGO CARRERAS ---
 
@@ -1078,6 +1232,7 @@ def actualizar_rss():
 def admin_game_carreras():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
+    asegurar_columnas_botones_game(db, cursor)
     cursor.execute("""
         SELECT gc.*, c.nombre as carrera_nombre, c.area_profesional
         FROM game_carreras gc
@@ -1090,6 +1245,7 @@ def admin_game_carreras():
 
 @app.route('/admin/game/carreras/toggle/<int:id>', methods=['POST'])
 @requiere_admin
+@ajax_o_redirect
 def toggle_game_carrera(id):
     db = obtener_db()
     cursor = db.cursor()
@@ -1105,17 +1261,40 @@ def editar_game_carrera(id):
     texto_boton = request.form.get('texto_boton', 'Ver carrera')
     titulo_card = request.form.get('titulo_card', '')
     descripcion_card = request.form.get('descripcion_card', '')
+    boton_no = request.form.get('boton_no', 'No es lo mío')
+    boton_info = request.form.get('boton_info', 'Info')
+    boton_yes = request.form.get('boton_yes', 'Me interesa')
 
     db = obtener_db()
     cursor = db.cursor()
+    asegurar_columnas_botones_game(db, cursor)
     cursor.execute("""
         UPDATE game_carreras 
-        SET texto_boton = %s, titulo_card = %s, descripcion_card = %s
+        SET texto_boton = %s, titulo_card = %s, descripcion_card = %s,
+            boton_no = %s, boton_info = %s, boton_yes = %s
         WHERE id = %s
-    """, (texto_boton, titulo_card, descripcion_card, id))
+    """, (texto_boton, titulo_card, descripcion_card, boton_no, boton_info, boton_yes, id))
     db.commit()
     flash('Tarjeta del juego actualizada.', 'success')
     return redirect(url_for('admin_game_carreras'))
+
+
+def asegurar_columnas_botones_game(db, cursor):
+    """Agrega las columnas de texto de los botones del juego
+    'Descubre tu Carrera' a la tabla game_carreras si no existen."""
+    columnas = {
+        'boton_no': "ADD COLUMN boton_no VARCHAR(100) NOT NULL DEFAULT 'No es lo mío'",
+        'boton_info': "ADD COLUMN boton_info VARCHAR(100) NOT NULL DEFAULT 'Info'",
+        'boton_yes': "ADD COLUMN boton_yes VARCHAR(100) NOT NULL DEFAULT 'Me interesa'",
+    }
+    cursor.execute("SHOW COLUMNS FROM game_carreras")
+    filas = cursor.fetchall()
+    existentes = {r['Field'] if isinstance(r, dict) else r[0] for r in filas}
+    for nombre, ddl in columnas.items():
+        if nombre not in existentes:
+            cursor.execute(f"ALTER TABLE game_carreras {ddl}")
+            existentes.add(nombre)
+    db.commit()
 
 
 # --- ADMIN: INTERESES EN JUEGO (preguntas del mini-juego) ---
@@ -1127,7 +1306,10 @@ def admin_game_preguntas():
     cursor = db.cursor(dictionary=True)
     cursor.execute("SELECT * FROM game_preguntas ORDER BY orden, id")
     preguntas = cursor.fetchall()
-    return render_template('admin/game_preguntas.html', preguntas=preguntas)
+    asegurar_tabla_orientaciones()
+    cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
+    orientaciones = [o['nombre'] for o in cursor.fetchall()]
+    return render_template('admin/game_preguntas.html', preguntas=preguntas, orientaciones=orientaciones)
 
 
 @app.route('/admin/game/preguntas/nueva', methods=['POST'])
@@ -1157,6 +1339,7 @@ def nueva_game_pregunta():
 
 @app.route('/admin/game/preguntas/toggle/<int:id>', methods=['POST'])
 @requiere_admin
+@ajax_o_redirect
 def toggle_game_pregunta(id):
     db = obtener_db()
     cursor = db.cursor()
@@ -1168,6 +1351,7 @@ def toggle_game_pregunta(id):
 
 @app.route('/admin/game/preguntas/eliminar/<int:id>', methods=['POST'])
 @requiere_admin
+@ajax_o_redirect
 def eliminar_game_pregunta(id):
     db = obtener_db()
     cursor = db.cursor()
@@ -1179,16 +1363,380 @@ def eliminar_game_pregunta(id):
 
 # --- SECCIÓN: ADMIN NOTICIAS ---
 
+def asegurar_tabla_fuentes():
+    """Crea la tabla de fuentes si no existe, le agrega la columna activo
+    y registra automáticamente las fuentes que ya están en las noticias,
+    excepto las que fueron eliminadas a propósito."""
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS fuentes (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nombre VARCHAR(100) NOT NULL UNIQUE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    """)
+    cursor.execute("SHOW COLUMNS FROM fuentes LIKE 'activo'")
+    if not cursor.fetchone():
+        cursor.execute("ALTER TABLE fuentes ADD COLUMN activo TINYINT(1) DEFAULT 1")
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS fuentes_eliminadas (
+            nombre VARCHAR(100) NOT NULL PRIMARY KEY
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    """)
+    cursor.execute("SELECT nombre FROM fuentes_eliminadas")
+    eliminadas = {r[0] for r in cursor.fetchall()}
+    # Registra las fuentes de las noticias que todavía no están eliminadas
+    cursor.execute("SELECT DISTINCT fuente FROM noticias WHERE fuente IS NOT NULL AND fuente <> ''")
+    for (nombre,) in cursor.fetchall():
+        if nombre not in eliminadas:
+            cursor.execute("INSERT IGNORE INTO fuentes (nombre) VALUES (%s)", (nombre,))
+    db.commit()
+
+
+def asegurar_tabla_filtros_fecha():
+    """Crea la tabla de filtros de fecha del buscador de noticias.
+    Cada filtro guarda su etiqueta y la condición SQL que usa para filtrar,
+    así el admin puede agregar sus propios rangos de fecha."""
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS filtros_fecha (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            valor VARCHAR(30) NOT NULL UNIQUE,
+            etiqueta VARCHAR(50) NOT NULL,
+            condicion VARCHAR(250) NOT NULL DEFAULT '',
+            activo TINYINT(1) DEFAULT 1,
+            orden INT DEFAULT 0,
+            es_fijo TINYINT(1) DEFAULT 0
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    """)
+    for col, ddl in [
+        ('condicion', "ADD COLUMN condicion VARCHAR(250) NOT NULL DEFAULT ''"),
+        ('es_fijo', 'ADD COLUMN es_fijo TINYINT(1) DEFAULT 0'),
+    ]:
+        cursor.execute(f"SHOW COLUMNS FROM filtros_fecha LIKE '{col}'")
+        if not cursor.fetchone():
+            cursor.execute(f"ALTER TABLE filtros_fecha {ddl}")
+
+    cursor.execute("SELECT COUNT(*) AS n FROM filtros_fecha")
+    if cursor.fetchone()['n'] == 0:
+        presets = [
+            ('todas', 'Todas', '', 1, 0, 1),
+            ('hoy', 'Hoy', 'fecha = CURDATE()', 1, 1, 1),
+            ('ayer', 'Ayer', 'fecha = DATE_SUB(CURDATE(), INTERVAL 1 DAY)', 1, 2, 1),
+            ('semana', 'Esta semana', 'fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)', 1, 3, 1),
+            ('mes', 'Este mes', 'fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)', 1, 4, 1),
+        ]
+        cursor.executemany(
+            "INSERT INTO filtros_fecha (valor, etiqueta, condicion, activo, orden, es_fijo) VALUES (%s, %s, %s, %s, %s, %s)",
+            presets
+        )
+
+    # Backfill: asegura que los filtros predefinidos tengan su condición y no sean borrables
+    backfill = {
+        'todas': '',
+        'hoy': 'fecha = CURDATE()',
+        'ayer': 'fecha = DATE_SUB(CURDATE(), INTERVAL 1 DAY)',
+        'semana': 'fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)',
+        'mes': 'fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)',
+    }
+    for valor, cond in backfill.items():
+        cursor.execute("UPDATE filtros_fecha SET condicion = %s, es_fijo = 1 WHERE valor = %s", (cond, valor))
+    db.commit()
+
+def guardar_imagen_noticia(archivo):
+    """Guarda la imagen de una noticia en static/imagenes/noticias/.
+    Devuelve la ruta relativa 'imagenes/noticias/<nombre>' o None."""
+    if archivo is None or not archivo.filename:
+        return None
+
+    nombre_original = secure_filename(archivo.filename)
+    if not nombre_original:
+        return None
+
+    ext = nombre_original.rsplit('.', 1)[-1].lower() if '.' in nombre_original else ''
+    if ext not in EXTENSIONES_IMAGEN:
+        return None
+
+    carpeta = os.path.join(app.static_folder, 'imagenes', 'noticias')
+    os.makedirs(carpeta, exist_ok=True)
+
+    nombre = f"noticia_{int(time.time())}_{nombre_original}"
+    archivo.save(os.path.join(carpeta, nombre))
+    return f"imagenes/noticias/{nombre}"
+
 @app.route('/admin/noticias')
 @requiere_admin
 def admin_noticias():
+    asegurar_tabla_fuentes()
+    asegurar_tabla_filtros_fecha()
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM noticias ORDER BY fecha DESC")
+
+    filtro_fecha = request.args.get('fecha', 'todas')
+    filtro_fuente = request.args.get('fuente', 'todas')
+    filtro_categoria = request.args.get('categoria', 'todas')
+    busqueda = request.args.get('q', '').strip()
+
+    # Filtros de búsqueda
+    query = "SELECT * FROM noticias WHERE 1=1"
+    params = []
+
+    # Filtro por fecha: usa la condición guardada en la tabla filtros_fecha
+    if filtro_fecha != 'todas':
+        cursor.execute("SELECT condicion FROM filtros_fecha WHERE valor = %s", (filtro_fecha,))
+        fila_fecha = cursor.fetchone()
+        if fila_fecha and fila_fecha['condicion']:
+            query += " AND " + fila_fecha['condicion']
+
+    if filtro_fuente != 'todas':
+        query += " AND fuente = %s"
+        params.append(filtro_fuente)
+
+    if filtro_categoria != 'todas':
+        query += " AND categoria = %s"
+        params.append(filtro_categoria)
+
+    if busqueda:
+        query += " AND (titulo LIKE %s OR descripcion LIKE %s OR fuente LIKE %s)"
+        params.extend([f"%{busqueda}%", f"%{busqueda}%", f"%{busqueda}%"])
+
+    query += " ORDER BY fecha DESC, id DESC"
+    cursor.execute(query, params)
     noticias = cursor.fetchall()
+
+    # Fuentes: registradas en la tabla + las existentes en noticias (sin las eliminadas)
     cursor.execute("SELECT DISTINCT fuente FROM noticias ORDER BY fuente")
-    fuentes = [r['fuente'] for r in cursor.fetchall()]
-    return render_template('admin/noticias_lista.html', noticias=noticias, fuentes=fuentes)
+    fuentes_noticias = [r['fuente'] for r in cursor.fetchall()]
+    cursor.execute("SELECT nombre FROM fuentes ORDER BY nombre")
+    fuentes_registradas = [r['nombre'] for r in cursor.fetchall()]
+    cursor.execute("SELECT nombre FROM fuentes_eliminadas")
+    fuentes_eliminadas = [r['nombre'] for r in cursor.fetchall()]
+    fuentes = list(dict.fromkeys(
+        fuentes_registradas + [f for f in fuentes_noticias if f not in fuentes_eliminadas]
+    ))
+
+    # Categorías: orientaciones registradas + las existentes en noticias
+    asegurar_tabla_orientaciones()
+    cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
+    areas_registradas = [r['nombre'] for r in cursor.fetchall()]
+    cursor.execute("SELECT DISTINCT categoria FROM noticias ORDER BY categoria")
+    categorias_noticias = [r['categoria'] for r in cursor.fetchall()]
+    categorias = list(dict.fromkeys(areas_registradas + categorias_noticias))
+
+    cursor.execute("SELECT * FROM fuentes ORDER BY nombre")
+    fuentes_tabla = cursor.fetchall()
+
+    cursor.execute("SELECT * FROM filtros_fecha ORDER BY orden, id")
+    filtros_fecha = cursor.fetchall()
+
+    return render_template('admin/noticias_lista.html',
+        noticias=noticias, fuentes=fuentes, categorias=categorias,
+        fuentes_tabla=fuentes_tabla, filtros_fecha=filtros_fecha,
+        filtro_fecha=filtro_fecha, filtro_fuente=filtro_fuente,
+        filtro_categoria=filtro_categoria, busqueda=busqueda)
+
+
+@app.route('/admin/noticias/fuentes/editar/<int:id>', methods=['POST'])
+@requiere_admin
+def editar_fuente(id):
+    nombre = request.form.get('nombre', '').strip()
+    if not nombre:
+        flash('El nombre de la fuente no puede estar vacío.', 'danger')
+        return redirect(url_for('admin_noticias'))
+    db = obtener_db()
+    cursor = db.cursor()
+    try:
+        cursor.execute("UPDATE fuentes SET nombre = %s WHERE id = %s", (nombre, id))
+        db.commit()
+        flash('Fuente actualizada.', 'success')
+    except Exception:
+        db.rollback()
+        flash('Ese nombre ya está en uso por otra fuente.', 'warning')
+    return redirect(url_for('admin_noticias'))
+
+
+@app.route('/admin/noticias/fuentes/toggle/<int:id>', methods=['POST'])
+@requiere_admin
+@ajax_o_redirect
+def toggle_fuente(id):
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("UPDATE fuentes SET activo = NOT activo WHERE id = %s", (id,))
+    db.commit()
+    flash('Visibilidad de la fuente actualizada.', 'success')
+    return redirect(url_for('admin_noticias'))
+
+
+@app.route('/admin/noticias/filtros-fecha/editar/<int:id>', methods=['POST'])
+@requiere_admin
+@ajax_o_redirect
+def editar_filtro_fecha(id):
+    # El formulario de renombrar envía "etiqueta"; el toggle de visibilidad solo envía "activo".
+    if 'etiqueta' in request.form:
+        etiqueta = request.form.get('etiqueta', '').strip()
+        if not etiqueta:
+            flash('La etiqueta del filtro no puede estar vacía.', 'danger')
+            return redirect(url_for('admin_noticias'))
+        db = obtener_db()
+        cursor = db.cursor()
+        cursor.execute("UPDATE filtros_fecha SET etiqueta = %s WHERE id = %s", (etiqueta, id))
+        db.commit()
+        flash('Filtro de fecha actualizado.', 'success')
+    else:
+        activo = 1 if request.form.get('activo') else 0
+        db = obtener_db()
+        cursor = db.cursor()
+        cursor.execute("UPDATE filtros_fecha SET activo = %s WHERE id = %s", (activo, id))
+        db.commit()
+        flash('Visibilidad del filtro actualizada.', 'success')
+    return redirect(url_for('admin_noticias'))
+
+
+@app.route('/admin/noticias/filtros-fecha/mover/<int:id>/<direccion>', methods=['POST'])
+@requiere_admin
+def mover_filtro_fecha(id, direccion):
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM filtros_fecha ORDER BY orden, id")
+    filas = cursor.fetchall()
+    idx = next((i for i, f in enumerate(filas) if f['id'] == id), None)
+    if idx is None:
+        return redirect(url_for('admin_noticias'))
+    if direccion == 'arriba' and idx > 0:
+        filas[idx], filas[idx - 1] = filas[idx - 1], filas[idx]
+    elif direccion == 'abajo' and idx < len(filas) - 1:
+        filas[idx], filas[idx + 1] = filas[idx + 1], filas[idx]
+    else:
+        flash('El filtro ya está en el límite.', 'info')
+        return redirect(url_for('admin_noticias'))
+    for orden, f in enumerate(filas):
+        cursor.execute("UPDATE filtros_fecha SET orden = %s WHERE id = %s", (orden, f['id']))
+    db.commit()
+    flash('Orden de los filtros actualizado.', 'success')
+    return redirect(url_for('admin_noticias'))
+
+
+@app.route('/admin/noticias/filtros-fecha/nueva', methods=['POST'])
+@requiere_admin
+def nueva_filtro_fecha():
+    etiqueta = request.form.get('etiqueta', '').strip()
+    desde = request.form.get('desde', '').strip()
+    hasta = request.form.get('hasta', '').strip()
+    activo = 1 if request.form.get('activo') else 0
+
+    if not etiqueta:
+        flash('El nombre del filtro no puede estar vacío.', 'danger')
+        return redirect(url_for('admin_noticias'))
+
+    def fecha_valida(valor):
+        try:
+            datetime.strptime(valor, '%Y-%m-%d')
+            return True
+        except (ValueError, TypeError):
+            return False
+
+    if not desde:
+        flash('Seleccioná la fecha desde la que se muestran las noticias.', 'danger')
+        return redirect(url_for('admin_noticias'))
+    if not fecha_valida(desde):
+        flash('La fecha "desde" no es válida.', 'danger')
+        return redirect(url_for('admin_noticias'))
+    if hasta and not fecha_valida(hasta):
+        flash('La fecha "hasta" no es válida.', 'danger')
+        return redirect(url_for('admin_noticias'))
+
+    if desde and hasta:
+        condicion = f"fecha >= '{desde}' AND fecha <= '{hasta}'"
+    else:
+        condicion = f"fecha >= '{desde}'"
+
+    asegurar_tabla_filtros_fecha()
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+
+    # Generar un "valor" único (clave usada en la URL) a partir de la etiqueta
+    base = re.sub(r'[^a-z0-9]+', '_',
+                  etiqueta.lower()
+                  .replace('á', 'a').replace('é', 'e').replace('í', 'i')
+                  .replace('ó', 'o').replace('ú', 'u').replace('ñ', 'n')
+                  ).strip('_')
+    valor = base or 'filtro'
+    sufijo = 2
+    cursor.execute("SELECT COUNT(*) AS n FROM filtros_fecha WHERE valor = %s", (valor,))
+    while cursor.fetchone()['n'] > 0:
+        valor = f"{base}_{sufijo}"
+        sufijo += 1
+        cursor.execute("SELECT COUNT(*) AS n FROM filtros_fecha WHERE valor = %s", (valor,))
+
+    cursor.execute("SELECT COALESCE(MAX(orden), 0) AS m FROM filtros_fecha")
+    orden = cursor.fetchone()['m'] + 1
+
+    cur = db.cursor()
+    cur.execute(
+        "INSERT INTO filtros_fecha (valor, etiqueta, condicion, activo, orden, es_fijo) VALUES (%s, %s, %s, %s, %s, 0)",
+        (valor, etiqueta, condicion, activo, orden)
+    )
+    db.commit()
+    if hasta:
+        flash(f'Filtro "{etiqueta}" agregado (del {desde} al {hasta}).', 'success')
+    else:
+        flash(f'Filtro "{etiqueta}" agregado (desde {desde}).', 'success')
+    return redirect(url_for('admin_noticias'))
+
+
+@app.route('/admin/noticias/filtros-fecha/eliminar/<int:id>', methods=['POST'])
+@requiere_admin
+@ajax_o_redirect
+def eliminar_filtro_fecha(id):
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM filtros_fecha WHERE id = %s", (id,))
+    db.commit()
+    flash('Filtro eliminado.', 'info')
+    return redirect(url_for('admin_noticias'))
+
+
+@app.route('/admin/noticias/fuentes/nueva', methods=['POST'])
+@requiere_admin
+def nueva_fuente():
+    nombre = request.form.get('nombre', '').strip()
+    if not nombre:
+        flash('El nombre de la fuente no puede estar vacío.', 'danger')
+        return redirect(url_for('admin_noticias'))
+
+    asegurar_tabla_fuentes()
+    db = obtener_db()
+    cursor = db.cursor()
+    try:
+        cursor.execute("INSERT INTO fuentes (nombre) VALUES (%s)", (nombre,))
+        db.commit()
+        flash(f'Fuente "{nombre}" agregada.', 'success')
+    except Exception:
+        db.rollback()
+        flash('Esa fuente ya está registrada.', 'warning')
+    return redirect(url_for('admin_noticias'))
+
+
+@app.route('/admin/noticias/fuentes/eliminar/<int:id>', methods=['POST'])
+@requiere_admin
+@ajax_o_redirect
+def eliminar_fuente(id):
+    asegurar_tabla_fuentes()
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT nombre FROM fuentes WHERE id = %s", (id,))
+    fila = cursor.fetchone()
+    if not fila:
+        flash('Fuente no encontrada.', 'warning')
+        return redirect(url_for('admin_noticias'))
+    cur = db.cursor()
+    # Registra la fuente como eliminada para que no se vuelva a auto-registrar
+    cur.execute("INSERT IGNORE INTO fuentes_eliminadas (nombre) VALUES (%s)", (fila['nombre'],))
+    cur.execute("DELETE FROM fuentes WHERE id = %s", (id,))
+    db.commit()
+    flash(f'Fuente "{fila["nombre"]}" eliminada.', 'info')
+    return redirect(url_for('admin_noticias'))
 
 
 @app.route('/admin/noticias/nueva', methods=['POST'])
@@ -1196,11 +1744,16 @@ def admin_noticias():
 def nueva_noticia():
     titulo = request.form['titulo']
     descripcion = request.form['descripcion']
-    imagen = request.form.get('imagen', '')
     fuente = request.form['fuente']
     fecha = request.form['fecha']
     link = request.form.get('link', '#')
     categoria = request.form.get('categoria', 'General')
+
+    # Imagen: si se sube un archivo, se usa en lugar de la URL
+    imagen = request.form.get('imagen', '')
+    imagen_subida = guardar_imagen_noticia(request.files.get('imagen_file'))
+    if imagen_subida:
+        imagen = imagen_subida
 
     db = obtener_db()
     cursor = db.cursor()
@@ -1213,8 +1766,46 @@ def nueva_noticia():
     return redirect(url_for('admin_noticias'))
 
 
+@app.route('/admin/noticias/editar/<int:id>', methods=['POST'])
+@requiere_admin
+def editar_noticia(id):
+    titulo = request.form.get('titulo', '')
+    descripcion = request.form.get('descripcion', '')
+    fuente = request.form.get('fuente', '')
+    fecha = request.form.get('fecha', '')
+    link = request.form.get('link', '')
+    categoria = request.form.get('categoria', 'General')
+
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+
+    # Imagen: si se sube archivo nuevo se usa; si no, se usa la URL del formulario;
+    # y si ambas están vacías, se conserva la imagen actual de la noticia.
+    imagen_subida = guardar_imagen_noticia(request.files.get('imagen_file'))
+    if imagen_subida:
+        imagen = imagen_subida
+    else:
+        imagen_form = request.form.get('imagen', '').strip()
+        if imagen_form:
+            imagen = imagen_form
+        else:
+            cursor.execute("SELECT imagen FROM noticias WHERE id = %s", (id,))
+            actual = cursor.fetchone()
+            imagen = actual['imagen'] if actual else ''
+
+    cursor.execute("""
+        UPDATE noticias
+        SET titulo = %s, descripcion = %s, imagen = %s, fuente = %s, fecha = %s, link = %s, categoria = %s
+        WHERE id = %s
+    """, (titulo, descripcion, imagen, fuente, fecha, link, categoria, id))
+    db.commit()
+    flash('Noticia actualizada exitosamente.', 'success')
+    return redirect(url_for('admin_noticias'))
+
+
 @app.route('/admin/noticias/eliminar/<int:id>', methods=['POST'])
 @requiere_admin
+@ajax_o_redirect
 def eliminar_noticia(id):
     db = obtener_db()
     cursor = db.cursor()
@@ -1248,7 +1839,10 @@ def sincronizar_imagenes():
     """
     imagenes_dir = os.path.join(app.static_folder, 'imagenes')
     if not os.path.isdir(imagenes_dir):
+        print("[imagenes] Directorio de imágenes no encontrado")
         return  # carpeta no existe, nada que hacer
+
+    print(f"[imagenes] Escaneando directorio: {imagenes_dir}")
 
     # Construir índice: nombre_archivo_sin_ext_lower → ruta_relativa_a_static
     index = {}
@@ -1257,6 +1851,30 @@ def sincronizar_imagenes():
         # Clave: nombre del archivo en minúsculas sin extensión
         clave = os.path.splitext(fname)[0].lower()
         index[clave] = ruta_relativa
+
+    print(f"[imagenes] Índice construido con {len(index)} archivos")
+
+    def normalizar(texto):
+        return (texto
+                .replace('á', 'a').replace('é', 'e').replace('í', 'i')
+                .replace('ó', 'o').replace('ú', 'u').replace('ñ', 'n')
+                .strip().lower())
+
+    # Índice por nombre de carrera.
+    # Formato de archivo: <área>-<nombre>-<portada|principal>.<ext>
+    # Ni el área ni el nombre contienen guiones, así que el nombre es el penúltimo segmento.
+    imagenes_por_carrera = {}
+    for clave, ruta in index.items():
+        partes = [p.strip() for p in clave.split('-')]
+        if len(partes) < 3:
+            continue  # archivo subido manualmente u otro formato
+        nombre_segmento = normalizar(partes[-2])
+        if nombre_segmento not in imagenes_por_carrera:
+            imagenes_por_carrera[nombre_segmento] = {'portada': None, 'principal': None}
+        if partes[-1].startswith('portada'):
+            imagenes_por_carrera[nombre_segmento]['portada'] = ruta
+        elif partes[-1].startswith('principal'):
+            imagenes_por_carrera[nombre_segmento]['principal'] = ruta
 
     try:
         conn = obtener_db()
@@ -1271,24 +1889,37 @@ def sincronizar_imagenes():
         """)
         carreras_sin_imagen = cursor.fetchall()
 
+        print(f"[imagenes] Carreras sin imágenes: {len(carreras_sin_imagen)}")
+
         if not carreras_sin_imagen:
             cursor.close()
+            print("[imagenes] Todas las carreras ya tienen imágenes asignadas")
             return  # Todas las carreras ya tienen imagen → nada que hacer
 
         actualizadas = 0
         for carrera in carreras_sin_imagen:
-            area  = (carrera['area_profesional'] or '').lower().strip()
-            nombre = (carrera['nombre'] or '').lower().strip()
+            nombre_normalized = normalizar(carrera['nombre'] or '')
+            area_normalized = normalizar(carrera['area_profesional'] or '')
 
-            # Buscar portada y principal en el índice por coincidencia parcial
+            # Buscar portada y principal
             portada   = None
             principal = None
-            for clave, ruta in index.items():
-                if area in clave and nombre in clave:
-                    if 'portada' in clave:
-                        portada = ruta
-                    elif 'principal' in clave:
-                        principal = ruta
+
+            # Prioridad 1: coincidencia exacta por nombre de la carrera
+            coincidencia = imagenes_por_carrera.get(nombre_normalized)
+            if coincidencia:
+                portada = coincidencia['portada']
+                principal = coincidencia['principal']
+
+            # Prioridad 2: si no hubo coincidencia por nombre, buscar por área
+            if not (portada and principal):
+                for clave, ruta in index.items():
+                    clave_normalized = normalizar(clave)
+                    if area_normalized and area_normalized in clave_normalized:
+                        if 'portada' in clave:
+                            portada = ruta
+                        elif 'principal' in clave:
+                            principal = ruta
 
             if portada or principal:
                 cursor.execute("""
@@ -1298,21 +1929,27 @@ def sincronizar_imagenes():
                     WHERE id = %s
                 """, (portada, principal, carrera['id']))
                 actualizadas += 1
+                print(f"[imagenes] Carrera {carrera['id']} ({carrera['nombre']}) actualizada - Portada: {portada}, Principal: {principal}")
 
         conn.commit()
         cursor.close()
 
         if actualizadas:
-            app.logger.info(f'[imagenes] Auto-sync: {actualizadas} carreras actualizadas.')
+            print(f'[imagenes] Auto-sync: {actualizadas} carreras actualizadas.')
         else:
-            app.logger.info('[imagenes] Auto-sync: sin cambios necesarios.')
+            print('[imagenes] Auto-sync: sin cambios necesarios.')
 
     except Exception as e:
-        app.logger.warning(f'[imagenes] Auto-sync error (no crítico): {e}')
+        print(f'[imagenes] Auto-sync error (no crítico): {e}')
+        import traceback
+        traceback.print_exc()
 
 
 # Punto de entrada de la aplicación
 if __name__ == '__main__':
+    print("=== INICIANDO APLICACIÓN FLASK ===")
     with app.app_context():
+        print("Ejecutando sincronización de imágenes...")
         sincronizar_imagenes()
+        print("Sincronización completada. Iniciando servidor...")
     app.run(debug=True)

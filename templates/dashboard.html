@@ -1,108 +1,396 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container py-5 animate__animated animate__fadeIn">
-    {# --- SECCIÓN: BIENVENIDA --- #}
-    <div class="row mb-5">
-        <div class="col-lg-8">
-            <h1 class="display-4 fw-800 text-primary mb-2">Bienvenido a Futuro 360</h1>
-            <p class="lead text-muted">Hola, {{ g.user.nombre }}. Te Queremos dar la bienvenida a Futuro 360 aqui vas a encontrar tu carrera ideal y tu perfil profesional.</p>
+<style>
+    .dash-hero {
+        background: linear-gradient(135deg, #142B38 0%, #2F8EAB 100%);
+        border-radius: 24px;
+        color: #fff;
+        padding: 48px 40px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 40px -20px rgba(20, 43, 56, 0.5);
+    }
+    .dash-hero::before {
+        content: '';
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+    }
+    .dash-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -100px;
+        right: 120px;
+        width: 220px;
+        height: 220px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .dash-hero .avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(6px);
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        font-weight: 800;
+    }
+    .dash-hero h1 {
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 18px 0 6px;
+        font-size: clamp(1.7rem, 3.5vw, 2.5rem);
+    }
+    .dash-hero p {
+        color: rgba(255, 255, 255, 0.85);
+        max-width: 640px;
+        margin: 0;
+        font-size: 1.05rem;
+        line-height: 1.6;
+    }
+    .dash-hero .badge {
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 999px;
+        padding: 7px 16px;
+        font-weight: 600;
+        font-size: 0.78rem;
+    }
+
+    .kpi-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        padding: 22px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 32px -16px rgba(16, 24, 40, 0.2);
+    }
+    .kpi-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+    .kpi-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .kpi-value {
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+    }
+    .kpi-value small {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-muted);
+    }
+
+    .tool-card {
+        border-radius: 20px;
+        padding: 30px 26px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 12px 28px -12px rgba(16, 24, 40, 0.35);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        text-decoration: none;
+    }
+    .tool-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 24px 48px -20px rgba(16, 24, 40, 0.45);
+    }
+    .tool-card .tool-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.18);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        margin-bottom: 22px;
+    }
+    .tool-card h4 {
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+    }
+    .tool-card p {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        line-height: 1.55;
+        margin-bottom: 24px;
+    }
+    .tool-card .tool-btn {
+        margin-top: auto;
+        background: rgba(255, 255, 255, 0.94);
+        color: #142B38;
+        border-radius: 999px;
+        padding: 11px 20px;
+        font-weight: 700;
+        text-align: center;
+        font-size: 0.85rem;
+        letter-spacing: 0.02em;
+        transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .tool-card:hover .tool-btn {
+        transform: translateX(4px);
+    }
+    .tool-gradient-1 { background: linear-gradient(135deg, #2F8EAB, #142B38); }
+    .tool-gradient-2 { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .tool-gradient-3 { background: linear-gradient(135deg, #f59e0b, #ea580c); }
+    .tool-gradient-4 { background: linear-gradient(135deg, #10b981, #047857); }
+
+    .history-card {
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        background: var(--card-bg);
+        overflow: hidden;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.1);
+    }
+    .history-card .history-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid var(--card-border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .history-card .history-header h5 {
+        font-weight: 800;
+        margin: 0;
+    }
+    .history-item {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--card-border);
+        transition: background 0.15s ease;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-item:hover { background: var(--hover-bg); }
+
+    .news-mini {
+        display: flex;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        border: 1px solid var(--card-border);
+        background: var(--card-bg);
+        transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    .news-mini:hover {
+        border-color: #2F8EAB;
+        transform: translateX(4px);
+    }
+    .news-mini .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-top: 6px;
+    }
+</style>
+
+<div class="container py-4 py-lg-5">
+
+    {# --- SECCIÓN: BIENVENIDA (HERO) --- #}
+    <div class="dash-hero mb-4">
+        <div class="position-relative" style="z-index: 1;">
+            <span class="badge"><i class="bi bi-house-heart me-1"></i> Tu espacio personal</span>
+            <div class="d-flex align-items-center gap-3 mt-3">
+                <div class="avatar">{{ g.user.nombre[:1]|upper }}{{ g.user.apellido[:1]|upper if g.user.apellido else '' }}</div>
+                <div>
+                    <h1>¡Hola, {{ g.user.nombre }}!</h1>
+                    <p>Explorá tu futuro con calma: descubrí tu carrera ideal, jugá con tus intereses y seguí tus novedades académicas. Todo en un solo lugar.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# --- SECCIÓN: MÉTRICAS DEL USUARIO --- #}
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-md-4">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:rgba(47,142,171,0.12);color:#2F8EAB;"><i class="bi bi-clipboard2-check"></i></div>
+                <div>
+                    <div class="kpi-label">Tests realizados</div>
+                    <div class="kpi-value text-primary">{{ total_tests }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:rgba(124,58,237,0.12);color:#7c3aed;"><i class="bi bi-mortarboard"></i></div>
+                <div>
+                    <div class="kpi-label">Carreras disponibles</div>
+                    <div class="kpi-value text-primary">{{ total_carreras }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:rgba(16,185,129,0.12);color:#10b981;"><i class="bi bi-calendar3"></i></div>
+                <div>
+                    <div class="kpi-label">Último test</div>
+                    <div class="kpi-value text-primary">
+                        {% if ultima_fecha_test %}
+                            <small>{{ ultima_fecha_test.strftime('%d/%m/%Y') }}</small>
+                        {% else %}
+                            <small>Aún no realizaste tests</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     {# --- SECCIÓN: LAS 4 HERRAMIENTAS PRINCIPALES --- #}
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold mb-0" style="font-size:1.4rem;">Tus herramientas</h2>
+            <p class="text-muted small mb-0">Todo lo que necesitás para orientar tu vocación.</p>
+        </div>
+    </div>
+
     <div class="row g-4 mb-5">
         <!-- 1. Test Vocacional Pro -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100 border-primary border-opacity-25 hover-lift transition d-flex flex-column">
-                <div class="mb-4 d-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mx-auto" style="width: 60px; height: 60px;">
-                    <i class="bi bi-patch-check-fill fs-3 text-primary"></i>
-                </div>
-                <h4 class="fw-bold mb-3 text-center">1. Test Pro</h4>
-                <p class="text-muted small mb-4 text-center">Realiza nuestro test profesional de 30 dimensiones para un perfil exacto.</p>
-                <div class="mt-auto">
-                    <a href="{{ url_for('test') }}" class="btn btn-primary btn-sm w-100 rounded-pill fw-bold py-2">COMENZAR</a>
-                </div>
-            </div>
+            <a href="{{ url_for('test') }}" class="tool-card tool-gradient-1">
+                <div class="tool-icon"><i class="bi bi-patch-check-fill"></i></div>
+                <h4>Test Pro</h4>
+                <p>Un test profesional de 30 dimensiones para un perfil exacto de tu vocación.</p>
+                <div class="tool-btn">COMENZAR <i class="bi bi-arrow-right ms-1"></i></div>
+            </a>
         </div>
 
         <!-- 2. Catálogo de Carreras -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100 border-secondary border-opacity-25 hover-lift transition d-flex flex-column">
-                <div class="mb-4 d-flex align-items-center justify-content-center bg-secondary bg-opacity-10 rounded-circle mx-auto" style="width: 60px; height: 60px;">
-                    <i class="bi bi-search-heart-fill fs-3 text-secondary"></i>
-                </div>
-                <h4 class="fw-bold mb-3 text-center">2. Carreras</h4>
-                <p class="text-muted small mb-4 text-center">Explora el catálogo completo con información sobre universidades y campo laboral.</p>
-                <div class="mt-auto">
-                    <a href="{{ url_for('carreras') }}" class="btn btn-secondary btn-sm w-100 rounded-pill fw-bold py-2">EXPLORAR</a>
-                </div>
-            </div>
+            <a href="{{ url_for('carreras') }}" class="tool-card tool-gradient-2">
+                <div class="tool-icon"><i class="bi bi-search-heart-fill"></i></div>
+                <h4>Carreras</h4>
+                <p>Explorá el catálogo completo con universidades y campo laboral de cada carrera.</p>
+                <div class="tool-btn">EXPLORAR <i class="bi bi-arrow-right ms-1"></i></div>
+            </a>
         </div>
 
         <!-- 3. El Laboratorio (Juego) -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100 border-warning border-opacity-25 hover-lift transition d-flex flex-column">
-                <div class="mb-4 d-flex align-items-center justify-content-center bg-warning bg-opacity-10 rounded-circle mx-auto" style="width: 60px; height: 60px;">
-                    <i class="bi bi-controller fs-3 text-warning"></i>
-                </div>
-                <h4 class="fw-bold mb-3 text-center">3. Game</h4>
-                <p class="text-muted small mb-4 text-center">Descubre tus intereses ocultos de forma interactiva y divertida.</p>
-                <div class="mt-auto">
-                    <a href="{{ url_for('juego') }}" class="btn btn-warning btn-sm w-100 rounded-pill fw-bold py-2 text-dark">JUGAR</a>
-                </div>
-            </div>
+            <a href="{{ url_for('juego') }}" class="tool-card tool-gradient-3">
+                <div class="tool-icon"><i class="bi bi-controller"></i></div>
+                <h4>Game</h4>
+                <p>Descubrí tus intereses ocultos de forma interactiva y divertida.</p>
+                <div class="tool-btn">JUGAR <i class="bi bi-arrow-right ms-1"></i></div>
+            </a>
         </div>
 
         <!-- 4. Centro de Noticias -->
         <div class="col-md-6 col-lg-3">
-            <div class="glass-card h-100 border-success border-opacity-25 hover-lift transition d-flex flex-column">
-                <div class="mb-4 d-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-circle mx-auto" style="width: 60px; height: 60px;">
-                    <i class="bi bi-newspaper fs-3 text-success"></i>
-                </div>
-                <h4 class="fw-bold mb-3 text-center">4. Noticias</h4>
-                <p class="text-muted small mb-4 text-center">Tendencias académicas, becas y novedades de las facultades locales.</p>
-                <div class="mt-auto">
-                    <a href="{{ url_for('noticias') }}" class="btn btn-success btn-sm w-100 rounded-pill fw-bold py-2">NOVEDADES</a>
-                </div>
-            </div>
+            <a href="{{ url_for('noticias') }}" class="tool-card tool-gradient-4">
+                <div class="tool-icon"><i class="bi bi-newspaper"></i></div>
+                <h4>Noticias</h4>
+                <p>Tendencias académicas, becas y novedades de las facultades locales.</p>
+                <div class="tool-btn">NOVEDADES <i class="bi bi-arrow-right ms-1"></i></div>
+            </a>
         </div>
     </div>
 
-    {# --- SECCIÓN: ACTIVIDADES RECIENTES (HISTORIAL) --- #}
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="glass-card p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0">Historial de Tests Recientes</h5>
-                    <a href="{{ url_for('mis_resultados') }}" class="btn btn-link btn-sm text-decoration-none">Ver todo el historial</a>
+    <div class="row g-4">
+        {# --- SECCIÓN: ACTIVIDADES RECIENTES (HISTORIAL) --- #}
+        <div class="col-lg-8">
+            <div class="history-card h-100">
+                <div class="history-header">
+                    <h5><i class="bi bi-journal-check text-primary me-2"></i>Historial de Tests Recientes</h5>
+                    <a href="{{ url_for('mis_resultados') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                        Ver todo el historial <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
                 </div>
-                
-                {# Si el usuario tiene resultados previos #}
+
                 {% if historial %}
-                    <div class="row g-3">
-                        {% for test in historial %}
-                        <div class="col-md-4">
-                            <div class="card border-0 bg-light rounded-4 h-100 p-3 hover-lift transition">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <span class="badge bg-primary-light text-primary rounded-pill">{{ test.area_profesional_sugerida }}</span>
-                                    <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ test.fecha_realizacion.strftime('%d/%m/%Y') }}</small>
-                                </div>
-                                <p class="text-muted small mb-3 line-clamp-2 mt-2">{{ test.detalle_texto }}</p>
-                                <a href="{{ url_for('ver_resultado', resultado_id=test.id) }}" class="btn btn-sm btn-outline-primary mt-auto w-100 rounded-pill">Ver Informe Completo</a>
-                            </div>
+                    {% for test in historial %}
+                    <div class="history-item d-flex align-items-center gap-3">
+                        <div class="kpi-icon flex-shrink-0" style="background:rgba(47,142,171,0.12);color:#2F8EAB;">
+                            <i class="bi bi-compass"></i>
                         </div>
-                        {% endfor %}
+                        <div class="flex-grow-1 min-w-0">
+                            <div class="fw-bold text-dark text-truncate">{{ test.area_profesional_sugerida }}</div>
+                            <p class="text-muted small mb-0 text-truncate">{{ test.detalle_texto }}</p>
+                        </div>
+                        <div class="text-end flex-shrink-0">
+                            <small class="text-muted d-block"><i class="bi bi-clock me-1"></i>{{ test.fecha_realizacion.strftime('%d/%m/%Y') }}</small>
+                            <a href="{{ url_for('ver_resultado', resultado_id=test.id) }}" class="btn btn-sm btn-outline-primary rounded-pill mt-1 px-3">Ver informe</a>
+                        </div>
                     </div>
-                {# Si el usuario aún no ha realizado ningún test #}
+                    {% endfor %}
                 {% else %}
-                    <div class="alert bg-primary-light text-primary border-0 rounded-4 py-4 px-4 text-center">
-                        <i class="bi bi-info-circle-fill fs-3 d-block mb-2"></i>
-                        <h6 class="fw-bold">Aún no tienes resultados</h6>
-                        <p class="mb-3 small">¡Bienvenido! Tu sesión está activa. Comienza realizando el <strong>Test Pro</strong> para obtener tus primeras recomendaciones.</p>
-                        <a href="{{ url_for('test') }}" class="btn btn-primary btn-sm rounded-pill px-4">Comenzar mi primer test</a>
+                    <div class="admin-empty" style="padding:48px 24px;">
+                        <i class="bi bi-info-circle-fill" style="color:#2F8EAB;opacity:0.5;"></i>
+                        <h6 class="fw-bold text-dark mb-2">Aún no tenés resultados</h6>
+                        <p class="text-muted small mb-3">¡Tu sesión está activa! Realizá el <strong>Test Pro</strong> para obtener tus primeras recomendaciones.</p>
+                        <a href="{{ url_for('test') }}" class="btn btn-primary rounded-pill px-4">Comenzar mi primer test</a>
                     </div>
                 {% endif %}
+            </div>
+        </div>
+
+        {# --- SECCIÓN: NOVEDADES RECIENTES --- #}
+        <div class="col-lg-4">
+            <div class="history-card h-100">
+                <div class="history-header">
+                    <h5><i class="bi bi-newspaper text-primary me-2"></i>Últimas novedades</h5>
+                    <a href="{{ url_for('noticias') }}" class="btn btn-link btn-sm p-0 text-decoration-none">Ver todas</a>
+                </div>
+                <div class="p-3 d-flex flex-column gap-2">
+                    {% if noticias_recientes %}
+                        {% for n in noticias_recientes %}
+                        <a href="{{ url_for('noticias') }}" class="news-mini text-decoration-none">
+                            <span class="dot" style="background: {{ ['#2F8EAB', '#7c3aed', '#10b981', '#f59e0b'][loop.index0 % 4] }};"></span>
+                            <div class="min-w-0">
+                                <div class="fw-bold text-dark small text-truncate">{{ n.titulo }}</div>
+                                <small class="text-muted">
+                                    {{ n.fuente }} · {% if n.fecha %}{{ n.fecha.strftime('%d/%m/%Y') }}{% endif %}
+                                </small>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="admin-empty" style="padding:36px 16px;">
+                            <i class="bi bi-newspaper"></i>
+                            <p class="text-muted small mb-0">Todavía no hay novedades publicadas.</p>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
