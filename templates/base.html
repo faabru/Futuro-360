@@ -43,7 +43,7 @@
 
     {# --- COMPONENTE: BARRA DE NAVEGACIÓN (NAVBAR) --- #}
     {% if request.endpoint != 'admin_login' %}
-    <nav class="navbar navbar-expand-lg sticky-top">
+    <nav class="navbar navbar-expand-lg sticky-top" style="z-index: 1030;">
         <div class="container">
             <!-- Logo y nombre de la marca -->
             <a class="navbar-brand" href="{{ url_for('index') }}">

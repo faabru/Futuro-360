@@ -6,3 +6,4 @@ __pycache__/
 sync_*.py
 check_db.py
 lista_imagenes.txt
+.env

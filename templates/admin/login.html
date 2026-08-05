@@ -4,10 +4,10 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 
 <!-- SECCIÓN: LOGIN EXCLUSIVO DEL PANEL ADMINISTRADOR -->
-<div class="container">
+<div class="container admin-login">
     <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
         <div class="col-md-5 col-lg-4">
-            <div class="admin-card p-4 p-md-5" style="box-shadow: 0 12px 32px -12px rgba(16,24,40,0.18);">
+            <div class="admin-card p-4 p-md-5 admin-login-card" style="box-shadow: 0 12px 32px -12px rgba(16,24,40,0.18);">
 
                 <!-- ENCABEZADO -->
                 <div class="text-center mb-4">
@@ -29,6 +29,12 @@
                     <div class="mb-4">
                         <label for="password" class="form-label small fw-800 text-uppercase text-muted">Contraseña</label>
                         <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
+                    </div>
+
+                    <div class="text-center mb-2">
+                        <a href="{{ url_for('admin_recuperar_password') }}" class="text-danger fw-800 text-decoration-none small">
+                            ¿Olvidaste tu contraseña?
+                        </a>
                     </div>
 
                     <div class="d-grid mt-4">
