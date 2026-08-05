@@ -1,348 +1,936 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- SECCIÓN PRINCIPAL: MINI-JUEGOS DE DESCUBRIMIENTO -->
-<div class="container py-5">
+<style>
+    /* ============================================================
+       GAME HUB — Diseño tipo videojuego (premium / interactivo)
+       ============================================================ */
+    .game-hero {
+        position: relative;
+        text-align: center;
+        padding: 48px 24px 40px;
+        border-radius: 24px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #142B38 0%, #2F8EAB 55%, #42A6C2 100%);
+        color: #fff;
+        box-shadow: 0 24px 48px -20px rgba(20, 43, 56, 0.55);
+        margin-bottom: 40px;
+    }
+    .game-hero::before,
+    .game-hero::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.07);
+    }
+    .game-hero::before { width: 320px; height: 320px; top: -140px; right: -80px; }
+    .game-hero::after { width: 220px; height: 220px; bottom: -110px; left: -60px; }
+    .game-hero .hero-inner { position: relative; z-index: 1; }
+    .game-hero .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 7px 18px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: 18px;
+        backdrop-filter: blur(4px);
+    }
+    .game-hero h1 {
+        font-size: clamp(1.9rem, 4.5vw, 3rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin-bottom: 10px;
+    }
+    .game-hero p {
+        color: rgba(255, 255, 255, 0.85);
+        max-width: 560px;
+        margin: 0 auto;
+        font-size: 1.05rem;
+    }
 
-    <!-- ENCABEZADO DEL JUEGO -->
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold text-primary">Descubre Tu Vocación 🎮</h1>
-        <p class="lead text-muted">Juegos interactivos para encontrar tu carrera ideal.</p>
+    /* --- Selector de juegos --- */
+    .game-select-card {
+        position: relative;
+        border-radius: 22px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+        transform-origin: center;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        min-height: 260px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px 30px;
+        box-shadow: 0 8px 24px -12px rgba(16, 24, 40, 0.18);
+    }
+    .game-select-card:hover {
+        transform: translateY(-10px) scale(1.01);
+        box-shadow: 0 28px 56px -20px rgba(16, 24, 40, 0.35);
+        border-color: var(--primary);
+    }
+    .game-select-card .game-emoji {
+        width: 84px;
+        height: 84px;
+        border-radius: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.6rem;
+        margin-bottom: 20px;
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .game-select-card:hover .game-emoji { transform: scale(1.12) rotate(-6deg); }
+    .game-select-card .play-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 18px;
+        padding: 10px 26px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 0.06em;
+        transition: all 0.25s ease;
+    }
+    .game-select-card:hover .play-chip { gap: 12px; }
+    .game-select-card .game-tag {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 999px;
+    }
+
+    /* --- Shell del juego --- */
+    .game-shell {
+        max-width: 760px;
+        margin: 0 auto;
+        border-radius: 26px;
+        overflow: hidden;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        box-shadow: 0 20px 48px -20px rgba(16, 24, 40, 0.35);
+        position: relative;
+    }
+    .game-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 16px 24px;
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--card-border);
+    }
+    .game-topbar .game-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        font-size: 0.95rem;
+    }
+    .game-topbar .game-logo .logo-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: #fff;
+    }
+    .game-topbar .game-stats {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .game-stat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        background: var(--hover-bg);
+        color: var(--text-main);
+        border: 1px solid var(--card-border);
+    }
+
+    .game-body {
+        padding: 36px 30px 40px;
+        position: relative;
+    }
+
+    /* --- Screens: fade / slide --- */
+    .screen { display: none; }
+    .screen.active { display: block; animation: screenIn 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+    @keyframes screenIn {
+        from { opacity: 0; transform: translateY(18px) scale(0.99); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* --- Pregunta (Intereses) --- */
+    .scenario-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--primary);
+        background: rgba(47, 142, 171, 0.1);
+        padding: 6px 14px;
+        border-radius: 999px;
+        margin-bottom: 16px;
+    }
+    .scenario-question {
+        font-size: clamp(1.3rem, 3vw, 1.7rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.35;
+        margin-bottom: 32px;
+        color: var(--text-main);
+    }
+    .option-btn {
+        width: 100%;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 20px 22px;
+        border-radius: 18px;
+        background: var(--card-bg);
+        border: 2px solid var(--card-border);
+        color: var(--text-main);
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    .option-btn .opt-ico {
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+        transition: transform 0.25s ease;
+    }
+    .option-btn:hover {
+        transform: translateX(8px);
+        border-color: var(--primary);
+        box-shadow: 0 12px 28px -12px rgba(47, 142, 171, 0.35);
+    }
+    .option-btn:hover .opt-ico { transform: scale(1.1); }
+    .option-btn:active { transform: scale(0.985); }
+    .option-btn.picked {
+        border-color: var(--primary);
+        background: rgba(47, 142, 171, 0.08);
+        animation: pickPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes pickPop {
+        0% { transform: scale(1); }
+        40% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+
+    /* --- Barra de progreso --- */
+    .game-progress-track {
+        height: 10px;
+        background: var(--hover-bg);
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 28px;
+    }
+    .game-progress-bar {
+        height: 100%;
+        border-radius: 999px;
+        width: 0%;
+        transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    .game-progress-bar::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+        animation: shimmer 1.6s infinite;
+    }
+    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+    /* --- Card de carrera (Discovery) --- */
+    .career-flash {
+        border-radius: 22px;
+        overflow: hidden;
+        color: #fff;
+        padding: 44px 34px;
+        text-align: center;
+        position: relative;
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 24px 48px -20px rgba(16, 24, 40, 0.5);
+        transition: transform 0.3s ease;
+    }
+    .career-flash .career-emoji {
+        font-size: 3.4rem;
+        margin-bottom: 18px;
+        animation: floaty 3s ease-in-out infinite;
+    }
+    @keyframes floaty {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+    .career-flash .career-name {
+        font-size: clamp(1.4rem, 3.5vw, 2rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin-bottom: 8px;
+    }
+    .career-flash .career-area {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        opacity: 0.8;
+        margin-bottom: 18px;
+    }
+    .career-flash .career-desc {
+        font-size: 0.98rem;
+        line-height: 1.6;
+        opacity: 0.92;
+        max-width: 480px;
+        margin: 0 auto;
+    }
+    .swipe-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .swipe-btn {
+        border: none;
+        border-radius: 16px;
+        padding: 16px 22px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+        cursor: pointer;
+        box-shadow: 0 8px 20px -10px rgba(16, 24, 40, 0.4);
+    }
+    .swipe-btn:hover { transform: translateY(-4px) scale(1.02); }
+    .swipe-btn:active { transform: scale(0.96); }
+
+    /* --- Resultados --- */
+    .result-hero {
+        text-align: center;
+        padding: 20px 10px 28px;
+    }
+    .result-hero .trophy {
+        font-size: 4rem;
+        animation: trophyBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        display: inline-block;
+    }
+    @keyframes trophyBounce {
+        0% { transform: scale(0); }
+        55% { transform: scale(1.25); }
+        100% { transform: scale(1); }
+    }
+    .result-hero h2 {
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 10px 0 6px;
+        font-size: clamp(1.5rem, 3vw, 2.1rem);
+    }
+    .result-hero p { color: var(--text-muted); margin: 0; }
+
+    .affinity-bar-row { margin-bottom: 18px; }
+    .affinity-bar-row .affinity-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 7px;
+    }
+    .affinity-bar-row .affinity-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+    .affinity-bar-row .affinity-rank {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #fff;
+        flex-shrink: 0;
+    }
+    .affinity-bar-row .affinity-pct { font-weight: 800; font-size: 0.95rem; }
+    .affinity-track {
+        height: 12px;
+        background: var(--hover-bg);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+    .affinity-fill {
+        height: 100%;
+        border-radius: 999px;
+        width: 0%;
+        transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .result-career-card {
+        border-radius: 18px;
+        overflow: hidden;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .result-career-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 24px 44px -18px rgba(16, 24, 40, 0.35);
+        border-color: var(--primary);
+    }
+    .result-career-card .cc-top {
+        padding: 22px 22px 16px;
+        color: #fff;
+    }
+    .result-career-card .cc-top .cc-emoji { font-size: 2rem; }
+    .result-career-card .cc-top h6 {
+        font-weight: 800;
+        font-size: 1rem;
+        margin: 10px 0 4px;
+        color: #fff;
+    }
+    .result-career-card .cc-top .cc-area {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        opacity: 0.8;
+    }
+    .result-career-card .cc-body {
+        padding: 16px 22px 20px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .result-career-card .cc-body p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.55;
+        flex-grow: 1;
+    }
+    .result-career-card .cc-body .cc-link {
+        font-weight: 700;
+        font-size: 0.82rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+    .result-career-card .cc-body .cc-link:hover { gap: 11px; }
+
+    .section-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        font-size: 1.05rem;
+        margin-bottom: 18px;
+        color: var(--text-main);
+    }
+    .section-label .label-ico {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .btn-ghost {
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--text-main);
+        border-radius: 12px;
+        padding: 0.7rem 1.4rem;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+    .btn-ghost:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+
+    .btn-play {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 14px 44px;
+        font-weight: 700;
+        font-size: 1rem;
+        letter-spacing: 0.03em;
+        box-shadow: 0 12px 28px -10px rgba(47, 142, 171, 0.55);
+        transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+        cursor: pointer;
+    }
+    .btn-play:hover { transform: translateY(-3px); box-shadow: 0 18px 36px -12px rgba(47, 142, 171, 0.6); }
+    .btn-play:active { transform: scale(0.97); }
+
+    .empty-note {
+        text-align: center;
+        padding: 30px 20px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    /* Confetti */
+    .confetti-piece {
+        position: fixed;
+        top: -12px;
+        z-index: 2000;
+        width: 10px;
+        height: 14px;
+        pointer-events: none;
+        animation: confettiFall linear forwards;
+    }
+    @keyframes confettiFall {
+        0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* Dark mode tweaks */
+    html[data-theme="dark"] .game-select-card,
+    html[data-theme="dark"] .game-shell { background: var(--card-bg); border-color: var(--card-border); }
+    html[data-theme="dark"] .option-btn { background: var(--card-bg); border-color: var(--card-border); color: var(--text-main); }
+    html[data-theme="dark"] .career-flash { box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.6); }
+</style>
+
+<!-- =================== HERO =================== -->
+<div class="container py-4 py-lg-5">
+    <div class="game-hero">
+        <div class="hero-inner">
+            <span class="hero-badge"><i class="bi bi-joystick me-1"></i> Modo Laboratorio</span>
+            <h1>Descubrí tu vocación jugando</h1>
+            <p>Dos experiencias interactivas para mapear tus intereses, gustos y carreras que mejor encajan con tu perfil.</p>
+        </div>
     </div>
 
-    <!-- SELECTOR DE JUEGOS -->
-    <div id="game-selector" class="row justify-content-center mb-5">
-        <div class="col-lg-8">
-            <div class="row g-4">
-                <!-- JUEGO 1: INTERESES EN JUEGO -->
-                <div class="col-md-6">
-                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden section-card h-100 game-card" onclick="selectGame('interests')" style="cursor: pointer;">
-                        <div class="card-body text-center p-5">
-                            <div class="display-3 mb-3">🎯</div>
-                            <h5 class="fw-bold mb-2">Intereses en Juego</h5>
-                            <p class="text-muted small mb-3">Responde escenarios cotidianos y descubre tus preferencias.</p>
-                            <button class="btn btn-outline-primary btn-sm rounded-pill">Jugar</button>
-                        </div>
-                    </div>
+    <!-- ============ SELECTOR DE JUEGOS ============ -->
+    <div id="game-selector" class="row justify-content-center g-4 mb-4">
+        <div class="col-md-6">
+            <div class="game-select-card" onclick="selectGame('interests')" role="button">
+                <span class="game-tag" style="background:rgba(124,58,237,0.12);color:#7c3aed;">Escenarios</span>
+                <div class="game-emoji" style="background:rgba(124,58,237,0.12);">🎯</div>
+                <h4 class="fw-bold mb-2">Intereses en Juego</h4>
+                <p class="text-muted small mb-0" style="max-width:300px;">Elegí entre escenarios cotidianos y descubrí hacia dónde tira tu intuición.</p>
+                <span class="play-chip" style="background:rgba(124,58,237,0.12);color:#7c3aed;">
+                    JUGAR <i class="bi bi-arrow-right"></i>
+                </span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="game-select-card" onclick="selectGame('discovery')" role="button">
+                <span class="game-tag" style="background:rgba(47,142,171,0.12);color:#2F8EAB;">Swipe</span>
+                <div class="game-emoji" style="background:rgba(47,142,171,0.12);">✨</div>
+                <h4 class="fw-bold mb-2">Descubrí Tu Carrera</h4>
+                <p class="text-muted small mb-0" style="max-width:300px;">Deslizá por profesiones y marcá las que te encienden. Tu match te espera.</p>
+                <span class="play-chip" style="background:rgba(47,142,171,0.12);color:#2F8EAB;">
+                    JUGAR <i class="bi bi-arrow-right"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ JUEGO 1: INTERESES ============ -->
+    <div id="interests-game" class="game-shell" style="display:none;">
+        <div class="game-topbar">
+            <div class="game-logo">
+                <span class="logo-dot" style="background:linear-gradient(135deg,#7c3aed,#a855f7);"><i class="bi bi-joystick"></i></span>
+                Intereses en Juego
+            </div>
+            <div class="game-stats">
+                <span class="game-stat-pill"><i class="bi bi-shuffle text-primary"></i> <span id="q-counter">0 / 0</span></span>
+            </div>
+        </div>
+
+        <div class="game-body">
+            <!-- Inicio -->
+            <div id="start-screen" class="screen active text-center">
+                <div class="display-1 mb-3" style="animation:floaty 3s ease-in-out infinite;">🚀</div>
+                <h3 class="fw-bold mb-2">¿Listo para el desafío?</h3>
+                <p class="text-muted mb-4" style="max-width:420px;margin-inline:auto;">
+                    Te mostramos escenarios de la vida real. Elegí la opción que más te represente,
+                    sin pensarlo demasiado. Tu intuición es la que manda.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn-play" onclick="startGame()"><i class="bi bi-play-fill me-2"></i>Empezar</button>
+                </div>
+            </div>
+
+            <!-- Pregunta -->
+            <div id="question-screen" class="screen text-start">
+                <span class="scenario-chip"><i class="bi bi-lightning-charge-fill me-1"></i> Escenario <span id="current-question-num">1</span></span>
+                <div id="scenario-text" class="scenario-question"></div>
+
+                <div class="d-grid gap-3">
+                    <button onclick="choose(0)" id="opt-0" class="option-btn">
+                        <span class="opt-ico" style="background:rgba(124,58,237,0.12);color:#7c3aed;"><i class="bi bi-stars"></i></span>
+                        <span class="opt-txt"></span>
+                    </button>
+                    <button onclick="choose(1)" id="opt-1" class="option-btn">
+                        <span class="opt-ico" style="background:rgba(47,142,171,0.12);color:#2F8EAB;"><i class="bi bi-compass"></i></span>
+                        <span class="opt-txt"></span>
+                    </button>
                 </div>
 
-                <!-- JUEGO 2: DESCUBRE TU CARRERA -->
-                <div class="col-md-6">
-                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden section-card h-100 game-card" onclick="selectGame('discovery')" style="cursor: pointer;">
-                        <div class="card-body text-center p-5">
-                            <div class="display-3 mb-3">✨</div>
-                            <h5 class="fw-bold mb-2">Descubre Tu Carrera</h5>
-                            <p class="text-muted small mb-3">Swipe profesiones y encuentra tu match vocacional.</p>
-                            <button class="btn btn-outline-primary btn-sm rounded-pill">Jugar</button>
-                        </div>
+                <div class="game-progress-track">
+                    <div id="game-progress" class="game-progress-bar" style="background:linear-gradient(90deg,#7c3aed,#a855f7);"></div>
+                </div>
+            </div>
+
+            <!-- Resultado Intereses -->
+            <div id="result-screen" class="screen">
+                <div class="result-hero">
+                    <span class="trophy">🎉</span>
+                    <h2>¡Descubrimiento completado!</h2>
+                    <p id="game-result-text" class="lead"></p>
+                </div>
+
+                <div id="game-recommended-careers" style="display:none;">
+                    <div class="section-label">
+                        <span class="label-ico" style="background:rgba(47,142,171,0.12);color:#2F8EAB;"><i class="bi bi-mortarboard"></i></span>
+                        Carreras que te van como anillo al dedo
                     </div>
+                    <div class="row g-3" id="game-careers-container"></div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
+                    <a href="{{ url_for('test') }}" class="btn-play" style="font-size:0.9rem;padding:12px 28px;">
+                        <i class="bi bi-clipboard2-check me-2"></i>Hacer el Test Pro
+                    </a>
+                    <button class="btn-ghost" onclick="selectGame(null)"><i class="bi bi-arrow-left me-1"></i> Otro juego</button>
+                    <button class="btn-ghost" onclick="selectGame('interests')"><i class="bi bi-arrow-repeat me-1"></i> Jugar de nuevo</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- CONTENEDOR DE JUEGOS -->
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+    <!-- ============ JUEGO 2: DISCOVERY ============ -->
+    <div id="discovery-game" class="game-shell" style="display:none;">
+        <div class="game-topbar">
+            <div class="game-logo">
+                <span class="logo-dot" style="background:linear-gradient(135deg,#2F8EAB,#42A6C2);"><i class="bi bi-compass"></i></span>
+                Descubrí Tu Carrera
+            </div>
+            <div class="game-stats">
+                <span class="game-stat-pill"><i class="bi bi-suit-heart-fill text-danger"></i> <span id="d-matches">0</span> match</span>
+                <span class="game-stat-pill"><i class="bi bi-shuffle text-primary"></i> <span id="d-counter">0 / 0</span></span>
+            </div>
+        </div>
 
-            <!-- ===== JUEGO 1: INTERESES EN JUEGO ===== -->
-            <div id="interests-game" style="display: none;">
-                <div id="game-container" class="section-card text-center p-5 shadow-lg border-0">
+        <div class="game-body">
+            <!-- Inicio -->
+            <div id="discovery-start" class="screen active text-center">
+                <div class="display-1 mb-3" style="animation:floaty 3s ease-in-out infinite;">👀</div>
+                <h3 class="fw-bold mb-2">Encontrá tu match vocacional</h3>
+                <p class="text-muted mb-4" style="max-width:430px;margin-inline:auto;">
+                    Te presentamos profesiones una por una. Decí si te interesa, si querés saber más,
+                    o pasá a la siguiente. Cuantos más matches, mejor tu perfil.
+                </p>
+                <button class="btn-play" onclick="startDiscoveryGame()"><i class="bi bi-play-fill me-2"></i>Comenzar</button>
+            </div>
 
-                    <!-- PANTALLA DE INICIO -->
-                    <div id="start-screen">
-                        <div class="display-1 mb-4">🚀</div>
-                        <h3>¿Listo para descubrir tus gustos?</h3>
-                        <p class="mb-4">Te presentaremos varios escenarios. Elige el que más te atraiga sin pensarlo mucho.</p>
-                        <button onclick="startGame()" class="btn btn-primary btn-lg px-5">¡Empezar!</button>
-                    </div>
+            <!-- Carrera -->
+            <div id="discovery-screen" class="screen">
+                <div id="career-flash" class="career-flash mb-4" style="background:linear-gradient(135deg,#142B38,#2F8EAB);">
+                    <div class="career-emoji" id="career-icon">🎓</div>
+                    <div class="career-name" id="career-name"></div>
+                    <div class="career-area" id="career-area"></div>
+                    <div class="career-desc" id="career-description"></div>
+                </div>
 
-                    <!-- PANTALLA DE PREGUNTAS (DINÁMICA) -->
-                    <div id="question-screen" style="display: none;">
-                        <div class="glass-card border-0 shadow-sm p-4 mb-5 bg-light">
-                            <h4 id="scenario-text" class="mb-0 fw-bold text-dark"></h4>
-                        </div>
+                <div class="swipe-actions mb-2">
+                    <button onclick="discoveryChoose('no')" class="swipe-btn" style="background:rgba(220,53,69,0.12);color:#dc3545;">
+                        <i class="bi bi-x-lg"></i> <span id="btn-no">No es lo mío</span>
+                    </button>
+                    <button onclick="discoveryChoose('info')" class="swipe-btn" style="background:rgba(13,110,253,0.12);color:#0d6efd;">
+                        <i class="bi bi-info-lg"></i> <span id="btn-info">Quiero saber más</span>
+                    </button>
+                    <button onclick="discoveryChoose('yes')" class="swipe-btn" style="background:rgba(25,135,84,0.14);color:#198754;">
+                        <i class="bi bi-check-lg"></i> <span id="btn-yes">Me interesa</span>
+                    </button>
+                </div>
 
-                        <div class="row g-4 mb-5">
-                            <div class="col-md-6">
-                                <button onclick="choose(0)" id="opt-0" class="btn btn-white w-100 py-4 h-100 shadow-sm border-2 border-primary border-opacity-10 hover-lift transition fw-semibold text-primary"></button>
-                            </div>
-                            <div class="col-md-6">
-                                <button onclick="choose(1)" id="opt-1" class="btn btn-white w-100 py-4 h-100 shadow-sm border-2 border-secondary border-opacity-10 hover-lift transition fw-semibold text-secondary"></button>
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold">
-                                    <span id="current-question-num">1</span> de <span id="total-questions-num">0</span>
-                                </span>
-                            </div>
-                            <div class="progress" style="height: 10px; border-radius: 5px;">
-                                <div id="game-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- PANTALLA DE RESULTADOS FINALES -->
-                    <div id="result-screen" style="display: none;">
-                        <div class="display-2 mb-4">✨</div>
-                        <h3 class="fw-bold mb-3">¡Descubrimiento completado!</h3>
-                        <p id="game-result-text" class="lead mb-4"></p>
-                        
-                        <!-- CARRERAS RECOMENDADAS -->
-                        <div class="mb-5" id="game-recommended-careers" style="display: none;">
-                            <h5 class="fw-bold mb-3 text-primary">Carreras Recomendadas para ti</h5>
-                            <div class="row g-3" id="game-careers-container"></div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-center gap-3">
-                            <a href="{{ url_for('test') }}" class="btn btn-primary">Ir al Test Profesional</a>
-                            <button onclick="selectGame(null)" class="btn btn-outline-secondary">Volver a juegos</button>
-                        </div>
-                    </div>
+                <div class="game-progress-track">
+                    <div id="discovery-progress" class="game-progress-bar" style="background:linear-gradient(90deg,#2F8EAB,#42A6C2);"></div>
                 </div>
             </div>
 
-            <!-- ===== JUEGO 2: DESCUBRE TU CARRERA ===== -->
-            <div id="discovery-game" style="display: none;">
-                <div id="discovery-container" class="section-card p-5 shadow-lg border-0">
+            <!-- Resultado Discovery -->
+            <div id="discovery-results" class="screen">
+                <div class="result-hero">
+                    <span class="trophy">🏆</span>
+                    <h2>Tu perfil vocacional</h2>
+                    <p id="discovery-summary" class="lead"></p>
+                </div>
 
-                    <!-- PANTALLA DE INICIO -->
-                    <div id="discovery-start" class="text-center">
-                        <div class="display-1 mb-4">👀</div>
-                        <h3 class="fw-bold mb-3">Descubre Tu Carrera</h3>
-                        <p class="mb-5">Te mostraremos profesiones una por una. Elige si te gusta, no te gusta o quieres saber más. ¡Sigue tu intuición!</p>
-                        <button onclick="startDiscoveryGame()" class="btn btn-primary btn-lg px-5">¡Empezar Descubrimiento!</button>
+                <div class="mb-4">
+                    <div class="section-label">
+                        <span class="label-ico" style="background:rgba(124,58,237,0.12);color:#7c3aed;"><i class="bi bi-graph-up-arrow"></i></span>
+                        Afinidad por área
                     </div>
+                    <div id="top-areas"></div>
+                </div>
 
-                    <!-- PANTALLA DE PROFESIONES -->
-                    <div id="discovery-screen" style="display: none;">
-                        <!-- TARJETA DE PROFESIÓN -->
-                        <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-5" style="background: linear-gradient(135deg, #142B38 0%, #2F8EAB 100%);">
-                            <div class="card-body text-white text-center p-5">
-                                <div class="display-4 mb-3" id="career-icon">🎓</div>
-                                <h3 id="career-name" class="fw-bold mb-3"></h3>
-                                <p class="small text-uppercase opacity-75 mb-2 fw-bold">Introducción</p>
-                                <p id="career-description" class="lead mb-0 opacity-90"></p>
-                            </div>
-                        </div>
-
-                        <!-- BOTONES DE ACCIÓN -->
-                        <div class="row g-3 mb-5">
-                            <div class="col-4">
-                                <button onclick="discoveryChoose('no')" class="btn btn-white w-100 py-3 fw-bold rounded-3 border-2 border-danger border-opacity-10 text-danger hover-lift transition">
-                                    <i class="bi bi-x-circle me-2"></i> No es lo mío
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                <button onclick="discoveryChoose('info')" class="btn btn-white w-100 py-3 fw-bold rounded-3 border-2 border-info border-opacity-10 text-info hover-lift transition">
-                                    <i class="bi bi-info-circle me-2"></i> Info
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                <button onclick="discoveryChoose('yes')" class="btn btn-white w-100 py-3 fw-bold rounded-3 border-2 border-success border-opacity-10 text-success hover-lift transition">
-                                    <i class="bi bi-check-circle me-2"></i> Me interesa
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- BARRA DE PROGRESO ABAJO -->
-                        <div class="mt-4">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-bold">
-                                    <span id="discovery-counter-new">1</span> de <span id="discovery-total-new">0</span>
-                                </span>
-                            </div>
-                            <div class="progress" style="height: 10px; border-radius: 5px;">
-                                <div id="discovery-progress" class="progress-bar progress-bar-striped progress-bar-animated bg-success" style="width: 0%"></div>
-                            </div>
-                        </div>
+                <div class="mb-4">
+                    <div class="section-label">
+                        <span class="label-ico" style="background:rgba(47,142,171,0.12);color:#2F8EAB;"><i class="bi bi-mortarboard"></i></span>
+                        Carreras recomendadas
                     </div>
+                    <div class="row g-3" id="recommended-careers"></div>
+                </div>
 
-                    <!-- PANTALLA DE RESULTADOS -->
-                    <div id="discovery-results" style="display: none;" class="text-center">
-                        <div class="display-2 mb-4">🎉</div>
-                        <h3 class="fw-bold mb-4">¡Descubrimiento Completado!</h3>
-
-                        <!-- ÁREAS PRINCIPALES -->
-                        <div class="mb-5">
-                            <h5 class="fw-bold mb-3 text-primary">Tus Áreas de Mayor Afinidad</h5>
-                            <div id="top-areas" class="row g-3"></div>
-                        </div>
-
-                        <!-- CARRERAS RECOMENDADAS -->
-                        <div class="mb-5">
-                            <h5 class="fw-bold mb-3 text-primary">Carreras Recomendadas</h5>
-                            <div id="recommended-careers" class="row g-3"></div>
-                        </div>
-
-                        <!-- BOTONES DE ACCIÓN -->
-                        <div class="d-flex justify-content-center gap-3">
-                            <a href="{{ url_for('carreras') }}" class="btn btn-primary">Ver todas las carreras</a>
-                            <a href="{{ url_for('test') }}" class="btn btn-outline-primary">Hacer test completo</a>
-                            <button onclick="selectGame(null)" class="btn btn-outline-secondary">Volver a juegos</button>
-                        </div>
-                    </div>
-
-                    <!-- PANTALLA DE DETALLES -->
-                    <div id="discovery-details" style="display: none;" class="text-start">
-                        <div class="glass-card border-0 shadow-lg rounded-4 overflow-hidden">
-                            <div class="p-4 bg-primary bg-opacity-10 d-flex align-items-center justify-content-between">
-                                <h4 id="details-name" class="fw-bold mb-0 text-primary"></h4>
-                                <button onclick="discoveryBack()" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                    <i class="bi bi-arrow-left me-1"></i> Volver
-                                </button>
-                            </div>
-                            <div class="p-5">
-                                <div class="mb-4">
-                                    <h6 class="text-uppercase text-muted fw-bold mb-2 small"><i class="bi bi-grid-fill me-2"></i>Área Profesional</h6>
-                                    <p id="details-area" class="lead fw-semibold text-dark mb-0"></p>
-                                </div>
-                                
-                                <div class="mb-5">
-                                    <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-briefcase text-primary me-2"></i> ¿A qué se dedica?</h5>
-                                    <p id="details-description" class="text-muted small" style="line-height: 1.8;"></p>
-                                </div>
-
-                                <div class="d-grid">
-                                    <a id="details-link" href="#" class="btn btn-primary btn-lg rounded-3 py-3 fw-bold shadow-sm">
-                                        <i class="bi bi-mortarboard-fill me-2"></i> Ver Carrera Completa
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
+                    <a href="{{ url_for('carreras') }}" class="btn-play" style="font-size:0.9rem;padding:12px 28px;">
+                        <i class="bi bi-search me-2"></i>Ver todas las carreras
+                    </a>
+                    <button class="btn-ghost" onclick="selectGame(null)"><i class="bi bi-arrow-left me-1"></i> Otro juego</button>
+                    <button class="btn-ghost" onclick="selectGame('discovery')"><i class="bi bi-arrow-repeat me-1"></i> Jugar de nuevo</button>
                 </div>
             </div>
 
+            <!-- Detalle -->
+            <div id="discovery-details" class="screen text-start">
+                <div class="game-topbar" style="padding:16px 4px;border-bottom:none;">
+                    <div class="game-logo">
+                        <button class="btn-ghost" style="padding:8px 14px;" onclick="discoveryBack()">
+                            <i class="bi bi-arrow-left me-1"></i> Volver
+                        </button>
+                        <span class="fw-bold ms-2" id="details-name"></span>
+                    </div>
+                </div>
+                <div>
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-muted fw-bold mb-2 small"><i class="bi bi-grid-fill me-2"></i>Área Profesional</h6>
+                        <p id="details-area" class="lead fw-semibold mb-0"></p>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-briefcase text-primary me-2"></i> ¿A qué se dedica?</h5>
+                        <p id="details-description" class="text-muted" style="line-height:1.8;"></p>
+                    </div>
+                    <div class="d-grid">
+                        <a id="details-link" href="#" class="btn-play" style="text-align:center;">
+                            <i class="bi bi-mortarboard-fill me-2"></i> Ver Carrera Completa
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- LÓGICA DE SELECCIÓN DE JUEGOS -->
 <script>
+    /* ================== NAVEGACIÓN DE JUEGOS ================== */
     function selectGame(game) {
         const selector = document.getElementById('game-selector');
         const interestsGame = document.getElementById('interests-game');
         const discoveryGame = document.getElementById('discovery-game');
 
-        if (game === 'interests') {
-            selector.style.display = 'none';
-            interestsGame.style.display = 'block';
-            discoveryGame.style.display = 'none';
-            resetInterestsGame();
-        } else if (game === 'discovery') {
-            selector.style.display = 'none';
-            interestsGame.style.display = 'none';
-            discoveryGame.style.display = 'block';
-            initDiscoveryGame();
-        } else {
-            selector.style.display = 'block';
-            interestsGame.style.display = 'none';
-            discoveryGame.style.display = 'none';
+        selector.style.display = game ? 'none' : '';
+        interestsGame.style.display = game === 'interests' ? '' : 'none';
+        discoveryGame.style.display = game === 'discovery' ? '' : 'none';
+
+        if (game === 'interests') resetInterestsGame();
+        if (game === 'discovery') initDiscoveryGame();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showScreen(id) {
+        const shell = document.getElementById(id).closest('.game-body');
+        shell.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function launchConfetti() {
+        const colors = ['#7c3aed', '#2F8EAB', '#10b981', '#f59e0b', '#ef4444', '#3b82f6'];
+        for (let i = 0; i < 90; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.left = Math.random() * 100 + 'vw';
+            piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.animationDuration = (Math.random() * 2.2 + 1.8) + 's';
+            piece.style.animationDelay = (Math.random() * 0.7) + 's';
+            piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+            document.body.appendChild(piece);
+            setTimeout(() => piece.remove(), 4500);
         }
     }
 
-    // ===== JUEGO 1: INTERESES EN JUEGO =====
-    // Preguntas cargadas dinámicamente desde la base de datos
+    /* ================== JUEGO 1: INTERESES ================== */
     const scenarios = {{ preguntas_json | safe }};
-
     let currentIdx = 0;
     let scores = {};
+    let lockPick = false;
 
     function resetInterestsGame() {
         currentIdx = 0;
         scores = {};
-        document.getElementById('start-screen').style.display = 'block';
-        document.getElementById('question-screen').style.display = 'none';
-        document.getElementById('result-screen').style.display = 'none';
+        lockPick = false;
+        document.getElementById('q-counter').innerText = `0 / ${scenarios.length}`;
+        showScreen('start-screen');
     }
 
     function startGame() {
-        document.getElementById('start-screen').style.display = 'none';
-        document.getElementById('question-screen').style.display = 'block';
+        if (!scenarios.length) {
+            document.getElementById('result-screen').querySelector('#game-result-text').innerText =
+                'Aún no hay escenarios publicados. Volvé a intentar más tarde.';
+            showScreen('result-screen');
+            return;
+        }
+        showScreen('question-screen');
         showScenario();
     }
 
     function showScenario() {
-        const scenario = scenarios[currentIdx];
+        const s = scenarios[currentIdx];
         const total = scenarios.length;
-        document.getElementById('scenario-text').innerText = scenario.texto;
-        document.getElementById('opt-0').innerText = scenario.opciones[0].texto;
-        document.getElementById('opt-1').innerText = scenario.opciones[1].texto;
+        document.getElementById('scenario-text').innerText = s.texto;
+        document.getElementById('opt-0').querySelector('.opt-txt').innerText = s.opciones[0].texto;
+        document.getElementById('opt-1').querySelector('.opt-txt').innerText = s.opciones[1].texto;
+        document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('picked'));
 
-        // Actualizar progreso y contador
-        const progress = (currentIdx / total) * 100;
-        document.getElementById('game-progress').style.width = progress + '%';
         document.getElementById('current-question-num').innerText = currentIdx + 1;
-        document.getElementById('total-questions-num').innerText = total;
+        document.getElementById('q-counter').innerText = `${currentIdx + 1} / ${total}`;
+        document.getElementById('game-progress').style.width = ((currentIdx / total) * 100) + '%';
     }
 
     function choose(optIdx) {
+        if (lockPick) return;
+        lockPick = true;
+
         const area = scenarios[currentIdx].opciones[optIdx].area;
         scores[area] = (scores[area] || 0) + 1;
 
-        currentIdx++;
-        if (currentIdx < scenarios.length) {
-            showScenario();
-        } else {
-            showResults();
-        }
+        document.getElementById('opt-' + optIdx).classList.add('picked');
+
+        setTimeout(() => {
+            currentIdx++;
+            lockPick = false;
+            if (currentIdx < scenarios.length) {
+                showScenario();
+            } else {
+                showResults();
+            }
+        }, 320);
     }
 
     function showResults() {
-        document.getElementById('question-screen').style.display = 'none';
-        document.getElementById('result-screen').style.display = 'block';
+        document.getElementById('game-progress').style.width = '100%';
+        showScreen('result-screen');
+        launchConfetti();
 
         let maxArea = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
-        document.getElementById('game-result-text').innerText = `Parece que tienes una gran inclinación hacia: ${maxArea}. ¡Sigue explorando!`;
-        
-        // Buscar carreras recomendadas
-        const recommendedCareers = careers.filter(c => 
+        const total = scenarios.length;
+        document.getElementById('game-result-text').innerText =
+            `Tu mayor afinidad es ${maxArea} (${scores[maxArea]} de ${total} respuestas). ¡Seguí por ese camino!`;
+
+        const recommendedCareers = careers.filter(c =>
             c.area_profesional.toLowerCase().includes(maxArea.toLowerCase()) ||
             maxArea.toLowerCase().includes(c.area_profesional.toLowerCase())
         ).slice(0, 3);
-        
+
+        const container = document.getElementById('game-careers-container');
+        const block = document.getElementById('game-recommended-careers');
+
         if (recommendedCareers.length > 0) {
-            document.getElementById('game-recommended-careers').style.display = 'block';
-            let careersHtml = '';
-            recommendedCareers.forEach(career => {
-                careersHtml += `
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm rounded-3 p-4 h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                            <h6 class="fw-bold mb-2 text-white">${career.nombre}</h6>
-                            <p class="small mb-3 opacity-75">${career.area_profesional}</p>
-                            <p class="small mb-3" style="flex-grow: 1;">${career.descripcion.substring(0, 80)}...</p>
-                            <a href="/carrera/${career.id}" class="btn btn-light btn-sm rounded-2 text-primary">Ver más</a>
-                        </div>
-                    </div>
-                `;
-            });
-            document.getElementById('game-careers-container').innerHTML = careersHtml;
+            block.style.display = 'block';
+            container.innerHTML = recommendedCareers.map((c, i) => renderCareerCard(c, i)).join('');
         } else {
-            document.getElementById('game-recommended-careers').style.display = 'none';
+            block.style.display = 'none';
         }
     }
 
-    // ===== JUEGO 2: DESCUBRE TU CARRERA =====
+    function renderCareerCard(career, idx) {
+        const gradients = [
+            'linear-gradient(135deg,#2F8EAB,#142B38)',
+            'linear-gradient(135deg,#667eea,#764ba2)',
+            'linear-gradient(135deg,#10b981,#047857)',
+            'linear-gradient(135deg,#f59e0b,#ea580c)'
+        ];
+        const emojis = ['🎓', '💼', '🔬', '🎨'];
+        return `
+            <div class="col-md-4">
+                <div class="result-career-card">
+                    <div class="cc-top" style="background:${gradients[idx % gradients.length]};">
+                        <div class="cc-emoji">${emojis[idx % emojis.length]}</div>
+                        <h6>${career.nombre}</h6>
+                        <div class="cc-area">${career.area_profesional}</div>
+                    </div>
+                    <div class="cc-body">
+                        <p>${(career.descripcion || '').substring(0, 90)}...</p>
+                        <a href="/carrera/${career.id}" class="cc-link text-primary">
+                            Ver carrera completa <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    /* ================== JUEGO 2: DISCOVERY ================== */
     const careers = {{ carreras_json | safe }};
     let discoveryCurrentIdx = 0;
     let discoveryScores = {};
+    let discoveryMatches = 0;
     let currentCareerDetails = null;
+    let lockDiscovery = false;
 
     function initDiscoveryGame() {
         discoveryCurrentIdx = 0;
         discoveryScores = {};
-        document.getElementById('discovery-start').style.display = 'block';
-        document.getElementById('discovery-screen').style.display = 'none';
-        document.getElementById('discovery-results').style.display = 'none';
-        document.getElementById('discovery-details').style.display = 'none';
+        discoveryMatches = 0;
+        currentCareerDetails = null;
+        lockDiscovery = false;
+        document.getElementById('d-matches').innerText = '0';
+        document.getElementById('d-counter').innerText = `0 / ${careers.length}`;
+        showScreen('discovery-start');
     }
 
     function startDiscoveryGame() {
-        document.getElementById('discovery-start').style.display = 'none';
-        document.getElementById('discovery-screen').style.display = 'block';
+        if (!careers.length) {
+            document.getElementById('discovery-summary').innerText = 'Todavía no hay carreras publicadas en el juego.';
+            showScreen('discovery-results');
+            return;
+        }
+        showScreen('discovery-screen');
         showCareer();
     }
 
@@ -351,112 +939,120 @@
             showDiscoveryResults();
             return;
         }
-
         const career = careers[discoveryCurrentIdx];
-        document.getElementById('career-name').innerText = career.nombre;
-        // Mostrar un texto breve (máximo 80 caracteres)
-        const breveDescripcion = career.descripcion.length > 85 ? 
-            career.descripcion.substring(0, 85) + '...' : 
-            career.descripcion;
-        document.getElementById('career-description').innerText = breveDescripcion;
+        const flash = document.getElementById('career-flash');
 
-        // Textos de los botones personalizados por carrera
-        document.querySelector('[onclick="discoveryChoose(\'no\')"]').innerHTML = `<i class="bi bi-x-circle me-2"></i> ${career.boton_no || 'No es lo mío'}`;
-        document.querySelector('[onclick="discoveryChoose(\'info\')"]').innerHTML = `<i class="bi bi-info-circle me-2"></i> ${career.boton_info || 'Info'}`;
-        document.querySelector('[onclick="discoveryChoose(\'yes\')"]').innerHTML = `<i class="bi bi-check-circle me-2"></i> ${career.boton_yes || 'Me interesa'}`;
+        document.getElementById('career-name').innerText = career.titulo_card || career.nombre;
+        document.getElementById('career-area').innerText = career.area_profesional;
+        document.getElementById('career-description').innerText = (career.descripcion || '').length > 100 ?
+            (career.descripcion || '').substring(0, 100) + '…' : (career.descripcion || '');
 
-        const progress = ((discoveryCurrentIdx / careers.length) * 100);
-        document.getElementById('discovery-progress').style.width = progress + '%';
-        document.getElementById('discovery-counter-new').innerText = discoveryCurrentIdx + 1;
-        document.getElementById('discovery-total-new').innerText = careers.length;
+        const btnNo = document.getElementById('btn-no');
+        const btnInfo = document.getElementById('btn-info');
+        const btnYes = document.getElementById('btn-yes');
+        if (btnNo && career.boton_no) btnNo.innerText = career.boton_no;
+        if (btnInfo && career.boton_info) btnInfo.innerText = career.boton_info;
+        if (btnYes && career.boton_yes) btnYes.innerText = career.boton_yes;
+
+        flash.style.animation = 'none';
+        void flash.offsetWidth;
+        flash.style.animation = '';
+
+        document.getElementById('d-counter').innerText = `${discoveryCurrentIdx + 1} / ${careers.length}`;
+        document.getElementById('discovery-progress').style.width = ((discoveryCurrentIdx / careers.length) * 100) + '%';
     }
 
     function discoveryChoose(choice) {
+        if (lockDiscovery) return;
+        lockDiscovery = true;
         const career = careers[discoveryCurrentIdx];
 
         if (choice === 'yes') {
             discoveryScores[career.area_profesional] = (discoveryScores[career.area_profesional] || 0) + 3;
-        } else if (choice === 'no') {
-            discoveryScores[career.area_profesional] = (discoveryScores[career.area_profesional] || 0) + 0;
+            discoveryMatches++;
+            document.getElementById('d-matches').innerText = discoveryMatches;
         } else if (choice === 'info') {
             currentCareerDetails = career;
-            document.getElementById('discovery-screen').style.display = 'none';
-            document.getElementById('discovery-details').style.display = 'block';
+            showScreen('discovery-details');
             document.getElementById('details-name').innerText = career.nombre;
             document.getElementById('details-area').innerText = career.area_profesional;
-            document.getElementById('details-description').innerText = `Los graduados en ${career.nombre} se encargan de liderar procesos clave en su área, principalmente en el ${career.descripcion.toLowerCase()} Aplicando conocimientos técnicos y estratégicos para resolver problemas complejos en el ámbito profesional de ${career.area_profesional}.`;
-            
-            // Actualizar el link para ver la carrera completa
+            document.getElementById('details-description').innerText =
+                `Los graduados en ${career.nombre} lideran procesos clave en ${career.area_profesional}. ` +
+                `Su día a día combina visión estratégica y resolución de problemas dentro del ámbito de ${career.area_profesional}.`;
             document.getElementById('details-link').href = '/carrera/' + career.id;
+            lockDiscovery = false;
             return;
         }
 
-        discoveryCurrentIdx++;
-        showCareer();
+        setTimeout(() => {
+            discoveryCurrentIdx++;
+            lockDiscovery = false;
+            showCareer();
+        }, 200);
     }
 
     function discoveryBack() {
-        document.getElementById('discovery-details').style.display = 'none';
-        document.getElementById('discovery-screen').style.display = 'block';
+        showScreen('discovery-screen');
     }
 
     function showDiscoveryResults() {
-        document.getElementById('discovery-screen').style.display = 'none';
-        document.getElementById('discovery-results').style.display = 'block';
+        document.getElementById('discovery-progress').style.width = '100%';
+        showScreen('discovery-results');
+        launchConfetti();
 
-        // Top 3 áreas
-        const topAreas = Object.entries(discoveryScores)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 3);
+        const entries = Object.entries(discoveryScores).sort((a, b) => b[1] - a[1]);
+        const totalPts = entries.reduce((acc, e) => acc + e[1], 0) || 1;
 
-        let topAreasHtml = '';
-        topAreas.forEach((area, idx) => {
-            const colors = ['#667eea', '#764ba2', '#f093fb'];
-            topAreasHtml += `
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm rounded-3 p-4" style="background-color: ${colors[idx]}20;">
-                        <div class="text-center">
-                            <h6 class="fw-bold mb-2">${idx + 1}. ${area[0]}</h6>
-                            <div class="display-5" style="color: ${colors[idx]};">${area[1]}</div>
-                        </div>
+        const summary = document.getElementById('discovery-summary');
+        if (entries.length === 0) {
+            summary.innerText = 'Exploraste todas las carreras sin marcar preferencias fuertes. ¡Probá el Test Pro para un análisis profundo!';
+        } else {
+            const top = entries[0][0];
+            summary.innerText = `Tu área dominante es ${top} — ahí está tu mejor oportunidad vocacional.`;
+        }
+
+        // Barras de afinidad (top 4)
+        const rankColors = ['#7c3aed', '#2F8EAB', '#10b981', '#f59e0b'];
+        const areasHtml = entries.slice(0, 4).map((e, i) => {
+            const pct = Math.round((e[1] / totalPts) * 100);
+            return `
+                <div class="affinity-bar-row">
+                    <div class="affinity-head">
+                        <span class="affinity-name">
+                            <span class="affinity-rank" style="background:${rankColors[i]};">${i + 1}</span>
+                            ${e[0]}
+                        </span>
+                        <span class="affinity-pct" style="color:${rankColors[i]};">${pct}%</span>
                     </div>
-                </div>
-            `;
-        });
-        document.getElementById('top-areas').innerHTML = topAreasHtml;
+                    <div class="affinity-track">
+                        <div class="affinity-fill" style="background:linear-gradient(90deg, ${rankColors[i]}99, ${rankColors[i]});" data-w="${pct}%"></div>
+                    </div>
+                </div>`;
+        }).join('');
+        document.getElementById('top-areas').innerHTML = areasHtml;
+
+        // Animar barras al aparecer
+        setTimeout(() => {
+            document.querySelectorAll('.affinity-fill').forEach(f => {
+                f.style.width = f.dataset.w;
+            });
+        }, 120);
 
         // Carreras recomendadas
-        const topArea = topAreas[0][0];
-        const recommended = careers.filter(c => c.area_profesional === topArea).slice(0, 3);
-
-        let recommendedHtml = '';
-        recommended.forEach(career => {
-            recommendedHtml += `
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm rounded-3 p-3">
-                        <h6 class="fw-bold text-primary">${career.nombre}</h6>
-                        <p class="small text-muted">${career.area_profesional}</p>
-                        <a href="/carrera/${career.id}" class="btn btn-sm btn-outline-primary rounded-2">Ver más</a>
-                    </div>
-                </div>
-            `;
-        });
-        document.getElementById('recommended-careers').innerHTML = recommendedHtml;
+        const topArea = entries.length ? entries[0][0] : null;
+        let recommended = [];
+        if (topArea) {
+            recommended = careers.filter(c => c.area_profesional === topArea).slice(0, 3);
+            if (!recommended.length) {
+                recommended = careers.filter(c =>
+                    c.area_profesional.toLowerCase().includes(topArea.toLowerCase()) ||
+                    topArea.toLowerCase().includes(c.area_profesional.toLowerCase())
+                ).slice(0, 3);
+            }
+        }
+        document.getElementById('recommended-careers').innerHTML = recommended.length ?
+            recommended.map((c, i) => renderCareerCard(c, i)).join('') :
+            `<div class="col-12"><div class="empty-note"><i class="bi bi-emoji-neutral fs-3 d-block mb-2"></i>Sin matches todavía. Explorá el catálogo completo.</div></div>`;
     }
 </script>
-
-<style>
-    .game-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .game-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.15) !important;
-    }
-
-    #career-icon {
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-    }
-</style>
 {% endblock %}

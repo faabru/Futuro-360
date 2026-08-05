@@ -98,6 +98,7 @@
         }
 
         const q = preguntas[currentStep];
+        const preguntaActual = q;
         
         // Animación de salida y entrada
         const testContent = document.getElementById('test-content');
@@ -130,7 +131,7 @@
                 btn.onclick = () => {
                     document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    answers[q.id] = opt.area;
+                    answers[q.id] = { area: opt.area, opcion: opt.texto, pregunta: preguntaActual.texto_pregunta };
                     nextBtn.disabled = false;
                 };
                 
@@ -152,7 +153,7 @@
             btnNinguna.onclick = () => {
                 document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
                 btnNinguna.classList.add('active');
-                answers[q.id] = null; // Valor nulo para no sumar puntos
+                answers[q.id] = { area: null, opcion: 'Ninguna de las anteriores', pregunta: preguntaActual.texto_pregunta };
                 nextBtn.disabled = false;
             };
             
@@ -179,12 +180,24 @@
         nextBtn.style.display = 'none';
 
         // Crear inputs ocultos en el form final
-        for (const [id, area] of Object.entries(answers)) {
+        for (const [id, ans] of Object.entries(answers)) {
             const input = document.createElement('input');
             input.type = 'hidden';
             input.name = id;
-            input.value = area;
+            input.value = ans.area || 'Neutral';
             finalForm.appendChild(input);
+
+            const inputOpcion = document.createElement('input');
+            inputOpcion.type = 'hidden';
+            inputOpcion.name = 'opcion_' + id;
+            inputOpcion.value = ans.opcion;
+            finalForm.appendChild(inputOpcion);
+
+            const inputPregunta = document.createElement('input');
+            inputPregunta.type = 'hidden';
+            inputPregunta.name = 'pregunta_' + id;
+            inputPregunta.value = ans.pregunta;
+            finalForm.appendChild(inputPregunta);
         }
         
         setTimeout(() => {

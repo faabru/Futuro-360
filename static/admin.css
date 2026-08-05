@@ -585,3 +585,98 @@
 .table-responsive {
     border-radius: 0 0 var(--admin-radius) var(--admin-radius);
 }
+
+/* =========================================================
+   ADMIN LOGIN — SOPORTE MODO OSCURO
+   Las pantallas de login/recuperación del admin deben
+   adaptarse al tema oscuro del sitio.
+   ========================================================= */
+html[data-theme="dark"] .admin-login {
+    color: #E6F4F8;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card {
+    background: #13232E;
+    border: 1px solid #1E3A4A;
+    box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.55) !important;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card h2,
+html[data-theme="dark"] .admin-login .admin-login-card .fw-800 {
+    color: #E6F4F8;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .text-muted {
+    color: #9CC6D6 !important;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .form-control {
+    background-color: #0B1620;
+    border-color: #1E3A4A;
+    color: #E6F4F8;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .form-control::placeholder {
+    color: #6B8CA0;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .form-control:focus {
+    background-color: #0B1620;
+    border-color: #2F8EAB;
+    color: #E6F4F8;
+    box-shadow: 0 0 0 3px rgba(47, 142, 171, 0.2);
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .input-group-text {
+    background-color: #0B1620 !important;
+    border-color: #1E3A4A !important;
+    color: #9CC6D6;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .form-label {
+    color: #9CC6D6;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .admin-btn-primary {
+    background: #2F8EAB;
+    color: #fff;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .admin-btn-primary:hover {
+    background: #42A6C2;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card a.text-muted {
+    color: #9CC6D6 !important;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card a.text-danger {
+    color: #FF8A8A !important;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .digit-input {
+    background-color: #0B1620;
+    border-color: #1E3A4A;
+    color: #E6F4F8;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .digit-input:focus {
+    border-color: #2F8EAB;
+    box-shadow: 0 0 0 3px rgba(47, 142, 171, 0.2);
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .btn-outline-secondary {
+    background-color: #0B1620;
+    border-color: #1E3A4A;
+    color: #9CC6D6;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .btn-outline-secondary:hover {
+    background-color: #1C3A4A;
+    border-color: #2F8EAB;
+    color: #E6F4F8;
+}
+
+html[data-theme="dark"] .admin-login .admin-login-card .border-top {
+    border-top-color: #1E3A4A !important;
+}

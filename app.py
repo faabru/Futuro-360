@@ -27,9 +27,34 @@ MAIL_FROM = "Futuro 360 <onboarding@resend.dev>"
 
 # --- CREDENCIALES DEL LOGIN DE ADMINISTRACIÓN ---
 # Acceso exclusivo desde la navbar al panel de administración.
-# No depende de la base de datos de usuarios.
+# El email/contraseña por defecto se cargan en la tabla admin_config
+# la primera vez. La contraseña puede cambiarse desde la recuperación.
 ADMIN_USUARIO = "usuario123"
 ADMIN_PASSWORD = "123456789"
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'fabriciovillagra05@gmail.com')
+
+
+def asegurar_tabla_admin_config():
+    """Crea la tabla de configuración del admin si no existe y la
+    inicializa con las credenciales por defecto."""
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS admin_config (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            usuario VARCHAR(50) NOT NULL UNIQUE,
+            email VARCHAR(255) NOT NULL,
+            password_hash VARCHAR(255) NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    """)
+    cursor.execute("SELECT * FROM admin_config WHERE usuario = %s", (ADMIN_USUARIO,))
+    if not cursor.fetchone():
+        cursor.execute("""
+            INSERT INTO admin_config (usuario, email, password_hash)
+            VALUES (%s, %s, %s)
+        """, (ADMIN_USUARIO, ADMIN_EMAIL,
+              generate_password_hash(ADMIN_PASSWORD)))
+        db.commit()
 
 # Inicializar la conexión a la base de datos con la aplicación
 inicializar_app(app)
@@ -348,7 +373,7 @@ def dashboard():
     cursor = db.cursor(dictionary=True)
     cursor.execute("""
         SELECT r.id, r.area_profesional_sugerida, t.fecha_realizacion,
-               LEFT(r.detalle, 120) as detalle
+               r.detalle
         FROM resultados r
         JOIN tests t ON r.test_id = t.id
         WHERE t.usuario_id = %s
@@ -361,9 +386,10 @@ def dashboard():
     for item in historial_raw:
         try:
             detalle_data = json.loads(item['detalle'])
-            item['detalle_texto'] = detalle_data.get('texto', item['detalle'])
+            texto = detalle_data.get('texto', item['detalle'])
         except:
-            item['detalle_texto'] = item['detalle']
+            texto = item['detalle']
+        item['detalle_texto'] = texto if len(texto) <= 160 else texto[:160].rsplit(' ', 1)[0] + '…'
         historial.append(item)
 
     # Total de tests realizados por el usuario
@@ -461,17 +487,37 @@ def test():
         area_ganadora = max(puntuacion, key=puntuacion.get)
         puntaje_ganador = puntuacion[area_ganadora]
 
+        # Guardar respuestas individuales para mostrarlas después
+        respuestas_detalle = []
+        for key, val in request.form.items():
+            if key.startswith('opcion_'):
+                pregunta_id = key.replace('opcion_', '')
+                pregunta_texto = request.form.get('pregunta_' + pregunta_id, '')
+                area_sel = request.form.get(pregunta_id, '')
+                if area_sel == 'Neutral':
+                    area_sel = None
+                respuestas_detalle.append({
+                    "pregunta": pregunta_texto,
+                    "opcion": val,
+                    "area": area_sel
+                })
+
         # Construir detalle descriptivo como JSON válido (requerido por la BD)
-        resumen = ', '.join([
-            f"{a}: {p} pts"
+        resumen = [
+            {"area": a, "puntos": p}
             for a, p in sorted(puntuacion.items(), key=lambda x: x[1], reverse=True)
-        ])
+        ]
+        resumen_texto = ', '.join([f"{r['area']}: {r['puntos']} pts" for r in resumen])
         detalle_resultado_texto = (
             f"Tu área de mayor afinidad es {area_ganadora} con {puntaje_ganador} respuestas. "
-            f"Desglose: {resumen}."
+            f"Desglose: {resumen_texto}."
         )
         # El campo detalle tiene CHECK(json_valid) en la BD — siempre guardamos JSON
-        detalle_resultado_json = json.dumps({"texto": detalle_resultado_texto}, ensure_ascii=False)
+        detalle_resultado_json = json.dumps({
+            "texto": detalle_resultado_texto,
+            "resumen": resumen,
+            "respuestas": respuestas_detalle
+        }, ensure_ascii=False)
 
         # Mapeo de área ganadora a area_id (FK requerida por la BD)
         area_ganadora_key = area_ganadora.lower().strip()
@@ -569,11 +615,21 @@ def ver_resultado(resultado_id):
         return redirect(url_for('mis_resultados'))
 
     # Procesar el detalle JSON para mostrarlo como texto legible
+    resumen_puntuacion = []
+    respuestas_usuario = []
     try:
         detalle_data = json.loads(resultado['detalle'])
         resultado['detalle_texto'] = detalle_data.get('texto', resultado['detalle'])
+        resumen_puntuacion = detalle_data.get('resumen', [])
+        respuestas_usuario = detalle_data.get('respuestas', [])
     except:
         resultado['detalle_texto'] = resultado['detalle']
+
+    # Si no hay respuestas guardadas (tests viejos), intentar reconstruir desde el texto
+    if not respuestas_usuario and not resumen_puntuacion:
+        texto = resultado['detalle_texto']
+        partes = re.findall(r'([\w\s]+?):\s*(\d+)\s*pts', texto)
+        resumen_puntuacion = [{"area": a.strip(), "puntos": int(p)} for a, p in partes]
 
     # Buscar carreras sugeridas — búsqueda flexible en 3 niveles
     area = resultado['area_profesional_sugerida']
@@ -595,7 +651,11 @@ def ver_resultado(resultado_id):
         cursor.execute("SELECT * FROM carreras LIMIT 6")
         carreras_sugeridas = cursor.fetchall()
 
-    return render_template('resultado_detalle.html', resultado=resultado, carreras=carreras_sugeridas)
+    return render_template('resultado_detalle.html',
+        resultado=resultado,
+        carreras=carreras_sugeridas,
+        resumen_puntuacion=resumen_puntuacion,
+        respuestas_usuario=respuestas_usuario)
 
 # Listado histórico de todos los tests realizados por el usuario
 @app.route('/mis-resultados')
@@ -605,13 +665,20 @@ def mis_resultados():
     cursor = db.cursor(dictionary=True)
     cursor.execute("""
         SELECT r.id, r.area_profesional_sugerida, t.fecha_realizacion,
-               LEFT(r.detalle, 80) as detalle
+               r.detalle
         FROM resultados r
         JOIN tests t ON r.test_id = t.id
         WHERE t.usuario_id = %s
         ORDER BY t.fecha_realizacion DESC
     """, (g.user['id'],))
     resultados = cursor.fetchall()
+    for item in resultados:
+        try:
+            detalle_data = json.loads(item['detalle'])
+            texto = detalle_data.get('texto', item['detalle'])
+        except:
+            texto = item['detalle']
+        item['detalle_texto'] = texto if len(texto) <= 160 else texto[:160].rsplit(' ', 1)[0] + '…'
     return render_template('mis_resultados.html', resultados=resultados)
 
 @app.route('/resultado/actualizar/<int:resultado_id>', methods=['POST'])
@@ -909,7 +976,16 @@ def admin_login():
         usuario = request.form.get('usuario', '').strip()
         password = request.form.get('password', '')
 
-        if usuario == ADMIN_USUARIO and password == ADMIN_PASSWORD:
+        asegurar_tabla_admin_config()
+        db = obtener_db()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT * FROM admin_config WHERE usuario = %s",
+            (usuario,)
+        )
+        admin = cursor.fetchone()
+
+        if admin and check_password_hash(admin['password_hash'], password):
             session['admin_autenticado'] = True
             flash('¡Bienvenido al panel de administración!', 'success')
             return redirect(url_for('admin_dashboard'))
@@ -924,6 +1000,144 @@ def admin_logout():
     session.pop('admin_autenticado', None)
     flash('Sesión de administrador cerrada.', 'info')
     return redirect(url_for('admin_login'))
+
+
+@app.route('/admin/recuperar-password', methods=['GET', 'POST'])
+def admin_recuperar_password():
+    """PASO 1: El admin ingresa su correo y recibe el código PIN por Resend"""
+    if session.get('admin_autenticado'):
+        return redirect(url_for('admin_dashboard'))
+
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+
+        # El código solo se envía si el email coincide con el configurado
+        if email == ADMIN_EMAIL:
+            codigo = str(random.randint(100000, 999999))
+
+            db = obtener_db()
+            cursor2 = db.cursor()
+            cursor2.execute("DELETE FROM password_resets WHERE email = %s", (email,))
+            cursor2.execute("""
+                INSERT INTO password_resets (email, codigo, expira_en)
+                VALUES (%s, %s, DATE_ADD(NOW(), INTERVAL 15 MINUTE))
+            """, (email, codigo))
+            db.commit()
+
+            try:
+                resend.Emails.send({
+                    "from": MAIL_FROM,
+                    "to": [email],
+                    "subject": "🔐 Tu código de verificación - Panel Admin Futuro 360",
+                    "html": f"""
+                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+                        <div style="background-color: #dc3545; padding: 20px; text-align: center; color: white;">
+                            <h1 style="margin: 0;">🛡️ Panel Admin - Futuro 360</h1>
+                        </div>
+                        <div style="padding: 30px; line-height: 1.6; color: #333;">
+                            <h2 style="color: #dc3545; text-align: center;">Recuperación de contraseña</h2>
+                            <p style="text-align: center;">Ingresá este código en el panel para continuar:</p>
+                            <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; margin: 20px 0;">
+                                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #dc3545;">{codigo}</span>
+                            </div>
+                            <p style="text-align: center; font-size: 0.9em; color: #666;">⏱️ Este código expira en 15 minutos.</p>
+                            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                            <p style="text-align: center; font-size: 0.8em; color: #999;">Si no solicitaste este cambio, ignorá este mensaje.</p>
+                        </div>
+                        <div style="background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 0.75em; color: #999;">
+                            Futuro 360 · Orientación Vocacional · Tucumán, Argentina
+                        </div>
+                    </div>
+                    """
+                })
+                flash('✅ Te enviamos un código de 6 dígitos a tu correo. Revisá también spam.', 'success')
+            except Exception as e:
+                flash(f'Error al enviar el email: {str(e)}', 'danger')
+                return render_template('admin/recuperar_password.html')
+        else:
+            # Siempre el mismo mensaje por seguridad
+            flash('✅ Si el correo está registrado, recibirás el código en breve.', 'info')
+
+        session['admin_reset_email'] = email
+        return redirect(url_for('admin_verificar_codigo'))
+
+    return render_template('admin/recuperar_password.html')
+
+
+@app.route('/admin/verificar-codigo', methods=['GET', 'POST'])
+def admin_verificar_codigo():
+    """PASO 2: El admin ingresa el código de 6 dígitos"""
+    email = session.get('admin_reset_email')
+    if not email:
+        flash('Sesión expirada. Por favor comenzá de nuevo.', 'warning')
+        return redirect(url_for('admin_recuperar_password'))
+
+    if request.method == 'POST':
+        digitos = [request.form.get(f'd{i}', '') for i in range(1, 7)]
+        codigo_ingresado = ''.join(digitos).strip()
+
+        db = obtener_db()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT * FROM password_resets
+            WHERE email = %s AND codigo = %s AND usado = 0 AND expira_en > NOW()
+        """, (email, codigo_ingresado))
+        reset = cursor.fetchone()
+
+        if reset:
+            cursor2 = db.cursor()
+            cursor2.execute(
+                "UPDATE password_resets SET usado = 1 WHERE id = %s",
+                (reset['id'],)
+            )
+            db.commit()
+            session['admin_reset_verificado'] = True
+            flash('✅ Código verificado. Ahora podés crear tu nueva contraseña.', 'success')
+            return redirect(url_for('admin_nueva_password'))
+        else:
+            flash('❌ Código incorrecto o expirado. Intentá de nuevo o solicitá uno nuevo.', 'danger')
+
+    return render_template('admin/verificar_codigo.html', email=email)
+
+
+@app.route('/admin/nueva-password', methods=['GET', 'POST'])
+def admin_nueva_password():
+    """PASO 3: El admin ingresa su nueva contraseña"""
+    email = session.get('admin_reset_email')
+    verificado = session.get('admin_reset_verificado')
+
+    if not email or not verificado:
+        flash('Acceso no autorizado. Por favor comenzá de nuevo.', 'warning')
+        return redirect(url_for('admin_recuperar_password'))
+
+    if request.method == 'POST':
+        password_nueva = request.form.get('password_nueva', '')
+        password_confirmar = request.form.get('password_confirmar', '')
+
+        if len(password_nueva) < 8:
+            flash('La contraseña debe tener al menos 8 caracteres.', 'danger')
+            return render_template('admin/nueva_password.html')
+
+        if password_nueva != password_confirmar:
+            flash('Las contraseñas no coinciden. Intentá de nuevo.', 'danger')
+            return render_template('admin/nueva_password.html')
+
+        db = obtener_db()
+        cursor = db.cursor()
+        cursor.execute(
+            "UPDATE admin_config SET password_hash = %s WHERE usuario = %s",
+            (generate_password_hash(password_nueva), ADMIN_USUARIO)
+        )
+        db.commit()
+
+        session.pop('admin_reset_email', None)
+        session.pop('admin_reset_verificado', None)
+
+        flash('🎉 ¡Contraseña del panel actualizada! Ya podés iniciar sesión.', 'success')
+        return redirect(url_for('admin_login'))
+
+    return render_template('admin/nueva_password.html')
+
 
 @app.route('/admin')
 @requiere_admin

@@ -1,113 +1,527 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- SECCIÓN PRINCIPAL: DETALLE DE RESULTADO VOCACIONAL -->
-<div class="container py-5">
+<style>
+    .perfil-hero {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #142B38 0%, #2F8EAB 60%, #42A6C2 100%);
+        color: #fff;
+        padding: 44px 36px;
+        box-shadow: 0 24px 48px -20px rgba(20, 43, 56, 0.55);
+        margin-bottom: 32px;
+    }
+    .perfil-hero::before,
+    .perfil-hero::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+    }
+    .perfil-hero::before { width: 260px; height: 260px; top: -110px; right: -60px; }
+    .perfil-hero::after { width: 180px; height: 180px; bottom: -90px; left: 30px; }
+    .perfil-hero .ph-inner { position: relative; z-index: 1; }
+    .perfil-hero .ph-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+    }
+    .perfil-hero h1 {
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        margin-bottom: 8px;
+    }
+    .perfil-hero .ph-area {
+        font-size: 1.15rem;
+        color: rgba(255, 255, 255, 0.92);
+        margin: 0;
+    }
+
+    .stat-mini {
+        border-radius: 16px;
+        padding: 18px 20px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        box-shadow: 0 8px 24px -14px rgba(16, 24, 40, 0.25);
+    }
+    .stat-mini .sm-ico {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    .stat-mini .sm-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .stat-mini .sm-value {
+        font-weight: 800;
+        font-size: 1.05rem;
+        line-height: 1.15;
+        color: var(--text-main);
+    }
+
+    .result-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 28px 26px;
+        box-shadow: 0 8px 28px -16px rgba(16, 24, 40, 0.25);
+        margin-bottom: 28px;
+    }
+    .result-card .rc-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 800;
+        font-size: 1.15rem;
+        margin-bottom: 22px;
+        color: var(--text-main);
+    }
+    .result-card .rc-title .rc-ico {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .affinity-bar-row { margin-bottom: 18px; }
+    .affinity-bar-row .affinity-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 7px;
+    }
+    .affinity-bar-row .affinity-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+    .affinity-bar-row .affinity-rank {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #fff;
+        flex-shrink: 0;
+    }
+    .affinity-bar-row .affinity-pts { font-weight: 800; font-size: 0.95rem; color: var(--text-main); }
+    .affinity-track {
+        height: 12px;
+        background: var(--hover-bg);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+    .affinity-fill {
+        height: 100%;
+        border-radius: 999px;
+        width: 0%;
+        transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .res-item {
+        display: flex;
+        gap: 14px;
+        padding: 14px 4px;
+        border-bottom: 1px solid var(--card-border);
+        align-items: flex-start;
+    }
+    .res-item:last-child { border-bottom: none; }
+    .res-item .ri-num {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.8rem;
+        color: var(--primary);
+        background: rgba(47, 142, 171, 0.1);
+    }
+    .res-item .ri-body { flex: 1; min-width: 0; }
+    .res-item .ri-q {
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+        color: var(--text-main);
+    }
+    .res-item .ri-a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-weight: 600;
+    }
+    .res-item .ri-a.ri-neutra {
+        background: var(--hover-bg);
+        color: var(--text-muted);
+    }
+    .res-item .ri-area {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    .explain-step {
+        display: flex;
+        gap: 16px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .explain-step:last-child { border-bottom: none; }
+    .explain-step .es-num {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #fff;
+    }
+    .explain-step .es-title {
+        font-weight: 700;
+        font-size: 0.98rem;
+        margin-bottom: 3px;
+        color: var(--text-main);
+    }
+    .explain-step .es-desc {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        line-height: 1.55;
+        margin: 0;
+    }
+
+    .career-result-card {
+        border-radius: 18px;
+        overflow: hidden;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .career-result-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 24px 44px -18px rgba(16, 24, 40, 0.35);
+        border-color: var(--primary);
+    }
+    .career-result-card .cr-top {
+        padding: 20px 20px 14px;
+        color: #fff;
+    }
+    .career-result-card .cr-top .cr-emoji { font-size: 1.9rem; }
+    .career-result-card .cr-top h6 {
+        font-weight: 800;
+        font-size: 0.98rem;
+        margin: 8px 0 3px;
+        color: #fff;
+    }
+    .career-result-card .cr-top .cr-area {
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        opacity: 0.85;
+    }
+    .career-result-card .cr-body {
+        padding: 14px 20px 18px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .career-result-card .cr-body p {
+        font-size: 0.84rem;
+        color: var(--text-muted);
+        line-height: 1.55;
+        flex-grow: 1;
+        margin-bottom: 12px;
+    }
+    .career-result-card .cr-body .cr-btn {
+        font-weight: 700;
+        font-size: 0.82rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+    .career-result-card .cr-body .cr-btn:hover { gap: 11px; }
+
+    .btn-custom {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        border: 1px solid var(--card-border);
+        background: var(--card-bg);
+        color: var(--text-main);
+        font-weight: 700;
+        font-size: 0.9rem;
+        padding: 11px 22px;
+        border-radius: 999px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    .btn-custom:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+    .btn-custom-primary {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+    }
+    .btn-custom-primary:hover { color: #fff; }
+</style>
+
+<div class="container py-4 py-lg-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="section-card p-5 shadow-lg border-0">
-                
-                <!-- ENCABEZADO DEL RESULTADO -->
-                <div class="text-center mb-5">
-                    <h1 class="display-4 fw-bold text-primary mb-3">Tu Perfil Vocacional ✨</h1>
-                    <p class="text-muted">Análisis detallado basado en tus 30 respuestas.</p>
-                </div>
 
-                <!-- TARJETAS DE RESUMEN RÁPIDO -->
-                <div class="row g-4 mb-5">
-                    <!-- ÁREA DOMINANTE -->
-                    <div class="col-md-4">
-                        <div class="p-4 bg-primary-subtle rounded-4 text-center h-100">
-                            <h6 class="text-primary fw-bold small text-uppercase">Área Dominante</h6>
-                            <h3 class="fw-bold mb-0 text-primary">{{ resultado.area_profesional_sugerida }}</h3>
-                        </div>
-                    </div>
-                    
-                    <!-- FECHA DE REALIZACIÓN -->
-                    <div class="col-md-4">
-                        <div class="p-4 bg-secondary-subtle rounded-4 text-center h-100">
-                            <h6 class="text-secondary fw-bold small text-uppercase">Fecha del Test</h6>
-                            <h3 class="fw-bold mb-0 text-secondary">{{ resultado.fecha_realizacion.strftime('%d/%m/%Y') }}</h3>
-                        </div>
-                    </div>
-                    
-                    <!-- NIVEL DE AFINIDAD -->
-                    <div class="col-md-4">
-                        <div class="p-4 bg-success-subtle rounded-4 text-center h-100">
-                            <h6 class="text-success fw-bold small text-uppercase">Nivel de Afinidad</h6>
-                            <h3 class="fw-bold mb-0 text-success">Alto</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- INTERPRETACIÓN DETALLADA -->
-                <div class="mb-5">
-                    <h4 class="fw-bold mb-4 text-primary">Interpretación de Resultados</h4>
-                    <p class="lead text-muted">{{ resultado.detalle_texto }}</p>
-                </div>
-
-
-                <!-- CARRERAS RECOMENDADAS -->
-                <h4 class="fw-bold mb-4 text-primary">Carreras Recomendadas para vos</h4>
-                
-                {% if carreras %}
-                    <div class="row g-4">
-                        {% for carrera in carreras %}
-                        <div class="col-md-6">
-                            <div class="card h-100 border-0 shadow-sm rounded-4 section-card p-0">
-                                <div class="card-body p-4">
-                                    <div class="mb-3">
-                                        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold">
-                                            {{ carrera.area_profesional }}
-                                        </span>
-                                    </div>
-                                    <h5 class="fw-bold text-dark mb-3">{{ carrera.nombre }}</h5>
-                                    
-                                    <p class="text-muted small mb-4 line-clamp-3">
-                                        {{ carrera.descripcion }}
-                                    </p>
-
-                                    {% if carrera.instituciones %}
-                                        <div class="mb-4">
-                                            <h6 class="fw-bold text-muted small mb-2">
-                                                <i class="bi bi-geo-alt me-1"></i> ¿Dónde estudiarla?
-                                            </h6>
-                                            <div class="d-flex flex-wrap gap-2">
-                                                {% for inst in carrera.instituciones.split(',') %}
-                                                    <span class="badge bg-light text-muted border fw-normal">
-                                                        {{ inst.strip() }}
-                                                    </span>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    {% endif %}
-
-                                    <a href="{{ url_for('detalle_carrera', carrera_id=carrera.id) }}" class="btn btn-primary btn-sm rounded-pill px-4">
-                                        Ver más info
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="p-5 text-center bg-light rounded-4">
-                        <i class="bi bi-search display-1 text-muted mb-3"></i>
-                        <p class="lead text-muted">Explorá todas las opciones en el catálogo de carreras.</p>
-                        <a href="{{ url_for('carreras') }}" class="btn btn-link text-primary fw-bold">
-                            Ver catálogo completo
-                        </a>
-                    </div>
-                {% endif %}
-
-                <!-- ACCIONES FINALES -->
-                <div class="text-center mt-5">
-                    <a href="{{ url_for('mis_resultados') }}" class="btn btn-outline-primary rounded-pill px-5">
-                        Ver historial de tests
-                    </a>
+            <!-- ===== HERO DEL PERFIL ===== -->
+            <div class="perfil-hero">
+                <div class="ph-inner">
+                    <span class="ph-badge"><i class="bi bi-star-fill me-1"></i> Informe vocacional</span>
+                    <h1>Tu Perfil Vocacional</h1>
+                    <p class="ph-area">
+                        <i class="bi bi-bullseye me-2"></i>{{ resultado.area_profesional_sugerida }}
+                    </p>
                 </div>
             </div>
+
+            <!-- ===== RESUMEN RÁPIDO ===== -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-mini">
+                        <div class="sm-ico" style="background:rgba(47,142,171,0.12);color:#2F8EAB;"><i class="bi bi-bullseye"></i></div>
+                        <div>
+                            <div class="sm-label">Área dominante</div>
+                            <div class="sm-value">{{ resultado.area_profesional_sugerida }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-mini">
+                        <div class="sm-ico" style="background:rgba(124,58,237,0.12);color:#7c3aed;"><i class="bi bi-calendar3"></i></div>
+                        <div>
+                            <div class="sm-label">Fecha del test</div>
+                            <div class="sm-value">{{ resultado.fecha_realizacion.strftime('%d/%m/%Y') }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-mini">
+                        <div class="sm-ico" style="background:rgba(16,185,129,0.12);color:#10b981;"><i class="bi bi-lightning-charge"></i></div>
+                        <div>
+                            <div class="sm-label">Respuestas</div>
+                            <div class="sm-value">{{ respuestas_usuario|length if respuestas_usuario else (resumen_puntuacion|length) }} / {{ resumen_puntuacion|length if resumen_puntuacion else '30' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== INTERPRETACIÓN ===== -->
+            <div class="result-card">
+                <div class="rc-title">
+                    <span class="rc-ico" style="background:rgba(47,142,171,0.12);color:#2F8EAB;"><i class="bi bi-chat-quote"></i></span>
+                    Interpretación
+                </div>
+                <p class="lead mb-0" style="color:var(--text-main);line-height:1.7;">{{ resultado.detalle_texto }}</p>
+            </div>
+
+            <!-- ===== AFINIDAD POR ÁREA ===== -->
+            {% if resumen_puntuacion %}
+            <div class="result-card">
+                <div class="rc-title">
+                    <span class="rc-ico" style="background:rgba(124,58,237,0.12);color:#7c3aed;"><i class="bi bi-bar-chart-fill"></i></span>
+                    Tu afinidad por área
+                </div>
+                {% set total_pts = resumen_puntuacion | sum(attribute='puntos') %}
+                {% set colors = ['#7c3aed', '#2F8EAB', '#10b981', '#f59e0b', '#3b82f6', '#ec4899'] %}
+                {% for item in resumen_puntuacion %}
+                <div class="affinity-bar-row">
+                    <div class="affinity-head">
+                        <span class="affinity-name">
+                            <span class="affinity-rank" style="background:{{ colors[loop.index0 % 6] }};">{{ loop.index }}</span>
+                            {{ item.area }}
+                        </span>
+                        <span class="affinity-pts">{{ item.puntos }} pts</span>
+                    </div>
+                    <div class="affinity-track">
+                        <div class="affinity-fill affinity-anim"
+                             style="background:linear-gradient(90deg, {{ colors[loop.index0 % 6] }}99, {{ colors[loop.index0 % 6] }});"
+                             data-w="{{ (item.puntos / total_pts * 100) | round(1) }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- ===== CÓMO LLEGAMOS A TU RESULTADO ===== -->
+            <div class="result-card">
+                <div class="rc-title">
+                    <span class="rc-ico" style="background:rgba(13,110,253,0.12);color:#0d6efd;"><i class="bi bi-lightbulb"></i></span>
+                    ¿Cómo llegamos a este resultado?
+                </div>
+                <div class="explain-step">
+                    <div class="es-num" style="background:linear-gradient(135deg,#2F8EAB,#42A6C2);">1</div>
+                    <div>
+                        <div class="es-title">Respondés preguntas de la vida real</div>
+                        <p class="es-desc">Cada pregunta te enfrenta a una situación cotidiana. Tu elección refleja qué tipo de tareas y ambientes te atraen de forma natural.</p>
+                    </div>
+                </div>
+                <div class="explain-step">
+                    <div class="es-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">2</div>
+                    <div>
+                        <div class="es-title">Cada respuesta suma a un área</div>
+                        <p class="es-desc">Cuando elegís una opción, le sumás un punto a un área profesional (Tecnología, Salud, Arte y Diseño, etc.). La opción "Ninguna de las anteriores" no suma a ninguna.</p>
+                    </div>
+                </div>
+                <div class="explain-step">
+                    <div class="es-num" style="background:linear-gradient(135deg,#10b981,#047857);">3</div>
+                    <div>
+                        <div class="es-title">Se comparan los puntajes</div>
+                        <p class="es-desc">Al final, contamos cuántos puntos reunió cada área. La que más puntos juntó se convierte en tu área dominante, y con ella buscamos carreras recomendadas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TUS RESPUESTAS ===== -->
+            {% if respuestas_usuario %}
+            <div class="result-card">
+                <div class="rc-title">
+                    <span class="rc-ico" style="background:rgba(16,185,129,0.12);color:#10b981;"><i class="bi bi-list-check"></i></span>
+                    Tus respuestas
+                </div>
+                <div class="d-flex justify-content-end mb-2">
+                    <span class="small text-muted">Respondidas: {{ respuestas_usuario|length }} preguntas</span>
+                </div>
+                {% set resp_colors = ['#7c3aed', '#2F8EAB', '#10b981', '#f59e0b', '#3b82f6', '#ec4899'] %}
+                {% for r in respuestas_usuario %}
+                <div class="res-item">
+                    <div class="ri-num">{{ loop.index }}</div>
+                    <div class="ri-body">
+                        <div class="ri-q">{{ r.pregunta }}</div>
+                        {% if r.area %}
+                        <span class="ri-a" style="background:{{ resp_colors[(loop.index0) % 6] }}18;color:{{ resp_colors[(loop.index0) % 6] }};">
+                            <i class="bi bi-check-circle-fill"></i> {{ r.opcion }}
+                        </span>
+                        <span class="ri-area ms-2"><i class="bi bi-tag me-1"></i>{{ r.area }}</span>
+                        {% else %}
+                        <span class="ri-a ri-neutra"><i class="bi bi-dash-circle"></i> {{ r.opcion }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% elif resumen_puntuacion %}
+            <div class="result-card">
+                <div class="rc-title">
+                    <span class="rc-ico" style="background:rgba(108,117,125,0.15);color:#6c757d;"><i class="bi bi-clock-history"></i></span>
+                    Tus respuestas
+                </div>
+                <p class="text-muted mb-0">
+                    Este informe se generó con una versión anterior del test y no guardó las respuestas individuales.
+                    Hacé un nuevo <a href="{{ url_for('test') }}" class="fw-bold text-decoration-none">Test Pro</a> para ver tu análisis pregunta por pregunta.
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- ===== CARRERAS RECOMENDADAS ===== -->
+            <div class="result-card">
+                <div class="rc-title">
+                    <span class="rc-ico" style="background:rgba(245,158,11,0.12);color:#d97706;"><i class="bi bi-mortarboard"></i></span>
+                    Carreras recomendadas para vos
+                </div>
+                {% if carreras %}
+                <div class="row g-3">
+                    {% set grad_colors = ['linear-gradient(135deg,#2F8EAB,#142B38)', 'linear-gradient(135deg,#667eea,#764ba2)', 'linear-gradient(135deg,#10b981,#047857)'] %}
+                    {% for carrera in carreras %}
+                    <div class="col-md-4">
+                        <div class="career-result-card">
+                            <div class="cr-top" style="background:{{ grad_colors[loop.index0 % 3] }};">
+                                <div class="cr-emoji">🎓</div>
+                                <h6>{{ carrera.nombre }}</h6>
+                                <div class="cr-area">{{ carrera.area_profesional }}</div>
+                            </div>
+                            <div class="cr-body">
+                                <p>{{ (carrera.descripcion or '')[:110] }}{% if (carrera.descripcion or '')|length > 110 %}…{% endif %}</p>
+                                <a href="{{ url_for('detalle_carrera', carrera_id=carrera.id) }}" class="cr-btn text-primary">
+                                    Ver carrera completa <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
+                    <p class="text-muted mb-0">Explorá todas las opciones en el catálogo de carreras.</p>
+                    <a href="{{ url_for('carreras') }}" class="btn btn-custom mt-3">Ver catálogo completo</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- ===== ACCIONES ===== -->
+            <div class="d-flex justify-content-center gap-3 flex-wrap mt-4 mb-5">
+                <a href="{{ url_for('mis_resultados') }}" class="btn-custom">
+                    <i class="bi bi-journal-check me-1"></i> Mis resultados
+                </a>
+                <a href="{{ url_for('test') }}" class="btn-custom btn-custom-primary">
+                    <i class="bi bi-arrow-repeat me-1"></i> Hacer otro test
+                </a>
+            </div>
+
         </div>
     </div>
 </div>
+
+<script>
+    window.addEventListener('load', function () {
+        document.querySelectorAll('.affinity-anim').forEach(function (el, i) {
+            setTimeout(function () {
+                el.style.width = el.dataset.w;
+            }, 150 + i * 120);
+        });
+    });
+</script>
 {% endblock %}

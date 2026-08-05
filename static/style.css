@@ -108,6 +108,7 @@ body {
     border-bottom: 1px solid var(--navbar-border);
     padding: 0.9rem 0;
     transition: background-color 0.3s ease, border-color 0.3s ease;
+    z-index: 1030; /* Por encima de barras laterales sticky (1020) */
 }
 
 .navbar-brand {

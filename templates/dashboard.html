@@ -209,10 +209,16 @@
         border: 1px solid var(--card-border);
         background: var(--card-bg);
         transition: border-color 0.15s ease, transform 0.15s ease;
+        min-width: 0;
+        overflow: hidden;
     }
     .news-mini:hover {
         border-color: #2F8EAB;
         transform: translateX(4px);
+    }
+    .news-mini .min-w-0 {
+        min-width: 0;
+        overflow: hidden;
     }
     .news-mini .dot {
         width: 10px;
@@ -376,9 +382,9 @@
                         {% for n in noticias_recientes %}
                         <a href="{{ url_for('noticias') }}" class="news-mini text-decoration-none">
                             <span class="dot" style="background: {{ ['#2F8EAB', '#7c3aed', '#10b981', '#f59e0b'][loop.index0 % 4] }};"></span>
-                            <div class="min-w-0">
+                            <div class="min-w-0 flex-grow-1">
                                 <div class="fw-bold text-dark small text-truncate">{{ n.titulo }}</div>
-                                <small class="text-muted">
+                                <small class="text-muted d-block text-truncate">
                                     {{ n.fuente }} · {% if n.fecha %}{{ n.fecha.strftime('%d/%m/%Y') }}{% endif %}
                                 </small>
                             </div>
