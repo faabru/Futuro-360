@@ -27,6 +27,39 @@
     
     /* Transiciones */
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Modo oscuro: variables que se sobreescriben bajo [data-theme="dark"] */
+    --navbar-bg: rgba(255, 255, 255, 0.8);
+    --navbar-border: var(--border);
+    --hover-bg: var(--primary-light);
+    --card-border: var(--border);
+}
+
+/* --- MODO OSCURO: Sobre-escritura de variables --- */
+html[data-theme="dark"] {
+    --bg-main: #0B1620;
+    --card-bg: #13232E;
+    --text-main: #E6F4F8;
+    --text-muted: #9CC6D6;
+    --border: #1E3A4A;
+    --primary-light: #1C3A4A;
+    --primary-dark: #7CCBE0;
+    --secondary: #5BBEDC;
+    --accent: #84CADC;
+    --success: #4FB09A;
+    --navbar-bg: rgba(11, 22, 32, 0.85);
+    --navbar-border: #1E3A4A;
+    --hover-bg: #1C3A4A;
+    --card-border: #1E3A4A;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+}
+
+html[data-theme="dark"] body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* --- ESTILOS GENERALES DEL CUERPO --- */
@@ -70,20 +103,47 @@ body {
 
 /* --- BARRA DE NAVEGACIÓN PREMIUM --- */
 .navbar {
-    background: rgba(255, 255, 255, 0.8) !important; /* Efecto traslúcido */
+    background: var(--navbar-bg) !important; /* Efecto traslúcido */
     backdrop-filter: saturate(180%) blur(20px);      /* Desenfoque de fondo */
-    border-bottom: 1px solid var(--border);
-    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--navbar-border);
+    padding: 0.9rem 0;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
     font-weight: 800;
-    font-size: 1.5rem;
-    letter-spacing: -0.025em;
-    /* Degradado en el logo */
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+}
+
+.brand-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    box-shadow: 0 4px 14px 0 rgba(47, 142, 171, 0.45);
+}
+
+.brand-name {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-main);
+}
+
+.brand-accent {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .nav-link {
@@ -94,8 +154,9 @@ body {
     transition: var(--transition);
 }
 
-.nav-link:hover {
-    background: var(--primary-light);
+.nav-link:hover,
+.nav-link.active {
+    background: var(--hover-bg);
     color: var(--primary) !important;
 }
 
@@ -103,7 +164,68 @@ body {
 .navbar-nav {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
+    gap: 0.35rem;
+}
+
+.navbar-toggler {
+    color: var(--text-main) !important;
+    font-size: 1.25rem;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+/* Chip de usuario en la navbar */
+.user-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: var(--hover-bg) !important;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    padding: 0.4rem 1rem 0.4rem 0.4rem !important;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+.user-name {
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* Botón de modo oscuro */
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text-main);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.theme-toggle:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+    transform: translateY(-2px);
 }
 
 /* Ajustes responsivos para móviles */
@@ -113,6 +235,145 @@ body {
         gap: 0.5rem;
         padding: 1rem 0;
     }
+}
+
+/* --- MODO OSCURO: Overrides de Bootstrap y componentes --- */
+html[data-theme="dark"] .navbar .btn-outline-danger {
+    color: #fda4af;
+    border-color: #4a2a33;
+}
+
+html[data-theme="dark"] .dropdown-menu {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+}
+
+html[data-theme="dark"] .dropdown-item {
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .dropdown-item:hover,
+html[data-theme="dark"] .dropdown-item:focus {
+    background-color: var(--hover-bg);
+    color: var(--primary);
+}
+
+html[data-theme="dark"] .dropdown-divider {
+    border-color: var(--card-border);
+}
+
+html[data-theme="dark"] .text-dark { color: var(--text-main) !important; }
+html[data-theme="dark"] .text-muted { color: var(--text-muted) !important; }
+html[data-theme="dark"] .text-primary { color: var(--primary) !important; }
+html[data-theme="dark"] .text-info { color: #84CADC !important; }
+
+html[data-theme="dark"] .bg-white { background-color: var(--card-bg) !important; }
+html[data-theme="dark"] .bg-light { background-color: #16293A !important; }
+html[data-theme="dark"] .border-light { border-color: var(--card-border) !important; }
+
+html[data-theme="dark"] .card {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .glass-card,
+html[data-theme="dark"] .auth-card {
+    background: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .career-card {
+    border-color: var(--card-border);
+}
+
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select {
+    background-color: #0E1C26;
+    border-color: var(--card-border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .form-control:focus,
+html[data-theme="dark"] .form-select:focus {
+    background-color: #0E1C26;
+    color: var(--text-main);
+    border-color: var(--primary);
+    box-shadow: none;
+}
+
+html[data-theme="dark"] .input-group-text {
+    background-color: #16293A;
+    border-color: var(--card-border);
+    color: var(--text-muted);
+}
+
+html[data-theme="dark"] .modal-content {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer {
+    border-color: var(--card-border);
+}
+
+html[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+html[data-theme="dark"] .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-main);
+    --bs-table-border-color: var(--card-border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .table-light {
+    --bs-table-bg: #16293A;
+    --bs-table-color: var(--text-main);
+}
+
+html[data-theme="dark"] .progress {
+    background-color: #16293A;
+}
+
+html[data-theme="dark"] .alert {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .list-group-item {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .badge {
+    background-color: var(--hover-bg);
+    color: var(--text-main);
+    border-color: var(--card-border);
+}
+
+html[data-theme="dark"] .step-number {
+    background: var(--hover-bg);
+    color: var(--primary);
+}
+
+html[data-theme="dark"] .stat-number {
+    color: var(--primary);
+}
+
+html[data-theme="dark"] .hero-section {
+    background: radial-gradient(circle at 0% 0%, rgba(91, 190, 220, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(132, 202, 220, 0.08) 0%, transparent 50%);
+}
+
+html[data-theme="dark"] #preloader {
+    background: var(--bg-main);
 }
 
 /* --- TARJETAS CON EFECTO GLASSMORFISMO --- */
@@ -331,4 +592,15 @@ body {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+/* --- FONDO GRADIENTE DE PÁGINA (NOTICIAS, ETC.) --- */
+.page-hero-bg {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    transition: background 0.3s ease;
+}
+
+html[data-theme="dark"] .page-hero-bg {
+    background: linear-gradient(135deg, #0B1620 0%, #13232E 100%);
 }

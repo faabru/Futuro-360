@@ -360,6 +360,11 @@
             career.descripcion;
         document.getElementById('career-description').innerText = breveDescripcion;
 
+        // Textos de los botones personalizados por carrera
+        document.querySelector('[onclick="discoveryChoose(\'no\')"]').innerHTML = `<i class="bi bi-x-circle me-2"></i> ${career.boton_no || 'No es lo mío'}`;
+        document.querySelector('[onclick="discoveryChoose(\'info\')"]').innerHTML = `<i class="bi bi-info-circle me-2"></i> ${career.boton_info || 'Info'}`;
+        document.querySelector('[onclick="discoveryChoose(\'yes\')"]').innerHTML = `<i class="bi bi-check-circle me-2"></i> ${career.boton_yes || 'Me interesa'}`;
+
         const progress = ((discoveryCurrentIdx / careers.length) * 100);
         document.getElementById('discovery-progress').style.width = progress + '%';
         document.getElementById('discovery-counter-new').innerText = discoveryCurrentIdx + 1;

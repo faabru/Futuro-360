@@ -4,10 +4,10 @@
 {% block panel_subtitle %}Activá o desactivá qué carreras aparecen en el juego. Solo se eliminan si la carrera se borra del catálogo.{% endblock %}
 
 {% block panel_content %}
-    <div class="section-card p-0 overflow-hidden">
-        <div class="table-responsive p-3">
+    <div class="admin-card overflow-hidden">
+        <div class="table-responsive">
             <table class="table table-hover align-middle">
-                <thead class="table-light">
+                <thead>
                     <tr>
                         <th>Carrera</th>
                         <th>Título en el juego</th>
@@ -26,14 +26,14 @@
                         <td>{{ item.titulo_card }}</td>
                         <td>{{ item.texto_boton }}</td>
                         <td>
-                            <form action="{{ url_for('toggle_game_carrera', id=item.id) }}" method="POST" class="d-inline">
-                                <button type="submit" class="btn btn-sm {{ 'btn-success' if item.activo else 'btn-outline-secondary' }}">
+                            <form action="{{ url_for('toggle_game_carrera', id=item.id) }}" method="POST" class="d-inline" data-ajax="toggle">
+                                <button type="submit" class="admin-badge border-0 {{ 'admin-badge-success' if item.activo else 'admin-badge-muted' }}" title="Cambiar estado">
                                     {% if item.activo %}✓ Activa{% else %}Inactiva{% endif %}
                                 </button>
                             </form>
                         </td>
                         <td class="text-end">
-                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editarGameModal{{ item.id }}">
+                            <button class="icon-btn" data-bs-toggle="modal" data-bs-target="#editarGameModal{{ item.id }}" title="Editar">
                                 <i class="bi bi-pencil"></i>
                             </button>
                         </td>
@@ -41,13 +41,13 @@
 
                     <div class="modal fade" id="editarGameModal{{ item.id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog">
-                            <div class="modal-content border-0 shadow">
+                            <div class="modal-content">
                                 <form action="{{ url_for('editar_game_carrera', id=item.id) }}" method="POST">
-                                    <div class="modal-header border-0 py-3">
+                                    <div class="modal-header">
                                         <h5 class="modal-title fw-bold">Editar tarjeta del juego</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
-                                    <div class="modal-body p-4">
+                                    <div class="modal-body">
                                         <div class="mb-3">
                                             <label class="form-label fw-bold">Título en la tarjeta</label>
                                             <input type="text" name="titulo_card" class="form-control" value="{{ item.titulo_card }}" required>
@@ -56,14 +56,27 @@
                                             <label class="form-label fw-bold">Descripción breve</label>
                                             <textarea name="descripcion_card" class="form-control" rows="3" required>{{ item.descripcion_card }}</textarea>
                                         </div>
-                                        <div class="mb-0">
-                                            <label class="form-label fw-bold">Texto del botón</label>
-                                            <input type="text" name="texto_boton" class="form-control" value="{{ item.texto_boton or 'Ver carrera' }}">
+                                        <hr>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold">Textos de los 3 botones del juego</label>
+                                            <p class="text-muted small mb-2">Son los botones que ven los usuarios al descubrir esta carrera. Personalizá el texto de cada uno.</p>
+                                            <div class="input-group mb-2">
+                                                <span class="input-group-text">🔴 No</span>
+                                                <input type="text" name="boton_no" class="form-control" value="{{ item.boton_no or 'No es lo mío' }}" maxlength="50">
+                                            </div>
+                                            <div class="input-group mb-2">
+                                                <span class="input-group-text">🔵 Info</span>
+                                                <input type="text" name="boton_info" class="form-control" value="{{ item.boton_info or 'Info' }}" maxlength="50">
+                                            </div>
+                                            <div class="input-group mb-2">
+                                                <span class="input-group-text">🟢 Sí</span>
+                                                <input type="text" name="boton_yes" class="form-control" value="{{ item.boton_yes or 'Me interesa' }}" maxlength="50">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="modal-footer border-0">
+                                    <div class="modal-footer">
                                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-primary">Guardar</button>
+                                        <button type="submit" class="admin-btn-primary">Guardar</button>
                                     </div>
                                 </form>
                             </div>
@@ -71,7 +84,7 @@
                     </div>
                     {% else %}
                     <tr>
-                        <td colspan="5" class="text-center text-muted py-4">No hay carreras vinculadas al juego. Creá una carrera nueva desde el admin.</td>
+                        <td colspan="5"><div class="admin-empty"><i class="bi bi-mortarboard"></i>No hay carreras vinculadas al juego. Creá una carrera nueva desde el admin.</div></td>
                     </tr>
                     {% endfor %}
                 </tbody>

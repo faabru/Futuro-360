@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.venv/
+*.txt
+!requirements.txt
+sync_*.py
+check_db.py
+lista_imagenes.txt

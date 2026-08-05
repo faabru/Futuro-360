@@ -1,170 +1,186 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="container py-5">
+{% extends "admin/panel_layout.html" %}
 
-  <!-- ENCABEZADO -->
-  <div class="row mb-4 align-items-center">
-    <div class="col-md-8">
-      <h1 class="fw-bold">
-        <i class="bi bi-joystick text-primary me-2"></i>
-        Intereses en Juego — Preguntas
-      </h1>
-      <p class="text-muted">
-        Gestioná las preguntas del mini-juego "Intereses en Juego".
-        Cada pregunta tiene 2 opciones con su área de orientación.
-      </p>
-    </div>
-    <div class="col-md-4 text-md-end d-flex gap-2 justify-content-md-end flex-wrap">
-      <a href="{{ url_for('admin_game_carreras') }}" class="btn btn-outline-secondary">
-        <i class="bi bi-card-list me-1"></i> Gestionar Carreras del Juego
-      </a>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaPregunta">
-        <i class="bi bi-plus-circle me-1"></i> Nueva Pregunta
-      </button>
-    </div>
-  </div>
+{% block panel_title %}Intereses en Juego — Preguntas{% endblock %}
+{% block panel_subtitle %}Gestioná las preguntas del mini-juego "Intereses en Juego". Cada pregunta tiene 2 opciones con su área de orientación.{% endblock %}
 
-  <!-- FLASH MESSAGES -->
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
+{% block panel_actions %}
+<button class="admin-btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaPregunta">
+    <i class="bi bi-plus-lg me-1"></i> Nueva Pregunta
+</button>
+{% endblock %}
 
-  <!-- TABLA DE PREGUNTAS -->
-  <div class="card border-0 shadow-sm">
+{% block panel_content %}
+
+<div class="admin-card">
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
-          <tr>
-            <th style="width:35%">Pregunta</th>
-            <th style="width:22%">Opción A</th>
-            <th style="width:22%">Opción B</th>
-            <th style="width:10%">Estado</th>
-            <th style="width:11%">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for p in preguntas %}
-          <tr>
-            <td>
-              <span class="fw-semibold small">{{ p.texto_pregunta }}</span>
-            </td>
-            <td>
-              <span class="small">{{ p.opcion_a_texto }}</span><br>
-              <span class="badge bg-primary-subtle text-primary small">{{ p.opcion_a_area }}</span>
-            </td>
-            <td>
-              <span class="small">{{ p.opcion_b_texto }}</span><br>
-              <span class="badge bg-success-subtle text-success small">{{ p.opcion_b_area }}</span>
-            </td>
-            <td>
-              <form action="{{ url_for('toggle_game_pregunta', id=p.id) }}" method="POST">
-                <button type="submit"
-                        class="badge border-0 {% if p.activo %}bg-success{% else %}bg-secondary{% endif %}"
-                        title="Click para cambiar estado">
-                  {% if p.activo %}✓ Activa{% else %}Inactiva{% endif %}
-                </button>
-              </form>
-            </td>
-            <td>
-              <form action="{{ url_for('eliminar_game_pregunta', id=p.id) }}" method="POST"
-                    onsubmit="return confirm('¿Eliminar esta pregunta del juego?')">
-                <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </form>
-            </td>
-          </tr>
-          {% else %}
-          <tr>
-            <td colspan="5" class="text-center text-muted py-4">
-              No hay preguntas cargadas. Agregá la primera.
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th style="width:35%">Pregunta</th>
+                    <th style="width:22%">Opción A</th>
+                    <th style="width:22%">Opción B</th>
+                    <th style="width:10%">Estado</th>
+                    <th style="width:11%">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in preguntas %}
+                <tr>
+                    <td>
+                        <span class="fw-semibold small">{{ p.texto_pregunta }}</span>
+                    </td>
+                    <td>
+                        <span class="small">{{ p.opcion_a_texto }}</span><br>
+                        <span class="admin-badge admin-badge-primary small">{{ p.opcion_a_area }}</span>
+                    </td>
+                    <td>
+                        <span class="small">{{ p.opcion_b_texto }}</span><br>
+                        <span class="admin-badge admin-badge-success small">{{ p.opcion_b_area }}</span>
+                    </td>
+                    <td>
+                        <form action="{{ url_for('toggle_game_pregunta', id=p.id) }}" method="POST" data-ajax="toggle">
+                            <button type="submit"
+                                    class="badge border-0 {% if p.activo %}bg-success{% else %}bg-secondary{% endif %}"
+                                    title="Click para cambiar estado">
+                                {% if p.activo %}✓ Activa{% else %}Inactiva{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                    <td>
+                        <form action="{{ url_for('eliminar_game_pregunta', id=p.id) }}" method="POST"
+                              data-ajax="delete" data-confirm="¿Eliminar esta pregunta del juego?">
+                            <button type="submit" class="icon-btn danger" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5"><div class="admin-empty"><i class="bi bi-joystick"></i>No hay preguntas cargadas. Agregá la primera.</div></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-  </div>
-
 </div>
 
 <!-- MODAL: NUEVA PREGUNTA -->
 <div class="modal fade" id="modalNuevaPregunta" tabindex="-1" aria-labelledby="modalNuevaPreguntaLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
 
-      <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold" id="modalNuevaPreguntaLabel">
-          <i class="bi bi-plus-circle text-primary me-2"></i>
-          Nueva Pregunta para el Juego
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <form action="{{ url_for('nueva_game_pregunta') }}" method="POST">
-        <div class="modal-body pt-3">
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Texto de la pregunta *</label>
-            <input type="text" name="texto_pregunta" class="form-control"
-                   placeholder="Ej: ¿Qué harías si...?" required maxlength="300">
-          </div>
-
-          <div class="row g-3">
-            <!-- OPCIÓN A -->
-            <div class="col-md-6">
-              <div class="p-3 border rounded-3 bg-primary bg-opacity-10">
-                <p class="fw-bold text-primary mb-2">Opción A</p>
-                <div class="mb-2">
-                  <label class="form-label small">Texto *</label>
-                  <input type="text" name="opcion_a_texto" class="form-control form-control-sm"
-                         placeholder="Texto de la opción A" required maxlength="200">
-                </div>
-                <div>
-                  <label class="form-label small">Orientación / Área *</label>
-                  <input type="text" name="opcion_a_area" class="form-control form-control-sm"
-                         placeholder="Ej: Tecnología, Salud..." required maxlength="100">
-                </div>
-              </div>
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="modalNuevaPreguntaLabel">
+                    <i class="bi bi-plus-circle text-primary me-2"></i>
+                    Nueva Pregunta para el Juego
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <!-- OPCIÓN B -->
-            <div class="col-md-6">
-              <div class="p-3 border rounded-3 bg-success bg-opacity-10">
-                <p class="fw-bold text-success mb-2">Opción B</p>
-                <div class="mb-2">
-                  <label class="form-label small">Texto *</label>
-                  <input type="text" name="opcion_b_texto" class="form-control form-control-sm"
-                         placeholder="Texto de la opción B" required maxlength="200">
+            <form action="{{ url_for('nueva_game_pregunta') }}" method="POST">
+                <div class="modal-body pt-3">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Texto de la pregunta *</label>
+                        <input type="text" name="texto_pregunta" class="form-control"
+                               placeholder="Ej: ¿Qué harías si...?" required maxlength="300">
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- OPCIÓN A -->
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-primary bg-opacity-10">
+                                <p class="fw-bold text-primary mb-2">Opción A</p>
+                                <div class="mb-2">
+                                    <label class="form-label small">Texto *</label>
+                                    <input type="text" name="opcion_a_texto" class="form-control form-control-sm"
+                                           placeholder="Texto de la opción A" required maxlength="200">
+                                </div>
+                                <div>
+                                    <label class="form-label small">Orientación / Área *</label>
+                                    <div class="area-combobox position-relative">
+                                        <input type="text" name="opcion_a_area" class="form-control form-control-sm area-input"
+                                               placeholder="Ej: Tecnología, Salud..." autocomplete="off" required maxlength="100">
+                                        <div class="area-dropdown list-group position-absolute w-100 shadow-sm" style="display:none; z-index:1050; max-height:200px; overflow-y:auto;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- OPCIÓN B -->
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-3 bg-success bg-opacity-10">
+                                <p class="fw-bold text-success mb-2">Opción B</p>
+                                <div class="mb-2">
+                                    <label class="form-label small">Texto *</label>
+                                    <input type="text" name="opcion_b_texto" class="form-control form-control-sm"
+                                           placeholder="Texto de la opción B" required maxlength="200">
+                                </div>
+                                <div>
+                                    <label class="form-label small">Orientación / Área *</label>
+                                    <div class="area-combobox position-relative">
+                                        <input type="text" name="opcion_b_area" class="form-control form-control-sm area-input"
+                                               placeholder="Ej: Arte y Diseño, Derecho..." autocomplete="off" required maxlength="100">
+                                        <div class="area-dropdown list-group position-absolute w-100 shadow-sm" style="display:none; z-index:1050; max-height:200px; overflow-y:auto;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div>
-                  <label class="form-label small">Orientación / Área *</label>
-                  <input type="text" name="opcion_b_area" class="form-control form-control-sm"
-                         placeholder="Ej: Arte y Diseño, Derecho..." required maxlength="100">
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="admin-btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Agregar al Juego
+                    </button>
                 </div>
-              </div>
-            </div>
-          </div>
+            </form>
 
         </div>
-
-        <div class="modal-footer border-0">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i> Agregar al Juego
-          </button>
-        </div>
-      </form>
-
     </div>
-  </div>
 </div>
+
+<script>
+const ORIENTACIONES = [
+    {% for o in orientaciones %}
+    "{{ o }}",
+    {% endfor %}
+];
+
+function renderOpciones(input, filtro) {
+    const dropdown = input.parentElement.querySelector('.area-dropdown');
+    const term = (filtro || '').toLowerCase();
+    const opciones = ORIENTACIONES.filter(o => o.toLowerCase().includes(term));
+    dropdown.innerHTML = opciones.map(o =>
+        `<button type="button" class="list-group-item list-group-item-action py-1" data-area="${o.replace(/"/g, '&quot;')}">${o}</button>`
+    ).join('') || '<div class="list-group-item text-muted py-1">Sin coincidencias</div>';
+    dropdown.style.display = opciones.length ? 'block' : 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('focusin', function (e) {
+        if (e.target.classList.contains('area-input')) {
+            renderOpciones(e.target, e.target.value);
+        }
+    });
+    document.addEventListener('input', function (e) {
+        if (e.target.classList.contains('area-input')) {
+            renderOpciones(e.target, e.target.value);
+        }
+    });
+    document.addEventListener('mousedown', function (e) {
+        const btn = e.target.closest('[data-area]');
+        if (btn) {
+            e.preventDefault();
+            const input = btn.closest('.area-combobox').querySelector('.area-input');
+            input.value = btn.getAttribute('data-area');
+            input.parentElement.querySelector('.area-dropdown').style.display = 'none';
+        }
+    });
+});
+</script>
 
 {% endblock %}

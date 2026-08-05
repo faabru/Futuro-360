@@ -1,18 +1,95 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% set fallback_carreras = {
+    'Ingeniería Civil':                  'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=400&fit=crop&q=80',
+    'Ingeniería Eléctrica':              'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=800&h=400&fit=crop&q=80',
+    'Ingeniería Industrial':             'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop&q=80',
+    'Ingeniería Mecánica':               'https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?w=800&h=400&fit=crop&q=80',
+    'Ingeniería Química':                'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=800&h=400&fit=crop&q=80',
+    'Ingeniería en Sistemas de Información': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=400&fit=crop&q=80',
+    'Ingeniería en Sistemas':            'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=400&fit=crop&q=80',
+    'Ingeniería Agronómica':             'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&h=400&fit=crop&q=80',
+    'Ingeniería Forestal':              'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=400&fit=crop&q=80',
+    'Medicina':                          'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=400&fit=crop&q=80',
+    'Medicina Veterinaria':              'https://images.unsplash.com/photo-1583337130417-33e89b63709e?w=800&h=400&fit=crop&q=80',
+    'Enfermería':                        'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&h=400&fit=crop&q=80',
+    'Nutrición':                         'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=800&h=400&fit=crop&q=80',
+    'Psicología':                        'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&h=400&fit=crop&q=80',
+    'Trabajo Social':                    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&h=400&fit=crop&q=80',
+    'Abogacía':                          'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=400&fit=crop&q=80',
+    'Notariado':                         'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&h=400&fit=crop&q=80',
+    'Contador Público':                  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=400&fit=crop&q=80',
+    'Administración de Empresas':        'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=400&fit=crop&q=80',
+    'Economía':                          'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=400&fit=crop&q=80',
+    'Marketing':                         'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800&h=400&fit=crop&q=80',
+    'Comercio Internacional':            'https://images.unsplash.com/photo-1556740738-b6a63e27c2df?w=800&h=400&fit=crop&q=80',
+    'Turismo':                           'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&h=400&fit=crop&q=80',
+    'Hotelería':                         'https://images.unsplash.com/photo-1566073771259-6a850609994b?w=800&h=400&fit=crop&q=80',
+    'Administración de Empresas Turísticas': 'https://images.unsplash.com/photo-1436491865332-7a31932c3443?w=800&h=400&fit=crop&q=80',
+    'Arquitectura':                      'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=400&fit=crop&q=80',
+    'Diseño Gráfico':                    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop&q=80',
+    'Diseño Industrial':                 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&h=400&fit=crop&q=80',
+    'Diseño de Indumentaria':          'https://images.unsplash.com/photo-1445205170230-053b8301605e?w=800&h=400&fit=crop&q=80',
+    'Periodismo':                        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop&q=80',
+    'Licenciatura en Comunicación':       'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop&q=80',
+    'Comunicación Social':                'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=800&h=400&fit=crop&q=80',
+    'Agronomía':                         'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop&q=80',
+    'Biología':                          'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800&h=400&fit=crop&q=80',
+    'Química':                            'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&h=400&fit=crop&q=80',
+    'Física':                            'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=400&fit=crop&q=80',
+    'Matemática':                         'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&h=400&fit=crop&q=80',
+    'Farmacia':                          'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=800&h=400&fit=crop&q=80',
+    'Bioquímica':                        'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=800&h=400&fit=crop&q=80',
+    'Tecnicatura en Programación':        'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=800&h=400&fit=crop&q=80',
+    'Tecnicatura en Informática':       'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=400&fit=crop&q=80',
+    'Tecnicatura Universitaria en Programación': 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=400&fit=crop&q=80',
+    'Analista de Sistemas':              'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=400&fit=crop&q=80',
+    'Odontología':                      'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800&h=400&fit=crop&q=80',
+    'Kinesiología':                     'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=400&fit=crop&q=80',
+    'Fonoaudiología':                  'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=800&h=400&fit=crop&q=80',
+    'Historia':                           'https://images.unsplash.com/photo-1461360370915-75b0f5e185e6?w=800&h=400&fit=crop&q=80',
+    'Filosofía':                        'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=400&fit=crop&q=80',
+    'Letras':                              'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=800&h=400&fit=crop&q=80',
+    'Educación Inicial':                'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&h=400&fit=crop&q=80',
+    'Educación Primaria':               'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&h=400&fit=crop&q=80',
+    'Profesorado de Educación Secundaria':  'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&h=400&fit=crop&q=80',
+    'Relaciones Públicas':                 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=400&fit=crop&q=80',
+    'Secretariado Ejecutivo':            'https://images.unsplash.com/photo-1664575602276-acd75c13563f3?w=800&h=400&fit=crop&q=80',
+    'Bachillerato en Ciencias':        'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45d?w=800&h=400&fit=crop&q=80',
+    'Música':                            'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&h=400&fit=crop&q=80',
+    'Artes Visuales':                    'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&h=400&fit=crop&q=80',
+    'Teatro':                            'https://images.unsplash.com/photo-1503095396549-807759245b35?w=800&h=400&fit=crop&q=80',
+    'Danza':                             'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=800&h=400&fit=crop&q=80',
+    'Ciencias de la Comunicación':         'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=800&h=400&fit=crop&q=80',
+    'Criminología':                     'https://images.unsplash.com/photo-1453873531674-2151bcd01707?w=800&h=400&fit=crop&q=80',
+    'Relaciones Laborales':             'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&h=400&fit=crop&q=80',
+    'Gestión Ambiental':                 'https://images.unsplash.com/photo-1532996122724-e3c354a0f078?w=800&h=400&fit=crop&q=80',
+    'Gestión de Recursos Humanos':      'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800&h=400&fit=crop&q=80',
+    'Seguridad e Higiene':             'https://images.unsplash.com/photo-1611284442898-a79a33713b30?w=800&h=400&fit=crop&q=80',
+    'Terapia Ocupacional':             'https://images.unsplash.com/photo-1576609569409-17d51d8ef1d7?w=800&h=400&fit=crop&q=80',
+    'Obstetricia':                      'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=800&h=400&fit=crop&q=80',
+    'Radiología':                       'https://images.unsplash.com/photo-1579684453652-3928922fa7b1?w=800&h=400&fit=crop&q=80',
+    'Laboratorio':                      'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=800&h=400&fit=crop&q=80',
+    'Ingeniería Petrolera':          'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=400&fit=crop&q=80',
+    'Ingeniería de Minas':           'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=800&h=400&fit=crop&q=80',
+    'Ingeniería Naval':               'https://images.unsplash.com/photo-1494412519320-aa613dfb7738?w=800&h=400&fit=crop&q=80',
+    'Ingeniería en Alimentos':          'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=400&fit=crop&q=80',
+    'Ingeniería Textil':                'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop&q=80',
+    'Ingeniería en Computación':         'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=400&fit=crop&q=80'
+} %}
 {% set fallback_area = {
-    'Tecnología':        'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=500&q=80',
-    'Ingeniería':        'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=500&q=80',
-    'Salud':             'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=500&q=80',
-    'Agronomía':         'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=500&q=80',
-    'Arte y Diseño':     'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80',
-    'Negocios':          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&q=80',
-    'Derecho':           'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=500&q=80',
-    'Humanidades':       'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=500&q=80',
-    'Comunicación':      'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=500&q=80',
-    'Salud Mental':      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=500&q=80',
-    'Ciencias Naturales':'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=500&q=80'
+    'Tecnología':        'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=400&fit=crop&q=80',
+    'Ingeniería':        'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=400&fit=crop&q=80',
+    'Salud':             'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&h=400&fit=crop&q=80',
+    'Salud Mental':      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800&h=400&fit=crop&q=80',
+    'Ciencias Naturales':'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800&h=400&fit=crop&q=80',
+    'Agronomía':         'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop&q=80',
+    'Negocios':          'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=400&fit=crop&q=80',
+    'Derecho':           'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=400&fit=crop&q=80',
+    'Humanidades':       'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&h=400&fit=crop&q=80',
+    'Arte y Diseño':     'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=400&fit=crop&q=80',
+    'Comunicación':      'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&h=400&fit=crop&q=80'
 } %}
 
 <!-- SECCIÓN PRINCIPAL: GUÍA DE CARRERAS -->
@@ -31,7 +108,7 @@
         <!-- DROPDOWN DE ÁREAS (Incluye Populares) -->
         <div class="col-md-4">
             <label for="areaFilter" class="form-label fw-bold small text-uppercase text-muted mb-2">Área Profesional</label>
-            <select id="areaFilter" name="filtro" class="form-select form-select-lg rounded-3 border-2 border-primary-subtle shadow-sm" onchange="document.getElementById('filterForm').submit();">
+            <select id="areaFilter" name="filtro" class="form-select form-select-lg rounded-3 border-2 border-primary-subtle shadow-sm">
                 <option value="populares" {% if filtro_actual == 'populares' %}selected{% endif %}>⭐ Populares</option>
                 <option value="todas" {% if filtro_actual == 'todas' and area_actual == 'todas' %}selected{% endif %}>Todas las áreas</option>
                 {% for area in areas_disponibles %}
@@ -45,7 +122,7 @@
             <label for="careerSearch" class="form-label fw-bold small text-uppercase text-muted mb-2">Buscar Carrera</label>
             <div class="input-group input-group-lg shadow-sm">
                 <span class="input-group-text bg-white border-2 border-primary-subtle rounded-start-3"><i class="bi bi-search"></i></span>
-                <input type="text" id="careerSearch" name="q" class="form-control border-2 border-primary-subtle rounded-end-3" placeholder="Buscar por nombre..." value="{{ busqueda }}">
+                <input type="text" id="careerSearch" name="q" class="form-control border-2 border-primary-subtle rounded-end-3" placeholder="Buscar por nombre..." value="{{ busqueda }}" autocomplete="off">
             </div>
         </div>
     </form>
@@ -58,24 +135,23 @@
     <!-- LISTADO DINÁMICO DE CARRERAS (READ) -->
     <div class="row g-4" id="careerList">
         {% for carrera in carreras %}
+        {% set fallback_final = fallback_carreras.get(carrera.nombre, fallback_area.get(carrera.area_profesional, 'https://picsum.photos/seed/' ~ (carrera.id ~ carrera.nombre|replace(' ', '_')) ~ '/800/400')) %}
         <div class="col-md-6 col-lg-4 career-item" data-area="{{ carrera.area_profesional }}">
             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden section-card p-0 career-card">
                 <!-- IMAGEN DE LA CARRERA -->
                 {% if carrera.imagen_portada %}
                 <img
                     src="{{ url_for('static', filename=carrera.imagen_portada) }}"
-                    onerror="this.onerror=null; this.src='{{ fallback_area.get(carrera.area_profesional, url_for('static', filename='carreras/placeholder.svg')) }}';"
+                    onerror="this.onerror=null; this.src='{{ fallback_final }}';"
                     class="card-img-top object-fit-cover"
                     style="height: 220px; object-position: center;"
-                    alt="{{ carrera.nombre }}"
-                    loading="lazy">
+                    alt="{{ carrera.nombre }}">
                 {% else %}
                 <img
-                    src="{{ fallback_area.get(carrera.area_profesional, url_for('static', filename='carreras/placeholder.svg')) }}"
+                    src="{{ fallback_final }}"
                     class="card-img-top object-fit-cover"
                     style="height: 220px; object-position: center;"
-                    alt="{{ carrera.nombre }}"
-                    loading="lazy">
+                    alt="{{ carrera.nombre }}">
                 {% endif %}
 
                 <!-- CUERPO DE LA TARJETA -->
@@ -103,37 +179,44 @@
     </div>
 </div>
 
-<!-- LÓGICA DE FILTRADO (JAVASCRIPT) -->
+<!-- LÓGICA DE FILTRADO EN CLIENTE (SIN RECARGAR LA PÁGINA) -->
 <script>
     const searchInput = document.getElementById('careerSearch');
     const areaFilter = document.getElementById('areaFilter');
-    const careerItems = document.querySelectorAll('.career-item');
+    const careerItems = Array.from(document.querySelectorAll('.career-item'));
     const emptyState = document.getElementById('emptyState');
     const resultCounter = document.getElementById('resultCounter');
 
+    // Parámetros iniciales desde la URL (para que al volver a la página
+    // se respeten los filtros elegidos sin recargar nada después).
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('q')) {
+        searchInput.value = urlParams.get('q');
+    }
+    if (urlParams.get('filtro') && urlParams.get('filtro') !== 'populares') {
+        areaFilter.value = urlParams.get('filtro');
+    }
+
     function updateCareerCount() {
-        const visible = Array.from(careerItems).filter(item => item.style.display !== 'none').length;
-        const total = careerItems.length;
+        const visible = careerItems.filter(item => item.style.display !== 'none').length;
         document.getElementById('visibleCount').innerText = visible;
-        document.getElementById('totalCount').innerText = total;
+        document.getElementById('totalCount').innerText = careerItems.length;
         emptyState.style.display = visible === 0 ? 'block' : 'none';
     }
 
     function filterCareers() {
-        const query = searchInput.value.toLowerCase();
+        const query = searchInput.value.toLowerCase().trim();
         const activeArea = areaFilter.value;
 
+        // La búsqueda por nombre ignora el filtro de área; el filtro de área
+        // solo aplica cuando no hay búsqueda activa.
         careerItems.forEach(item => {
             const careerName = item.querySelector('.career-name').innerText.toLowerCase();
             const area = item.dataset.area;
-            const matchesSearch = careerName.includes(query);
-            const matchesFilter = activeArea === 'all' || activeArea === 'todas' || area === activeArea;
+            const matchesSearch = query === '' || careerName.includes(query);
+            const matchesArea = query !== '' || activeArea === 'populares' || activeArea === 'todas' || area === activeArea;
 
-            if (matchesSearch && matchesFilter) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
+            item.style.display = (matchesSearch && matchesArea) ? 'block' : 'none';
         });
 
         updateCareerCount();
@@ -142,7 +225,8 @@
     searchInput.addEventListener('input', filterCareers);
     areaFilter.addEventListener('change', filterCareers);
 
-    // Inicializar contador
+    // Inicializar: aplicar filtros de la URL y contador
+    filterCareers();
     updateCareerCount();
 </script>
 

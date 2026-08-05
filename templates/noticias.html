@@ -1,7 +1,7 @@
 {% extends 'base.html' %} 
 {% block content %} 
 
-<div class="container-fluid py-5" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh;">
+<div class="page-hero-bg container-fluid py-5">
   <div class="container">
 
     <!-- encabezado del area de noticias -->
@@ -18,17 +18,17 @@
 
     <!-- Buscador y Filtros Rápidos -->
     <div class="card border-0 shadow-sm rounded-4 mb-5 p-4 bg-white">
-      <form action="{{ url_for('noticias') }}" method="GET" class="row g-3">
+      <form action="{{ url_for('noticias') }}" method="GET" class="row g-3" id="noticiasFilterForm">
         
         <div class="col-md-7">
           <div class="input-group">
             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-            <input type="text" name="q" class="form-control border-start-0" placeholder="Buscar por título, contenido o fuente..." value="{{ busqueda }}" onchange="this.form.submit()">
+            <input type="text" name="q" id="noticiasSearch" class="form-control border-start-0" placeholder="Buscar por título, contenido o fuente..." value="{{ busqueda }}" autocomplete="off">
           </div>
         </div>
         <!-- Filtros por categoría -->
         <div class="col-md-5">
-          <select name="categoria" class="form-select" onchange="this.form.submit()">
+          <select name="categoria" id="noticiasCategoria" class="form-select">
             <option value="todas">Todas las áreas</option>
             {% for cat in categorias %}
               <option value="{{ cat }}" {% if filtro_categoria == cat %}selected{% endif %}>{{ cat }}</option>
@@ -47,11 +47,11 @@
           <!--filtrado de fecha de noticias-->
           <h5 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2"></i>Filtrar por Fecha</h5>
           <div class="list-group list-group-flush mb-4">
-            {% for valor, label in [('todas','Todas'),('hoy','Hoy'),('ayer','Ayer'),('semana','Esta semana'),('mes','Este mes')] %}
-              <a href="{{ url_for('noticias', fecha=valor, fuente=filtro_fuente, categoria=filtro_categoria, q=busqueda) }}" 
-                 class="list-group-item list-group-item-action border-0 px-0 d-flex justify-content-between align-items-center {% if filtro_fecha == valor %}text-primary fw-bold{% endif %}">
-                {{ label }}
-                {% if filtro_fecha == valor %}<i class="bi bi-check-circle-fill"></i>{% endif %}
+            {% for f in filtros_fecha %}
+              <a href="{{ url_for('noticias', fecha=f.valor, fuente=filtro_fuente, categoria=filtro_categoria, q=busqueda) }}" 
+                 class="list-group-item list-group-item-action border-0 px-0 d-flex justify-content-between align-items-center {% if filtro_fecha == f.valor %}text-primary fw-bold{% endif %}">
+                {{ f.etiqueta }}
+                {% if filtro_fecha == f.valor %}<i class="bi bi-check-circle-fill"></i>{% endif %}
               </a>
             {% endfor %}
           </div>
@@ -77,18 +77,22 @@
 
 
       <!-- Resultados de Noticias -->
-      <div class="col-lg-9">
+      <div class="col-lg-9" id="newsResults">
         {% if noticias %}
           <div class="row g-4">
 
             {% for noticia in noticias %}
-            <div class="col-md-6 animate__animated animate__fadeInUp">
+            <div class="col-md-6 animate__animated animate__fadeInUp news-item"
+                 data-titulo="{{ noticia.titulo|lower }}"
+                 data-descripcion="{{ (noticia.descripcion or '')|lower }}"
+                 data-fuente="{{ noticia.fuente|lower }}"
+                 data-categoria="{{ noticia.categoria|lower }}">
               <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden news-card bg-white">
                 
                 <!-- Imagen con fallback -->
                 <div class="position-relative" style="height: 200px;">
                   {% if noticia.imagen %}
-                    <img src="{{ noticia.imagen }}" class="w-100 h-100 object-fit-cover" alt="{{ noticia.titulo }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
+                    <img src="{{ noticia.imagen if not noticia.imagen.startswith('imagenes/') else url_for('static', filename=noticia.imagen) }}" class="w-100 h-100 object-fit-cover" alt="{{ noticia.titulo }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
                   {% else %}
                     <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted">
                       <i class="bi bi-image-alt display-4"></i>
@@ -130,22 +134,6 @@
             {% endfor %}
 
           </div>
-        {% else %}
-          <!-- No results state -->
-          <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
-            <div class="display-1 text-muted mb-4">
-              <i class="bi bi-search"></i>
-            </div>
-            <h3 class="fw-bold">No hay noticias disponibles</h3>
-            <p class="text-muted mb-4">
-              No se encontraron noticias con los filtros seleccionados.
-            </p>
-            <div class="d-flex justify-content-center">
-              <a href="{{ url_for('noticias') }}" class="btn btn-primary rounded-pill px-5">
-                Ver todas las noticias
-              </a>
-            </div>
-          </div>
         {% endif %}
       </div>
 
@@ -158,5 +146,48 @@
   .news-card:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.1) !important; }
   .object-fit-cover { object-fit: cover; }
 </style>
+
+<!-- FILTRADO EN CLIENTE: búsqueda y categoría sin recargar la página -->
+<script>
+  const newsItems = Array.from(document.querySelectorAll('.news-item'));
+  const newsSearch = document.getElementById('noticiasSearch');
+  const newsCategoria = document.getElementById('noticiasCategoria');
+  const newsContainer = document.getElementById('newsResults');
+  const newsEmpty = document.getElementById('newsEmpty');
+
+  // Estado vacío client-side (se muestra si el filtrado no deja resultados)
+  if (!newsEmpty) {
+    const empty = document.createElement('div');
+    empty.id = 'newsEmpty';
+    empty.className = 'text-center d-none';
+    empty.innerHTML = '<div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white"><div class="display-1 text-muted mb-4"><i class="bi bi-search"></i></div><h3 class="fw-bold">No hay noticias disponibles</h3><p class="text-muted mb-4">No se encontraron noticias con los filtros seleccionados.</p></div>';
+    newsContainer.appendChild(empty);
+  }
+
+  function filtrarNoticias() {
+    const q = newsSearch.value.toLowerCase().trim();
+    const cat = newsCategoria.value.toLowerCase();
+    let visibles = 0;
+
+    newsItems.forEach(item => {
+      const texto = (item.dataset.titulo + ' ' + item.dataset.descripcion + ' ' + item.dataset.fuente).toLowerCase();
+      const coincideBusqueda = q === '' || texto.includes(q);
+      const coincideCategoria = cat === 'todas' || item.dataset.categoria === cat;
+
+      if (coincideBusqueda && coincideCategoria) {
+        item.style.display = '';
+        visibles++;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    document.getElementById('newsEmpty').classList.toggle('d-none', visibles > 0);
+  }
+
+  newsSearch.addEventListener('input', filtrarNoticias);
+  newsCategoria.addEventListener('change', filtrarNoticias);
+  filtrarNoticias();
+</script>
 
 {% endblock %}

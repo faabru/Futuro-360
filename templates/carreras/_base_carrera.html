@@ -15,16 +15,83 @@
 
 {% block content %}
 
-{# ── IMAGEN ──────────────────────────────────────────────────
-   La imagen principal viene de la BD (campo imagen_principal).
-   Para personalizarla:
-     1. Agrega el archivo en static/imagenes/
-     2. Actualiza imagen_principal en la tabla carreras via SQL
-            o desde /admin/carreras
-   ▸ PERSONALIZAR ◂  si necesitás forzar una imagen distinta a la BD:
-     descomentá y ajustá la línea siguiente:
-   {# % set override_imagen = url_for('static', filename='imagenes/mi-imagen.jpg') % #}
-   ───────────────────────────────────────────────────────── #}
+{% set fallback_carreras = {
+    'Ingeniería Civil':                  'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería Eléctrica':              'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería Industrial':             'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería Mecánica':               'https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería Química':                'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería en Sistemas de Información': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería en Sistemas':            'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería Agronómica':             'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería Forestal':              'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&h=800&fit=crop&q=80',
+    'Medicina':                          'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1200&h=800&fit=crop&q=80',
+    'Medicina Veterinaria':              'https://images.unsplash.com/photo-1583337130417-33e89b63709e?w=1200&h=800&fit=crop&q=80',
+    'Enfermería':                        'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=1200&h=800&fit=crop&q=80',
+    'Nutrición':                         'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=1200&h=800&fit=crop&q=80',
+    'Psicología':                        'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1200&h=800&fit=crop&q=80',
+    'Trabajo Social':                    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1200&h=800&fit=crop&q=80',
+    'Abogacía':                          'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&h=800&fit=crop&q=80',
+    'Notariado':                         'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1200&h=800&fit=crop&q=80',
+    'Contador Público':                  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop&q=80',
+    'Administración de Empresas':        'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&h=800&fit=crop&q=80',
+    'Economía':                          'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&h=800&fit=crop&q=80',
+    'Marketing':                         'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=1200&h=800&fit=crop&q=80',
+    'Comercio Internacional':            'https://images.unsplash.com/photo-1556740738-b6a63e27c2df?w=1200&h=800&fit=crop&q=80',
+    'Turismo':                           'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1200&h=800&fit=crop&q=80',
+    'Hotelería':                         'https://images.unsplash.com/photo-1566073771259-6a850609994b?w=1200&h=800&fit=crop&q=80',
+    'Administración de Empresas Turísticas': 'https://images.unsplash.com/photo-1436491865332-7a31932c3443?w=1200&h=800&fit=crop&q=80',
+    'Arquitectura':                      'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1200&h=800&fit=crop&q=80',
+    'Diseño Gráfico':                    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop&q=80',
+    'Diseño Industrial':                 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1200&h=800&fit=crop&q=80',
+    'Diseño de Indumentaria':          'https://images.unsplash.com/photo-1445205170230-053b8301605e?w=1200&h=800&fit=crop&q=80',
+    'Periodismo':                        'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=800&fit=crop&q=80',
+    'Licenciatura en Comunicación':       'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=800&fit=crop&q=80',
+    'Comunicación Social':                'https://images.unsplash.com/photo-1516321497487-e288fb19713f?w=1200&h=800&fit=crop&q=80',
+    'Agronomía':                         'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1200&h=800&fit=crop&q=80',
+    'Biología':                          'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=1200&h=800&fit=crop&q=80',
+    'Química':                            'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=1200&h=800&fit=crop&q=80',
+    'Física':                            'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200&h=800&fit=crop&q=80',
+    'Matemática':                         'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=1200&h=800&fit=crop&q=80',
+    'Farmacia':                          'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=1200&h=800&fit=crop&q=80',
+    'Bioquímica':                        'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=1200&h=800&fit=crop&q=80',
+    'Tecnicatura en Programación':        'https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=1200&h=800&fit=crop&q=80',
+    'Tecnicatura en Informática':       'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=800&fit=crop&q=80',
+    'Tecnicatura Universitaria en Programación': 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=800&fit=crop&q=80',
+    'Analista de Sistemas':              'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&h=800&fit=crop&q=80',
+    'Odontología':                      'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=1200&h=800&fit=crop&q=80',
+    'Kinesiología':                     'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=800&fit=crop&q=80',
+    'Fonoaudiología':                  'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=1200&h=800&fit=crop&q=80',
+    'Historia':                           'https://images.unsplash.com/photo-1461360370915-75b0f5e185e6?w=1200&h=800&fit=crop&q=80',
+    'Filosofía':                        'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&h=800&fit=crop&q=80',
+    'Letras':                              'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=1200&h=800&fit=crop&q=80',
+    'Educación Inicial':                'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&h=800&fit=crop&q=80',
+    'Educación Primaria':               'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1200&h=800&fit=crop&q=80',
+    'Profesorado de Educación Secundaria':  'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1200&h=800&fit=crop&q=80',
+    'Relaciones Públicas':                 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&h=800&fit=crop&q=80',
+    'Secretariado Ejecutivo':            'https://images.unsplash.com/photo-1664575602276-acd75c13563f3?w=1200&h=800&fit=crop&q=80',
+    'Bachillerato en Ciencias':        'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45d?w=1200&h=800&fit=crop&q=80',
+    'Música':                            'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1200&h=800&fit=crop&q=80',
+    'Artes Visuales':                    'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=1200&h=800&fit=crop&q=80',
+    'Teatro':                            'https://images.unsplash.com/photo-1503095396549-807759245b35?w=1200&h=800&fit=crop&q=80',
+    'Danza':                             'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=1200&h=800&fit=crop&q=80',
+    'Ciencias de la Comunicación':         'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1200&h=800&fit=crop&q=80',
+    'Criminología':                     'https://images.unsplash.com/photo-1453873531674-2151bcd01707?w=1200&h=800&fit=crop&q=80',
+    'Relaciones Laborales':             'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1200&h=800&fit=crop&q=80',
+    'Gestión Ambiental':                 'https://images.unsplash.com/photo-1532996122724-e3c354a0f078?w=1200&h=800&fit=crop&q=80',
+    'Gestión de Recursos Humanos':      'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1200&h=800&fit=crop&q=80',
+    'Seguridad e Higiene':             'https://images.unsplash.com/photo-1611284442898-a79a33713b30?w=1200&h=800&fit=crop&q=80',
+    'Terapia Ocupacional':             'https://images.unsplash.com/photo-1576609569409-17d51d8ef1d7?w=1200&h=800&fit=crop&q=80',
+    'Obstetricia':                      'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=1200&h=800&fit=crop&q=80',
+    'Radiología':                       'https://images.unsplash.com/photo-1579684453652-3928922fa7b1?w=1200&h=800&fit=crop&q=80',
+    'Laboratorio':                      'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería Petrolera':          'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería de Minas':           'https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería Naval':               'https://images.unsplash.com/photo-1494412519320-aa613dfb7738?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería en Alimentos':          'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería Textil':                'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop&q=80',
+    'Ingeniería en Computación':         'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&h=800&fit=crop&q=80'
+} %}
 {% set fallback_area = {
     'Tecnología':        'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=800&fit=crop&q=80',
     'Ingeniería':        'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1200&h=800&fit=crop&q=80',
@@ -38,6 +105,7 @@
     'Arte y Diseño':     'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop&q=80',
     'Comunicación':      'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=800&fit=crop&q=80'
 } %}
+{% set fallback_final_detalle = fallback_carreras.get(carrera.nombre, fallback_area.get(carrera.area_profesional, 'https://picsum.photos/seed/' ~ (carrera.id ~ carrera.nombre|replace(' ', '_')) ~ '/1200/800')) %}
 
 <!-- SECCIÓN PRINCIPAL: DETALLE DE CARRERA ESPECÍFICA -->
 <div class="container py-5">
@@ -54,15 +122,13 @@
                             onerror="this.onerror=null; this.src='{{ fallback_area.get(carrera.area_profesional, url_for('static', filename='carreras/placeholder.svg')) }}';"
                             class="img-fluid h-100 object-fit-cover"
                             style="object-position: center; min-height: 400px;"
-                            alt="{{ carrera.nombre }}"
-                            loading="lazy">
+                            alt="{{ carrera.nombre }}">
                         {% else %}
                         <img
                             src="{{ fallback_area.get(carrera.area_profesional, url_for('static', filename='carreras/placeholder.svg')) }}"
                             class="img-fluid h-100 object-fit-cover"
                             style="object-position: center; min-height: 400px;"
-                            alt="{{ carrera.nombre }}"
-                            loading="lazy">
+                            alt="{{ carrera.nombre }}">
                         {% endif %}
                     </div>
 
@@ -106,16 +172,6 @@
                             <h5 class="fw-bold mb-3">
                                 <i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla en Tucumán?
                             </h5>
-
-                            {% if carrera.instituciones %}
-                            <ul class="list-unstyled mb-3">
-                                {% for inst in carrera.instituciones.split(',') %}
-                                <li class="mb-1">
-                                    <i class="bi bi-building text-primary me-2"></i>{{ inst.strip() }}
-                                </li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
 
                             <!-- BOTÓN BUSCAR EN INTERNET -->
                             <button id="btn-buscar-uni"
@@ -173,19 +229,19 @@ async function buscarUniversidades(carreraId) {
             return;
         }
 
-        let html = '<ul class="list-group list-group-flush mt-2">';
+        let html = '<div class="mt-2">';
         data.resultados.forEach(r => {
             html += `
-                <li class="list-group-item px-0 border-0 py-2">
+                <div class="py-2 border-bottom border-light">
                     <a href="${r.url}" target="_blank" rel="noopener noreferrer"
                        class="fw-semibold text-primary text-decoration-none d-block">
                         ${r.titulo}
                     </a>
                     <span class="text-muted small d-block">${r.descripcion}</span>
                     <span class="text-muted small">${r.url}</span>
-                </li>`;
+                </div>`;
         });
-        html += '</ul>';
+        html += '</div>';
         contenedor.innerHTML = html;
 
     } catch (e) {

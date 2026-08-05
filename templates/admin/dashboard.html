@@ -1,93 +1,142 @@
-{% extends "base.html" %}
+{% extends "admin/panel_layout.html" %}
 
-{% block content %}
-<div class="container py-5">
-    <div class="row mb-4 animate__animated animate__fadeIn">
-        <div class="col-md-8">
-            <h1 class="fw-bold"><i class="bi bi-speedometer2 text-primary me-2"></i>Panel de Administración</h1>
-            <p class="text-muted">Gestiona usuarios, carreras y las preguntas del test vocacional.</p>
-        </div>
-        <div class="col-md-4 text-md-end">
-            <div class="d-flex flex-wrap gap-2 justify-content-md-end">
-                <a href="{{ url_for('admin_carreras') }}" class="btn btn-outline-primary">
-                    <i class="bi bi-mortarboard me-1"></i> Carreras
-                </a>
-                <a href="{{ url_for('admin_preguntas') }}" class="btn btn-outline-primary">
-                    <i class="bi bi-question-circle me-1"></i> Preguntas Test
-                </a>
-                <a href="{{ url_for('admin_noticias') }}" class="btn btn-outline-primary">
-                    <i class="bi bi-newspaper me-1"></i> Noticias
-                </a>
-                <a href="{{ url_for('admin_game_carreras') }}" class="btn btn-outline-success">
-                    <i class="bi bi-card-list me-1"></i> Game: Carreras
-                </a>
-                <a href="{{ url_for('admin_game_preguntas') }}" class="btn btn-outline-success">
-                    <i class="bi bi-joystick me-1"></i> Game: Preguntas
-                </a>
-                <form action="{{ url_for('actualizar_rss') }}" method="POST" class="d-inline">
-                   <button type="submit" class="btn btn-warning">
-                      <i class="bi bi-rss-fill me-1"></i> Actualizar RSS
-                   </button>
-                </form>
+{% block panel_title %}Panel de Administración{% endblock %}
+{% block panel_subtitle %}Resumen general de Futuro 360: usuarios, carreras, noticias y juegos.{% endblock %}
+
+{% block panel_content %}
+
+<!-- Tarjetas de estadísticas (KPI) -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <div class="stat-icon primary"><i class="bi bi-people"></i></div>
+            <div>
+                <div class="stat-label">Usuarios</div>
+                <div class="stat-value text-primary">{{ usuarios|length }}</div>
             </div>
         </div>
     </div>
-
-    <!-- Estadísticas rápidas -->
-    <div class="row g-4 mb-5 animate__animated animate__fadeInUp">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm p-4 text-center h-100">
-                <div class="display-4 fw-bold text-primary">{{ usuarios|length }}</div>
-                <div class="text-muted text-uppercase small fw-bold">Usuarios Registrados</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm p-4 text-center h-100">
-                <div class="display-4 fw-bold text-success">{{ carreras|length }}</div>
-                <div class="text-muted text-uppercase small fw-bold">Carreras en Catálogo</div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm p-4 text-center h-100">
-                <div class="display-4 fw-bold text-info">{{ preguntas|length }}</div>
-                <div class="text-muted text-uppercase small fw-bold">Preguntas del Test</div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <div class="stat-icon success"><i class="bi bi-mortarboard"></i></div>
+            <div>
+                <div class="stat-label">Carreras</div>
+                <div class="stat-value text-success">{{ carreras|length }}</div>
             </div>
         </div>
     </div>
-
-    <!-- Lista de Usuarios -->
-    <div class="card border-0 shadow-sm animate__animated animate__fadeInUp">
-        <div class="card-header bg-white py-3 border-0">
-            <h5 class="fw-bold mb-0">Listado de Usuarios</h5>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <div class="stat-icon info"><i class="bi bi-question-circle"></i></div>
+            <div>
+                <div class="stat-label">Preguntas Test</div>
+                <div class="stat-value text-info">{{ preguntas|length }}</div>
+            </div>
         </div>
-        <div class="table-responsive p-3">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Rol</th>
-                        <th>Registro</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for usuario in usuarios %}
-                    <tr>
-                        <td>{{ usuario.id }}</td>
-                        <td>{{ usuario.nombre }}</td>
-                        <td>{{ usuario.email }}</td>
-                        <td>
-                            <span class="badge {% if usuario.rol == 'admin' %}bg-danger{% else %}bg-primary{% endif %}">
-                                {{ usuario.rol|upper }}
-                            </span>
-                        </td>
-                        <td>{{ usuario.fecha_registro.strftime('%d/%m/%Y %H:%M') }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <div class="stat-icon warning"><i class="bi bi-newspaper"></i></div>
+            <div>
+                <div class="stat-label">Noticias</div>
+                <div class="stat-value text-warning">{{ total_noticias }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <div class="stat-icon danger"><i class="bi bi-calendar-event"></i></div>
+            <div>
+                <div class="stat-label">Noticias Hoy</div>
+                <div class="stat-value text-danger">{{ noticias_hoy }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <div class="stat-icon violet"><i class="bi bi-controller"></i></div>
+            <div>
+                <div class="stat-label">Juego (Car/Preg)</div>
+                <div class="stat-value text-violet">{{ carreras_juego_activas }}<small>/{{ preguntas_juego_activas }}</small></div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Orientaciones / Áreas profesionales -->
+<div class="admin-card mb-4">
+    <div class="admin-card-header">
+        <h5><i class="bi bi-compass"></i>Orientaciones / Áreas profesionales</h5>
+        <span class="admin-badge admin-badge-primary">{{ orientaciones|length }} total</span>
+    </div>
+    <div class="admin-card-body">
+        <p class="text-muted small mb-3">
+            Las orientaciones que agregues acá aparecen automáticamente en el filtro de búsqueda de la
+            sección <a href="{{ url_for('carreras') }}">Carreras</a> del sitio.
+        </p>
+        <form action="{{ url_for('nueva_orientacion') }}" method="POST" class="d-flex gap-2 mb-3">
+            <input type="text" name="nombre" class="form-control" placeholder="Ej: Educación, Deportes..." required>
+            <button type="submit" class="admin-btn-primary text-nowrap">
+                <i class="bi bi-plus-lg me-1"></i> Agregar
+            </button>
+        </form>
+        {% if orientaciones %}
+        <div class="d-flex flex-wrap gap-2">
+            {% for o in orientaciones %}
+            <span class="admin-badge admin-badge-muted">
+                {{ o.nombre }}
+                <form action="{{ url_for('eliminar_orientacion', id=o.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Eliminar la orientación {{ o.nombre }}?">
+                    <button type="submit" class="btn btn-link btn-sm p-0 ms-1 text-danger" title="Eliminar orientación">
+                        <i class="bi bi-x-circle"></i>
+                    </button>
+                </form>
+            </span>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0 small">Aún no hay orientaciones. Agregá la primera.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Listado de Usuarios -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h5><i class="bi bi-people"></i>Listado de Usuarios</h5>
+        <span class="admin-badge admin-badge-primary">{{ usuarios|length }} total</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Registro</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td class="fw-semibold">{{ usuario.id }}</td>
+                    <td>{{ usuario.nombre }}</td>
+                    <td>{{ usuario.email }}</td>
+                    <td>
+                        <span class="admin-badge {% if usuario.rol == 'admin' %}admin-badge-danger{% else %}admin-badge-primary{% endif %}">
+                            {{ usuario.rol|upper }}
+                        </span>
+                    </td>
+                    <td>{{ usuario.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5"><div class="admin-empty"><i class="bi bi-people"></i>No hay usuarios registrados.</div></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 {% endblock %}

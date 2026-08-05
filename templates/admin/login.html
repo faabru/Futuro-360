@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+
+<!-- SECCIÓN: LOGIN EXCLUSIVO DEL PANEL ADMINISTRADOR -->
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="col-md-5 col-lg-4">
+            <div class="admin-card p-4 p-md-5" style="box-shadow: 0 12px 32px -12px rgba(16,24,40,0.18);">
+
+                <!-- ENCABEZADO -->
+                <div class="text-center mb-4">
+                    <div class="mx-auto mb-3 d-inline-flex align-items-center justify-content-center"
+                         style="width:64px;height:64px;border-radius:16px;background:rgba(220,53,69,0.1);">
+                        <i class="bi bi-shield-lock fs-2 text-danger"></i>
+                    </div>
+                    <h2 class="fw-800 text-center mb-1">Panel Administrador</h2>
+                    <p class="text-center text-muted small fw-bold mb-0">Acceso restringido</p>
+                </div>
+
+                <!-- FORMULARIO DE ACCESO (POST) -->
+                <form action="{{ url_for('admin_login') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label small fw-800 text-uppercase text-muted">Usuario</label>
+                        <input type="text" class="form-control" id="usuario" name="usuario" required placeholder="usuario123" autocomplete="username">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label small fw-800 text-uppercase text-muted">Contraseña</label>
+                        <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="admin-btn-primary btn-lg w-100">
+                            <i class="bi bi-shield-lock me-1"></i> Ingresar
+                        </button>
+                    </div>
+                </form>
+
+                <p class="text-center mt-4 text-muted small mb-0">
+                    <a href="{{ url_for('index') }}" class="text-muted fw-800 text-decoration-none">
+                        <i class="bi bi-arrow-left me-1"></i> Volver al sitio
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

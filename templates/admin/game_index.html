@@ -1,0 +1,69 @@
+{% extends "admin/panel_layout.html" %}
+
+{% block panel_title %}Panel del Juego{% endblock %}
+{% block panel_subtitle %}Elegí qué sección del juego querés gestionar.{% endblock %}
+
+{% block panel_content %}
+
+<div class="row g-4">
+    <!-- Opción 1: Carreras del juego -->
+    <div class="col-md-6">
+        <a href="{{ url_for('admin_game_carreras') }}" class="text-decoration-none">
+            <div class="admin-card game-option-card h-100">
+                <div class="admin-card-body p-5 text-center">
+                    <div class="game-option-icon mx-auto mb-4">
+                        <i class="bi bi-mortarboard fs-1 text-primary"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-2">Descubre tu Carrera</h4>
+                    <p class="text-muted mb-3">
+                        Gestioná qué carreras aparecen en el juego, activalas o desactivalas y editá el texto de sus tarjetas.
+                    </p>
+                    <span class="admin-badge admin-badge-primary rounded-pill px-3 py-2">
+                        <i class="bi bi-mortarboard me-1"></i> {{ carreras_activas }} de {{ carreras_total }} activas
+                    </span>
+                    <div class="mt-4">
+                        <span class="admin-btn-primary rounded-pill px-4 d-inline-block">Gestionar Carreras</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Opción 2: Intereses en Juego -->
+    <div class="col-md-6">
+        <a href="{{ url_for('admin_game_preguntas') }}" class="text-decoration-none">
+            <div class="admin-card game-option-card h-100">
+                <div class="admin-card-body p-5 text-center">
+                    <div class="game-option-icon mx-auto mb-4">
+                        <i class="bi bi-joystick fs-1 text-success"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-2">Intereses en Juego</h4>
+                    <p class="text-muted mb-3">
+                        Gestioná las preguntas del mini-juego de intereses: agregá, editá, activá o eliminá cada pregunta con sus 2 opciones.
+                    </p>
+                    <span class="admin-badge admin-badge-success rounded-pill px-3 py-2">
+                        <i class="bi bi-joystick me-1"></i> {{ preguntas_activas }} de {{ preguntas_total }} activas
+                    </span>
+                    <div class="mt-4">
+                        <span class="admin-btn-primary rounded-pill px-4 d-inline-block" style="background:#198754;">Gestionar Preguntas</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<style>
+    .game-option-icon {
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #eaf4f8, #ffffff);
+        border: 1px solid #e6edf1;
+    }
+</style>
+
+{% endblock %}
