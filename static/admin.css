@@ -19,7 +19,12 @@
 }
 
 .admin-body {
-    background: var(--admin-bg);
+    background-color: var(--admin-bg);
+    background-image: url('img/body-modo-sol.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: var(--admin-text);
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
@@ -499,6 +504,7 @@
 .admin-badge-success { background: rgba(25, 135, 84, 0.12); color: #198754; }
 .admin-badge-danger  { background: rgba(220, 53, 69, 0.12); color: #dc3545; }
 .admin-badge-muted   { background: #EEF2F6; color: #64748B; }
+.admin-badge-dueño  { background: rgba(255, 193, 7, 0.16); color: #B8860B; }
 
 /* ---------- BUTTONS ---------- */
 .admin-card .btn,
@@ -871,7 +877,12 @@ html[data-theme="dark"] {
 }
 
 html[data-theme="dark"] .admin-body {
-    background: var(--admin-bg);
+    background-color: var(--admin-bg);
+    background-image: url('img/body-modo-noche.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: var(--admin-text);
 }
 
@@ -946,6 +957,7 @@ html[data-theme="dark"] .admin-badge-muted { background: #1E3A4A; color: #B7C9D4
 html[data-theme="dark"] .admin-badge-primary { background: rgba(47, 142, 171, 0.18); color: #7FD3E6; }
 html[data-theme="dark"] .admin-badge-success { background: rgba(25, 135, 84, 0.18); color: #4CD489; }
 html[data-theme="dark"] .admin-badge-danger { background: rgba(220, 53, 69, 0.18); color: #FF8A8A; }
+html[data-theme="dark"] .admin-badge-dueño { background: rgba(255, 193, 7, 0.16); color: #FFD25E; }
 
 /* Botones de icono */
 html[data-theme="dark"] .icon-btn {

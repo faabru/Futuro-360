@@ -16,22 +16,27 @@
     </td>
     <td><a href="mailto:{{ usuario.email }}" class="admin-email">{{ usuario.email }}</a></td>
     <td>
+        {% if usuario.email == email_dueño %}
+        <span class="admin-badge admin-badge-dueño"><i class="bi bi-star-fill me-1"></i>DUEÑO</span>
+        {% else %}
         <span class="admin-badge {% if usuario.rol == 'admin' %}admin-badge-danger{% else %}admin-badge-primary{% endif %}">
             {% if usuario.rol == 'admin' %}<i class="bi bi-shield-lock me-1"></i>{% else %}<i class="bi bi-person me-1"></i>{% endif %}
             {{ usuario.rol|upper }}
         </span>
+        {% endif %}
     </td>
     <td>
         <span class="admin-date"><i class="bi bi-calendar3 me-1"></i>{{ usuario.created_at.strftime('%d/%m/%Y') }}</span>
         <span class="admin-date admin-date-time">{{ usuario.created_at.strftime('%H:%M') }}</span>
     </td>
     <td class="text-end">
+        {% if usuario.email != email_dueño %}
         <div class="d-flex gap-1 justify-content-end">
             <button type="button" class="icon-btn" title="Editar usuario"
                     onclick='editarUsuario({{ usuario|tojson }})'>
                 <i class="bi bi-pencil"></i>
             </button>
-            {% if usuario.rol != 'admin' %}
+            {% if usuario.rol != 'admin' or es_dueño %}
             <form action="{{ url_for('admin_usuario_toggle', id=usuario.id) }}" method="POST" style="display:inline;">
                 <button type="submit" class="icon-btn {{ 'success' if usuario.activo == 0 }}" title="{{ 'Activar usuario' if usuario.activo == 0 else 'Desactivar usuario' }}">
                     <i class="bi {{ 'bi-play-fill' if usuario.activo == 0 else 'bi-pause-fill' }}"></i>
@@ -43,8 +48,12 @@
                     <i class="bi bi-trash"></i>
                 </button>
             </form>
-            {% endif %}
-        </div>
+            {% endif %}        </div>
+        {% else %}
+        <span class="text-muted small fw-bold" title="El dueño no se puede editar ni eliminar">
+            <i class="bi bi-lock-fill me-1"></i>Protegido
+        </span>
+        {% endif %}
     </td>
 </tr>
 {% else %}

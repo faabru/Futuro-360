@@ -6,7 +6,6 @@ import time
 import traceback
 import random
 import re
-import csv
 import io
 from datetime import datetime
 from functools import wraps
@@ -28,35 +27,56 @@ resend.api_key = os.getenv('RESEND_API_KEY')
 MAIL_FROM = "Futuro 360 <onboarding@resend.dev>" 
 
 # --- CREDENCIALES DEL LOGIN DE ADMINISTRACIÓN ---
-# Acceso exclusivo desde la navbar al panel de administración.
-# El email/contraseña por defecto se cargan en la tabla admin_config
-# la primera vez. La contraseña puede cambiarse desde la recuperación.
-ADMIN_USUARIO = "usuario123"
+# El dueño del panel se identifica por su email. La cuenta se crea/actualiza
+# en la tabla 'usuarios' con rol admin. La contraseña puede cambiarse desde
+# la recuperación del panel.
 ADMIN_PASSWORD = "123456789"
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'fabriciovillagra05@gmail.com')
 
 
-def asegurar_tabla_admin_config():
-    """Crea la tabla de configuración del admin si no existe y la
-    inicializa con las credenciales por defecto."""
+def asegurar_cuenta_dueño():
+    """Asegura que el email definido en ADMIN_EMAIL exista como administrador
+    dueño en la tabla 'usuarios'. Migra las credenciales antiguas del panel
+    (tabla admin_config / usuario123) a esa cuenta para no perder la
+    contraseña que el dueño ya conoce, y luego elimina la tabla legacy."""
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS admin_config (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            usuario VARCHAR(50) NOT NULL UNIQUE,
-            email VARCHAR(255) NOT NULL,
-            password_hash VARCHAR(255) NOT NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-    """)
-    cursor.execute("SELECT * FROM admin_config WHERE usuario = %s", (ADMIN_USUARIO,))
+
+    # Columna que identifica al dueño del panel
+    cursor.execute("SHOW COLUMNS FROM usuarios LIKE 'es_dueño'")
     if not cursor.fetchone():
-        cursor.execute("""
-            INSERT INTO admin_config (usuario, email, password_hash)
-            VALUES (%s, %s, %s)
-        """, (ADMIN_USUARIO, ADMIN_EMAIL,
-              generate_password_hash(ADMIN_PASSWORD)))
-        db.commit()
+        cursor.execute("ALTER TABLE usuarios ADD COLUMN es_dueño TINYINT(1) DEFAULT 0")
+
+    # Credenciales legacy del panel (por si ya existían)
+    hash_legacy = None
+    try:
+        cursor.execute("SELECT email, password_hash FROM admin_config")
+        for f in cursor.fetchall():
+            if f['email'] == ADMIN_EMAIL:
+                hash_legacy = f['password_hash']
+    except Exception:
+        pass
+
+    cursor.execute("SELECT * FROM usuarios WHERE email = %s", (ADMIN_EMAIL,))
+    dueño = cursor.fetchone()
+    if dueño:
+        cursor.execute(
+            "UPDATE usuarios SET rol = 'admin', activo = 1, es_dueño = 1 WHERE email = %s",
+            (ADMIN_EMAIL,))
+        if hash_legacy:
+            cursor.execute(
+                "UPDATE usuarios SET password = %s WHERE email = %s",
+                (hash_legacy, ADMIN_EMAIL))
+    else:
+        cursor.execute(
+            """INSERT INTO usuarios (nombre, apellido, email, password, rol, activo, es_dueño)
+               VALUES (%s, %s, %s, %s, 'admin', 1, 1)""",
+            ('Fabricio', '', ADMIN_EMAIL,
+             hash_legacy or generate_password_hash(ADMIN_PASSWORD)))
+
+    # La tabla legacy ya no se usa para autenticar: eliminarla
+    cursor.execute("DROP TABLE IF EXISTS admin_config")
+    db.commit()
 
 # Inicializar la conexión a la base de datos con la aplicación
 inicializar_app(app)
@@ -73,6 +93,15 @@ def cargar_usuario_logueado():
         cursor = db.cursor(dictionary=True)
         cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id_usuario,))
         g.user = cursor.fetchone()
+
+
+def es_usuario_dueño():
+    """True si el usuario logueado (por el panel o por el sitio) es el dueño."""
+    if session.get('admin_es_dueño'):
+        return True
+    if g.user is not None and g.user.get('es_dueño'):
+        return True
+    return False
 
 # --- DECORADORES DE AUTORIZACIÓN ---
 
@@ -1000,21 +1029,26 @@ def admin_login():
         usuario = request.form.get('usuario', '').strip()
         password = request.form.get('password', '')
 
-        asegurar_tabla_admin_config()
+        asegurar_cuenta_dueño()
         db = obtener_db()
         cursor = db.cursor(dictionary=True)
+
+        # El acceso al panel es solo por email (cuentas con rol admin)
         cursor.execute(
-            "SELECT * FROM admin_config WHERE usuario = %s",
+            "SELECT * FROM usuarios WHERE email = %s AND rol = 'admin' AND activo = 1",
             (usuario,)
         )
         admin = cursor.fetchone()
-
-        if admin and check_password_hash(admin['password_hash'], password):
+        if admin and check_password_hash(admin['password'], password):
             session['admin_autenticado'] = True
+            session['admin_id'] = admin['id']
+            session['admin_nombre'] = f"{admin['nombre']} {admin.get('apellido', '')}".strip()
+            session['admin_email'] = admin['email']
+            session['admin_es_dueño'] = bool(admin.get('es_dueño'))
             flash('¡Bienvenido al panel de administración!', 'success')
             return redirect(url_for('admin_dashboard'))
 
-        flash('Usuario o contraseña incorrectos.', 'danger')
+        flash('Email o contraseña incorrectos.', 'danger')
 
     return render_template('admin/login.html')
 
@@ -1035,11 +1069,16 @@ def admin_recuperar_password():
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
 
-        # El código solo se envía si el email coincide con el configurado
-        if email == ADMIN_EMAIL:
+        # El código solo se envía si el email pertenece a un admin activo
+        db = obtener_db()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT id FROM usuarios WHERE email = %s AND rol = 'admin' AND activo = 1",
+            (email,)
+        )
+        if cursor.fetchone():
             codigo = str(random.randint(100000, 999999))
 
-            db = obtener_db()
             cursor2 = db.cursor()
             cursor2.execute("DELETE FROM password_resets WHERE email = %s", (email,))
             cursor2.execute("""
@@ -1149,8 +1188,8 @@ def admin_nueva_password():
         db = obtener_db()
         cursor = db.cursor()
         cursor.execute(
-            "UPDATE admin_config SET password_hash = %s WHERE usuario = %s",
-            (generate_password_hash(password_nueva), ADMIN_USUARIO)
+            "UPDATE usuarios SET password = %s WHERE email = %s AND rol = 'admin'",
+            (generate_password_hash(password_nueva), email)
         )
         db.commit()
 
@@ -1196,7 +1235,9 @@ def admin_dashboard():
     usuarios = cursor.fetchall()
 
     if request.args.get('fragmento') == '1':
-        return render_template('admin/_tabla_usuarios.html', usuarios=usuarios)
+        return render_template('admin/_tabla_usuarios.html', usuarios=usuarios,
+                               email_dueño=ADMIN_EMAIL,
+                               es_dueño=es_usuario_dueño())
 
     cursor.execute("SELECT * FROM carreras")
     carreras = cursor.fetchall()
@@ -1226,7 +1267,8 @@ def admin_dashboard():
         total_noticias=total_noticias, noticias_hoy=noticias_hoy,
         carreras_juego_activas=carreras_juego_activas,
         preguntas_juego_activas=preguntas_juego_activas,
-        orientaciones=orientaciones)
+        orientaciones=orientaciones, email_dueño=ADMIN_EMAIL,
+        es_dueño=es_usuario_dueño())
 
 
 # --- SECCIÓN: GESTIÓN DE USUARIOS (ABM desde el panel admin) ---
@@ -1310,6 +1352,16 @@ def admin_usuario_editar(id):
         flash('Ya existe otro usuario con ese email.', 'warning')
         return redirect(url_for('admin_dashboard'))
 
+    # El dueño del panel no puede ser editado por nadie
+    if usuario.get('es_dueño'):
+        flash('La cuenta del dueño del panel no se puede editar.', 'danger')
+        return redirect(url_for('admin_dashboard'))
+    # Solo el dueño puede modificar el rol/email de otros administradores
+    if usuario.get('rol') == 'admin' and not es_usuario_dueño():
+        if rol != 'admin' or email.strip() != usuario['email']:
+            flash('Solo el dueño puede modificar el rol o el email de un administrador.', 'danger')
+            return redirect(url_for('admin_dashboard'))
+
     try:
         if password:
             if len(password) < 8:
@@ -1333,6 +1385,7 @@ def admin_usuario_editar(id):
 
 @app.route('/admin/usuarios/eliminar/<int:id>', methods=['POST'])
 @requiere_admin
+@ajax_o_redirect
 def admin_usuario_eliminar(id):
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
@@ -1343,9 +1396,16 @@ def admin_usuario_eliminar(id):
         flash('El usuario no existe.', 'warning')
         return redirect(url_for('admin_dashboard'))
 
-    # Evita que el admin se elimine a sí mismo
-    if g.user and usuario['id'] == g.user['id']:
+    # Evita que el admin se elimine a sí mismo o al dueño del panel
+    if (g.user and usuario['id'] == g.user['id']) or usuario['id'] == session.get('admin_id'):
         flash('No podés eliminar tu propia cuenta desde el panel.', 'danger')
+        return redirect(url_for('admin_dashboard'))
+    if usuario.get('es_dueño'):
+        flash('No podés eliminar al dueño del panel.', 'danger')
+        return redirect(url_for('admin_dashboard'))
+    # Solo el dueño puede eliminar a otros administradores
+    if usuario.get('rol') == 'admin' and not es_usuario_dueño():
+        flash('Solo el dueño puede eliminar administradores.', 'danger')
         return redirect(url_for('admin_dashboard'))
 
     try:
@@ -1360,6 +1420,7 @@ def admin_usuario_eliminar(id):
 
 @app.route('/admin/usuarios/toggle/<int:id>', methods=['POST'])
 @requiere_admin
+@ajax_o_redirect
 def admin_usuario_toggle(id):
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
@@ -1370,8 +1431,15 @@ def admin_usuario_toggle(id):
         flash('El usuario no existe.', 'warning')
         return redirect(url_for('admin_dashboard'))
 
-    if g.user and usuario['id'] == g.user['id']:
+    if (g.user and usuario['id'] == g.user['id']) or usuario['id'] == session.get('admin_id'):
         flash('No podés desactivar tu propia cuenta.', 'danger')
+        return redirect(url_for('admin_dashboard'))
+    if usuario.get('es_dueño'):
+        flash('No podés desactivar al dueño del panel.', 'danger')
+        return redirect(url_for('admin_dashboard'))
+    # Solo el dueño puede desactivar a otros administradores
+    if usuario.get('rol') == 'admin' and not es_usuario_dueño():
+        flash('Solo el dueño puede desactivar administradores.', 'danger')
         return redirect(url_for('admin_dashboard'))
 
     nuevo_estado = 0 if usuario.get('activo') else 1
@@ -2010,20 +2078,97 @@ def admin_exportar(entidad):
     cursor.execute(sql, params)
     filas = cursor.fetchall()
 
-    output = io.StringIO()
-    writer = csv.writer(output, delimiter=';')
-    writer.writerow(config['titulos'])
+    # --- Generación del archivo Excel profesional ---
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
 
-    for fila in filas:
-        writer.writerow([fila.get(c, '') for c in columnas])
+    wb = Workbook()
+    ws = wb.active
+    ws.title = config['titulos'][1] if len(config['titulos']) > 1 else 'Datos'
+
+    # Colores de la marca
+    AZUL_PRIMARIO = '2F8EAB'
+    AZUL_OSCURO = '142B38'
+    GRIS_BORDE = 'D9E2E8'
+    GRIS_FILA = 'F4F8FA'
+
+    thin_border = Border(
+        left=Side(style='thin', color=GRIS_BORDE),
+        right=Side(style='thin', color=GRIS_BORDE),
+        top=Side(style='thin', color=GRIS_BORDE),
+        bottom=Side(style='thin', color=GRIS_BORDE),
+    )
+
+    # Encabezados: fondo azul oscuro + texto blanco en negrita
+    for j, titulo in enumerate(config['titulos'], start=1):
+        cell = ws.cell(row=1, column=j, value=titulo)
+        cell.font = Font(bold=True, color='FFFFFF', size=11, name='Calibri')
+        cell.fill = PatternFill(start_color=AZUL_OSCURO, end_color=AZUL_OSCURO, fill_type='solid')
+        cell.alignment = Alignment(horizontal='left', vertical='center')
+        cell.border = thin_border
+    ws.row_dimensions[1].height = 26
+
+    # Datos
+    for i, fila in enumerate(filas, start=2):
+        for j, col in enumerate(columnas, start=1):
+            valor = fila.get(col, '')
+            if hasattr(valor, 'strftime'):
+                valor = valor.strftime('%d/%m/%Y %H:%M')
+            cell = ws.cell(row=i, column=j, value=valor)
+            cell.font = Font(size=11, name='Calibri')
+            cell.alignment = Alignment(horizontal='left', vertical='center')
+            cell.border = thin_border
+        # Bandas alternadas suaves para mejor lectura
+        if i % 2 == 0:
+            for j in range(1, len(columnas) + 1):
+                ws.cell(row=i, column=j).fill = PatternFill(
+                    start_color=GRIS_FILA, end_color=GRIS_FILA, fill_type='solid')
+
+    # Ajustar ancho de columnas según el contenido
+    for j, col in enumerate(columnas, start=1):
+        max_len = len(str(config['titulos'][j - 1]))
+        for fila in filas:
+            val = fila.get(col, '')
+            if hasattr(val, 'strftime'):
+                val = val.strftime('%d/%m/%Y %H:%M')
+            max_len = max(max_len, len(str(val)))
+        ws.column_dimensions[get_column_letter(j)].width = min(max_len + 4, 60)
+
+    # Autofiltro + panel congelado en el encabezado
+    ws.auto_filter.ref = f"A1:{get_column_letter(len(columnas))}{len(filas) + 1}"
+    ws.freeze_panes = 'A2'
+
+    # Hoja de resumen con metadatos
+    ws_meta = wb.create_sheet('Resumen')
+    ws_meta.sheet_view.showGridLines = False
+    ws_meta.column_dimensions['A'].width = 32
+    ws_meta.column_dimensions['B'].width = 60
+
+    ws_meta['A1'] = 'Futuro 360 — Panel de Administración'
+    ws_meta['A1'].font = Font(bold=True, size=14, color=AZUL_OSCURO)
+    ws_meta['A2'] = 'Exportación de datos'
+    ws_meta['A2'].font = Font(size=12, color=AZUL_PRIMARIO)
+    ws_meta['A4'] = 'Entidad'
+    ws_meta['B4'] = config['titulos'][0]
+    ws_meta['A5'] = 'Total de registros'
+    ws_meta['B5'] = len(filas)
+    ws_meta['A6'] = 'Fecha de exportación'
+    ws_meta['B6'] = datetime.now().strftime('%d/%m/%Y %H:%M')
+    for fila in [4, 5, 6]:
+        ws_meta.cell(row=fila, column=1).font = Font(bold=True, color=AZUL_OSCURO)
+        ws_meta.cell(row=fila, column=2).font = Font(color='445A6B')
+
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
 
     fecha = datetime.now().strftime('%Y-%m-%d')
-    nombre = f"{config['nombre_archivo']}_{fecha}.csv"
-    contenido = output.getvalue()
+    nombre = f"{config['nombre_archivo']}_{fecha}.xlsx"
 
     return Response(
-        '\ufeff' + contenido,
-        mimetype='text/csv',
+        output.getvalue(),
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         headers={'Content-Disposition': f'attachment; filename={nombre}'}
     )
 
