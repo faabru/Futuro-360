@@ -54,9 +54,18 @@
         transform: translateY(-2px); 
     }
     .option-btn.active { 
-        background-color: #f0f7ff; 
-        border-color: #0d6efd !important; 
+        background-color: #eaf4ff; 
+        border-color: var(--primary) !important; 
         box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    }
+    html[data-theme="dark"] .option-btn.active {
+        background-color: rgba(13, 110, 253, 0.22);
+        border-color: #6ea8fe !important;
+        color: #E6F4F8 !important;
+    }
+    .option-btn.active .option-circle {
+        border-color: var(--primary);
+        background: radial-gradient(var(--primary) 50%, var(--card-bg) 52%);
     }
     .option-circle { 
         width: 22px; 

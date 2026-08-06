@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Futuro 360 · Panel Admin{% endblock %}</title>
+    {# --- TEMA (CLARO/OSCURO): se aplica antes de pintar para evitar parpadeo --- #}
+    <script>
+        (function () {
+            try {
+                var tema = localStorage.getItem('f360_tema');
+                if (tema !== 'dark' && tema !== 'light') {
+                    tema = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+                }
+                document.documentElement.setAttribute('data-theme', tema);
+            } catch (e) {}
+        })();
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -42,15 +54,13 @@
             <a href="{{ url_for('admin_game_index') }}" class="admin-nav-item {{ 'active' if request.endpoint in ['admin_game_index', 'admin_game_carreras', 'admin_game_preguntas'] }}">
                 <i class="bi bi-controller"></i> Panel del Juego
             </a>
-            <a href="{{ url_for('admin_game_carreras') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_game_carreras' }}">
-                <i class="bi bi-mortarboard"></i> Descubre tu Carrera
-            </a>
-            <a href="{{ url_for('admin_game_preguntas') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_game_preguntas' }}">
-                <i class="bi bi-joystick"></i> Intereses en Juego
-            </a>
         </nav>
 
         <div class="admin-sidebar-footer">
+            <button class="admin-sidebar-theme" id="adminThemeToggle" type="button" title="Cambiar modo claro/oscuro" aria-label="Cambiar modo claro/oscuro">
+                <i class="bi bi-moon-stars-fill"></i>
+                <span id="adminThemeLabel">Modo oscuro</span>
+            </button>
             <a href="{{ url_for('dashboard') }}" target="_blank">
                 <i class="bi bi-globe2"></i> Ver el sitio
             </a>
@@ -99,6 +109,27 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const themeToggle = document.getElementById('adminThemeToggle');
+        if (themeToggle) {
+            const icon = themeToggle.querySelector('i');
+            const label = document.getElementById('adminThemeLabel');
+            function aplicarIcono(tema) {
+                icon.className = tema === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+                if (label) label.textContent = tema === 'dark' ? 'Modo claro' : 'Modo oscuro';
+            }
+            themeToggle.addEventListener('click', function () {
+                const actual = document.documentElement.getAttribute('data-theme');
+                const nuevo = actual === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', nuevo);
+                try { localStorage.setItem('f360_tema', nuevo); } catch (e) {}
+                aplicarIcono(nuevo);
+            });
+            aplicarIcono(document.documentElement.getAttribute('data-theme'));
+        }
+    });
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const sidebar = document.getElementById('adminSidebar');
@@ -187,11 +218,14 @@
                 })
                 .then(function (data) {
                     if (!data.ok) throw new Error('No se pudo actualizar');
-                    actualizarToggle(form);
+                    const label = document.querySelector('label[for="' + input.id + '"]');
+                    if (label) label.textContent = input.checked ? 'Sí' : 'No';
                     mostrarToast('Estado actualizado', 'success');
                 })
                 .catch(function (err) {
                     input.checked = !input.checked;
+                    const label = document.querySelector('label[for="' + input.id + '"]');
+                    if (label) label.textContent = input.checked ? 'Sí' : 'No';
                     mostrarToast(err.message, 'danger');
                 });
             });

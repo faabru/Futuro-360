@@ -28,12 +28,19 @@
         </div>
         <!-- Filtros por categoría -->
         <div class="col-md-5">
-          <select name="categoria" id="noticiasCategoria" class="form-select">
-            <option value="todas">Todas las áreas</option>
-            {% for cat in categorias %}
-              <option value="{{ cat }}" {% if filtro_categoria == cat %}selected{% endif %}>{{ cat }}</option>
-            {% endfor %}
-          </select>
+          <input type="hidden" name="categoria" id="noticiasCategoriaHidden" value="{{ filtro_categoria }}">
+          <div class="dropdown w-100" id="noticiasCategoriaWrap">
+            <button class="btn cat-dropdown-btn w-100 text-start d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" id="noticiasCategoriaBtn">
+              <span class="fw-semibold" id="noticiasCategoriaLabel">{% if filtro_categoria == 'todas' %}Todas las áreas{% else %}{{ filtro_categoria }}{% endif %}</span>
+              <i class="bi bi-chevron-down ms-2"></i>
+            </button>
+            <ul class="dropdown-menu cat-dropdown-menu w-100 shadow-lg border-0 rounded-3" id="noticiasCategoriaMenu">
+              <li><a class="dropdown-item" href="#" data-val="todas">Todas las áreas</a></li>
+              {% for cat in categorias %}
+                <li><a class="dropdown-item" href="#" data-val="{{ cat }}">{{ cat }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
         </div>
 
       </form>
@@ -145,15 +152,60 @@
   .news-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
   .news-card:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.1) !important; }
   .object-fit-cover { object-fit: cover; }
+  .cat-dropdown-btn {
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .cat-dropdown-btn:hover, .cat-dropdown-btn[aria-expanded="true"] {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(47, 142, 171, 0.15);
+    color: var(--text-main) !important;
+  }
+  .cat-dropdown-btn .bi-chevron-down { transition: transform 0.25s ease; color: var(--text-muted); }
+  .cat-dropdown-btn[aria-expanded="true"] .bi-chevron-down { transform: rotate(180deg); }
+  .cat-dropdown-menu .dropdown-item.active { background-color: rgba(47,142,171,0.12); color: var(--primary); }
 </style>
 
 <!-- FILTRADO EN CLIENTE: búsqueda y categoría sin recargar la página -->
 <script>
   const newsItems = Array.from(document.querySelectorAll('.news-item'));
   const newsSearch = document.getElementById('noticiasSearch');
-  const newsCategoria = document.getElementById('noticiasCategoria');
+  const newsCategoriaBtn = document.getElementById('noticiasCategoriaBtn');
+  const newsCategoriaLabel = document.getElementById('noticiasCategoriaLabel');
+  const newsCategoriaHidden = document.getElementById('noticiasCategoriaHidden');
+  const newsCategoriaMenu = document.getElementById('noticiasCategoriaMenu');
   const newsContainer = document.getElementById('newsResults');
   const newsEmpty = document.getElementById('newsEmpty');
+
+  const bootstrapDropdown = window.bootstrap && bootstrap.Dropdown.getOrCreateInstance ?
+    bootstrap.Dropdown.getOrCreateInstance(newsCategoriaBtn) : null;
+
+  // Sincroniza la etiqueta con la categoría activa
+  function sincronizarCategoria() {
+    const val = newsCategoriaHidden.value;
+    const item = newsCategoriaMenu.querySelector(`[data-val="${CSS.escape(val)}"]`);
+    if (item) {
+      newsCategoriaLabel.textContent = item.textContent.trim();
+      newsCategoriaMenu.querySelectorAll('.dropdown-item').forEach(i => {
+        i.classList.toggle('active', i.getAttribute('data-val') === val);
+      });
+    }
+  }
+
+  newsCategoriaMenu.addEventListener('click', function (e) {
+    const item = e.target.closest('.dropdown-item');
+    if (!item) return;
+    e.preventDefault();
+    newsCategoriaHidden.value = item.getAttribute('data-val');
+    sincronizarCategoria();
+    filtrarNoticias();
+  });
 
   // Estado vacío client-side (se muestra si el filtrado no deja resultados)
   if (!newsEmpty) {
@@ -166,7 +218,7 @@
 
   function filtrarNoticias() {
     const q = newsSearch.value.toLowerCase().trim();
-    const cat = newsCategoria.value.toLowerCase();
+    const cat = newsCategoriaHidden.value.toLowerCase();
     let visibles = 0;
 
     newsItems.forEach(item => {
@@ -186,7 +238,15 @@
   }
 
   newsSearch.addEventListener('input', filtrarNoticias);
-  newsCategoria.addEventListener('change', filtrarNoticias);
+  if (newsCategoriaBtn) {
+    newsCategoriaBtn.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (bootstrapDropdown) bootstrapDropdown.toggle();
+      }
+    });
+  }
+  sincronizarCategoria();
   filtrarNoticias();
 </script>
 

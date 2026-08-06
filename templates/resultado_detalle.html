@@ -435,7 +435,7 @@
                     <span class="small text-muted">Respondidas: {{ respuestas_usuario|length }} preguntas</span>
                 </div>
                 {% set resp_colors = ['#7c3aed', '#2F8EAB', '#10b981', '#f59e0b', '#3b82f6', '#ec4899'] %}
-                {% for r in respuestas_usuario %}
+                {% for r in respuestas_usuario[:5] %}
                 <div class="res-item">
                     <div class="ri-num">{{ loop.index }}</div>
                     <div class="ri-body">
@@ -451,6 +451,33 @@
                     </div>
                 </div>
                 {% endfor %}
+                {% if respuestas_usuario|length > 5 %}
+                <div id="restoRespuestas" class="d-none">
+                    {% for r in respuestas_usuario[5:] %}
+                    <div class="res-item">
+                        <div class="ri-num">{{ loop.index + 5 }}</div>
+                        <div class="ri-body">
+                            <div class="ri-q">{{ r.pregunta }}</div>
+                            {% if r.area %}
+                            <span class="ri-a" style="background:{{ resp_colors[(loop.index0 + 5) % 6] }}18;color:{{ resp_colors[(loop.index0 + 5) % 6] }};">
+                                <i class="bi bi-check-circle-fill"></i> {{ r.opcion }}
+                            </span>
+                            <span class="ri-area ms-2"><i class="bi bi-tag me-1"></i>{{ r.area }}</span>
+                            {% else %}
+                            <span class="ri-a ri-neutra"><i class="bi bi-dash-circle"></i> {{ r.opcion }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-3">
+                    <button type="button" id="btnVerRespuestas" class="btn-custom"
+                            onclick="alternarRespuestas(this)">
+                        <i class="bi bi-eye me-1"></i> Ver todas las respuestas
+                        <span class="badge text-bg-primary ms-1">{{ respuestas_usuario|length - 5 }}</span>
+                    </button>
+                </div>
+                {% endif %}
             </div>
             {% elif resumen_puntuacion %}
             <div class="result-card">
@@ -516,6 +543,17 @@
 </div>
 
 <script>
+    function alternarRespuestas(btn) {
+        var cont = document.getElementById('restoRespuestas');
+        var expandido = !cont.classList.contains('d-none');
+        if (expandido) {
+            cont.classList.add('d-none');
+            btn.innerHTML = '<i class="bi bi-eye me-1"></i> Ver todas las respuestas';
+        } else {
+            cont.classList.remove('d-none');
+            btn.innerHTML = '<i class="bi bi-eye-slash me-1"></i> Ocultar respuestas';
+        }
+    }
     window.addEventListener('load', function () {
         document.querySelectorAll('.affinity-anim').forEach(function (el, i) {
             setTimeout(function () {

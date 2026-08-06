@@ -12,7 +12,7 @@
             <div class="stat-icon primary"><i class="bi bi-people"></i></div>
             <div>
                 <div class="stat-label">Usuarios</div>
-                <div class="stat-value text-primary">{{ usuarios|length }}</div>
+                <div class="stat-value text-primary">{{ total_usuarios }}</div>
             </div>
         </div>
     </div>
@@ -102,8 +102,42 @@
 <!-- Listado de Usuarios -->
 <div class="admin-card">
     <div class="admin-card-header">
-        <h5><i class="bi bi-people"></i>Listado de Usuarios</h5>
-        <span class="admin-badge admin-badge-primary">{{ usuarios|length }} total</span>
+        <div>
+            <h5><i class="bi bi-people"></i>Listado de Usuarios</h5>
+            <div class="admin-card-subtitle">Usuarios registrados en la plataforma</div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="admin-badge admin-badge-primary" id="usuariosBadge">{{ usuarios|length }} total</span>
+            <button type="button" class="icon-btn" title="Recargar" onclick="recargarUsuarios()">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+        </div>
+    </div>
+    <div class="admin-card-body pb-2">
+        <form id="filtroUsuarios" class="row g-2 align-items-end" onsubmit="return false;">
+            <div class="col-md-4">
+                <label class="form-label small text-muted mb-1" for="f-nombre">Nombre</label>
+                <input type="text" id="f-nombre" name="nombre" class="form-control"
+                       placeholder="Buscar por nombre..." value="{{ f_nombre }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted mb-1" for="f-email">Email</label>
+                <input type="text" id="f-email" name="email" class="form-control"
+                       placeholder="Buscar por email..." value="{{ f_email }}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted mb-1" for="f-fecha">Fecha de registro</label>
+                <input type="date" id="f-fecha" name="fecha" class="form-control" value="{{ f_fecha }}">
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="button" class="admin-btn-primary flex-grow-1" onclick="filtrarUsuarios()">
+                    <i class="bi bi-search me-1"></i> Buscar
+                </button>
+                <button type="button" class="admin-btn-muted" onclick="limpiarFiltros()" title="Limpiar filtros">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </form>
     </div>
     <div class="table-responsive">
         <table class="table table-hover align-middle">
@@ -116,27 +150,66 @@
                     <th>Registro</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for usuario in usuarios %}
-                <tr>
-                    <td class="fw-semibold">{{ usuario.id }}</td>
-                    <td>{{ usuario.nombre }}</td>
-                    <td>{{ usuario.email }}</td>
-                    <td>
-                        <span class="admin-badge {% if usuario.rol == 'admin' %}admin-badge-danger{% else %}admin-badge-primary{% endif %}">
-                            {{ usuario.rol|upper }}
-                        </span>
-                    </td>
-                    <td>{{ usuario.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5"><div class="admin-empty"><i class="bi bi-people"></i>No hay usuarios registrados.</div></td>
-                </tr>
-                {% endfor %}
+            <tbody id="tablaUsuarios">
+                {% include 'admin/_tabla_usuarios.html' %}
             </tbody>
         </table>
     </div>
 </div>
 
+{% endblock %}
+
+{% block admin_scripts %}
+<script>
+    function filtrarUsuarios() {
+        const params = new URLSearchParams();
+        const nombre = document.getElementById('f-nombre').value.trim();
+        const email = document.getElementById('f-email').value.trim();
+        const fecha = document.getElementById('f-fecha').value;
+        if (nombre) params.set('nombre', nombre);
+        if (email) params.set('email', email);
+        if (fecha) params.set('fecha', fecha);
+        params.set('fragmento', '1');
+
+        fetch('/admin?' + params.toString(), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function (res) {
+            if (!res.ok) throw new Error('Error del servidor');
+            return res.text();
+        })
+        .then(function (html) {
+            const tbody = document.getElementById('tablaUsuarios');
+            if (tbody) tbody.innerHTML = html;
+            const badge = document.getElementById('usuariosBadge');
+            if (badge) {
+                const total = (html.match(/<tr>/g) || []).length;
+                badge.textContent = total + (nombre || email || fecha ? ' resultados' : ' total');
+            }
+        })
+        .catch(function (err) {
+            alert('No se pudo filtrar: ' + err.message);
+        });
+    }
+
+    function limpiarFiltros() {
+        document.getElementById('f-nombre').value = '';
+        document.getElementById('f-email').value = '';
+        document.getElementById('f-fecha').value = '';
+        filtrarUsuarios();
+    }
+
+    function recargarUsuarios() {
+        filtrarUsuarios();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('f-nombre').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); filtrarUsuarios(); }
+        });
+        document.getElementById('f-email').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); filtrarUsuarios(); }
+        });
+    });
+</script>
 {% endblock %}

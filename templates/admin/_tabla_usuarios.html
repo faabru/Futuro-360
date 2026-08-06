@@ -1,0 +1,30 @@
+{% for usuario in usuarios %}
+<tr>
+    <td class="fw-semibold">{{ usuario.id }}</td>
+    <td>
+        <div class="d-flex align-items-center gap-2">
+            <span class="user-avatar {% if usuario.rol == 'admin' %}avatar-admin{% else %}avatar-user{% endif %}">
+                {{ (usuario.nombre or 'U')[:1]|upper }}
+            </span>
+            <div>
+                <div class="fw-semibold">{{ usuario.nombre }}</div>
+            </div>
+        </div>
+    </td>
+    <td><a href="mailto:{{ usuario.email }}" class="admin-email">{{ usuario.email }}</a></td>
+    <td>
+        <span class="admin-badge {% if usuario.rol == 'admin' %}admin-badge-danger{% else %}admin-badge-primary{% endif %}">
+            {% if usuario.rol == 'admin' %}<i class="bi bi-shield-lock me-1"></i>{% else %}<i class="bi bi-person me-1"></i>{% endif %}
+            {{ usuario.rol|upper }}
+        </span>
+    </td>
+    <td>
+        <span class="admin-date"><i class="bi bi-calendar3 me-1"></i>{{ usuario.created_at.strftime('%d/%m/%Y') }}</span>
+        <span class="admin-date admin-date-time">{{ usuario.created_at.strftime('%H:%M') }}</span>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="5"><div class="admin-empty"><i class="bi bi-search"></i>No se encontraron usuarios con esos filtros.</div></td>
+</tr>
+{% endfor %}

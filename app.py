@@ -451,6 +451,17 @@ def carreras():
     cursor.execute(query)
     lista_carreras = cursor.fetchall()
 
+    # Adjuntar todas las áreas de cada carrera (una carrera puede tener varias)
+    cursor.execute("SELECT carrera_id, area FROM carrera_areas ORDER BY id")
+    areas_por_carrera = {}
+    for r in cursor.fetchall():
+        areas_por_carrera.setdefault(r['carrera_id'], []).append(r['area'])
+    for carrera in lista_carreras:
+        areas = areas_por_carrera.get(carrera['id'], [])
+        if not areas and carrera.get('area_profesional'):
+            areas = [carrera['area_profesional']]
+        carrera['areas'] = areas
+
     return render_template('carreras.html',
         carreras=lista_carreras,
         filtro_actual=filtro,
@@ -475,7 +486,7 @@ def test():
                 for area in areas:
                     area_limpia = area.strip() if area else ''
                     # Ignorar valores nulos, vacíos, 'Neutral' o 'Ninguna de las anteriores' — no suman puntos
-                    if area_limpia and area_limpia != 'Neutral' and area_limpia.lower() != 'ninguna de las anteriores':
+                    if area_limpia and area_limpia != 'Neutral' and area_limpia.lower() not in ('ninguna de las anteriores', 'valor nulo'):
                         puntuacion[area_limpia] = puntuacion.get(area_limpia, 0) + 1
 
         # Validar que el usuario respondió algo
@@ -494,7 +505,7 @@ def test():
                 pregunta_id = key.replace('opcion_', '')
                 pregunta_texto = request.form.get('pregunta_' + pregunta_id, '')
                 area_sel = request.form.get(pregunta_id, '')
-                if area_sel == 'Neutral':
+                if area_sel == 'Neutral' or area_sel.lower() == 'valor nulo':
                     area_sel = None
                 respuestas_detalle.append({
                     "pregunta": pregunta_texto,
@@ -635,8 +646,11 @@ def ver_resultado(resultado_id):
     area = resultado['area_profesional_sugerida']
     
     cursor.execute(
-        "SELECT * FROM carreras WHERE area_profesional = %s LIMIT 6",
-        (area,)
+        """SELECT c.* FROM carreras c
+           LEFT JOIN carrera_areas ca ON ca.carrera_id = c.id
+           WHERE c.area_profesional = %s OR ca.area = %s
+           GROUP BY c.id LIMIT 6""",
+        (area, area)
     )
     carreras_sugeridas = cursor.fetchall()
     
@@ -741,7 +755,8 @@ def juego():
 
     # Carreras activas en el juego
     cursor.execute("""
-        SELECT gc.*, c.nombre as carrera_nombre, c.id as carrera_id, c.area_profesional
+        SELECT gc.*, c.nombre as carrera_nombre, c.id as carrera_id, c.area_profesional,
+               c.descripcion as carrera_descripcion, c.a_que_se_dedica as carrera_dedica
         FROM game_carreras gc
         JOIN carreras c ON gc.carrera_id = c.id
         WHERE gc.activo = 1
@@ -761,6 +776,8 @@ def juego():
         [{'id': r['carrera_id'], 'nombre': r['carrera_nombre'],
           'area_profesional': r['area_profesional'],
           'descripcion': r['descripcion_card'] or '',
+          'descripcion_completa': r['carrera_descripcion'] or '',
+          'a_que_se_dedica': r['carrera_dedica'] or '',
           'titulo_card': r['titulo_card'] or r['carrera_nombre'],
           'texto_boton': r['texto_boton'] or 'Ver carrera',
           'boton_no': r.get('boton_no') or 'No es lo mío',
@@ -872,6 +889,11 @@ def detalle_carrera(carrera_id):
     if not carrera:
         flash('No pudimos encontrar información sobre esa carrera.', 'danger')
         return redirect(url_for('carreras'))
+
+    areas = obtener_areas_carrera(carrera_id)
+    if not areas and carrera.get('area_profesional'):
+        areas = [carrera['area_profesional']]
+    carrera['areas'] = areas
 
     # Verificar si existe un template HTML individual para esta carrera
     # Ejemplo: templates/carreras/carrera_39.html para Arquitectura (id=39)
@@ -1146,8 +1168,33 @@ def admin_dashboard():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
 
-    cursor.execute("SELECT id, nombre, email, rol, created_at FROM usuarios")
+    cursor.execute("SELECT COUNT(*) AS total FROM usuarios")
+    total_usuarios = cursor.fetchone()['total']
+
+    f_nombre = request.args.get('nombre', '').strip()
+    f_email = request.args.get('email', '').strip()
+    f_fecha = request.args.get('fecha', '').strip()
+
+    where = []
+    params = []
+    if f_nombre:
+        where.append("(nombre LIKE %s OR apellido LIKE %s)")
+        params.extend(['%' + f_nombre + '%'] * 2)
+    if f_email:
+        where.append("email LIKE %s")
+        params.append('%' + f_email + '%')
+    if f_fecha:
+        where.append("DATE(created_at) = %s")
+        params.append(f_fecha)
+
+    sql = "SELECT id, nombre, email, rol, created_at FROM usuarios"
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    cursor.execute(sql, params)
     usuarios = cursor.fetchall()
+
+    if request.args.get('fragmento') == '1':
+        return render_template('admin/_tabla_usuarios.html', usuarios=usuarios)
 
     cursor.execute("SELECT * FROM carreras")
     carreras = cursor.fetchall()
@@ -1171,7 +1218,9 @@ def admin_dashboard():
     orientaciones = cursor.fetchall()
 
     return render_template('admin/dashboard.html',
-        usuarios=usuarios, carreras=carreras, preguntas=preguntas,
+        usuarios=usuarios, total_usuarios=total_usuarios,
+        f_nombre=f_nombre, f_email=f_email, f_fecha=f_fecha,
+        carreras=carreras, preguntas=preguntas,
         total_noticias=total_noticias, noticias_hoy=noticias_hoy,
         carreras_juego_activas=carreras_juego_activas,
         preguntas_juego_activas=preguntas_juego_activas,
@@ -1192,10 +1241,45 @@ def asegurar_tabla_orientaciones():
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
     """)
     cursor.execute("""
+        CREATE TABLE IF NOT EXISTS carrera_areas (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            carrera_id INT NOT NULL,
+            area VARCHAR(100) NOT NULL,
+            INDEX idx_carrera (carrera_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    """)
+    cursor.execute("""
         INSERT IGNORE INTO orientaciones (nombre)
         SELECT DISTINCT area_profesional FROM carreras
         WHERE area_profesional IS NOT NULL AND area_profesional <> ''
     """)
+    db.commit()
+
+
+def obtener_areas_carrera(carrera_id):
+    """Devuelve la lista de áreas/orientaciones asignadas a una carrera."""
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute(
+        "SELECT area FROM carrera_areas WHERE carrera_id = %s ORDER BY id",
+        (carrera_id,)
+    )
+    return [r['area'] for r in cursor.fetchall()]
+
+
+def guardar_areas_carrera(carrera_id, areas):
+    """Reemplaza las áreas de una carrera por la lista dada y asegura que
+    cada una exista también como orientación para el filtro público."""
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM carrera_areas WHERE carrera_id = %s", (carrera_id,))
+    areas = [a.strip() for a in areas if a and a.strip()]
+    for area in areas:
+        cursor.execute("INSERT IGNORE INTO orientaciones (nombre) VALUES (%s)", (area,))
+        cursor.execute(
+            "INSERT INTO carrera_areas (carrera_id, area) VALUES (%s, %s)",
+            (carrera_id, area)
+        )
     db.commit()
 
 
@@ -1270,7 +1354,9 @@ def nueva_carrera():
     if request.method == 'POST':
         nombre = request.form.get('nombre', '')
         descripcion = request.form.get('descripcion', '')
-        area_profesional = request.form.get('area_profesional', '')
+        areas = request.form.getlist('area_profesional')
+        areas = [a.strip() for a in areas if a and a.strip()]
+        area_profesional = areas[0] if areas else ''
         a_que_se_dedica = request.form.get('a_que_se_dedica', '')
 
         # Imágenes: si se sube un archivo, se usa en lugar de la URL
@@ -1298,10 +1384,17 @@ def nueva_carrera():
             (carrera_id_nueva, nombre, descripcion)
         )
         db.commit()
+        guardar_areas_carrera(carrera_id_nueva, areas)
         flash('Carrera creada. Las instituciones se completarán con el buscador web en el detalle de la carrera.', 'success')
         return redirect(url_for('admin_carreras'))
 
-    return render_template('admin/carrera_form.html', carrera=None)
+    asegurar_tabla_orientaciones()
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
+    orientaciones = [r['nombre'] for r in cursor.fetchall()]
+    return render_template('admin/carrera_form.html', carrera=None,
+                           orientaciones=orientaciones, areas_carrera=[])
 
 @app.route('/admin/carreras/editar/<int:id>', methods=['GET', 'POST'])
 @requiere_admin
@@ -1312,7 +1405,9 @@ def editar_carrera(id):
     if request.method == 'POST':
         nombre = request.form.get('nombre', '')
         descripcion = request.form.get('descripcion', '')
-        area_profesional = request.form.get('area_profesional', '')
+        areas = request.form.getlist('area_profesional')
+        areas = [a.strip() for a in areas if a and a.strip()]
+        area_profesional = areas[0] if areas else ''
         a_que_se_dedica = request.form.get('a_que_se_dedica', '')
 
         # Imágenes: si se sube un archivo, se usa en lugar de la URL
@@ -1330,12 +1425,18 @@ def editar_carrera(id):
             (nombre, descripcion, area_profesional, imagen_portada, imagen_principal, a_que_se_dedica, id)
         )
         db.commit()
+        guardar_areas_carrera(id, areas)
         flash('Carrera actualizada exitosamente.', 'success')
         return redirect(url_for('admin_carreras'))
     
     cursor.execute("SELECT * FROM carreras WHERE id = %s", (id,))
     carrera = cursor.fetchone()
-    return render_template('admin/carrera_form.html', carrera=carrera)
+    asegurar_tabla_orientaciones()
+    cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
+    orientaciones = [r['nombre'] for r in cursor.fetchall()]
+    areas_carrera = obtener_areas_carrera(id)
+    return render_template('admin/carrera_form.html', carrera=carrera,
+                           orientaciones=orientaciones, areas_carrera=areas_carrera)
 
 @app.route('/admin/carreras/eliminar/<int:id>', methods=['POST'])
 @requiere_admin
@@ -1738,6 +1839,19 @@ def admin_noticias():
     categorias_noticias = [r['categoria'] for r in cursor.fetchall()]
     categorias = list(dict.fromkeys(areas_registradas + categorias_noticias))
 
+    # Dropdown del formulario: orientaciones + áreas profesionales de las carreras
+    cursor.execute("""
+        SELECT DISTINCT area_profesional FROM carreras
+        WHERE area_profesional IS NOT NULL AND area_profesional <> ''
+        ORDER BY area_profesional
+    """)
+    areas_carreras = [r['area_profesional'] for r in cursor.fetchall()]
+    cursor.execute("SELECT DISTINCT area FROM carrera_areas ORDER BY area")
+    areas_carrera_areas = [r['area'] for r in cursor.fetchall()]
+    areas_dropdown = list(dict.fromkeys(
+        ['General'] + areas_registradas + areas_carreras + areas_carrera_areas + categorias_noticias
+    ))
+
     cursor.execute("SELECT * FROM fuentes ORDER BY nombre")
     fuentes_tabla = cursor.fetchall()
 
@@ -1746,6 +1860,7 @@ def admin_noticias():
 
     return render_template('admin/noticias_lista.html',
         noticias=noticias, fuentes=fuentes, categorias=categorias,
+        areas_dropdown=areas_dropdown,
         fuentes_tabla=fuentes_tabla, filtros_fecha=filtros_fecha,
         filtro_fecha=filtro_fecha, filtro_fuente=filtro_fuente,
         filtro_categoria=filtro_categoria, busqueda=busqueda)

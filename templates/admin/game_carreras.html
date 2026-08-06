@@ -3,6 +3,12 @@
 {% block panel_title %}Game: Descubre tu Carrera{% endblock %}
 {% block panel_subtitle %}Activá o desactivá qué carreras aparecen en el juego. Solo se eliminan si la carrera se borra del catálogo.{% endblock %}
 
+{% block panel_actions %}
+<a href="{{ url_for('admin_game_index') }}" class="admin-btn-back">
+    <i class="bi bi-arrow-left"></i> Volver
+</a>
+{% endblock %}
+
 {% block panel_content %}
     <div class="admin-card overflow-hidden">
         <div class="table-responsive">

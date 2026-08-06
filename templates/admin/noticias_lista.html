@@ -323,12 +323,12 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Fuente</label>
-                            <input type="text" name="fuente" class="form-control" list="fuentesList" required placeholder="Ej: Futuro 360">
-                            <datalist id="fuentesList">
+                            <select name="fuente" class="form-select" required>
+                                <option value="" selected disabled>Seleccionar fuente</option>
                                 {% for f in fuentes %}
-                                <option value="{{ f }}">
+                                <option value="{{ f }}">{{ f }}</option>
                                 {% endfor %}
-                            </datalist>
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Fecha</label>
@@ -338,12 +338,11 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Área / Categoría</label>
-                            <input type="text" name="categoria" class="form-control" list="categoriasList" value="General">
-                            <datalist id="categoriasList">
-                                {% for c in categorias %}
-                                <option value="{{ c }}">
+                            <select name="categoria" class="form-select flecha-arriba">
+                                {% for a in areas_dropdown %}
+                                <option value="{{ a }}" {% if a == 'General' %}selected{% endif %}>{{ a }}</option>
                                 {% endfor %}
-                            </datalist>
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">URL original (link)</label>
@@ -380,11 +379,27 @@
                 form.elements['titulo'].value = btn.getAttribute('data-titulo') || '';
                 form.elements['descripcion'].value = btn.getAttribute('data-descripcion') || '';
                 form.elements['imagen'].value = btn.getAttribute('data-imagen') || '';
-                form.elements['fuente'].value = btn.getAttribute('data-fuente') || '';
                 form.elements['fecha'].value = btn.getAttribute('data-fecha') || '';
                 form.elements['link'].value = btn.getAttribute('data-link') || '';
-                form.elements['categoria'].value = btn.getAttribute('data-categoria') || 'General';
                 form.elements['imagen_file'].value = '';
+
+                function setSelectValue(name, value) {
+                    const select = form.elements[name];
+                    if (!value) value = select.querySelector('option[value="General"]') ? 'General' : '';
+                    let existe = false;
+                    Array.from(select.options).forEach(function (o) {
+                        if (o.value === value) existe = true;
+                    });
+                    if (!existe && value) {
+                        const opt = document.createElement('option');
+                        opt.value = value;
+                        opt.textContent = value;
+                        select.appendChild(opt);
+                    }
+                    select.value = value;
+                }
+                setSelectValue('fuente', btn.getAttribute('data-fuente') || '');
+                setSelectValue('categoria', btn.getAttribute('data-categoria') || 'General');
             });
         }
     });
@@ -422,7 +437,12 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Fuente</label>
-                            <input type="text" name="fuente" class="form-control" list="fuentesList" required placeholder="Ej: Futuro 360">
+                            <select name="fuente" class="form-select" required>
+                                <option value="" selected disabled>Seleccionar fuente</option>
+                                {% for f in fuentes %}
+                                <option value="{{ f }}">{{ f }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Fecha</label>
@@ -432,7 +452,11 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label fw-bold">Área / Categoría</label>
-                            <input type="text" name="categoria" class="form-control" list="categoriasList" value="General">
+                            <select name="categoria" class="form-select flecha-arriba">
+                                {% for a in areas_dropdown %}
+                                <option value="{{ a }}">{{ a }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-bold">URL original (link)</label>
