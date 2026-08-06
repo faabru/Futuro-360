@@ -1,0 +1,201 @@
+# Manual de Usuario — Futuro 360
+
+Plataforma de orientación vocacional para estudiantes de Tucumán. Este manual explica el uso del
+**sitio público** (para cualquier visitante o usuario registrado) y del **panel de administración**
+(para el personal que gestiona el contenido).
+
+---
+
+## Parte 1 — Sitio público
+
+### 1.1 Registro de cuenta
+
+1. Entrar a la página principal y hacer clic en **Registrarse**.
+2. Completar **nombre**, **apellido**, **email** y **contraseña**.
+3. Enviar el formulario. La cuenta queda creada como **usuario** estándar.
+
+> El email debe ser único. Si ya existe una cuenta con ese correo, el sistema lo informa.
+
+### 1.2 Iniciar sesión
+
+1. Hacer clic en **Iniciar sesión**.
+2. Ingresar **email** y **contraseña**.
+3. El sistema valida las credenciales y redirige al **dashboard** del usuario.
+
+### 1.3 Recuperación de contraseña
+
+Si el usuario olvida su contraseña:
+
+1. En la página de login, hacer clic en **¿Olvidaste tu contraseña?**.
+2. Ingresar el email de la cuenta.
+3. El sistema envía un **código PIN de 6 dígitos** al correo (revisar también la carpeta de spam).
+4. Ingresar el código en la pantalla de verificación.
+5. Definir una **nueva contraseña** y confirmarla.
+
+> El código expira en 15 minutos. Por seguridad, el sistema muestra el mismo mensaje de éxito
+> aunque el email no exista, para no revelar qué cuentas están registradas.
+
+### 1.4 Perfil
+
+Desde **Mi perfil**, el usuario puede:
+- Ver y editar sus datos personales (nombre, apellido, email).
+- Cambiar su contraseña.
+- Eliminar su cuenta (baja de usuario).
+
+### 1.5 Test vocacional
+
+Es la funcionalidad principal de la plataforma:
+
+1. Entrar a la sección **Test vocacional**.
+2. Responder las **30 preguntas** eligiendo la opción que mejor describa sus intereses.
+3. Al finalizar, el sistema calcula el **área profesional** más afín según el puntaje acumulado.
+4. El resultado se guarda y muestra las **carreras recomendadas** dentro de esa área.
+
+### 1.6 Mis resultados
+
+- La sección **Mis resultados** lista todos los tests realizados por el usuario.
+- Al abrir un resultado se puede ver el **área sugerida**, el detalle y las **notas personales**.
+- Las notas personales se pueden **editar** desde la misma pantalla.
+
+### 1.7 Explorar carreras
+
+- La sección **Carreras** muestra todas las carreras ordenadas por área profesional.
+- Cada carrera tiene: **nombre**, **descripción**, **área** e **instituciones** donde se dicta.
+- Se pueden filtrar o buscar por área de interés.
+- En el detalle de cada carrera existe la opción **Buscar universidades** que lista los centros
+  educativos de la provincia que ofrecen esa carrera.
+
+### 1.8 Juego de descubrimiento
+
+- La sección **Juego** presenta tarjetas de carreras con botones **"Me interesa"**, **"No es lo mío"**
+  e **"Info"**.
+- Permite explorar carreras de forma lúdica e interactiva, viendo información ampliada de cada una.
+
+### 1.9 Noticias
+
+- La sección **Noticias** muestra novedades educativas de la región.
+- Las noticias provienen de **fuentes** configuradas por el administrador y se agrupan por
+  **categoría** y **filtro de fecha** (por ejemplo: semana, mes, año).
+- Cada noticia puede abrirse en su **link de origen** si es externa.
+
+### 1.10 Contacto / comentarios
+
+- La sección de **comentarios** permite a los visitantes dejar un mensaje de contacto con nombre,
+  email y texto.
+
+---
+
+## Parte 2 — Panel de administración
+
+El panel se accede desde **`/admin`** en el navegador. Se ingresa **solo con email y contraseña**
+de una cuenta con rol `admin` activa.
+
+### 2.1 Roles
+
+| Rol | Descripción |
+|---|---|
+| **Usuario** | Acceso solo al sitio público. |
+| **Administrador** | Acceso completo al panel. |
+| **Dueño** | Administrador con permisos exclusivos (gestión de otros administradores). |
+
+El **dueño** puede:
+- Editar o eliminar a **otros administradores**.
+- Desactivar cuentas de administradores.
+
+El **dueño no puede** (la cuenta está protegida):
+- Eliminarse a sí mismo.
+- Desactivar su propia cuenta.
+- Editarse a sí mismo desde el panel.
+
+### 2.2 Dashboard
+
+Pantalla inicial del panel con resumen de la actividad: cantidad de usuarios, carreras, preguntas,
+noticias y resultados. Es la puerta de entrada a todas las secciones de gestión.
+
+### 2.3 Gestión de usuarios
+
+Desde **Usuarios** se realiza el ABM completo (Alta, Baja, Modificación y Consulta):
+
+- **Listado**: tabla con nombre, email, rol y estado. Incluye indicador **DUEÑO** cuando corresponde.
+- **Alta**: formulario para crear un nuevo usuario (nombre, apellido, email, contraseña, rol, estado).
+- **Modificación**: editar datos de un usuario (nombre, apellido, email, contraseña, rol).
+- **Baja**: eliminar un usuario de la base.
+- **Activar / Desactivar**: conmutar el estado `activo` de una cuenta. Un usuario desactivado no
+  puede iniciar sesión.
+- **Exportar Excel**: genera un archivo `.xlsx` con la lista completa de usuarios.
+
+### 2.4 Gestión de carreras
+
+Desde **Carreras** se gestiona el catálogo de carreras:
+
+- Listado con búsqueda/filtro.
+- **Alta** de carrera: nombre, descripción, área profesional e instituciones.
+- **Edición** de carrera: todos sus datos e imágenes.
+- **Baja** de carrera.
+- **Exportar Excel** de la lista de carreras.
+
+### 2.5 Orientaciones
+
+Sección para gestionar las **áreas/orientaciones profesionales** que agrupan las carreras
+(por ejemplo: Tecnología, Salud, Ingeniería, Negocios, etc.). Permite **crear** y **eliminar**
+orientaciones.
+
+### 2.6 Preguntas y opciones del test
+
+Desde **Preguntas** se administra el contenido del test vocacional:
+
+- **Alta** de pregunta: texto y área profesional.
+- **Alta de opciones** para cada pregunta: texto y área que suma puntaje.
+- **Baja** de preguntas y de opciones individuales.
+- **Exportar Excel** de preguntas y opciones.
+
+### 2.7 Juego
+
+- **Carreras del juego**: configurar qué carreras participan en la sección Juego, con textos de
+  botones, título y descripción de tarjeta, orden y estado activo.
+- **Preguntas del juego**: alta, edición, activar/desactivar y baja de las preguntas del juego.
+
+### 2.8 Noticias
+
+- **Fuentes**: alta, edición, activar/desactivar y baja de las fuentes de noticias (por ejemplo:
+  nombre del medio/portal).
+- **Filtros de fecha**: alta, edición, orden y baja de los filtros de tiempo que se ofrecen al
+  usuario final (ej: "Hoy", "Esta semana", "Este mes").
+- **Noticias**: alta, edición y baja de noticias (título, descripción, imagen, fuente, fecha,
+  categoría, link). Incluye **Exportar Excel** de la lista de noticias.
+
+### 2.9 Exportación de reportes (Excel)
+
+Requisito excluyente del TFI: exportación de datos.
+
+Cada sección habilitada muestra un botón **"Exportar Excel"** que descarga un archivo `.xlsx`
+con formato profesional:
+
+- Encabezados con fondo oscuro y texto blanco.
+- Filas alternadas para facilitar la lectura.
+- **Autofiltro** en los encabezados.
+- **Panel congelado** (encabezado fijo al desplazarse).
+- Hoja **Resumen** con la fecha de exportación y el total de registros.
+
+### 2.10 Recuperación de contraseña del panel
+
+El panel cuenta con su propio flujo de recuperación de contraseña (paso por paso: email → PIN →
+nueva contraseña), equivalente al del sitio público.
+
+---
+
+## Preguntas frecuentes
+
+**¿Cómo recupero mi contraseña si no llega el código?**
+Revisar la carpeta de spam y esperar unos minutos. El código expira a los 15 minutos de solicitado.
+
+**¿Por qué un administrador no puede eliminar a otro administrador?**
+Por seguridad, esa acción es exclusiva del **dueño** del sistema.
+
+**¿Qué pasa si desactivo mi propia cuenta de administrador?**
+No es posible: el sistema bloquea la auto-desactivación y la auto-eliminación para evitar dejar el
+panel sin administración.
+
+**¿El exportado a Excel funciona en cualquier navegador?**
+Sí: el archivo `.xlsx` se genera en el servidor y se descarga por el navegador sin necesidad de
+complementos.
