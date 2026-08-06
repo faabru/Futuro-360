@@ -8,7 +8,7 @@
     <button class="admin-btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaPregunta">
         <i class="bi bi-plus-lg me-1"></i> Nueva Pregunta
     </button>
-    <a href="{{ url_for('admin_game_index') }}" class="admin-btn-back">
+    <a href="{{ url_for('admin_juego.admin_game_index') }}" class="admin-btn-back">
         <i class="bi bi-arrow-left"></i> Volver
     </a>
 </div>
@@ -43,7 +43,7 @@
                         <span class="admin-badge admin-badge-success small">{{ p.opcion_b_area }}</span>
                     </td>
                     <td>
-                        <form action="{{ url_for('toggle_game_pregunta', id=p.id) }}" method="POST" data-ajax="toggle">
+                        <form action="{{ url_for('admin_juego.toggle_game_pregunta', id=p.id) }}" method="POST" data-ajax="toggle">
                             <button type="submit"
                                     class="badge border-0 {% if p.activo %}bg-success{% else %}bg-secondary{% endif %}"
                                     title="Click para cambiar estado">
@@ -52,7 +52,7 @@
                         </form>
                     </td>
                     <td>
-                        <form action="{{ url_for('eliminar_game_pregunta', id=p.id) }}" method="POST"
+                        <form action="{{ url_for('admin_juego.eliminar_game_pregunta', id=p.id) }}" method="POST"
                               data-ajax="delete" data-confirm="¿Eliminar esta pregunta del juego?">
                             <button type="submit" class="icon-btn danger" title="Eliminar">
                                 <i class="bi bi-trash"></i>
@@ -83,7 +83,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <form action="{{ url_for('nueva_game_pregunta') }}" method="POST">
+            <form action="{{ url_for('admin_juego.nueva_game_pregunta') }}" method="POST">
                 <div class="modal-body pt-3">
 
                     <div class="mb-3">

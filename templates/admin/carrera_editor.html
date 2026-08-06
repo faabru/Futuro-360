@@ -4,7 +4,7 @@
 {% block panel_subtitle %}Editá la información visual, la imagen y el contenido de la carrera.{% endblock %}
 
 {% block panel_actions %}
-<a href="{{ url_for('admin_carreras') }}" class="btn btn-outline-secondary rounded-pill px-4">
+<a href="{{ url_for('admin_carreras.admin_carreras') }}" class="btn btn-outline-secondary rounded-pill px-4">
     <i class="bi bi-arrow-left me-1"></i> Volver a Carreras
 </a>
 {% endblock %}
@@ -27,7 +27,7 @@
                 </div>
                 {% if carrera %}
                 <div class="mt-3 d-grid gap-2">
-                    <a href="{{ url_for('detalle_carrera', carrera_id=carrera.id) }}" class="btn btn-outline-primary btn-sm rounded-pill" target="_blank">
+                    <a href="{{ url_for('carreras.detalle_carrera', carrera_id=carrera.id) }}" class="btn btn-outline-primary btn-sm rounded-pill" target="_blank">
                         <i class="bi bi-box-arrow-up-right me-1"></i> Ver en el sitio
                     </a>
                     <small class="text-muted text-center">Archivo: <code>carreras/{{ html_data.slug if html_data else '...' }}.html</code></small>
@@ -41,7 +41,7 @@
         <div class="admin-card">
             <div class="admin-card-body p-4 p-md-5">
                 <form method="POST" enctype="multipart/form-data" id="editorForm"
-                      action="{{ url_for('editar_carrera_visual', id=carrera.id) if carrera else url_for('nueva_carrera') }}">
+                      action="{{ url_for('editar_carrera_visual', id=carrera.id) if carrera else url_for('admin_carreras.nueva_carrera') }}">
                     <div class="mb-4">
                         <label class="form-label fw-bold">Nombre de la carrera</label>
                         <input type="text" name="nombre" id="inputNombre" class="form-control form-control-lg"
@@ -70,7 +70,7 @@
                         <button type="submit" class="admin-btn-primary rounded-pill px-4">
                             <i class="bi bi-save me-1"></i> Guardar cambios
                         </button>
-                        <a href="{{ url_for('admin_carreras') }}" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a>
+                        <a href="{{ url_for('admin_carreras.admin_carreras') }}" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a>
                     </div>
                 </form>
             </div>

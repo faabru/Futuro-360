@@ -487,7 +487,7 @@
                 </div>
                 <p class="text-muted mb-0">
                     Este informe se generó con una versión anterior del test y no guardó las respuestas individuales.
-                    Hacé un nuevo <a href="{{ url_for('test') }}" class="fw-bold text-decoration-none">Test Pro</a> para ver tu análisis pregunta por pregunta.
+                    Hacé un nuevo <a href="{{ url_for('vocacional.test') }}" class="fw-bold text-decoration-none">Test Pro</a> para ver tu análisis pregunta por pregunta.
                 </p>
             </div>
             {% endif %}
@@ -511,7 +511,7 @@
                             </div>
                             <div class="cr-body">
                                 <p>{{ (carrera.descripcion or '')[:110] }}{% if (carrera.descripcion or '')|length > 110 %}…{% endif %}</p>
-                                <a href="{{ url_for('detalle_carrera', carrera_id=carrera.id) }}" class="cr-btn text-primary">
+                                <a href="{{ url_for('carreras.detalle_carrera', carrera_id=carrera.id) }}" class="cr-btn text-primary">
                                     Ver carrera completa <i class="bi bi-arrow-right"></i>
                                 </a>
                             </div>
@@ -523,20 +523,20 @@
                 <div class="text-center py-4">
                     <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
                     <p class="text-muted mb-0">Explorá todas las opciones en el catálogo de carreras.</p>
-                    <a href="{{ url_for('carreras') }}" class="btn btn-custom mt-3">Ver catálogo completo</a>
+                    <a href="{{ url_for('carreras.carreras') }}" class="btn btn-custom mt-3">Ver catálogo completo</a>
                 </div>
                 {% endif %}
             </div>
 
             <!-- ===== ACCIONES ===== -->
             <div class="d-flex justify-content-center gap-3 flex-wrap mt-4 mb-5">
-                <a href="{{ url_for('descargar_resultado_pdf', resultado_id=resultado.id) }}" class="btn-custom btn-custom-primary">
+                <a href="{{ url_for('vocacional.descargar_resultado_pdf', resultado_id=resultado.id) }}" class="btn-custom btn-custom-primary">
                     <i class="bi bi-file-earmark-pdf me-1"></i> Descargar informe PDF
                 </a>
-                <a href="{{ url_for('mis_resultados') }}" class="btn-custom">
+                <a href="{{ url_for('vocacional.mis_resultados') }}" class="btn-custom">
                     <i class="bi bi-journal-check me-1"></i> Mis resultados
                 </a>
-                <a href="{{ url_for('test') }}" class="btn-custom btn-custom-primary">
+                <a href="{{ url_for('vocacional.test') }}" class="btn-custom btn-custom-primary">
                     <i class="bi bi-arrow-repeat me-1"></i> Hacer otro test
                 </a>
             </div>

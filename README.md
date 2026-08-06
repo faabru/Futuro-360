@@ -41,10 +41,39 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 
 ## Estructura del proyecto
 
+La aplicación está organizada siguiendo el patrón de **blueprints de Flask**: cada
+funcionalidad vive en su propio módulo y la entrada principal queda reducida a una
+fábrica (`create_app`) que registra todos los módulos.
+
 ```
 futuro 360/
-├── app.py                       # Aplicación Flask: rutas y lógica del sitio y del panel
+├── app.py                       # Punto de entrada: fábrica create_app() + arranque del servidor
+├── config.py                    # Configuración central (BD, seguridad, email, constantes)
 ├── database_handler.py          # Conexión y ciclo de vida de la BD (una conexión por request)
+├── core/                        # Lógica transversal reutilizable
+│   ├── decoradores.py           # requiere_login, requiere_admin, ajax_o_redirect, es_usuario_dueño
+│   ├── migraciones.py           # Auto-migraciones idempotentes (tablas, columnas, datos iniciales)
+│   ├── mailer.py                # Envío de emails con Resend (códigos de recuperación)
+│   └── startup.py               # Sincronización de imágenes al arrancar
+├── blueprints/
+│   ├── sitio/                   # Rutas del sitio público
+│   │   ├── auth.py              # Registro, login, logout, recuperación de contraseña, perfil
+│   │   ├── principal.py         # Portada, dashboard del usuario, comentarios
+│   │   ├── vocacional.py        # Test vocacional, resultados e informe PDF
+│   │   ├── carreras.py          # Catálogo de carreras y búsqueda de universidades
+│   │   ├── juegos.py            # Mini-juego de descubrimiento de carreras
+│   │   └── noticias.py          # Sección de noticias
+│   └── admin/                   # Rutas del panel de administración
+│       ├── auth.py              # Login, logout y recuperación de contraseña del panel
+│       ├── dashboard.py         # Pantalla principal (estadísticas y gráficos)
+│       ├── usuarios.py          # ABM completo de usuarios
+│       ├── orientaciones.py     # Áreas/orientaciones profesionales
+│       ├── carreras.py          # ABM de carreras
+│       ├── preguntas.py         # ABM de preguntas y opciones del test
+│       ├── juego.py             # ABM de carreras y preguntas del juego
+│       ├── reportes.py          # Exportación de datos a Excel
+│       └── noticias.py          # ABM de noticias, fuentes y filtros de fecha
+├── scripts/                     # Utilidades de desarrollo (sync de imágenes, checks, etc.)
 ├── requirements.txt             # Dependencias de Python
 ├── .env                         # Configuración local (NO se sube al repositorio)
 ├── .gitignore
@@ -190,7 +219,7 @@ excluyente del TFI.
 - Configurar `SECRET_KEY` y las credenciales de BD en el entorno de producción.
 - La base de datos `futuro360` debe estar creada e importada antes de iniciar.
 - El servicio Node de `recuperacion de contraseña/` es un módulo alternativo opcional; la aplicación
-  principal envía los PIN directamente con Resend desde `app.py`.
+  principal envía los PIN directamente con Resend desde `core/mailer.py`.
 
 ## Autor
 

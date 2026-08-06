@@ -1,0 +1,143 @@
+"""
+Rutas del catálogo de carreras del sitio público.
+
+- ``carreras``           → listado con filtros por área y búsqueda.
+- ``detalle_carrera``    → página de una carrera (usa template individual si existe).
+- ``buscar_universidades``→ búsqueda web de universidades (API de DuckDuckGo).
+"""
+
+import os
+
+from flask import (Blueprint, current_app, flash, g, redirect, render_template,
+                   request, url_for)
+
+from core.decoradores import requiere_login
+from core.migraciones import asegurar_tabla_orientaciones, obtener_areas_carrera
+from database_handler import obtener_db
+
+bp = Blueprint('carreras', __name__)
+
+
+@bp.route('/carreras')
+@requiere_login
+def carreras():
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+
+    filtro = request.args.get('filtro', 'populares')  # populares | todas | [área profesional]
+    busqueda = request.args.get('q', '').strip()
+
+    # Determinar si el filtro es un área profesional, populares o todas.
+    # Las áreas disponibles vienen de la tabla de orientaciones (gestionada desde
+    # el panel admin) + las áreas ya asignadas a carreras en la base.
+    asegurar_tabla_orientaciones()
+    cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
+    areas_registradas = [r['nombre'] for r in cursor.fetchall()]
+    cursor.execute("SELECT DISTINCT area_profesional FROM carreras ORDER BY area_profesional")
+    areas_carreras = [r['area_profesional'] for r in cursor.fetchall()]
+    areas_disponibles = list(dict.fromkeys(areas_registradas + areas_carreras))
+
+    area_actual = 'todas'
+    filtro_actual = filtro
+    es_populares = filtro == 'populares'
+
+    # Traemos todas las carreras: el filtrado por área y la búsqueda se realizan
+    # en el cliente (JS) para no recargar la página al buscar o filtrar.
+    query = "SELECT * FROM carreras ORDER BY popular DESC, nombre ASC"
+    cursor.execute(query)
+    lista_carreras = cursor.fetchall()
+
+    # Adjuntar todas las áreas de cada carrera (una carrera puede tener varias).
+    cursor.execute("SELECT carrera_id, area FROM carrera_areas ORDER BY id")
+    areas_por_carrera = {}
+    for r in cursor.fetchall():
+        areas_por_carrera.setdefault(r['carrera_id'], []).append(r['area'])
+    for carrera in lista_carreras:
+        areas = areas_por_carrera.get(carrera['id'], [])
+        if not areas and carrera.get('area_profesional'):
+            areas = [carrera['area_profesional']]
+        carrera['areas'] = areas
+
+    return render_template('carreras.html',
+        carreras=lista_carreras,
+        filtro_actual=filtro,
+        area_actual=area_actual,
+        busqueda=busqueda,
+        areas_disponibles=areas_disponibles
+    )
+
+
+@bp.route('/carrera/<int:carrera_id>')
+@requiere_login
+def detalle_carrera(carrera_id):
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM carreras WHERE id = %s", (carrera_id,))
+    carrera = cursor.fetchone()
+    if not carrera:
+        flash('No pudimos encontrar información sobre esa carrera.', 'danger')
+        return redirect(url_for('carreras.carreras'))
+
+    areas = obtener_areas_carrera(carrera_id)
+    if not areas and carrera.get('area_profesional'):
+        areas = [carrera['area_profesional']]
+    carrera['areas'] = areas
+
+    # Verificar si existe un template HTML individual para esta carrera.
+    # Ejemplo: templates/carreras/carrera_39.html para Arquitectura (id=39).
+    template_individual = f'carreras/carrera_{carrera_id}.html'
+    template_path = os.path.join(current_app.template_folder, template_individual)
+
+    if os.path.exists(template_path):
+        # Usar el template personalizado de esta carrera específica.
+        return render_template(template_individual, carrera=carrera)
+    else:
+        # Fallback al template genérico — ninguna carrera queda sin página.
+        return render_template('carrera_detalle.html', carrera=carrera)
+
+
+@bp.route('/carrera/<int:carrera_id>/buscar-universidades')
+def buscar_universidades(carrera_id):
+    """Busca universidades de Tucumán que dicten esta carrera (DuckDuckGo API)."""
+    # Verificar sesión manualmente para poder responder JSON si no está logueado.
+    if g.user is None:
+        return {"error": "Sesión expirada. Por favor iniciá sesión nuevamente.", "resultados": [], "status": "unauthorized"}, 401
+
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM carreras WHERE id = %s", (carrera_id,))
+    carrera = cursor.fetchone()
+
+    if not carrera:
+        return {"error": "Carrera no encontrada", "resultados": []}, 404
+
+    # Construir una consulta enfocada en la carrera y la ubicación.
+    query_base = f"{carrera['nombre']} universidad facultad Tucumán site:edu.ar OR site:gov.ar"
+
+    if not query_base:
+        return {"error": "Consulta vacía", "resultados": []}, 400
+
+    # Llamada a la búsqueda de DuckDuckGo.
+    try:
+        from ddgs import DDGS
+
+        resultados = []
+        with DDGS() as ddgs:
+            # ddgs.text devuelve diccionarios con: title, href, body.
+            results = list(ddgs.text(query_base, max_results=5))
+
+        for item in results:
+            resultados.append({
+                "titulo": item.get("title", ""),
+                "url": item.get("href", "#"),
+                "descripcion": item.get("body", "")
+            })
+
+        return {"resultados": resultados, "total": len(resultados), "status": "success"}, 200
+
+    except Exception as e:
+        return {
+            "error": f"Error interno del servidor al buscar en DDG: {str(e)}",
+            "resultados": [],
+            "status": "server_error"
+        }, 500

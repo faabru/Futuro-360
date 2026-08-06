@@ -28,7 +28,7 @@
                                     <td><span class="badge bg-primary px-3 py-2 rounded-pill">{{ resultado.area_profesional_sugerida }}</span></td>
                                     
                                     <!-- ACCIÓN: VER DETALLE (READ) -->
-                                    <td><a href="{{ url_for('ver_resultado', resultado_id=resultado.id) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">Ver Informe</a></td>
+                                    <td><a href="{{ url_for('vocacional.ver_resultado', resultado_id=resultado.id) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">Ver Informe</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -39,7 +39,7 @@
                 <div class="text-center my-5 py-5 bg-light rounded-4">
                     <div class="display-1 text-muted mb-3">📂</div>
                     <p class="lead text-muted mb-4">Aún no has realizado ningún test vocacional.</p>
-                    <a href="{{ url_for('test') }}" class="btn btn-primary btn-lg shadow-sm">Realizar mi primer test</a>
+                    <a href="{{ url_for('vocacional.test') }}" class="btn btn-primary btn-lg shadow-sm">Realizar mi primer test</a>
                 </div>
             {% endif %}
         </div>

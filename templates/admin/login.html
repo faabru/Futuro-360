@@ -20,7 +20,7 @@
                 </div>
 
                 <!-- FORMULARIO DE ACCESO (POST) -->
-                <form action="{{ url_for('admin_login') }}" method="POST">
+                <form action="{{ url_for('admin_auth.admin_login') }}" method="POST">
                     <div class="mb-3">
                         <label for="usuario" class="form-label small fw-800 text-uppercase text-muted">Email</label>
                         <input type="email" class="form-control" id="usuario" name="usuario" required placeholder="tu@email.com" autocomplete="username">
@@ -32,7 +32,7 @@
                     </div>
 
                     <div class="text-center mb-2">
-                        <a href="{{ url_for('admin_recuperar_password') }}" class="text-danger fw-800 text-decoration-none small">
+                        <a href="{{ url_for('admin_auth.admin_recuperar_password') }}" class="text-danger fw-800 text-decoration-none small">
                             ¿Olvidaste tu contraseña?
                         </a>
                     </div>
@@ -45,7 +45,7 @@
                 </form>
 
                 <p class="text-center mt-4 text-muted small mb-0">
-                    <a href="{{ url_for('index') }}" class="text-muted fw-800 text-decoration-none">
+                    <a href="{{ url_for('principal.index') }}" class="text-muted fw-800 text-decoration-none">
                         <i class="bi bi-arrow-left me-1"></i> Volver al sitio
                     </a>
                 </p>

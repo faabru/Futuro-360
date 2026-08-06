@@ -4,7 +4,7 @@
 {% block panel_subtitle %}Administrá las preguntas del test de orientación y sus opciones.{% endblock %}
 
 {% block panel_actions %}
-<a href="{{ url_for('admin_exportar', entidad='preguntas') }}" class="admin-btn-back">
+<a href="{{ url_for('admin_reportes.admin_exportar', entidad='preguntas') }}" class="admin-btn-back">
     <i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel
 </a>
 <button type="button" class="admin-btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaPreguntaModal">
@@ -32,14 +32,14 @@
                         {% for op in p.opciones %}
                         <div class="admin-badge admin-badge-muted m-1 p-2 d-inline-flex align-items-center">
                             <span class="fw-semibold text-primary me-2">[{{ op.area_profesional }}]</span> {{ op.texto_opcion }}
-                            <form action="{{ url_for('eliminar_opcion_pregunta', id=op.id) }}" method="POST" class="ms-2 d-inline" data-ajax="delete" data-confirm="¿Estás seguro de eliminar esta opción?">
+                            <form action="{{ url_for('admin_preguntas.eliminar_opcion_pregunta', id=op.id) }}" method="POST" class="ms-2 d-inline" data-ajax="delete" data-confirm="¿Estás seguro de eliminar esta opción?">
                                 <button type="submit" class="btn-close" style="font-size: 0.5rem;" aria-label="Eliminar opción"></button>
                             </form>
                         </div>
                         {% endfor %}
                     </td>
                     <td class="text-end">
-                        <form action="{{ url_for('eliminar_pregunta', id=p.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar esta pregunta y todas sus opciones?">
+                        <form action="{{ url_for('admin_preguntas.eliminar_pregunta', id=p.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar esta pregunta y todas sus opciones?">
                             <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
                                 <i class="bi bi-trash me-1"></i> Borrar
                             </button>
@@ -60,7 +60,7 @@
 <div class="modal fade" id="nuevaPreguntaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content pregunta-modal">
-            <form action="{{ url_for('nueva_pregunta') }}" method="POST">
+            <form action="{{ url_for('admin_preguntas.nueva_pregunta') }}" method="POST">
                 <div class="pregunta-modal-head">
                     <div class="d-flex align-items-center gap-3">
                         <div class="pregunta-modal-icon"><i class="bi bi-patch-question"></i></div>

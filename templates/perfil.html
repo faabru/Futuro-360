@@ -10,7 +10,7 @@
             <h2 class="text-center mb-4 text-primary fw-bold">Mi Perfil</h2>
             
             <!-- FORMULARIO DE ACTUALIZACIÓN (UPDATE) -->
-            <form action="{{ url_for('perfil') }}" method="POST">
+            <form action="{{ url_for('auth.perfil') }}" method="POST">
                 <!-- CAMPO: NOMBRE -->
                 <div class="mb-3">
                     <label for="nombre" class="form-label fw-semibold">Nombre</label>
@@ -34,7 +34,7 @@
             <!-- SECCIÓN PELIGROSA: ELIMINAR CUENTA (DELETE) -->
             <div class="text-center">
                 <p class="text-danger small mb-3">Si eliminas tu cuenta, todos tus resultados se borrarán permanentemente.</p>
-                <form action="{{ url_for('eliminar_usuario') }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar tu cuenta? Esta acción es irreversible.');">
+                <form action="{{ url_for('auth.eliminar_usuario') }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar tu cuenta? Esta acción es irreversible.');">
                     <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar mi Cuenta</button>
                 </form>
             </div>

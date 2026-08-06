@@ -1,33 +1,51 @@
-# Importación de librerías para la conexión con MySQL y manejo de variables de entorno
+"""
+Manejador de la base de datos MySQL.
+
+Provee la conexión a MySQL y su ciclo de vida dentro de Flask:
+- ``obtener_db()``   → devuelve una conexión por request (cacheada en ``g``).
+- ``cerrar_db(e)``   → cierra la conexión al terminar el request.
+- ``inicializar_app``→ registra el cierre automático de conexiones.
+
+Patrón utilizado: una única conexión por petición, que evita abrir/cerrar
+conexiones en cada consulta y previene errores de "connection lost".
+"""
+
 import mysql.connector
 from flask import g
-import os
-from dotenv import load_dotenv
 
-# Cargar variables de configuración desde el archivo .env
-load_dotenv()
+from config import Config
 
-# Función para obtener la conexión a la base de datos
-# Utiliza el objeto 'g' de Flask para mantener una única conexión por petición
+
 def obtener_db():
+    """
+    Devuelve la conexión activa a la base de datos.
+
+    La primera llamada dentro de un request crea la conexión y la guarda en
+    el objeto ``g`` de Flask. Las siguientes llamadas reutilizan la misma
+    conexión, mejorando el rendimiento.
+    """
     if 'db' not in g:
-        # Configuración de los parámetros de conexión
         g.db = mysql.connector.connect(
-            host=os.getenv('DB_HOST', 'localhost'),
-            user=os.getenv('DB_USER', 'root'),
-            password=os.getenv('DB_PASSWORD', ''),
-            database=os.getenv('DB_NAME', 'futuro360')
+            host=Config.DB_HOST,
+            user=Config.DB_USER,
+            password=Config.DB_PASSWORD,
+            database=Config.DB_NAME,
         )
     return g.db
 
-# Función para cerrar la conexión a la base de datos al finalizar la petición
+
 def cerrar_db(e=None):
-    # Se extrae la conexión del objeto global 'g' y se cierra si existe
+    """Cierra la conexión guardada en ``g`` al finalizar el request."""
     db = g.pop('db', None)
     if db is not None:
         db.close()
 
-# Función para inicializar la aplicación con el manejador de base de datos
+
 def inicializar_app(app):
-    # Registra la función 'cerrar_db' para que se ejecute al terminar el contexto de la aplicación
+    """
+    Configura el cierre automático de conexiones.
+
+    Se llama desde la fábrica de la aplicación (``create_app``) para que Flask
+    ejecute ``cerrar_db`` cuando termina el contexto de cada petición.
+    """
     app.teardown_appcontext(cerrar_db)

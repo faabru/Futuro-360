@@ -11,7 +11,7 @@
             <p class="text-center text-muted mb-5 small fw-bold">INGRESA TUS CREDENCIALES</p>
             
             <!-- FORMULARIO DE ACCESO (POST) -->
-            <form action="{{ url_for('login') }}" method="POST">
+            <form action="{{ url_for('auth.login') }}" method="POST">
                 <!-- CAMPO: CORREO ELECTRÓNICO -->
                 <div class="mb-4">
                     <label for="email" class="form-label small fw-800 text-uppercase text-muted">Correo Electrónico</label>
@@ -22,7 +22,7 @@
                 <div class="mb-4">
                     <label for="password" class="form-label small fw-800 text-uppercase text-muted">Contraseña</label>
                     <input type="password" class="form-control" id="password" name="password" required placeholder="********">
-                    <a href="{{ url_for('recuperar_password') }}" class="small text-decoration-none d-block mt-2">¿Olvidaste tu contraseña?</a>
+                    <a href="{{ url_for('auth.recuperar_password') }}" class="small text-decoration-none d-block mt-2">¿Olvidaste tu contraseña?</a>
                 </div>
                 
                 <!-- BOTÓN DE ACCIÓN: INGRESAR -->
@@ -32,7 +32,7 @@
             </form>
             
             <!-- ENLACE A REGISTRO -->
-            <p class="text-center mt-4 text-muted small">¿No tienes cuenta? <a href="{{ url_for('registro') }}" class="text-primary fw-800 text-decoration-none">REGÍSTRATE</a></p>
+            <p class="text-center mt-4 text-muted small">¿No tienes cuenta? <a href="{{ url_for('auth.registro') }}" class="text-primary fw-800 text-decoration-none">REGÍSTRATE</a></p>
         </div>
     </div>
 </div>

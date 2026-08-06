@@ -4,10 +4,10 @@
 {% block panel_subtitle %}Creá, editá y eliminá las carreras del catálogo.{% endblock %}
 
 {% block panel_actions %}
-<a href="{{ url_for('admin_exportar', entidad='carreras') }}" class="admin-btn-back">
+<a href="{{ url_for('admin_reportes.admin_exportar', entidad='carreras') }}" class="admin-btn-back">
     <i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel
 </a>
-<a href="{{ url_for('nueva_carrera') }}" class="admin-btn-primary">
+<a href="{{ url_for('admin_carreras.nueva_carrera') }}" class="admin-btn-primary">
     <i class="bi bi-plus-lg me-1"></i> Nueva Carrera
 </a>
 {% endblock %}
@@ -33,10 +33,10 @@
                     <td><small class="text-muted text-truncate d-inline-block" style="max-width: 300px;">{{ carrera.descripcion }}</small></td>
                     <td class="text-end">
                         <div class="d-flex gap-2 justify-content-end">
-                            <a href="{{ url_for('editar_carrera', id=carrera.id) }}" class="icon-btn" title="Editar">
+                            <a href="{{ url_for('admin_carreras.editar_carrera', id=carrera.id) }}" class="icon-btn" title="Editar">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <form action="{{ url_for('eliminar_carrera', id=carrera.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar esta carrera?">
+                            <form action="{{ url_for('admin_carreras.eliminar_carrera', id=carrera.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar esta carrera?">
                                 <button type="submit" class="icon-btn danger" title="Eliminar">
                                     <i class="bi bi-trash"></i>
                                 </button>

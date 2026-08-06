@@ -11,7 +11,7 @@
             <p class="text-center text-muted mb-5 small fw-bold">CREA TU CUENTA PROFESIONAL</p>
             
             <!-- FORMULARIO DE CREACIÓN (POST) -->
-            <form action="{{ url_for('registro') }}" method="POST">
+            <form action="{{ url_for('auth.registro') }}" method="POST">
                 <!-- CAMPO: NOMBRE COMPLETO -->
                 <div class="mb-4">
                     <label for="nombre" class="form-label small fw-800 text-uppercase text-muted">Nombre Completo</label>
@@ -37,7 +37,7 @@
             </form>
             
             <!-- ENLACE A LOGIN -->
-            <p class="text-center mt-4 text-muted small">¿Ya tienes cuenta? <a href="{{ url_for('login') }}" class="text-primary fw-800 text-decoration-none">INICIA SESIÓN</a></p>
+            <p class="text-center mt-4 text-muted small">¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}" class="text-primary fw-800 text-decoration-none">INICIA SESIÓN</a></p>
         </div>
     </div>
 </div>

@@ -125,7 +125,7 @@
                             {% for area in carrera.areas %}
                             <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold">{{ area }}</span>
                             {% endfor %}
-                            <a href="{{ url_for('carreras') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm ms-auto">Volver</a>
+                            <a href="{{ url_for('carreras.carreras') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm ms-auto">Volver</a>
                         </div>
                         
                         <h1 class="display-5 fw-bold mb-4 text-primary">{{ carrera.nombre }}</h1>

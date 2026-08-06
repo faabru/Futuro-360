@@ -4,7 +4,7 @@
 {% block panel_subtitle %}Publicá noticias manualmente o gestioná las existentes.{% endblock %}
 
 {% block panel_actions %}
-<a href="{{ url_for('admin_exportar', entidad='noticias') }}" class="admin-btn-back">
+<a href="{{ url_for('admin_reportes.admin_exportar', entidad='noticias') }}" class="admin-btn-back">
     <i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel
 </a>
 <button type="button" class="admin-btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaNoticiaModal">
@@ -33,7 +33,7 @@
 
         <div class="border rounded-3 bg-light p-3 mb-3">
             <h6 class="fw-bold mb-2 text-primary"><i class="bi bi-plus-circle me-1"></i> Agregar filtro de fecha</h6>
-            <form action="{{ url_for('nueva_filtro_fecha') }}" method="POST" class="row g-2 align-items-end">
+            <form action="{{ url_for('admin_noticias.nueva_filtro_fecha') }}" method="POST" class="row g-2 align-items-end">
                 <div class="col-md-5">
                     <label class="form-label small fw-bold">Nombre del filtro (lo que ve el visitante)</label>
                     <input type="text" name="etiqueta" class="form-control" placeholder="Ej: Primer semestre 2026" required>
@@ -72,19 +72,19 @@
                     {% for f in filtros_fecha %}
                     <tr>
                         <td class="text-nowrap">
-                            <form action="{{ url_for('mover_filtro_fecha', id=f.id, direccion='arriba') }}" method="POST" style="display:inline;">
+                            <form action="{{ url_for('admin_noticias.mover_filtro_fecha', id=f.id, direccion='arriba') }}" method="POST" style="display:inline;">
                                 <button type="submit" class="btn btn-sm btn-outline-secondary {{ 'disabled opacity-50' if loop.first }}" title="Subir">
                                     <i class="bi bi-arrow-up"></i>
                                 </button>
                             </form>
-                            <form action="{{ url_for('mover_filtro_fecha', id=f.id, direccion='abajo') }}" method="POST" style="display:inline;">
+                            <form action="{{ url_for('admin_noticias.mover_filtro_fecha', id=f.id, direccion='abajo') }}" method="POST" style="display:inline;">
                                 <button type="submit" class="btn btn-sm btn-outline-secondary {{ 'disabled opacity-50' if loop.last }}" title="Bajar">
                                     <i class="bi bi-arrow-down"></i>
                                 </button>
                             </form>
                         </td>
                         <td>
-                            <form action="{{ url_for('editar_filtro_fecha', id=f.id) }}" method="POST" class="d-flex align-items-center gap-2">
+                            <form action="{{ url_for('admin_noticias.editar_filtro_fecha', id=f.id) }}" method="POST" class="d-flex align-items-center gap-2">
                                 <input type="text" name="etiqueta" value="{{ f.etiqueta }}" class="form-control form-control-sm" style="max-width:220px" required>
                                 <button type="submit" class="btn btn-sm btn-primary text-nowrap" title="Guardar etiqueta">
                                     <i class="bi bi-check-lg"></i>
@@ -92,7 +92,7 @@
                             </form>
                         </td>
                         <td>
-                            <form action="{{ url_for('editar_filtro_fecha', id=f.id) }}" method="POST">
+                            <form action="{{ url_for('admin_noticias.editar_filtro_fecha', id=f.id) }}" method="POST">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="activo" id="fechaActivo{{ f.id }}" {% if f.activo %}checked{% endif %} data-ajax="toggle">
                                     <label class="form-check-label small" for="fechaActivo{{ f.id }}">
@@ -102,7 +102,7 @@
                             </form>
                         </td>
                         <td class="text-end">
-                            <form action="{{ url_for('eliminar_filtro_fecha', id=f.id) }}" method="POST" data-ajax="delete" data-confirm="¿Eliminar el filtro {{ f.etiqueta }}?">
+                            <form action="{{ url_for('admin_noticias.eliminar_filtro_fecha', id=f.id) }}" method="POST" data-ajax="delete" data-confirm="¿Eliminar el filtro {{ f.etiqueta }}?">
                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar filtro">
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -126,7 +126,7 @@
             Agregá, renombrá, activá o desactivá las fuentes que aparecen en la barra
             "Fuentes" de la sección Noticias del sitio.
         </p>
-        <form action="{{ url_for('nueva_fuente') }}" method="POST" class="d-flex gap-2 mb-3">
+        <form action="{{ url_for('admin_noticias.nueva_fuente') }}" method="POST" class="d-flex gap-2 mb-3">
             <input type="text" name="nombre" class="form-control" placeholder="Ej: La Nación" required>
             <button type="submit" class="admin-btn-primary text-nowrap">
                 <i class="bi bi-plus-lg me-1"></i> Agregar
@@ -138,18 +138,18 @@
             <span class="admin-badge admin-badge-muted {{ 'opacity-50' if not f.activo }}">
                 {{ f.nombre }}
                 {% if not f.activo %}<span class="ms-1 text-secondary">(oculta)</span>{% endif %}
-                <form action="{{ url_for('toggle_fuente', id=f.id) }}" method="POST" style="display:inline;" title="Mostrar/ocultar" data-ajax="toggle">
+                <form action="{{ url_for('admin_noticias.toggle_fuente', id=f.id) }}" method="POST" style="display:inline;" title="Mostrar/ocultar" data-ajax="toggle">
                     <button type="submit" class="btn btn-link btn-sm p-0 ms-1 {{ 'text-success' if f.activo else 'text-secondary' }}">
                         <i class="bi {{ 'bi-eye' if f.activo else 'bi-eye-slash' }}"></i>
                     </button>
                 </form>
                 <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-primary" title="Renombrar"
                         data-bs-toggle="modal" data-bs-target="#editarFuenteModal"
-                        data-url="{{ url_for('editar_fuente', id=f.id) }}"
+                        data-url="{{ url_for('admin_noticias.editar_fuente', id=f.id) }}"
                         data-nombre="{{ f.nombre }}">
                     <i class="bi bi-pencil"></i>
                 </button>
-                <form action="{{ url_for('eliminar_fuente', id=f.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Eliminar la fuente {{ f.nombre }}?">
+                <form action="{{ url_for('admin_noticias.eliminar_fuente', id=f.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Eliminar la fuente {{ f.nombre }}?">
                     <button type="submit" class="btn btn-link btn-sm p-0 ms-1 text-danger" title="Eliminar fuente">
                         <i class="bi bi-x-circle"></i>
                     </button>
@@ -188,7 +188,7 @@
 
 <!-- Filtros -->
 <div class="filter-bar mb-4">
-    <form method="GET" action="{{ url_for('admin_noticias') }}" class="row g-3 align-items-end">
+    <form method="GET" action="{{ url_for('admin_noticias.admin_noticias') }}" class="row g-3 align-items-end">
         <div class="col-md-3">
             <label class="form-label fw-bold small">Buscar</label>
             <input type="text" name="q" class="form-control" placeholder="Título, descripción o fuente..." value="{{ busqueda }}">
@@ -223,7 +223,7 @@
             <button type="submit" class="btn btn-primary flex-fill">
                 <i class="bi bi-search me-1"></i> Filtrar
             </button>
-            <a href="{{ url_for('admin_noticias') }}" class="btn btn-outline-secondary" title="Limpiar filtros">
+            <a href="{{ url_for('admin_noticias.admin_noticias') }}" class="btn btn-outline-secondary" title="Limpiar filtros">
                 <i class="bi bi-x-lg"></i>
             </a>
         </div>
@@ -266,7 +266,7 @@
                         <div class="d-flex gap-2 justify-content-end">
                         <button type="button" class="icon-btn" title="Editar"
                                 data-bs-toggle="modal" data-bs-target="#editarNoticiaModal"
-                                data-url="{{ url_for('editar_noticia', id=n.id) }}"
+                                data-url="{{ url_for('admin_noticias.editar_noticia', id=n.id) }}"
                                 data-titulo="{{ n.titulo }}"
                                 data-descripcion="{{ n.descripcion }}"
                                 data-imagen="{{ n.imagen }}"
@@ -276,7 +276,7 @@
                                 data-categoria="{{ n.categoria }}">
                             <i class="bi bi-pencil"></i>
                         </button>
-                        <form action="{{ url_for('eliminar_noticia', id=n.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Eliminar esta noticia?">
+                        <form action="{{ url_for('admin_noticias.eliminar_noticia', id=n.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Eliminar esta noticia?">
                             <button type="submit" class="icon-btn danger">
                                 <i class="bi bi-trash"></i>
                             </button>
@@ -298,7 +298,7 @@
 <div class="modal fade" id="nuevaNoticiaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="{{ url_for('nueva_noticia') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ url_for('admin_noticias.nueva_noticia') }}" method="POST" enctype="multipart/form-data">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold">Nueva Noticia</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

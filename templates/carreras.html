@@ -104,7 +104,7 @@
     </div>
 
     <!-- FILTROS Y BÚSQUEDA -->
-    <form method="GET" action="{{ url_for('carreras') }}" id="filterForm" class="row mb-5 g-3">
+    <form method="GET" action="{{ url_for('carreras.carreras') }}" id="filterForm" class="row mb-5 g-3">
         <!-- DROPDOWN DE ÁREAS (Incluye Populares) -->
         <div class="col-md-4">
             <label for="areaFilter" class="form-label fw-bold small text-uppercase text-muted mb-2">Área Profesional</label>
@@ -166,7 +166,7 @@
 
                     <!-- BOTÓN DE ACCIÓN: VER DETALLE -->
                     <div class="d-grid">
-                        <a href="{{ url_for('detalle_carrera', carrera_id=carrera.id) }}" class="btn btn-outline-primary btn-sm rounded-pill shadow-sm">Ver detalles</a>
+                        <a href="{{ url_for('carreras.detalle_carrera', carrera_id=carrera.id) }}" class="btn btn-outline-primary btn-sm rounded-pill shadow-sm">Ver detalles</a>
                     </div>
                 </div>
             </div>

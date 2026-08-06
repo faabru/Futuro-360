@@ -17,11 +17,11 @@
                 <!-- Botones de acción rápida (CTA) -->
                 <div class="d-flex flex-column flex-md-row justify-content-center gap-3 animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
                     {% if g.user %}
-                        <a href="{{ url_for('test') }}" class="btn btn-primary btn-lg shadow-premium">Realizar Test Pro</a>
-                        <a href="{{ url_for('carreras') }}" class="btn btn-outline-primary btn-lg border-2">Explorar Carreras</a>
+                        <a href="{{ url_for('vocacional.test') }}" class="btn btn-primary btn-lg shadow-premium">Realizar Test Pro</a>
+                        <a href="{{ url_for('carreras.carreras') }}" class="btn btn-outline-primary btn-lg border-2">Explorar Carreras</a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg shadow-premium">Realizar Test Pro</a>
-                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg border-2">Explorar Carreras</a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg shadow-premium">Realizar Test Pro</a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg border-2">Explorar Carreras</a>
                     {% endif %}
                 </div>
             </div>
@@ -69,9 +69,9 @@
                     <h3 class="fw-bold mb-3">1. Test Vocacional</h3>
                     <p class="text-muted mb-4">Un análisis de preguntas que evalúa aptitudes, intereses y personalidad para darte el resultado más preciso.</p>
                     {% if g.user %}
-                        <a href="{{ url_for('test') }}" class="btn btn-link p-0 text-primary fw-bold text-decoration-none stretched-link">Empezar Test <i class="bi bi-chevron-right ms-1"></i></a>
+                        <a href="{{ url_for('vocacional.test') }}" class="btn btn-link p-0 text-primary fw-bold text-decoration-none stretched-link">Empezar Test <i class="bi bi-chevron-right ms-1"></i></a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-link p-0 text-primary fw-bold text-decoration-none stretched-link">Empezar Test <i class="bi bi-chevron-right ms-1"></i></a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-link p-0 text-primary fw-bold text-decoration-none stretched-link">Empezar Test <i class="bi bi-chevron-right ms-1"></i></a>
                     {% endif %}
                 </div>
             </div>
@@ -84,9 +84,9 @@
                     <h3 class="fw-bold mb-3">2. Buscador Inteligente</h3>
                     <p class="text-muted mb-4">Explora todas las carreras universitarias con información detallada de cada carrera.</p>
                     {% if g.user %}
-                        <a href="{{ url_for('carreras') }}" class="btn btn-link p-0 text-secondary fw-bold text-decoration-none stretched-link">Buscar Carreras <i class="bi bi-chevron-right ms-1"></i></a>
+                        <a href="{{ url_for('carreras.carreras') }}" class="btn btn-link p-0 text-secondary fw-bold text-decoration-none stretched-link">Buscar Carreras <i class="bi bi-chevron-right ms-1"></i></a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-link p-0 text-secondary fw-bold text-decoration-none stretched-link">Buscar Carreras <i class="bi bi-chevron-right ms-1"></i></a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-link p-0 text-secondary fw-bold text-decoration-none stretched-link">Buscar Carreras <i class="bi bi-chevron-right ms-1"></i></a>
                     {% endif %}
                 </div>
             </div>
@@ -99,9 +99,9 @@
                     <h3 class="fw-bold mb-3">3. Game</h3>
                     <p class="text-muted mb-4">Descubre tus pasiones ocultas a través de un juego interactivo para descubrir tus intereses y tu carrera ideal.</p>
                     {% if g.user %}
-                        <a href="{{ url_for('juego') }}" class="btn btn-link p-0 text-warning fw-bold text-decoration-none stretched-link">Jugar Ahora <i class="bi bi-chevron-right ms-1"></i></a>
+                        <a href="{{ url_for('juegos.juego') }}" class="btn btn-link p-0 text-warning fw-bold text-decoration-none stretched-link">Jugar Ahora <i class="bi bi-chevron-right ms-1"></i></a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-link p-0 text-warning fw-bold text-decoration-none stretched-link">Jugar Ahora <i class="bi bi-chevron-right ms-1"></i></a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-link p-0 text-warning fw-bold text-decoration-none stretched-link">Jugar Ahora <i class="bi bi-chevron-right ms-1"></i></a>
                     {% endif %}
                 </div>
             </div>
@@ -114,9 +114,9 @@
                     <h3 class="fw-bold mb-3">4. News Center</h3>
                     <p class="text-muted mb-4">Noticias actualizadas de La Gaceta y Universia sobre fechas de ingreso, becas y tendencias académicas.</p>
                     {% if g.user %}
-                        <a href="{{ url_for('noticias') }}" class="btn btn-link p-0 text-success fw-bold text-decoration-none stretched-link">Ver Noticias <i class="bi bi-chevron-right ms-1"></i></a>
+                        <a href="{{ url_for('noticias.noticias') }}" class="btn btn-link p-0 text-success fw-bold text-decoration-none stretched-link">Ver Noticias <i class="bi bi-chevron-right ms-1"></i></a>
                     {% else %}
-                        <a href="{{ url_for('login') }}" class="btn btn-link p-0 text-success fw-bold text-decoration-none stretched-link">Ver Noticias <i class="bi bi-chevron-right ms-1"></i></a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-link p-0 text-success fw-bold text-decoration-none stretched-link">Ver Noticias <i class="bi bi-chevron-right ms-1"></i></a>
                     {% endif %}
                 </div>
             </div>
