@@ -1,5 +1,5 @@
 {% for usuario in usuarios %}
-<tr>
+<tr data-usuario-id="{{ usuario.id }}">
     <td class="fw-semibold">{{ usuario.id }}</td>
     <td>
         <div class="d-flex align-items-center gap-2">
@@ -7,7 +7,10 @@
                 {{ (usuario.nombre or 'U')[:1]|upper }}
             </span>
             <div>
-                <div class="fw-semibold">{{ usuario.nombre }}</div>
+                <div class="fw-semibold">{{ usuario.nombre }}{% if usuario.apellido %} {{ usuario.apellido }}{% endif %}</div>
+                {% if usuario.activo == 0 %}
+                <div class="text-danger fw-bold" style="font-size:0.72rem;"><i class="bi bi-ban me-1"></i>Desactivado</div>
+                {% endif %}
             </div>
         </div>
     </td>
@@ -22,9 +25,30 @@
         <span class="admin-date"><i class="bi bi-calendar3 me-1"></i>{{ usuario.created_at.strftime('%d/%m/%Y') }}</span>
         <span class="admin-date admin-date-time">{{ usuario.created_at.strftime('%H:%M') }}</span>
     </td>
+    <td class="text-end">
+        <div class="d-flex gap-1 justify-content-end">
+            <button type="button" class="icon-btn" title="Editar usuario"
+                    onclick='editarUsuario({{ usuario|tojson }})'>
+                <i class="bi bi-pencil"></i>
+            </button>
+            {% if usuario.rol != 'admin' %}
+            <form action="{{ url_for('admin_usuario_toggle', id=usuario.id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="icon-btn {{ 'success' if usuario.activo == 0 }}" title="{{ 'Activar usuario' if usuario.activo == 0 else 'Desactivar usuario' }}">
+                    <i class="bi {{ 'bi-play-fill' if usuario.activo == 0 else 'bi-pause-fill' }}"></i>
+                </button>
+            </form>
+            <form action="{{ url_for('admin_usuario_eliminar', id=usuario.id) }}" method="POST" style="display:inline;"
+                  data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar a {{ usuario.nombre }}?">
+                <button type="submit" class="icon-btn danger" title="Eliminar usuario">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </td>
 </tr>
 {% else %}
 <tr>
-    <td colspan="5"><div class="admin-empty"><i class="bi bi-search"></i>No se encontraron usuarios con esos filtros.</div></td>
+    <td colspan="6"><div class="admin-empty"><i class="bi bi-search"></i>No se encontraron usuarios con esos filtros.</div></td>
 </tr>
 {% endfor %}

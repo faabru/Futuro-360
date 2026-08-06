@@ -4,6 +4,9 @@
 {% block panel_subtitle %}Publicá noticias manualmente o gestioná las existentes.{% endblock %}
 
 {% block panel_actions %}
+<a href="{{ url_for('admin_exportar', entidad='noticias') }}" class="admin-btn-back">
+    <i class="bi bi-file-earmark-arrow-down me-1"></i> Exportar CSV
+</a>
 <button type="button" class="admin-btn-primary" data-bs-toggle="modal" data-bs-target="#nuevaNoticiaModal">
     <i class="bi bi-plus-lg me-1"></i> Nueva Noticia
 </button>

@@ -1,11 +1,13 @@
 # Importación de librerías necesarias para el funcionamiento del servidor web
-from flask import Flask, render_template, request, redirect, url_for, session, flash, g, jsonify, get_flashed_messages
+from flask import Flask, render_template, request, redirect, url_for, session, flash, g, jsonify, get_flashed_messages, Response
 import json
 import os
 import time
 import traceback
 import random
 import re
+import csv
+import io
 from datetime import datetime
 from functools import wraps
 from dotenv import load_dotenv
@@ -1187,7 +1189,7 @@ def admin_dashboard():
         where.append("DATE(created_at) = %s")
         params.append(f_fecha)
 
-    sql = "SELECT id, nombre, email, rol, created_at FROM usuarios"
+    sql = "SELECT id, nombre, apellido, email, rol, activo, created_at FROM usuarios"
     if where:
         sql += " WHERE " + " AND ".join(where)
     cursor.execute(sql, params)
@@ -1225,6 +1227,158 @@ def admin_dashboard():
         carreras_juego_activas=carreras_juego_activas,
         preguntas_juego_activas=preguntas_juego_activas,
         orientaciones=orientaciones)
+
+
+# --- SECCIÓN: GESTIÓN DE USUARIOS (ABM desde el panel admin) ---
+
+def _validar_usuario_formulario(nombre, apellido, email, rol):
+    """Valida los campos del formulario de usuario. Devuelve (error, msg)."""
+    nombre = (nombre or '').strip()
+    email = (email or '').strip()
+    if not nombre:
+        return True, 'El nombre es obligatorio.'
+    if not re.match(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', email):
+        return True, 'El email ingresado no es válido.'
+    if rol not in ('usuario', 'admin'):
+        return True, 'El rol seleccionado no es válido.'
+    return False, ''
+
+@app.route('/admin/usuarios/nuevo', methods=['POST'])
+@requiere_admin
+def admin_usuario_nuevo():
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+
+    nombre = request.form.get('nombre', '')
+    apellido = request.form.get('apellido', '')
+    email = request.form.get('email', '')
+    rol = request.form.get('rol', 'usuario')
+    password = request.form.get('password', '')
+
+    error, msg = _validar_usuario_formulario(nombre, apellido, email, rol)
+    if error:
+        flash(msg, 'danger')
+        return redirect(url_for('admin_dashboard'))
+
+    if len(password) < 8:
+        flash('La contraseña debe tener al menos 8 caracteres.', 'danger')
+        return redirect(url_for('admin_dashboard'))
+
+    cursor.execute("SELECT id FROM usuarios WHERE email = %s", (email.strip(),))
+    if cursor.fetchone():
+        flash('Ya existe un usuario con ese email.', 'warning')
+        return redirect(url_for('admin_dashboard'))
+
+    try:
+        password_hash = generate_password_hash(password)
+        cursor.execute(
+            "INSERT INTO usuarios (nombre, apellido, email, password, rol) VALUES (%s, %s, %s, %s, %s)",
+            (nombre, apellido.strip(), email.strip(), password_hash, rol))
+        db.commit()
+        flash('Usuario creado correctamente.', 'success')
+    except Exception as e:
+        db.rollback()
+        flash(f'Error al crear el usuario: {e}', 'danger')
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/usuarios/editar/<int:id>', methods=['POST'])
+@requiere_admin
+def admin_usuario_editar(id):
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
+    usuario = cursor.fetchone()
+    if not usuario:
+        flash('El usuario no existe.', 'warning')
+        return redirect(url_for('admin_dashboard'))
+
+    nombre = request.form.get('nombre', '')
+    apellido = request.form.get('apellido', '')
+    email = request.form.get('email', '')
+    rol = request.form.get('rol', 'usuario')
+    password = request.form.get('password', '')
+
+    error, msg = _validar_usuario_formulario(nombre, apellido, email, rol)
+    if error:
+        flash(msg, 'danger')
+        return redirect(url_for('admin_dashboard'))
+
+    cursor.execute("SELECT id FROM usuarios WHERE email = %s AND id != %s", (email.strip(), id))
+    if cursor.fetchone():
+        flash('Ya existe otro usuario con ese email.', 'warning')
+        return redirect(url_for('admin_dashboard'))
+
+    try:
+        if password:
+            if len(password) < 8:
+                flash('La contraseña debe tener al menos 8 caracteres.', 'danger')
+                return redirect(url_for('admin_dashboard'))
+            password_hash = generate_password_hash(password)
+            cursor.execute(
+                "UPDATE usuarios SET nombre = %s, apellido = %s, email = %s, rol = %s, password = %s WHERE id = %s",
+                (nombre, apellido.strip(), email.strip(), rol, password_hash, id))
+        else:
+            cursor.execute(
+                "UPDATE usuarios SET nombre = %s, apellido = %s, email = %s, rol = %s WHERE id = %s",
+                (nombre, apellido.strip(), email.strip(), rol, id))
+        db.commit()
+        flash('Usuario actualizado correctamente.', 'success')
+    except Exception as e:
+        db.rollback()
+        flash(f'Error al actualizar el usuario: {e}', 'danger')
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/usuarios/eliminar/<int:id>', methods=['POST'])
+@requiere_admin
+def admin_usuario_eliminar(id):
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
+    usuario = cursor.fetchone()
+    if not usuario:
+        flash('El usuario no existe.', 'warning')
+        return redirect(url_for('admin_dashboard'))
+
+    # Evita que el admin se elimine a sí mismo
+    if g.user and usuario['id'] == g.user['id']:
+        flash('No podés eliminar tu propia cuenta desde el panel.', 'danger')
+        return redirect(url_for('admin_dashboard'))
+
+    try:
+        cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
+        db.commit()
+        flash('Usuario eliminado correctamente.', 'success')
+    except Exception as e:
+        db.rollback()
+        flash(f'Error al eliminar el usuario: {e}', 'danger')
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/usuarios/toggle/<int:id>', methods=['POST'])
+@requiere_admin
+def admin_usuario_toggle(id):
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
+    usuario = cursor.fetchone()
+    if not usuario:
+        flash('El usuario no existe.', 'warning')
+        return redirect(url_for('admin_dashboard'))
+
+    if g.user and usuario['id'] == g.user['id']:
+        flash('No podés desactivar tu propia cuenta.', 'danger')
+        return redirect(url_for('admin_dashboard'))
+
+    nuevo_estado = 0 if usuario.get('activo') else 1
+    cursor.execute("UPDATE usuarios SET activo = %s WHERE id = %s", (nuevo_estado, id))
+    db.commit()
+    flash('Usuario actualizado correctamente.', 'success')
+    return redirect(url_for('admin_dashboard'))
 
 
 # --- SECCIÓN: ORIENTACIONES (áreas profesionales) ---
@@ -1779,6 +1933,99 @@ def guardar_imagen_noticia(archivo):
     nombre = f"noticia_{int(time.time())}_{nombre_original}"
     archivo.save(os.path.join(carpeta, nombre))
     return f"imagenes/noticias/{nombre}"
+
+@app.route('/admin/exportar/<entidad>')
+@requiere_admin
+def admin_exportar(entidad):
+    """Exporta datos del panel a CSV (requisito TFI: exportación de datos)."""
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+
+    configs = {
+        'usuarios': {
+            'tabla': 'usuarios',
+            'nombre_archivo': 'usuarios',
+            'columnas': ['id', 'nombre', 'email', 'rol', 'created_at'],
+            'titulos': ['ID', 'Nombre', 'Email', 'Rol', 'Fecha de registro'],
+        },
+        'carreras': {
+            'tabla': 'carreras',
+            'nombre_archivo': 'carreras',
+            'columnas': ['id', 'nombre', 'area_profesional', 'descripcion', 'a_que_se_dedica'],
+            'titulos': ['ID', 'Nombre', 'Área profesional', 'Descripción', '¿A qué se dedica?'],
+        },
+        'preguntas': {
+            'tabla': 'preguntas',
+            'nombre_archivo': 'preguntas',
+            'columnas': ['id', 'texto_pregunta', 'area_profesional'],
+            'titulos': ['ID', 'Pregunta', 'Área profesional'],
+        },
+        'noticias': {
+            'tabla': 'noticias',
+            'nombre_archivo': 'noticias',
+            'columnas': ['id', 'titulo', 'categoria', 'fuente', 'fecha', 'link'],
+            'titulos': ['ID', 'Título', 'Categoría', 'Fuente', 'Fecha', 'Enlace'],
+        },
+    }
+
+    config = configs.get(entidad)
+    if not config:
+        return redirect(url_for('admin_dashboard'))
+
+    columnas = config['columnas']
+
+    # Aplica los filtros activos del panel a la exportación
+    where = []
+    params = []
+    if entidad == 'usuarios':
+        f_nombre = request.args.get('nombre', '').strip()
+        f_email = request.args.get('email', '').strip()
+        f_fecha = request.args.get('fecha', '').strip()
+        if f_nombre:
+            where.append("(nombre LIKE %s OR apellido LIKE %s)")
+            params.extend(['%' + f_nombre + '%'] * 2)
+        if f_email:
+            where.append("email LIKE %s")
+            params.append('%' + f_email + '%')
+        if f_fecha:
+            where.append("DATE(created_at) = %s")
+            params.append(f_fecha)
+    elif entidad == 'noticias':
+        f_fuente = request.args.get('fuente', 'todas')
+        f_categoria = request.args.get('categoria', 'todas')
+        busqueda = request.args.get('q', '').strip()
+        if f_fuente != 'todas':
+            where.append("fuente = %s")
+            params.append(f_fuente)
+        if f_categoria != 'todas':
+            where.append("categoria = %s")
+            params.append(f_categoria)
+        if busqueda:
+            where.append("(titulo LIKE %s OR descripcion LIKE %s OR fuente LIKE %s)")
+            params.extend([f"%{busqueda}%", f"%{busqueda}%", f"%{busqueda}%"])
+
+    sql = f"SELECT {', '.join(columnas)} FROM {config['tabla']}"
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    cursor.execute(sql, params)
+    filas = cursor.fetchall()
+
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=';')
+    writer.writerow(config['titulos'])
+
+    for fila in filas:
+        writer.writerow([fila.get(c, '') for c in columnas])
+
+    fecha = datetime.now().strftime('%Y-%m-%d')
+    nombre = f"{config['nombre_archivo']}_{fecha}.csv"
+    contenido = output.getvalue()
+
+    return Response(
+        '\ufeff' + contenido,
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename={nombre}'}
+    )
 
 @app.route('/admin/noticias')
 @requiere_admin
