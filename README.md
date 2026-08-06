@@ -178,6 +178,7 @@ excluyente del TFI.
 
 - [`docs/manual_usuario.md`](docs/manual_usuario.md) — guía de uso del sitio y del panel admin.
 - [`docs/modelo_datos.md`](docs/modelo_datos.md) — diagrama entidad/relación y referencia de tablas.
+- [`docs/mejora_y_presupuesto.md`](docs/mejora_y_presupuesto.md) — mejora propuesta, estimación de horas y presupuesto del sistema (criterio TFI).
 
 ## Notas de despliegue (producción)
 
