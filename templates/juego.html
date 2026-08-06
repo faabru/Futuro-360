@@ -324,6 +324,113 @@
         max-width: 480px;
         margin: 0 auto;
     }
+
+    /* --- Detalle de carrera (pantalla info) --- */
+    .detail-hero {
+        position: relative;
+        text-align: center;
+        border-radius: 24px;
+        padding: 34px 24px 30px;
+        margin-bottom: 22px;
+        background: linear-gradient(135deg, #142B38 0%, #2F8EAB 60%, #42A6C2 100%);
+        color: #fff;
+        overflow: hidden;
+        box-shadow: 0 22px 44px -18px rgba(20, 43, 56, 0.5);
+    }
+    .detail-hero::before,
+    .detail-hero::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+    }
+    .detail-hero::before { width: 190px; height: 190px; top: -70px; right: -50px; }
+    .detail-hero::after { width: 120px; height: 120px; bottom: -50px; left: -30px; }
+    .detail-hero > * { position: relative; z-index: 1; }
+    .detail-hero-emoji {
+        width: 78px;
+        height: 78px;
+        margin: 0 auto 14px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.3rem;
+        backdrop-filter: blur(4px);
+    }
+    .detail-area-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 5px 14px;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+    }
+    .detail-hero h3 {
+        font-size: clamp(1.3rem, 3.2vw, 1.8rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 0;
+    }
+    .detail-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        padding: 18px 20px;
+        margin-bottom: 14px;
+        box-shadow: 0 8px 22px -14px rgba(16, 24, 40, 0.18);
+    }
+    .detail-card-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+    }
+    .detail-card-label {
+        font-weight: 800;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+        color: var(--text-main);
+    }
+    .detail-card-text {
+        font-size: 0.92rem;
+        line-height: 1.65;
+        color: var(--text-muted);
+        margin: 0;
+    }
+    .detail-area-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(47, 142, 171, 0.12);
+        color: #2F8EAB;
+        padding: 7px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+    .detail-area-tag i { font-size: 0.8rem; }
+    .detail-cta {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-top: 6px;
+    }
     .swipe-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .swipe-btn {
         border: none;
@@ -531,7 +638,14 @@
     html[data-theme="dark"] .game-select-card,
     html[data-theme="dark"] .game-shell { background: var(--card-bg); border-color: var(--card-border); }
     html[data-theme="dark"] .option-btn { background: var(--card-bg); border-color: var(--card-border); color: var(--text-main); }
+    html[data-theme="dark"] .option-btn.picked {
+        background: rgba(47, 142, 171, 0.22);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(47, 142, 171, 0.18);
+    }
     html[data-theme="dark"] .career-flash { box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.6); }
+    html[data-theme="dark"] .detail-card { background: var(--card-bg); border-color: var(--card-border); }
+    html[data-theme="dark"] .detail-hero { box-shadow: 0 22px 44px -18px rgba(0, 0, 0, 0.6); }
 </style>
 
 <!-- =================== HERO =================== -->
@@ -621,8 +735,16 @@
             <div id="result-screen" class="screen">
                 <div class="result-hero">
                     <span class="trophy">🎉</span>
-                    <h2>¡Descubrimiento completado!</h2>
+                    <h2>Tu perfil de intereses</h2>
                     <p id="game-result-text" class="lead"></p>
+                </div>
+
+                <div class="mb-4">
+                    <div class="section-label">
+                        <span class="label-ico" style="background:rgba(124,58,237,0.12);color:#7c3aed;"><i class="bi bi-graph-up-arrow"></i></span>
+                        Afinidad por área
+                    </div>
+                    <div id="game-top-areas"></div>
                 </div>
 
                 <div id="game-recommended-careers" style="display:none;">
@@ -730,29 +852,46 @@
 
             <!-- Detalle -->
             <div id="discovery-details" class="screen text-start">
-                <div class="game-topbar" style="padding:16px 4px;border-bottom:none;">
+                <div class="game-topbar" style="padding:12px 4px;border-bottom:none;">
                     <div class="game-logo">
                         <button class="btn-ghost" style="padding:8px 14px;" onclick="discoveryBack()">
                             <i class="bi bi-arrow-left me-1"></i> Volver
                         </button>
-                        <span class="fw-bold ms-2" id="details-name"></span>
+                        <span class="fw-bold ms-2 small" id="details-name"></span>
                     </div>
                 </div>
-                <div>
-                    <div class="mb-4">
-                        <h6 class="text-uppercase text-muted fw-bold mb-2 small"><i class="bi bi-grid-fill me-2"></i>Área Profesional</h6>
-                        <p id="details-area" class="lead fw-semibold mb-0"></p>
+
+                <div class="detail-hero">
+                    <div class="detail-hero-emoji" id="details-icon">🎓</div>
+                    <div>
+                        <span class="detail-area-chip"><i class="bi bi-patch-check-fill"></i> <span id="details-area"></span></span>
                     </div>
-                    <div class="mb-4">
-                        <h5 class="fw-bold mb-3"><i class="bi bi-briefcase text-primary me-2"></i> ¿A qué se dedica?</h5>
-                        <p id="details-description" class="text-muted" style="line-height:1.8;"></p>
+                    <h3 id="details-title"></h3>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-icon" style="background:rgba(47,142,171,0.12);color:#2F8EAB;">
+                        <i class="bi bi-briefcase-fill"></i>
                     </div>
-                    <div class="d-grid">
-                        <a id="details-link" href="#" class="btn-play" style="text-align:center;">
-                            <i class="bi bi-mortarboard-fill me-2"></i> Ver Carrera Completa
-                        </a>
+                    <div>
+                        <div class="detail-card-label">¿A qué se dedica?</div>
+                        <p id="details-description" class="detail-card-text"></p>
                     </div>
                 </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-icon" style="background:rgba(124,58,237,0.12);color:#7c3aed;">
+                        <i class="bi bi-grid-3x3-gap-fill"></i>
+                    </div>
+                    <div>
+                        <div class="detail-card-label">Área profesional</div>
+                        <span class="detail-area-tag"><i class="bi bi-tag-fill"></i> <span id="details-area-full"></span></span>
+                    </div>
+                </div>
+
+                <a id="details-link" href="#" class="btn-play detail-cta">
+                    <i class="bi bi-mortarboard-fill me-2"></i> Ver Carrera Completa
+                </a>
             </div>
         </div>
     </div>
@@ -858,10 +997,44 @@
         showScreen('result-screen');
         launchConfetti();
 
-        let maxArea = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+        const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
         const total = scenarios.length;
+        const maxArea = entries.length ? entries[0][0] : null;
+
+        if (!maxArea) {
+            document.getElementById('game-result-text').innerText =
+                'Aún no hay escenarios publicados. Volvé a intentar más tarde.';
+            return;
+        }
         document.getElementById('game-result-text').innerText =
             `Tu mayor afinidad es ${maxArea} (${scores[maxArea]} de ${total} respuestas). ¡Seguí por ese camino!`;
+
+        // Barras de afinidad (top 4) — mismo estilo que Descubrí Tu Carrera
+        const rankColors = ['#7c3aed', '#2F8EAB', '#10b981', '#f59e0b'];
+        const totalPts = entries.reduce((acc, e) => acc + e[1], 0) || 1;
+        const areasHtml = entries.slice(0, 4).map((e, i) => {
+            const pct = Math.round((e[1] / totalPts) * 100);
+            return `
+                <div class="affinity-bar-row">
+                    <div class="affinity-head">
+                        <span class="affinity-name">
+                            <span class="affinity-rank" style="background:${rankColors[i]};">${i + 1}</span>
+                            ${e[0]}
+                        </span>
+                        <span class="affinity-pct" style="color:${rankColors[i]};">${pct}%</span>
+                    </div>
+                    <div class="affinity-track">
+                        <div class="affinity-fill" style="background:linear-gradient(90deg, ${rankColors[i]}99, ${rankColors[i]});" data-w="${pct}%"></div>
+                    </div>
+                </div>`;
+        }).join('');
+        document.getElementById('game-top-areas').innerHTML = areasHtml;
+
+        setTimeout(() => {
+            document.getElementById('game-top-areas').querySelectorAll('.affinity-fill').forEach(f => {
+                f.style.width = f.dataset.w;
+            });
+        }, 120);
 
         const recommendedCareers = careers.filter(c =>
             c.area_profesional.toLowerCase().includes(maxArea.toLowerCase()) ||
@@ -974,11 +1147,20 @@
         } else if (choice === 'info') {
             currentCareerDetails = career;
             showScreen('discovery-details');
-            document.getElementById('details-name').innerText = career.nombre;
+            const nombre = career.titulo_card || career.nombre;
+            document.getElementById('details-name').innerText = nombre;
+            document.getElementById('details-title').innerText = nombre;
             document.getElementById('details-area').innerText = career.area_profesional;
-            document.getElementById('details-description').innerText =
-                `Los graduados en ${career.nombre} lideran procesos clave en ${career.area_profesional}. ` +
-                `Su día a día combina visión estratégica y resolución de problemas dentro del ámbito de ${career.area_profesional}.`;
+            document.getElementById('details-area-full').innerText = career.area_profesional;
+            const textoDedica = career.a_que_se_dedica && career.a_que_se_dedica.trim()
+                ? career.a_que_se_dedica
+                : (career.descripcion_completa && career.descripcion_completa.trim()
+                    ? career.descripcion_completa
+                    : career.descripcion && career.descripcion.trim()
+                        ? career.descripcion
+                        : `Los graduados en ${nombre} lideran procesos clave en ${career.area_profesional}. ` +
+                          `Su día a día combina visión estratégica y resolución de problemas dentro del ámbito de ${career.area_profesional}.`);
+            document.getElementById('details-description').innerText = textoDedica;
             document.getElementById('details-link').href = '/carrera/' + career.id;
             lockDiscovery = false;
             return;

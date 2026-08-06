@@ -296,6 +296,11 @@ html[data-theme="dark"] .form-select {
     color: var(--text-main);
 }
 
+html[data-theme="dark"] .form-control::placeholder {
+    color: #8FA7B5;
+    opacity: 1;
+}
+
 html[data-theme="dark"] .form-control:focus,
 html[data-theme="dark"] .form-select:focus {
     background-color: #0E1C26;

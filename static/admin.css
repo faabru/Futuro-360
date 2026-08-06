@@ -190,6 +190,37 @@
     color: #FFB3B3;
 }
 
+/* Botón de tema en el sidebar */
+.admin-sidebar-footer .admin-sidebar-theme {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 12px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #A8C3D0;
+    font-weight: 600;
+    font-size: 0.85rem;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.admin-sidebar-footer .admin-sidebar-theme i {
+    font-size: 1rem;
+    width: 22px;
+    text-align: center;
+    opacity: 0.9;
+}
+
+.admin-sidebar-footer .admin-sidebar-theme:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+}
+
 /* ---------- TOPBAR ---------- */
 .admin-topbar {
     position: sticky;
@@ -299,6 +330,12 @@
     margin-right: 8px;
 }
 
+.admin-card-subtitle {
+    color: var(--admin-text-muted);
+    font-size: 0.8rem;
+    margin-top: 2px;
+}
+
 .admin-card-body {
     padding: 24px;
 }
@@ -373,6 +410,13 @@
 .admin-card .table {
     margin: 0;
     --bs-table-hover-bg: #F6FAFC;
+    --bs-table-hover-color: var(--admin-text);
+}
+
+.admin-card .table-hover > tbody > tr:hover > *,
+.admin-card .table tbody tr:hover td {
+    color: var(--admin-text);
+    transition: background-color 0.15s ease;
 }
 
 .admin-card .table thead th {
@@ -396,6 +440,47 @@
 
 .admin-card .table-responsive {
     padding: 0;
+}
+
+/* ---------- TABLA: AVATARES / EMAIL / FECHA ---------- */
+.user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+.avatar-admin {
+    background: rgba(220, 53, 69, 0.12);
+    color: #dc3545;
+}
+.avatar-user {
+    background: rgba(47, 142, 171, 0.12);
+    color: var(--admin-primary);
+}
+.admin-email {
+    color: var(--admin-text-muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: color 0.15s ease;
+}
+.admin-email:hover { color: var(--admin-primary); text-decoration: underline; }
+.admin-date {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--admin-text);
+}
+.admin-date-time {
+    color: var(--admin-text-muted);
+    font-weight: 500;
+    font-size: 0.78rem;
 }
 
 /* ---------- BADGES ---------- */
@@ -436,6 +521,78 @@
     color: #fff;
     transform: translateY(-1px);
     box-shadow: 0 6px 16px -6px rgba(47, 142, 171, 0.5);
+}
+
+.admin-btn-muted {
+    background: var(--admin-sidebar-bg, #22303A);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.55rem 1rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+
+.admin-btn-muted:hover {
+    background: #9aa6ad;
+    color: #fff;
+}
+
+/* Botón "Volver" del área de juegos (diseño tipo ghost + glow) */
+.admin-btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(47, 142, 171, 0.08);
+    border: 1px solid rgba(47, 142, 171, 0.35);
+    color: var(--admin-primary);
+    border-radius: 12px;
+    padding: 0.55rem 1.2rem;
+    font-weight: 700;
+    font-size: 0.88rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.admin-btn-back i {
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.admin-btn-back:hover {
+    background: var(--admin-primary);
+    border-color: var(--admin-primary);
+    color: #fff;
+    transform: translateX(-2px);
+    box-shadow: 0 8px 20px -8px rgba(47, 142, 171, 0.55);
+}
+
+.admin-btn-back:hover i {
+    transform: translateX(-3px);
+}
+
+html[data-theme="dark"] .admin-btn-back {
+    background: rgba(47, 142, 171, 0.12);
+    border-color: rgba(47, 142, 171, 0.45);
+    color: #7FD3E6;
+}
+
+html[data-theme="dark"] .admin-btn-back:hover {
+    background: var(--admin-primary);
+    border-color: var(--admin-primary);
+    color: #fff;
+    box-shadow: 0 8px 20px -8px rgba(47, 142, 171, 0.6);
+}
+
+/* Acciones flotantes fijas en la esquina superior derecha (topbar) */
+.admin-fixed-actions {
+    position: fixed;
+    top: 16px;
+    right: 28px;
+    z-index: 1045;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .btn-outline-secondary,
@@ -489,6 +646,23 @@
     font-weight: 600;
     font-size: 0.85rem;
     color: var(--admin-text);
+}
+
+/* Select con flecha hacia arriba (indica que se despliega hacia arriba) */
+.admin-content .flecha-arriba {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10.5 L8 6.5 L12 10.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 0.9em;
+    padding-right: 2.3rem;
+}
+
+.admin-content .flecha-arriba:focus,
+.admin-content .flecha-arriba:hover {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%232F8EAB' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10.5 L8 6.5 L12 10.5'/%3E%3C/svg%3E");
 }
 
 /* ---------- MODALS ---------- */
@@ -680,3 +854,280 @@ html[data-theme="dark"] .admin-login .admin-login-card .btn-outline-secondary:ho
 html[data-theme="dark"] .admin-login .admin-login-card .border-top {
     border-top-color: #1E3A4A !important;
 }
+
+/* =========================================================
+   ADMIN PANEL — MODO OSCURO
+   Variables y componentes del panel bajo [data-theme="dark"]
+   ========================================================= */
+html[data-theme="dark"] {
+    --admin-bg: #0B1620;
+    --admin-surface: #13232E;
+    --admin-border: #1E3A4A;
+    --admin-text: #E6F4F8;
+    --admin-text-muted: #9CC6D6;
+    --admin-sidebar-bg: #1E3A4A;
+    --admin-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+    --admin-shadow-lg: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+}
+
+html[data-theme="dark"] .admin-body {
+    background: var(--admin-bg);
+    color: var(--admin-text);
+}
+
+/* Sidebar: mantener el degradado actual (ya es oscuro) y ajustar textos */
+html[data-theme="dark"] .admin-sidebar {
+    background: linear-gradient(180deg, #101E2A 0%, #0A141D 100%);
+    border-right: 1px solid #1A2F3D;
+}
+
+html[data-theme="dark"] .admin-sidebar .admin-brand {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] .admin-sidebar .admin-nav-section { color: #4E7288; }
+
+html[data-theme="dark"] .admin-sidebar-footer {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Topbar */
+html[data-theme="dark"] .admin-topbar {
+    background: rgba(11, 22, 32, 0.92);
+    border-bottom-color: var(--admin-border);
+}
+
+html[data-theme="dark"] .admin-topbar h1 { color: var(--admin-text); }
+html[data-theme="dark"] .admin-topbar-subtitle { color: var(--admin-text-muted); }
+
+/* Burger */
+html[data-theme="dark"] .admin-burger {
+    background: var(--admin-surface);
+    border-color: var(--admin-border);
+    color: var(--admin-text);
+}
+
+/* Tablas */
+html[data-theme="dark"] .admin-card .table {
+    --bs-table-hover-bg: #1A2F3D;
+    --bs-table-hover-color: var(--admin-text);
+}
+html[data-theme="dark"] .admin-card .table thead th {
+    background: #101E2A;
+    border-bottom-color: var(--admin-border);
+    color: var(--admin-text-muted);
+}
+html[data-theme="dark"] .admin-card .table tbody td { border-color: #1A2F3D; }
+html[data-theme="dark"] .admin-card .table tbody tr:hover td {
+    background: rgba(47, 142, 171, 0.06);
+    color: var(--admin-text);
+}
+html[data-theme="dark"] .admin-card .table tbody tr { color: var(--admin-text); }
+html[data-theme="dark"] .admin-card .table tbody tr .text-muted { color: var(--admin-text-muted) !important; }
+html[data-theme="dark"] .admin-card .table tbody tr:hover td a,
+html[data-theme="dark"] .admin-card .table tbody tr:hover td span {
+    color: inherit;
+}
+html[data-theme="dark"] .user-avatar { border: 1px solid var(--admin-border); }
+html[data-theme="dark"] .admin-email { color: var(--admin-text-muted); }
+html[data-theme="dark"] .admin-email:hover { color: #7FD3E6; }
+html[data-theme="dark"] .admin-date { color: var(--admin-text); }
+html[data-theme="dark"] .admin-date-time { color: var(--admin-text-muted); }
+html[data-theme="dark"] .admin-card .table-hover > tbody > tr:hover > * {
+    color: var(--admin-text);
+}
+html[data-theme="dark"] .admin-card .table tbody tr:hover td a,
+html[data-theme="dark"] .admin-card .table tbody tr:hover td span {
+    color: inherit;
+}
+
+/* Badges */
+html[data-theme="dark"] .admin-badge-muted { background: #1E3A4A; color: #B7C9D4; }
+html[data-theme="dark"] .admin-badge-primary { background: rgba(47, 142, 171, 0.18); color: #7FD3E6; }
+html[data-theme="dark"] .admin-badge-success { background: rgba(25, 135, 84, 0.18); color: #4CD489; }
+html[data-theme="dark"] .admin-badge-danger { background: rgba(220, 53, 69, 0.18); color: #FF8A8A; }
+
+/* Botones de icono */
+html[data-theme="dark"] .icon-btn {
+    background: var(--admin-surface);
+    border-color: var(--admin-border);
+    color: var(--admin-text-muted);
+}
+html[data-theme="dark"] .icon-btn:hover {
+    background: #1A2F3D;
+    color: #7FD3E6;
+    border-color: var(--admin-primary);
+}
+html[data-theme="dark"] .icon-btn.danger:hover {
+    background: rgba(220, 53, 69, 0.12);
+    color: #FF8A8A;
+    border-color: #dc3545;
+}
+
+/* Formularios */
+html[data-theme="dark"] .admin-content .form-control,
+html[data-theme="dark"] .admin-content .form-select {
+    background-color: #0B1620;
+    border-color: var(--admin-border);
+    color: var(--admin-text);
+}
+html[data-theme="dark"] .admin-content .form-control::placeholder { color: #6B8CA0; }
+html[data-theme="dark"] .admin-content .form-control:focus,
+html[data-theme="dark"] .admin-content .form-select:focus {
+    background-color: #0B1620;
+    border-color: var(--admin-primary);
+    color: var(--admin-text);
+    box-shadow: 0 0 0 3px rgba(47, 142, 171, 0.2);
+}
+html[data-theme="dark"] .admin-content .form-label { color: var(--admin-text); }
+html[data-theme="dark"] .admin-content .form-text { color: var(--admin-text-muted); }
+html[data-theme="dark"] .admin-content .input-group-text {
+    background-color: #101E2A;
+    border-color: var(--admin-border);
+    color: var(--admin-text-muted);
+}
+html[data-theme="dark"] .admin-content select option { background-color: #0B1620; color: var(--admin-text); }
+
+/* Modales */
+html[data-theme="dark"] .modal-content {
+    background-color: var(--admin-surface);
+    color: var(--admin-text);
+}
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer {
+    border-color: var(--admin-border);
+}
+html[data-theme="dark"] .modal-title { color: var(--admin-text); }
+html[data-theme="dark"] .modal-body { color: var(--admin-text); }
+html[data-theme="dark"] .modal .text-muted { color: var(--admin-text-muted) !important; }
+html[data-theme="dark"] .modal .text-dark { color: var(--admin-text) !important; }
+html[data-theme="dark"] .modal hr { border-color: var(--admin-border); }
+html[data-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+
+/* Botones generales dentro del panel */
+html[data-theme="dark"] .admin-content .btn-light {
+    background-color: #1E3A4A;
+    border-color: #1E3A4A;
+    color: #fff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+    --bs-btn-hover-bg: #2A4A5E;
+    --bs-btn-active-bg: #2A4A5E;
+    --bs-btn-hover-border-color: #2A4A5E;
+    --bs-btn-active-border-color: #2A4A5E;
+}
+html[data-theme="dark"] .admin-content .btn-light:hover,
+html[data-theme="dark"] .admin-content .btn-light:focus,
+html[data-theme="dark"] .admin-content .btn-light:active {
+    background-color: #2A4A5E;
+    border-color: #2A4A5E;
+    color: #fff;
+}
+html[data-theme="dark"] .admin-content .btn-outline-secondary {
+    background-color: #0B1620;
+    border-color: var(--admin-border);
+    color: var(--admin-text-muted);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+}
+html[data-theme="dark"] .admin-content .btn-outline-secondary:hover,
+html[data-theme="dark"] .admin-content .btn-outline-secondary:focus,
+html[data-theme="dark"] .admin-content .btn-outline-secondary:active {
+    background-color: #1A2F3D;
+    border-color: var(--admin-primary);
+    color: #fff;
+}
+html[data-theme="dark"] .admin-content .btn-outline-danger {
+    background-color: #0B1620;
+    border-color: rgba(220, 53, 69, 0.4);
+    color: #FF8A8A;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+}
+html[data-theme="dark"] .admin-content .btn-outline-danger:hover,
+html[data-theme="dark"] .admin-content .btn-outline-danger:focus,
+html[data-theme="dark"] .admin-content .btn-outline-danger:active {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #fff;
+    border-color: #dc3545;
+}
+html[data-theme="dark"] .admin-content .btn-outline-primary {
+    border-color: rgba(47, 142, 171, 0.5);
+    color: #7FD3E6;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+}
+html[data-theme="dark"] .admin-content .btn-outline-primary:hover,
+html[data-theme="dark"] .admin-content .btn-outline-primary:focus,
+html[data-theme="dark"] .admin-content .btn-outline-primary:active {
+    background-color: rgba(47, 142, 171, 0.15);
+    border-color: #2F8EAB;
+    color: #fff;
+}
+html[data-theme="dark"] .admin-content .btn-secondary,
+html[data-theme="dark"] .admin-content .btn-secondary:hover,
+html[data-theme="dark"] .admin-content .btn-secondary:active {
+    background-color: #2A4A5E;
+    border-color: #2A4A5E;
+    color: #fff;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+}
+html[data-theme="dark"] .admin-content .btn-danger,
+html[data-theme="dark"] .admin-content .btn-danger:hover,
+html[data-theme="dark"] .admin-content .btn-danger:active {
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+}
+html[data-theme="dark"] .admin-content .btn-success,
+html[data-theme="dark"] .admin-content .btn-success:hover,
+html[data-theme="dark"] .admin-content .btn-success:active {
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+}
+html[data-theme="dark"] .admin-content .btn-primary,
+html[data-theme="dark"] .admin-content .btn-primary:hover,
+html[data-theme="dark"] .admin-content .btn-primary:active {
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+}
+html[data-theme="dark"] .admin-content .btn-info,
+html[data-theme="dark"] .admin-content .btn-warning {
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-color: #fff;
+}
+
+/* Cards, filtros, paneles */
+html[data-theme="dark"] .admin-card,
+html[data-theme="dark"] .admin-panel,
+html[data-theme="dark"] .filter-bar {
+    background: var(--admin-surface);
+    border-color: var(--admin-border);
+}
+html[data-theme="dark"] .admin-card-header { border-bottom-color: var(--admin-border); }
+html[data-theme="dark"] .admin-card-header h5 { color: var(--admin-text); }
+html[data-theme="dark"] .game-option-card .text-dark { color: var(--admin-text) !important; }
+
+/* Stats */
+html[data-theme="dark"] .stat-card { background: var(--admin-surface); border-color: var(--admin-border); }
+html[data-theme="dark"] .stat-value { color: var(--admin-text); }
+html[data-theme="dark"] .stat-label { color: var(--admin-text-muted); }
+
+/* Empty state */
+html[data-theme="dark"] .admin-empty { color: var(--admin-text-muted); }
+
+/* Flecha del select */
+html[data-theme="dark"] .admin-content .flecha-arriba {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%239CC6D6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10.5 L8 6.5 L12 10.5'/%3E%3C/svg%3E");
+}
+html[data-theme="dark"] .admin-content .flecha-arriba:focus,
+html[data-theme="dark"] .admin-content .flecha-arriba:hover {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%237FD3E6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10.5 L8 6.5 L12 10.5'/%3E%3C/svg%3E");
+}
+
+/* Alertas */
+html[data-theme="dark"] .alert { color: var(--admin-text); }
+html[data-theme="dark"] .alert-success { background-color: rgba(25, 135, 84, 0.15); border-color: rgba(25, 135, 84, 0.4); color: #7CE0A8; }
+html[data-theme="dark"] .alert-danger { background-color: rgba(220, 53, 69, 0.15); border-color: rgba(220, 53, 69, 0.4); color: #FFA2A2; }
+html[data-theme="dark"] .alert-warning { background-color: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #F5C96B; }
+html[data-theme="dark"] .alert-info { background-color: rgba(13, 202, 240, 0.15); border-color: rgba(13, 202, 240, 0.4); color: #7FD3E6; }

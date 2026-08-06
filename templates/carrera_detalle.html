@@ -121,9 +121,11 @@
                     <!-- COLUMNA DE CONTENIDO -->
                     <div class="col-md-6 p-5">
                         <!-- ENCABEZADO Y NAVEGACIÓN -->
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold">{{ carrera.area_profesional }}</span>
-                            <a href="{{ url_for('carreras') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm">Volver</a>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+                            {% for area in carrera.areas %}
+                            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold">{{ area }}</span>
+                            {% endfor %}
+                            <a href="{{ url_for('carreras') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm ms-auto">Volver</a>
                         </div>
                         
                         <h1 class="display-5 fw-bold mb-4 text-primary">{{ carrera.nombre }}</h1>

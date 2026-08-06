@@ -55,46 +55,252 @@
 
 <!-- Modal Nueva Pregunta -->
 <div class="modal fade" id="nuevaPreguntaModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content pregunta-modal">
             <form action="{{ url_for('nueva_pregunta') }}" method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Nueva Pregunta del Test</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="pregunta-modal-head">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="pregunta-modal-icon"><i class="bi bi-patch-question"></i></div>
+                        <div>
+                            <h5 class="modal-title fw-bold text-white mb-0">Nueva Pregunta del Test</h5>
+                            <p class="pregunta-modal-sub mb-0">Cada respuesta suma puntos a un área vocacional</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Texto de la pregunta</label>
-                        <input type="text" name="texto_pregunta" class="form-control" placeholder="¿Cómo te definirías?" required>
+
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold d-flex align-items-center gap-2">
+                            <span class="pq-label-icon"><i class="bi bi-chat-left-quote"></i></span> Texto de la pregunta
+                        </label>
+                        <input type="text" name="texto_pregunta" class="form-control form-control-lg pq-input"
+                               placeholder="¿Cómo te definirías?" required>
                     </div>
 
-                    <label class="form-label fw-bold mb-2">Opciones de respuesta</label>
-                    <div id="contenedor-opciones-nuevas">
-                        <div class="row g-2 mb-2 option-row">
-                            <div class="col-8">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <label class="form-label fw-bold mb-0 d-flex align-items-center gap-2">
+                            <span class="pq-label-icon"><i class="bi bi-list-ul"></i></span> Opciones de respuesta
+                        </label>
+                        <button type="button" class="btn btn-sm pq-add-btn" onclick="agregarFilaOpcion()">
+                            <i class="bi bi-plus-circle me-1"></i> Agregar opción
+                        </button>
+                    </div>
+
+                    <div id="contenedor-opciones-nuevas" class="pq-options">
+                        <div class="pq-option option-row">
+                            <div class="pq-option-num">1</div>
+                            <div class="pq-option-text flex-grow-1">
                                 <input type="text" name="texto_opcion_1" class="form-control" placeholder="Texto de la opción 1" required>
                             </div>
-                            <div class="col-4">
+                            <div class="pq-option-area" style="width: 180px;">
                                 <div class="area-combobox position-relative">
                                     <input type="text" name="area_opcion_1" class="form-control area-input" placeholder="Área" autocomplete="off" required>
-                                    <div class="area-dropdown list-group position-absolute w-100 shadow-sm" style="display:none; z-index:1050; max-height:200px; overflow-y:auto;"></div>
+                                    <div class="area-dropdown list-group position-absolute w-100 shadow-sm rounded-3" style="display:none; z-index:1050; max-height:200px; overflow-y:auto;"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" onclick="agregarFilaOpcion()">
-                        <i class="bi bi-plus-circle me-1"></i> Agregar otra opción
-                    </button>
+                    <div class="pq-info-note mt-3">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <span>
+                            Elegí <strong>"Valor nulo"</strong> en el área si esa opción no suma puntos a ninguna área:
+                            se interpreta como <strong>0</strong> en el puntaje del test.
+                        </span>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="admin-btn-primary">Crear Pregunta</button>
+                <div class="modal-footer pq-modal-foot border-0 px-4 pb-4">
+                    <button type="button" class="btn pq-cancel-btn" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i> Cancelar
+                    </button>
+                    <button type="submit" class="pq-save-btn">
+                        <i class="bi bi-check-lg me-1"></i> Crear Pregunta
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<style>
+    .pregunta-modal {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px -16px rgba(16, 24, 40, 0.4);
+    }
+    .pregunta-modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        background: linear-gradient(135deg, #142B38 0%, #2F8EAB 100%);
+    }
+    .pregunta-modal-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+        background: rgba(255, 255, 255, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: #fff;
+        flex-shrink: 0;
+    }
+    .pregunta-modal-sub { color: rgba(255, 255, 255, 0.8); font-size: 0.8rem; }
+    .pq-label-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        background: rgba(47, 142, 171, 0.12);
+        color: #2F8EAB;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+    .pq-input {
+        border-radius: 12px;
+        border: 1.5px solid #dbe2e8;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .pq-input:focus {
+        border-color: #2F8EAB;
+        box-shadow: 0 0 0 4px rgba(47, 142, 171, 0.12);
+    }
+    .pq-add-btn {
+        background: rgba(47, 142, 171, 0.1);
+        color: #2F8EAB;
+        border: 1px solid rgba(47, 142, 171, 0.3);
+        border-radius: 999px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    .pq-add-btn:hover {
+        background: #2F8EAB;
+        color: #fff;
+    }
+    .pq-options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .pq-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #F7FAFC;
+        border: 1px solid #E4EAEF;
+        border-radius: 14px;
+        padding: 12px 14px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .pq-option:focus-within {
+        border-color: #2F8EAB;
+        box-shadow: 0 0 0 3px rgba(47, 142, 171, 0.1);
+    }
+    .pq-option-num {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        background: #2F8EAB;
+        color: #fff;
+        font-weight: 800;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .pq-option .form-control {
+        border-radius: 10px;
+        border: 1.5px solid #dbe2e8;
+    }
+    .pq-option .form-control:focus {
+        border-color: #2F8EAB;
+        box-shadow: 0 0 0 3px rgba(47, 142, 171, 0.1);
+    }
+    .pq-info-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 2px;
+        background: rgba(47, 142, 171, 0.07);
+        border: 1px dashed rgba(47, 142, 171, 0.35);
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 0.83rem;
+        color: #4A5B66;
+    }
+    .pq-info-note i { color: #2F8EAB; margin-top: 1px; }
+    .pq-modal-foot { background: #fff; border-top: 1px solid #EDF1F4; }
+    .pq-cancel-btn {
+        background: #F1F4F7;
+        color: #4A5B66;
+        border: none;
+        border-radius: 10px;
+        padding: 0.55rem 1.4rem;
+        font-weight: 600;
+        transition: all 0.15s ease;
+    }
+    .pq-cancel-btn:hover { background: #E5EAEE; color: #22303A; }
+    .pq-save-btn {
+        background: #2F8EAB;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 0.55rem 1.6rem;
+        font-weight: 600;
+        transition: all 0.15s ease;
+    }
+    .pq-save-btn:hover { background: #27778F; transform: translateY(-1px); box-shadow: 0 8px 18px -8px rgba(47, 142, 171, 0.6); }
+
+    html[data-theme="dark"] .pregunta-modal { background: #13232E; }
+    html[data-theme="dark"] .pq-input {
+        background: #0B1620;
+        border-color: #1E3A4A;
+        color: #E6EDF2;
+    }
+    html[data-theme="dark"] .pq-input:focus { border-color: #2F8EAB; }
+    html[data-theme="dark"] .pq-option { background: #0B1620; border-color: #1E3A4A; }
+    html[data-theme="dark"] .pq-option .form-control {
+        background: #13232E;
+        border-color: #1E3A4A;
+        color: #E6EDF2;
+    }
+    html[data-theme="dark"] .pq-option .form-control:focus { border-color: #2F8EAB; }
+    html[data-theme="dark"] .pq-info-note {
+        background: rgba(47, 142, 171, 0.12);
+        color: #B7C9D4;
+    }
+    html[data-theme="dark"] .pq-modal-foot { background: #13232E; border-color: #1E3A4A; }
+    html[data-theme="dark"] .pq-cancel-btn { background: #0B1620; color: #B7C9D4; }
+    html[data-theme="dark"] .pq-cancel-btn:hover { background: #1E3A4A; color: #E6EDF2; }
+    .pregunta-modal .area-dropdown {
+        border: 1px solid #E4EAEF;
+        max-height: 200px;
+        overflow-y: auto;
+        background: #fff;
+    }
+    .pregunta-modal .area-dropdown .list-group-item {
+        border: none;
+        border-bottom: 1px solid #F1F4F7;
+        padding: 9px 14px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+    .pregunta-modal .area-dropdown .list-group-item:hover {
+        background: #F0F7FA;
+        color: #2F8EAB;
+    }
+    html[data-theme="dark"] .pregunta-modal .area-dropdown { background: #13232E; border-color: #1E3A4A; }
+    html[data-theme="dark"] .pregunta-modal .area-dropdown .list-group-item {
+        color: #E6EDF2;
+        border-color: #1E3A4A;
+    }
+    html[data-theme="dark"] .pregunta-modal .area-dropdown .list-group-item:hover { background: #0F1E29; }
+</style>
 
 <script>
 let opcionCounter = 1;
@@ -102,15 +308,16 @@ function agregarFilaOpcion() {
     opcionCounter++;
     const container = document.getElementById('contenedor-opciones-nuevas');
     const newRow = document.createElement('div');
-    newRow.className = 'row g-2 mb-2 option-row';
+    newRow.className = 'pq-option option-row';
     newRow.innerHTML = `
-        <div class="col-8">
+        <div class="pq-option-num">${opcionCounter}</div>
+        <div class="pq-option-text flex-grow-1">
             <input type="text" name="texto_opcion_${opcionCounter}" class="form-control" placeholder="Texto de la opción ${opcionCounter}" required>
         </div>
-        <div class="col-4">
+        <div class="pq-option-area" style="width: 180px;">
             <div class="area-combobox position-relative">
                 <input type="text" name="area_opcion_${opcionCounter}" class="form-control area-input" placeholder="Área" autocomplete="off" required>
-                <div class="area-dropdown list-group position-absolute w-100 shadow-sm" style="display:none; z-index:1050; max-height:200px; overflow-y:auto;"></div>
+                <div class="area-dropdown list-group position-absolute w-100 shadow-sm rounded-3" style="display:none; z-index:1050; max-height:200px; overflow-y:auto;"></div>
             </div>
         </div>
     `;
@@ -122,13 +329,17 @@ const ORIENTACIONES = [
     "{{ o }}",
     {% endfor %}
 ];
+const VALOR_NULO = 'Valor nulo';
 
 function renderOpciones(input, filtro) {
     const dropdown = input.parentElement.querySelector('.area-dropdown');
     const term = (filtro || '').toLowerCase();
-    const opciones = ORIENTACIONES.filter(o => o.toLowerCase().includes(term));
+    let opciones = ORIENTACIONES.filter(o => o.toLowerCase().includes(term));
+    if (VALOR_NULO.toLowerCase().includes(term)) {
+        opciones.unshift(VALOR_NULO);
+    }
     dropdown.innerHTML = opciones.map(o =>
-        `<button type="button" class="list-group-item list-group-item-action py-1" data-area="${o.replace(/"/g, '&quot;')}">${o}</button>`
+        `<button type="button" class="list-group-item list-group-item-action py-1 ${o === VALOR_NULO ? 'text-danger fw-semibold' : ''}" data-area="${o.replace(/"/g, '&quot;')}">${o}${o === VALOR_NULO ? ' <small>(0 puntos)</small>' : ''}</button>`
     ).join('') || '<div class="list-group-item text-muted py-1">Sin coincidencias</div>';
     dropdown.style.display = opciones.length ? 'block' : 'none';
 }
@@ -151,6 +362,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const input = btn.closest('.area-combobox').querySelector('.area-input');
             input.value = btn.getAttribute('data-area');
             input.parentElement.querySelector('.area-dropdown').style.display = 'none';
+            return;
+        }
+        if (!e.target.closest('.area-combobox')) {
+            document.querySelectorAll('.area-dropdown').forEach(function (d) {
+                d.style.display = 'none';
+            });
         }
     });
 });
