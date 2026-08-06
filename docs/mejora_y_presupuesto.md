@@ -14,6 +14,11 @@ PARA EL PROYECTO FINAL, pág. 19):
 
 ## 1. Mejora concreta propuesta
 
+> **Estado: IMPLEMENTADA.** La mejora ya está desarrollada y funcional en la aplicación:
+> - Gráficos del panel en `/admin` (Chart.js) con datos reales.
+> - Ruta `/resultado/<id>/pdf` que genera el informe PDF con ReportLab (botón "Descargar informe PDF"
+>   en el detalle del resultado).
+
 ### Nombre
 **Módulo de Estadísticas con Informes PDF** (panel administrativo + resultado del estudiante).
 
@@ -54,12 +59,6 @@ La mejora agrega dos funcionalidades nuevas al sistema existente:
 | Consultas de estadísticas | SQL agregado sobre las tablas existentes (`usuarios`, `tests`, `resultados`, `noticias`, `carreras`) |
 | Autorización | Decoradores existentes `requiere_admin` |
 | Datos | Sin cambios de esquema: se reutilizan tablas actuales |
-
-### Verificación de aceptación
-- `/admin` muestra al menos 4 gráficos/indicadores con datos reales.
-- El informe PDF se genera y descarga correctamente desde el detalle del resultado.
-- Los datos de los gráficos se actualizan al cambiar la información en la base.
-- El acceso a la estadística requiere sesión de administrador.
 
 ---
 

@@ -345,6 +345,20 @@
     padding: 24px;
 }
 
+/* ---------- GRÁFICOS DE ESTADÍSTICAS ---------- */
+.chart-box {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius);
+    padding: 20px;
+    box-shadow: var(--admin-shadow);
+    height: 100%;
+}
+.chart-box canvas {
+    max-height: 240px;
+    width: 100% !important;
+}
+
 /* Se mantiene compatibilidad con la clase vieja */
 .admin-card.section-card {
     padding: 0;

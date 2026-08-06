@@ -15,6 +15,14 @@ from werkzeug.utils import secure_filename
 import resend
 from database_handler import obtener_db, inicializar_app
 
+# --- Librerías para el informe PDF del resultado vocacional (mejora TFI) ---
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table,
+                                TableStyle)
+
 # Cargar las variables de entorno desde el archivo .env (configuración de BD y llaves secretas)
 load_dotenv()
 
@@ -702,6 +710,154 @@ def ver_resultado(resultado_id):
         resumen_puntuacion=resumen_puntuacion,
         respuestas_usuario=respuestas_usuario)
 
+
+# --- INFORME PDF DEL RESULTADO VOCACIONAL (mejora TFI: reportes en PDF) ---
+@app.route('/resultado/<int:resultado_id>/pdf')
+@requiere_login
+def descargar_resultado_pdf(resultado_id):
+    """Genera un informe PDF profesional del resultado vocacional del estudiante."""
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT r.*, t.fecha_realizacion, u.nombre, u.apellido, u.email
+        FROM resultados r
+        JOIN tests t ON r.test_id = t.id
+        JOIN usuarios u ON t.usuario_id = u.id
+        WHERE r.id = %s AND t.usuario_id = %s
+    """, (resultado_id, g.user['id']))
+    resultado = cursor.fetchone()
+
+    if not resultado:
+        flash('No se pudo encontrar el resultado solicitado.', 'danger')
+        return redirect(url_for('mis_resultados'))
+
+    # Interpretar el detalle (misma lógica que la vista del resultado)
+    detalle_texto = resultado['detalle'] or ''
+    resumen_puntuacion = []
+    try:
+        detalle_data = json.loads(detalle_texto)
+        detalle_texto = detalle_data.get('texto', detalle_texto)
+        resumen_puntuacion = detalle_data.get('resumen', [])
+    except Exception:
+        pass
+    if not resumen_puntuacion:
+        partes = re.findall(r'([\w\s]+?):\s*(\d+)\s*pts', detalle_texto)
+        resumen_puntuacion = [{"area": a.strip(), "puntos": int(p)} for a, p in partes]
+
+    # Carreras sugeridas para el área dominante
+    area = resultado['area_profesional_sugerida']
+    cursor.execute(
+        """SELECT c.nombre, c.area_profesional FROM carreras c
+           LEFT JOIN carrera_areas ca ON ca.carrera_id = c.id
+           WHERE c.area_profesional = %s OR ca.area = %s
+           GROUP BY c.id LIMIT 6""",
+        (area, area))
+    carreras = cursor.fetchall()
+    if not carreras:
+        cursor.execute(
+            "SELECT nombre, area_profesional FROM carreras WHERE area_profesional LIKE %s LIMIT 6",
+            (f"%{area}%",))
+        carreras = cursor.fetchall()
+
+    # --- Construcción del PDF ---
+    estilos = getSampleStyleSheet()
+    titulo = ParagraphStyle('Titulo', parent=estilos['Title'], fontName='Helvetica-Bold',
+                            fontSize=18, textColor=colors.HexColor('#142B38'), spaceAfter=4)
+    subtitulo = ParagraphStyle('Subtitulo', parent=estilos['Normal'], fontName='Helvetica',
+                               fontSize=11, textColor=colors.HexColor('#2F8EAB'), spaceAfter=2)
+    cabecera = ParagraphStyle('Cabecera', parent=estilos['Normal'], fontName='Helvetica-Bold',
+                              fontSize=9, textColor=colors.HexColor('#2F8EAB'), spaceAfter=8)
+    normal = ParagraphStyle('Normal', parent=estilos['Normal'], fontName='Helvetica',
+                            fontSize=10, leading=15, textColor=colors.HexColor('#1F2937'))
+    seccion = ParagraphStyle('Seccion', parent=estilos['Heading2'], fontName='Helvetica-Bold',
+                             fontSize=13, textColor=colors.HexColor('#142B38'), spaceBefore=16, spaceAfter=8)
+
+    story = []
+    story.append(Paragraph('FUTURO 360', titulo))
+    story.append(Paragraph('Orientación Vocacional · Tucumán, Argentina', subtitulo))
+    story.append(Spacer(1, 10))
+    story.append(Paragraph('Informe del resultado vocacional', cabecera))
+    story.append(Paragraph(f"<b>Estudiante:</b> {resultado['nombre'] or ''} {resultado['apellido'] or ''}",
+                           normal))
+    story.append(Paragraph(f"<b>Email:</b> {resultado['email']}", normal))
+    fecha = resultado['fecha_realizacion']
+    if hasattr(fecha, 'strftime'):
+        fecha = fecha.strftime('%d/%m/%Y')
+    story.append(Paragraph(f"<b>Fecha del test:</b> {fecha}", normal))
+    story.append(Spacer(1, 12))
+
+    # Área dominante (caja destacada)
+    tbl_area = Table([[Paragraph(f"ÁREA PROFESIONAL DOMINANTE", cabecera),
+                       Paragraph(f"<font color='#2F8EAB'><b>{area}</b></font>", normal)]],
+                     colWidths=[100 * mm, 90 * mm])
+    tbl_area.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#EFF7FA')),
+        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#2F8EAB')),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+    ]))
+    story.append(tbl_area)
+
+    # Interpretación
+    story.append(Paragraph('Interpretación del resultado', seccion))
+    story.append(Paragraph(detalle_texto or 'Sin detalle disponible.', normal))
+
+    # Afinidad por área
+    if resumen_puntuacion:
+        story.append(Paragraph('Afinidad por área', seccion))
+        total_pts = sum(float(i.get('puntos', 0) or 0) for i in resumen_puntuacion) or 1
+        filas = [['Área', 'Puntos', 'Participación']]
+        for i in resumen_puntuacion:
+            pts = float(i.get('puntos', 0) or 0)
+            pct = (pts / total_pts) * 100
+            filas.append([str(i.get('area', '')), f"{pts:g}", f"{pct:.1f}%"])
+        tbl = Table(filas, colWidths=[90 * mm, 50 * mm, 50 * mm])
+        tbl.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#142B38')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F3F6F9')]),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#D1D9E0')),
+            ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TOPPADDING', (0, 0), (-1, -1), 7),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
+        ]))
+        story.append(tbl)
+
+    # Carreras recomendadas
+    story.append(Paragraph('Carreras recomendadas', seccion))
+    if carreras:
+        for i, c in enumerate(carreras, 1):
+            story.append(Paragraph(f"{i}. <b>{c['nombre']}</b> — {c['area_profesional']}", normal))
+    else:
+        story.append(Paragraph('Consultá el catálogo de carreras en la plataforma.', normal))
+
+    # Notas personales
+    if resultado.get('notas_personales'):
+        story.append(Paragraph('Notas personales', seccion))
+        story.append(Paragraph(resultado['notas_personales'], normal))
+
+    story.append(Spacer(1, 24))
+    story.append(Paragraph('Informe generado por Futuro 360 · Orientación Vocacional',
+                           ParagraphStyle('Footer', parent=estilos['Normal'], fontName='Helvetica',
+                                          fontSize=8, textColor=colors.HexColor('#9CA3AF'))))
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4,
+                            leftMargin=22 * mm, rightMargin=22 * mm,
+                            topMargin=20 * mm, bottomMargin=20 * mm,
+                            title='Informe Vocacional Futuro 360',
+                            author='Futuro 360')
+    doc.build(story)
+    buf.seek(0)
+
+    return Response(buf, mimetype='application/pdf', headers={
+        'Content-Disposition': f'attachment; filename=resultado_vocacional_{resultado_id}.pdf'
+    })
+
+
 # Listado histórico de todos los tests realizados por el usuario
 @app.route('/mis-resultados')
 @requiere_login
@@ -1260,6 +1416,58 @@ def admin_dashboard():
     cursor.execute("SELECT * FROM orientaciones ORDER BY nombre")
     orientaciones = cursor.fetchall()
 
+    # --- ESTADÍSTICAS PARA GRÁFICOS (mejora TFI: visualización de información) ---
+    cursor.execute("SELECT COUNT(*) AS total FROM usuarios WHERE activo = 1")
+    usuarios_activos = cursor.fetchone()['total']
+
+    cursor.execute("SELECT COUNT(*) AS total FROM tests")
+    total_tests = cursor.fetchone()['total']
+
+    # Tests por mes (últimos 6 meses, completando los meses sin actividad)
+    cursor.execute(
+        """SELECT DATE_FORMAT(fecha_realizacion, '%Y-%m') AS mes, COUNT(*) AS total
+           FROM tests
+           WHERE fecha_realizacion >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+           GROUP BY mes ORDER BY mes""")
+    tests_por_mes = cursor.fetchall()
+    meses_map = {r['mes']: r['total'] for r in tests_por_mes}
+    _meses_nombre = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                     'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+    series_tests = []
+    now = datetime.now()
+    for i in range(5, -1, -1):
+        # Retroceder i meses desde el mes actual sin librerías externas
+        anio, mes = now.year, now.month
+        for _ in range(i):
+            mes -= 1
+            if mes == 0:
+                mes = 12
+                anio -= 1
+        clave = f"{anio:04d}-{mes:02d}"
+        series_tests.append({
+            'mes': _meses_nombre[mes - 1],
+            'total': meses_map.get(clave, 0)
+        })
+
+    # Usuarios por área profesional sugerida
+    cursor.execute(
+        """SELECT COALESCE(a.nombre, r.area_profesional_sugerida, 'Sin área') AS area, COUNT(*) AS total
+           FROM resultados r
+           LEFT JOIN areas a ON r.area_id = a.id
+           GROUP BY area ORDER BY total DESC LIMIT 8""")
+    usuarios_por_area = cursor.fetchall()
+
+    # Noticias por fuente y por categoría
+    cursor.execute(
+        """SELECT fuente, COUNT(*) AS total FROM noticias
+           GROUP BY fuente ORDER BY total DESC LIMIT 8""")
+    noticias_por_fuente = cursor.fetchall()
+
+    cursor.execute(
+        """SELECT categoria, COUNT(*) AS total FROM noticias
+           GROUP BY categoria ORDER BY total DESC LIMIT 8""")
+    noticias_por_categoria = cursor.fetchall()
+
     return render_template('admin/dashboard.html',
         usuarios=usuarios, total_usuarios=total_usuarios,
         f_nombre=f_nombre, f_email=f_email, f_fecha=f_fecha,
@@ -1268,7 +1476,11 @@ def admin_dashboard():
         carreras_juego_activas=carreras_juego_activas,
         preguntas_juego_activas=preguntas_juego_activas,
         orientaciones=orientaciones, email_dueño=ADMIN_EMAIL,
-        es_dueño=es_usuario_dueño())
+        es_dueño=es_usuario_dueño(),
+        usuarios_activos=usuarios_activos, total_tests=total_tests,
+        tests_por_mes=series_tests, usuarios_por_area=usuarios_por_area,
+        noticias_por_fuente=noticias_por_fuente,
+        noticias_por_categoria=noticias_por_categoria)
 
 
 # --- SECCIÓN: GESTIÓN DE USUARIOS (ABM desde el panel admin) ---

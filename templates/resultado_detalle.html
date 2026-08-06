@@ -530,6 +530,9 @@
 
             <!-- ===== ACCIONES ===== -->
             <div class="d-flex justify-content-center gap-3 flex-wrap mt-4 mb-5">
+                <a href="{{ url_for('descargar_resultado_pdf', resultado_id=resultado.id) }}" class="btn-custom btn-custom-primary">
+                    <i class="bi bi-file-earmark-pdf me-1"></i> Descargar informe PDF
+                </a>
                 <a href="{{ url_for('mis_resultados') }}" class="btn-custom">
                     <i class="bi bi-journal-check me-1"></i> Mis resultados
                 </a>
