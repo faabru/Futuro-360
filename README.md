@@ -11,7 +11,7 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 - **Informe PDF** descargable del resultado vocacional (área dominante, afinidad por área y carreras recomendadas).
 - **Exploración de carreras** (40+ carreras) por área profesional, con detalle, descripción e instituciones.
 - **Búsqueda de universidades** por carrera.
-- **Juego interactivo** de descubrimiento de carreras (**"Descubrí Tu Carrera"**) y de escenarios de intereses (**"Intereses en Juego"**), con opción **"Jugar de nuevo"** al finalizar para reiniciar la partida sin recargar.
+- **Juego interactivo** de descubrimiento de carreras.
 - **Noticias educativas** con fuentes, categorías y filtros por fecha.
 - **Registro / Login / Perfil** de usuarios.
 - **Recuperación de contraseña** por código PIN enviado por email (Resend).
@@ -24,9 +24,6 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 - Gestión del **juego** (carreras y preguntas).
 - Gestión de **noticias**, **fuentes** y **filtros de fecha**.
 - **Estadísticas con gráficos** (usuarios por área sugerida, tests por mes, noticias por fuente y categoría).
-- **Usuarios en línea en tiempo real**: el dashboard muestra cuántos usuarios están usando el sitio en ese momento (últimos 5 minutos) y se actualiza automáticamente cada 30 segundos sin recargar la página.
-- **Tests realizados**: el panel cuenta **todos** los tests de **todos** los usuarios (si un usuario hizo varios tests, suma varios) e indica cuántos usuarios distintos participaron.
-- **Estadísticas en vivo del juego**: al activar/desactivar carreras o preguntas del juego, los contadores (total / activas / inactivas) se actualizan al instante, sin recargar.
 - **Exportación a Excel (.xlsx)** de usuarios, carreras, preguntas y noticias.
 - **Roles diferenciados**: Administrador y Usuario, más un rol especial **Dueño** con permisos exclusivos.
 
@@ -91,12 +88,14 @@ futuro 360/
 │   ├── imagenes/                # Imágenes del contenido
 │   └── carreras/                # Imágenes de carreras
 ├── templates/                   # Plantillas Jinja2 del sitio y del panel
+|   |
 │   ├── index.html, login.html, registro.html, perfil.html
 │   ├── test.html, resultado_detalle.html, mis_resultados.html
 │   ├── carreras.html, carrera_detalle.html, juego.html, noticias.html
 │   ├── recuperar_password.html, verificar_codigo.html, nueva_password.html
 │   ├── dashboard.html, 404.html, base.html
 │   └── admin/                   # Vistas del panel de administración
+|
 ├── recuperacion de contraseña/  # Servicio Node.js (alternativa) de envío de PIN
 ├── README.md
 └── docs/
@@ -181,8 +180,6 @@ comprometer ninguna credencial en el código ni en los commits.
   [`docs/modelo_datos.md`](docs/modelo_datos.md).
 - Las migraciones posteriores al dump base están en `base de datos/migracion_parte1.sql` y
   `migracion_parte2.sql`.
-- La tabla `sesiones_activas` (presencia en línea) se crea automáticamente al primer request de un
-  usuario logueado; no requiere instalación ni dump adicional.
 
 ## Panel de administración
 

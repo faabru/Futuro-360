@@ -10,6 +10,7 @@ import os
 
 from flask import current_app
 
+from core.migraciones import asegurar_tabla_game_carreras
 from database_handler import obtener_db
 
 
@@ -129,3 +130,16 @@ def sincronizar_imagenes():
         print(f'[imagenes] Auto-sync error (no crítico): {e}')
         import traceback
         traceback.print_exc()
+
+
+def sincronizar_juego():
+    """
+    Asegura que todas las carreras del catálogo tengan su tarjeta en el juego
+    "Descubre tu Carrera". Se ejecuta al arrancar para que las carreras nunca
+    queden fuera del juego aunque la tabla haya quedado vacía.
+    """
+    try:
+        asegurar_tabla_game_carreras()
+        print('[juego] Tarjetas de carreras del juego sincronizadas.')
+    except Exception as e:
+        print(f'[juego] Auto-sync error (no crítico): {e}')

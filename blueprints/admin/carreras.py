@@ -16,8 +16,8 @@ from werkzeug.utils import secure_filename
 
 from config import EXTENSIONES_IMAGEN
 from core.decoradores import ajax_o_redirect, requiere_admin
-from core.migraciones import (asegurar_tabla_orientaciones, guardar_areas_carrera,
-                              obtener_areas_carrera)
+from core.migraciones import (asegurar_tabla_game_carreras, asegurar_tabla_orientaciones,
+                              guardar_areas_carrera, obtener_areas_carrera)
 from database_handler import obtener_db
 
 bp = Blueprint('admin_carreras', __name__)
@@ -82,14 +82,11 @@ def nueva_carrera():
             (nombre, descripcion, area_profesional, '', imagen_portada, imagen_principal, a_que_se_dedica)
         )
         carrera_id_nueva = cursor.lastrowid
-        # Agregar automáticamente al juego "Descubre tu carrera" (inactiva por
-        # defecto, el admin la activa manualmente desde el panel del juego).
-        cursor.execute(
-            """INSERT INTO game_carreras (carrera_id, titulo_card, descripcion_card, activo)
-               VALUES (%s, %s, %s, 0)""",
-            (carrera_id_nueva, nombre, descripcion)
-        )
         db.commit()
+        # Registra la carrera nueva en el juego "Descubre tu carrera" (inactiva
+        # por defecto, el admin la activa desde el panel). También crea la tabla
+        # si no existe y agrega cualquier carrera que falte.
+        asegurar_tabla_game_carreras()
         guardar_areas_carrera(carrera_id_nueva, areas)
         flash('Carrera creada. Las instituciones se completarán con el buscador web en el detalle de la carrera.', 'success')
         return redirect(url_for('admin_carreras.admin_carreras'))
@@ -132,6 +129,8 @@ def editar_carrera(id):
             (nombre, descripcion, area_profesional, imagen_portada, imagen_principal, a_que_se_dedica, id)
         )
         db.commit()
+        # Asegura que la carrera editada siga vinculada al juego.
+        asegurar_tabla_game_carreras()
         guardar_areas_carrera(id, areas)
         flash('Carrera actualizada exitosamente.', 'success')
         return redirect(url_for('admin_carreras.admin_carreras'))
