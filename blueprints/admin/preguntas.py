@@ -10,7 +10,7 @@ Gestión de preguntas del test vocacional desde el panel admin.
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from core.decoradores import ajax_o_redirect, requiere_admin
-from core.migraciones import asegurar_tabla_orientaciones
+from core.migraciones import asegurar_tabla_orientaciones, registrar_orientaciones
 from database_handler import obtener_db
 
 bp = Blueprint('admin_preguntas', __name__)
@@ -44,6 +44,7 @@ def nueva_pregunta():
 
     # Procesar las opciones enviadas dinámicamente (texto_opcion_N y area_opcion_N).
     i = 1
+    areas_nuevas = []
     while f'texto_opcion_{i}' in request.form:
         texto_opcion = request.form.get(f'texto_opcion_{i}', '').strip()
         area_opcion = request.form.get(f'area_opcion_{i}', '').strip()
@@ -52,7 +53,13 @@ def nueva_pregunta():
                 "INSERT INTO opciones_pregunta (pregunta_id, texto_opcion, area_profesional) VALUES (%s, %s, %s)",
                 (pregunta_id, texto_opcion, area_opcion)
             )
+            # 'Valor nulo' es una opción especial (0 puntos): no es un área real.
+            if area_opcion != 'Valor nulo':
+                areas_nuevas.append(area_opcion)
         i += 1
+
+    # Registra las áreas escritas a mano para que aparezcan en todos los dropdowns.
+    registrar_orientaciones(areas_nuevas)
 
     db.commit()
     flash('Pregunta agregada con sus opciones exitosamente.', 'success')

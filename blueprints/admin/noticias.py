@@ -21,7 +21,7 @@ from werkzeug.utils import secure_filename
 from config import EXTENSIONES_IMAGEN
 from core.decoradores import ajax_o_redirect, requiere_admin
 from core.migraciones import (asegurar_tabla_filtros_fecha, asegurar_tabla_fuentes,
-                              asegurar_tabla_orientaciones)
+                              asegurar_tabla_orientaciones, registrar_orientaciones)
 from database_handler import obtener_db
 
 bp = Blueprint('admin_noticias', __name__)
@@ -157,6 +157,8 @@ def nueva_noticia():
         INSERT INTO noticias (titulo, descripcion, imagen, fuente, fecha, link, categoria, es_externa)
         VALUES (%s, %s, %s, %s, %s, %s, %s, 0)
     """, (titulo, descripcion, imagen, fuente, fecha, link, categoria))
+    # Registra la categoría como área/orientación para que aparezca en los dropdowns.
+    registrar_orientaciones([categoria])
     db.commit()
     flash('Noticia agregada exitosamente.', 'success')
     return redirect(url_for('admin_noticias.admin_noticias'))
@@ -194,6 +196,8 @@ def editar_noticia(id):
         SET titulo = %s, descripcion = %s, imagen = %s, fuente = %s, fecha = %s, link = %s, categoria = %s
         WHERE id = %s
     """, (titulo, descripcion, imagen, fuente, fecha, link, categoria, id))
+    # Registra la categoría como área/orientación para que aparezca en los dropdowns.
+    registrar_orientaciones([categoria])
     db.commit()
     flash('Noticia actualizada exitosamente.', 'success')
     return redirect(url_for('admin_noticias.admin_noticias'))
