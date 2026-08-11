@@ -66,6 +66,105 @@ def asegurar_cuenta_dueño():
     db.commit()
 
 
+def asegurar_columnas_esquema():
+    """
+    Asegura que las tablas del esquema base tengan todas las columnas que la
+    aplicación usa. Las columnas agregadas en versiones posteriores al dump
+    (popular, imagen_portada, a_que_se_dedica, apellido, activo, created_at,
+    es_dueño, completado, area_id, puntaje) se agregan al vuelo si no existen.
+
+    Idempotente: se puede ejecutar en cada arranque sin efectos secundarios.
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+
+    columnas = {
+        'usuarios': {
+            'apellido': "ADD COLUMN apellido VARCHAR(100) DEFAULT NULL",
+            'activo': "ADD COLUMN activo TINYINT(1) DEFAULT 1",
+            'created_at': "ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP",
+            'es_dueño': "ADD COLUMN es_dueño TINYINT(1) DEFAULT 0",
+        },
+        'carreras': {
+            'popular': "ADD COLUMN popular TINYINT(1) DEFAULT 0",
+            'imagen_portada': "ADD COLUMN imagen_portada VARCHAR(500) DEFAULT NULL",
+            'imagen_principal': "ADD COLUMN imagen_principal VARCHAR(500) DEFAULT NULL",
+            'a_que_se_dedica': "ADD COLUMN a_que_se_dedica TEXT DEFAULT NULL",
+        },
+        'tests': {
+            'completado': "ADD COLUMN completado TINYINT(1) DEFAULT 0",
+        },
+        'resultados': {
+            'area_id': "ADD COLUMN area_id INT DEFAULT NULL",
+            'puntaje': "ADD COLUMN puntaje INT DEFAULT 0",
+        },
+    }
+
+    for tabla, cols in columnas.items():
+        try:
+            cursor.execute(f"SHOW COLUMNS FROM {tabla}")
+            existentes = {r[0] for r in cursor.fetchall()}
+        except Exception as e:
+            print(f'[esquema] Tabla {tabla} no disponible: {e}')
+            continue
+        for nombre, ddl in cols.items():
+            if nombre in existentes:
+                continue
+            try:
+                cursor.execute(f"ALTER TABLE {tabla} {ddl}")
+                existentes.add(nombre)
+                print(f'[esquema] Columna agregada: {tabla}.{nombre}')
+            except Exception as e:
+                print(f'[esquema] Error al agregar {tabla}.{nombre}: {e}')
+
+    db.commit()
+
+
+def asegurar_datos_iniciales():
+    """
+    Reproduce de forma idempotente los datos iniciales que antes vivían en
+    migraciones manuales (migracion_parte1.sql), para que una base recién
+    importada quede idéntica a la de desarrollo:
+
+    - Agrega la opción "Ninguna de las anteriores" (área Neutral) a cada
+      pregunta que no la tenga.
+    - Marca como `popular` las carreras destacadas del catálogo.
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO opciones_pregunta (pregunta_id, texto_opcion, area_profesional)
+            SELECT id, 'Ninguna de las anteriores', 'Neutral'
+            FROM preguntas
+            WHERE id NOT IN (
+                SELECT DISTINCT pregunta_id FROM opciones_pregunta
+                WHERE texto_opcion = 'Ninguna de las anteriores'
+            )
+        """)
+    except Exception as e:
+        print(f'[datos] Error al insertar opción neutral: {e}')
+
+    try:
+        cursor.execute("""
+            UPDATE carreras SET popular = 1 WHERE nombre IN (
+                'Ingeniería en Sistemas de Información',
+                'Medicina',
+                'Psicología',
+                'Abogacía',
+                'Contador Público Nacional',
+                'Ingeniería Civil',
+                'Licenciatura en Administración',
+                'Diseño Gráfico'
+            )
+        """)
+    except Exception as e:
+        print(f'[datos] Error al marcar carreras populares: {e}')
+
+    db.commit()
+
+
 def asegurar_tabla_orientaciones():
     """
     Crea la tabla de orientaciones (y la puente carrera_areas) si no existen
