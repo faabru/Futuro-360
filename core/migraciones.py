@@ -144,12 +144,38 @@ def guardar_areas_carrera(carrera_id: int, areas: list) -> None:
     db.commit()
 
 
+def asegurar_tabla_noticias():
+    """
+    Crea la tabla `noticias` si no existe. Es necesaria para la portada, la
+    sección de noticias, las estadísticas del panel y la exportación a Excel.
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS noticias (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            titulo VARCHAR(300) NOT NULL,
+            descripcion TEXT DEFAULT NULL,
+            imagen VARCHAR(500) DEFAULT NULL,
+            fuente VARCHAR(100) NOT NULL,
+            fecha DATE NOT NULL,
+            link VARCHAR(500) DEFAULT '#',
+            categoria VARCHAR(100) DEFAULT 'General',
+            es_externa TINYINT(1) DEFAULT 0,
+            fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY unique_link (link(255))
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    """)
+    db.commit()
+
+
 def asegurar_tabla_fuentes():
     """
     Crea la tabla de fuentes si no existe, le agrega la columna `activo` y
     registra automáticamente las fuentes que ya están en las noticias, salvo
     las que fueron eliminadas a propósito (registradas en fuentes_eliminadas).
     """
+    asegurar_tabla_noticias()
     db = obtener_db()
     cursor = db.cursor()
     cursor.execute("""
@@ -312,5 +338,88 @@ def asegurar_tabla_sesiones_activas():
             user_id INT NOT NULL PRIMARY KEY,
             last_seen DATETIME NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    """)
+    db.commit()
+
+
+def asegurar_tabla_game_preguntas():
+    """
+    Crea la tabla `game_preguntas` si no existe. Guarda las preguntas del
+    juego "Descubre tu Carrera".
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS game_preguntas (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            texto_pregunta VARCHAR(300) NOT NULL,
+            opcion_a_texto VARCHAR(200) NOT NULL,
+            opcion_a_area VARCHAR(100) NOT NULL,
+            opcion_b_texto VARCHAR(200) NOT NULL,
+            opcion_b_area VARCHAR(100) NOT NULL,
+            activo TINYINT(1) DEFAULT 1,
+            orden INT DEFAULT 0,
+            fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    """)
+    db.commit()
+
+
+def asegurar_tabla_password_resets():
+    """
+    Crea la tabla `password_resets` si no existe. Guarda los códigos PIN de
+    recuperación de contraseña.
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS password_resets (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            email VARCHAR(255) NOT NULL,
+            codigo VARCHAR(6) NOT NULL,
+            usado TINYINT(1) DEFAULT 0,
+            expira_en DATETIME NOT NULL,
+            fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            KEY idx_email (email),
+            KEY idx_codigo (codigo)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    """)
+    db.commit()
+
+
+def asegurar_tabla_comentarios():
+    """
+    Crea la tabla `comentarios` si no existe. Guarda los mensajes enviados
+    desde el formulario de contacto.
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS comentarios (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nombre VARCHAR(100) DEFAULT NULL,
+            email VARCHAR(100) DEFAULT NULL,
+            mensaje TEXT DEFAULT NULL,
+            fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    """)
+    db.commit()
+
+
+def asegurar_tabla_areas():
+    """
+    Crea la tabla `areas` si no existe. Se usa en las estadísticas del panel
+    (usuarios por área profesional sugerida).
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS areas (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            nombre VARCHAR(100) NOT NULL,
+            descripcion TEXT DEFAULT NULL,
+            icono VARCHAR(50) DEFAULT NULL,
+            color VARCHAR(20) DEFAULT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     """)
     db.commit()
