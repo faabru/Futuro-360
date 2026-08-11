@@ -21,7 +21,7 @@ from flask import Flask, g, render_template, session
 
 from blueprints import registrar_blueprints
 from config import Config
-from core.startup import sincronizar_imagenes, sincronizar_juego
+from core.startup import sincronizar_imagenes, sincronizar_juego, sincronizar_tablas
 from database_handler import inicializar_app, obtener_db
 
 
@@ -103,6 +103,8 @@ app = create_app()
 if __name__ == '__main__':
     print("=== INICIANDO APLICACIÓN FLASK ===")
     with app.app_context():
+        print("Asegurando tablas de la base de datos...")
+        sincronizar_tablas()
         print("Ejecutando sincronización de imágenes...")
         sincronizar_imagenes()
         print("Sincronización completada. Iniciando servidor...")

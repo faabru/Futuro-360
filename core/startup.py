@@ -10,7 +10,17 @@ import os
 
 from flask import current_app
 
-from core.migraciones import asegurar_tabla_game_carreras
+from core.migraciones import (
+    asegurar_tabla_areas,
+    asegurar_tabla_comentarios,
+    asegurar_tabla_filtros_fecha,
+    asegurar_tabla_fuentes,
+    asegurar_tabla_game_carreras,
+    asegurar_tabla_game_preguntas,
+    asegurar_tabla_noticias,
+    asegurar_tabla_orientaciones,
+    asegurar_tabla_password_resets,
+)
 from database_handler import obtener_db
 
 
@@ -143,3 +153,29 @@ def sincronizar_juego():
         print('[juego] Tarjetas de carreras del juego sincronizadas.')
     except Exception as e:
         print(f'[juego] Auto-sync error (no crítico): {e}')
+
+
+def sincronizar_tablas():
+    """
+    Asegura que todas las tablas que la aplicación usa existan (idempotente).
+
+    Se ejecuta al arrancar para que una base recién importada quede lista sin
+    pasos manuales: `noticias`, `fuentes`, `filtros_fecha`, `orientaciones`,
+    preguntas del juego, códigos de recuperación, comentarios y áreas.
+    """
+    funciones = [
+        asegurar_tabla_noticias,
+        asegurar_tabla_fuentes,
+        asegurar_tabla_filtros_fecha,
+        asegurar_tabla_orientaciones,
+        asegurar_tabla_game_preguntas,
+        asegurar_tabla_password_resets,
+        asegurar_tabla_comentarios,
+        asegurar_tabla_areas,
+    ]
+    for fn in funciones:
+        try:
+            fn()
+        except Exception as e:
+            print(f'[tablas] Error en {fn.__name__}: {e}')
+    print('[tablas] Tablas aseguradas.')
