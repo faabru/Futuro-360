@@ -34,6 +34,17 @@ def create_app():
     # Cierre automático de la conexión a MySQL al terminar cada request.
     inicializar_app(app)
 
+    # Asegura que el esquema de la BD esté completo (tablas, columnas y datos
+    # iniciales) sin importar cómo se levante la app: `python app.py`,
+    # `flask run`, gunicorn, waitress, etc. Es idempotente y tolerante a
+    # fallos: si la BD no está disponible aún, el arranque continúa.
+    try:
+        with app.app_context():
+            sincronizar_tablas()
+            sincronizar_juego()
+    except Exception as e:
+        print(f'[startup] No se pudo sincronizar la base de datos: {e}')
+
     # Todos los blueprints (sitio público + panel admin) con sus rutas.
     registrar_blueprints(app)
 
