@@ -425,6 +425,24 @@
     color: var(--admin-text-muted);
 }
 
+.stat-sub {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--admin-text-muted);
+    margin-top: 5px;
+    letter-spacing: 0.02em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.stat-sub i {
+    font-size: 0.85rem;
+    opacity: 0.75;
+}
+
+html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
+
 /* ---------- TABLES ---------- */
 .admin-card .table {
     margin: 0;

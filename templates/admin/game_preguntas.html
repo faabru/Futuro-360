@@ -16,6 +16,36 @@
 
 {% block panel_content %}
 
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon info"><i class="bi bi-question-circle"></i></div>
+            <div>
+                <div class="stat-label">Total de preguntas</div>
+                <div class="stat-value text-primary" data-stat-total>{{ preguntas_total }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon success"><i class="bi bi-check-circle"></i></div>
+            <div>
+                <div class="stat-label">Activas en el juego</div>
+                <div class="stat-value text-success" data-stat-activas>{{ preguntas_activas }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon danger"><i class="bi bi-x-circle"></i></div>
+            <div>
+                <div class="stat-label">Inactivas</div>
+                <div class="stat-value text-danger" data-stat-inactivas>{{ preguntas_inactivas }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="admin-card">
     <div class="table-responsive">
         <table class="table table-hover align-middle">

@@ -164,6 +164,25 @@
         }
 
         // Actualiza el estado visual de un toggle (checkbox/badge/icono) sin recargar.
+        function actualizarStats(form) {
+            const total = document.querySelector('[data-stat-total]');
+            const activas = document.querySelector('[data-stat-activas]');
+            const inactivas = document.querySelector('[data-stat-inactivas]');
+            if (!total || !activas || !inactivas) return;
+            const badge = form.querySelector('.admin-badge');
+            const badgeBs = form.querySelector('button.badge');
+            let activo = null;
+            if (badge) {
+                activo = badge.classList.contains('admin-badge-success');
+            } else if (badgeBs) {
+                activo = badgeBs.classList.contains('bg-success');
+            }
+            if (activo === null) return;
+            activas.textContent = parseInt(activas.textContent, 10) + (activo ? 1 : -1);
+            inactivas.textContent = parseInt(inactivas.textContent, 10) + (activo ? -1 : 1);
+        }
+
+        // Actualiza el estado visual de un toggle (checkbox/badge/icono) sin recargar.
         function actualizarToggle(form) {
             const checkbox = form.querySelector('input[type="checkbox"]');
             if (checkbox) {
@@ -178,6 +197,7 @@
                 badge.classList.toggle('admin-badge-muted');
                 const activo = badge.classList.contains('admin-badge-success');
                 badge.textContent = activo ? '✓ Activa' : 'Inactiva';
+                actualizarStats(form);
                 return;
             }
             const badgeBs = form.querySelector('button.badge');
@@ -185,6 +205,7 @@
                 badgeBs.classList.toggle('bg-success');
                 badgeBs.classList.toggle('bg-secondary');
                 badgeBs.textContent = badgeBs.classList.contains('bg-success') ? '✓ Activa' : 'Inactiva';
+                actualizarStats(form);
                 return;
             }
             const icono = form.querySelector('i.bi-eye, i.bi-eye-slash');

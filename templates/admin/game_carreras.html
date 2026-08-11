@@ -10,6 +10,37 @@
 {% endblock %}
 
 {% block panel_content %}
+    <!-- Estadísticas del juego de carreras -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon info"><i class="bi bi-mortarboard"></i></div>
+                <div>
+                    <div class="stat-label">Carreras totales</div>
+                    <div class="stat-value text-primary" data-stat-total>{{ carreras_total }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon success"><i class="bi bi-check-circle"></i></div>
+                <div>
+                    <div class="stat-label">Activas en el juego</div>
+                    <div class="stat-value text-success" data-stat-activas>{{ carreras_activas }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="stat-card">
+                <div class="stat-icon danger"><i class="bi bi-x-circle"></i></div>
+                <div>
+                    <div class="stat-label">Inactivas</div>
+                    <div class="stat-value text-danger" data-stat-inactivas>{{ carreras_inactivas }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="admin-card overflow-hidden">
         <div class="table-responsive">
             <table class="table table-hover align-middle">

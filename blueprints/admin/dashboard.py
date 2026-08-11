@@ -7,7 +7,7 @@ visualización de información con Chart.js).
 
 from datetime import datetime
 
-from flask import (Blueprint, render_template, request)
+from flask import (Blueprint, jsonify, render_template, request)
 
 from config import Config
 from core.decoradores import es_usuario_dueño, requiere_admin
@@ -77,11 +77,23 @@ def admin_dashboard():
     orientaciones = cursor.fetchall()
 
     # --- ESTADÍSTICAS PARA GRÁFICOS (mejora TFI: visualización de información) ---
-    cursor.execute("SELECT COUNT(*) AS total FROM usuarios WHERE activo = 1")
-    usuarios_activos = cursor.fetchone()['total']
+    # Usuarios conectados en los últimos 5 minutos (presencia "en línea").
+    try:
+        cursor.execute(
+            "SELECT COUNT(*) AS total FROM sesiones_activas "
+            "WHERE last_seen >= NOW() - INTERVAL 5 MINUTE")
+        usuarios_activos = cursor.fetchone()['total']
+    except Exception:
+        usuarios_activos = 0
 
     cursor.execute("SELECT COUNT(*) AS total FROM tests")
     total_tests = cursor.fetchone()['total']
+
+    # Usuarios distintos que realizaron al menos un test (para mostrar
+    # "N tests realizados por M estudiantes").
+    cursor.execute(
+        "SELECT COUNT(DISTINCT usuario_id) AS total FROM tests")
+    usuarios_con_tests = cursor.fetchone()['total']
 
     # Tests por mes (últimos 6 meses, completando los meses sin actividad).
     cursor.execute(
@@ -138,6 +150,24 @@ def admin_dashboard():
         orientaciones=orientaciones, email_dueño=Config.ADMIN_EMAIL,
         es_dueño=es_usuario_dueño(),
         usuarios_activos=usuarios_activos, total_tests=total_tests,
+        usuarios_con_tests=usuarios_con_tests,
         tests_por_mes=series_tests, usuarios_por_area=usuarios_por_area,
         noticias_por_fuente=noticias_por_fuente,
         noticias_por_categoria=noticias_por_categoria)
+
+
+@bp.route('/admin/usuarios-en-linea')
+@requiere_admin
+def admin_usuarios_en_linea():
+    """Devuelve (JSON) la cantidad de usuarios conectados en los últimos 5 min,
+    para que el dashboard la refresque en tiempo real sin recargar la página."""
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    try:
+        cursor.execute(
+            "SELECT COUNT(*) AS total FROM sesiones_activas "
+            "WHERE last_seen >= NOW() - INTERVAL 5 MINUTE")
+        total = cursor.fetchone()['total']
+    except Exception:
+        total = 0
+    return jsonify(total=total)

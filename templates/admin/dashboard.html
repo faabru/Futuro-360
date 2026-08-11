@@ -69,8 +69,8 @@
         <div class="stat-card">
             <div class="stat-icon success"><i class="bi bi-person-check"></i></div>
             <div>
-                <div class="stat-label">Usuarios activos</div>
-                <div class="stat-value text-success">{{ usuarios_activos }}</div>
+                <div class="stat-label">Usuarios en línea</div>
+                <div class="stat-value text-success" data-online>{{ usuarios_activos }}</div>
             </div>
         </div>
     </div>
@@ -80,6 +80,7 @@
             <div>
                 <div class="stat-label">Tests realizados</div>
                 <div class="stat-value text-info">{{ total_tests }}</div>
+                <div class="stat-sub"><i class="bi bi-people"></i> {{ usuarios_con_tests }} usuarios</div>
             </div>
         </div>
     </div>
@@ -506,6 +507,21 @@
         document.getElementById('f-email').addEventListener('keydown', function (e) {
             if (e.key === 'Enter') { e.preventDefault(); filtrarUsuarios(); }
         });
+    });
+
+    // Usuarios en línea: refresco automático cada 30 segundos.
+    function refrescarUsuariosEnLinea() {
+        fetch('/admin/usuarios-en-linea', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                const el = document.querySelector('[data-online]');
+                if (el) el.textContent = data.total;
+            })
+            .catch(function () {});
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        refrescarUsuariosEnLinea();
+        setInterval(refrescarUsuariosEnLinea, 30000);
     });
 </script>
 {% endblock %}

@@ -67,9 +67,12 @@ Es la funcionalidad principal de la plataforma:
 
 ### 1.8 Juego de descubrimiento
 
-- La sección **Juego** presenta tarjetas de carreras con botones **"Me interesa"**, **"No es lo mío"**
-  e **"Info"**.
-- Permite explorar carreras de forma lúdica e interactiva, viendo información ampliada de cada una.
+- La sección **Juego** ofrece dos experiencias: **"Descubrí Tu Carrera"** (tarjetas de carreras con
+  los botones **"Me interesa"**, **"No es lo mío"** e **"Info"**) e **"Intereses en Juego"**
+  (escenarios con dos opciones de respuesta).
+- Solo aparecen las carreras y preguntas marcadas como **activas** desde el panel.
+- Al final de cada partida hay un botón **"Jugar de nuevo"** que reinicia el juego desde el inicio
+  sin recargar la página.
 
 ### 1.9 Noticias
 
@@ -109,8 +112,20 @@ El **dueño no puede** (la cuenta está protegida):
 
 ### 2.2 Dashboard
 
-Pantalla inicial del panel con resumen de la actividad: cantidad de usuarios, carreras, preguntas,
-noticias y resultados. Es la puerta de entrada a todas las secciones de gestión.
+Pantalla inicial del panel con el resumen de la actividad del sistema. Muestra tarjetas (KPI) con:
+
+- **Usuarios**, **Carreras**, **Preguntas del test**, **Noticias** y **Noticias de hoy**.
+- **Juego (Car/Preg)**: carreras y preguntas activas en el mini-juego.
+- **Usuarios en línea**: cantidad de usuarios **conectados ahora mismo** (usuarios con actividad en
+  los últimos 5 minutos). Se refresca sola cada 30 segundos, sin recargar la página. Para que un
+  usuario aparezca/e desaparezca basta con que navegue o cierre el sitio; pasados 5 minutos sin
+  actividad deja de contarse.
+- **Tests realizados**: cuenta **todos** los tests de **todos** los usuarios (si un usuario hizo
+  varios tests, cada uno suma), e indica cuántos usuarios distintos los realizaron.
+
+Debajo se presentan los **gráficos** (usuarios por área sugerida, tests por mes, noticias por fuente
+y por categoría) y el listado de usuarios. También es la puerta de entrada a todas las secciones de
+gestión del panel.
 
 ### 2.3 Gestión de usuarios
 
@@ -154,6 +169,8 @@ Desde **Preguntas** se administra el contenido del test vocacional:
 - **Carreras del juego**: configurar qué carreras participan en la sección Juego, con textos de
   botones, título y descripción de tarjeta, orden y estado activo.
 - **Preguntas del juego**: alta, edición, activar/desactivar y baja de las preguntas del juego.
+- Ambas pantallas muestran tarjetas con **Total / Activas / Inactivas**. Al activar o desactivar una
+  carrera o pregunta, el botón y los contadores se actualizan **al instante** (AJAX), sin recargar.
 
 ### 2.8 Noticias
 

@@ -857,7 +857,6 @@
                         <button class="btn-ghost" style="padding:8px 14px;" onclick="discoveryBack()">
                             <i class="bi bi-arrow-left me-1"></i> Volver
                         </button>
-                        <span class="fw-bold ms-2 small" id="details-name"></span>
                     </div>
                 </div>
 
@@ -1148,7 +1147,6 @@
             currentCareerDetails = career;
             showScreen('discovery-details');
             const nombre = career.titulo_card || career.nombre;
-            document.getElementById('details-name').innerText = nombre;
             document.getElementById('details-title').innerText = nombre;
             document.getElementById('details-area').innerText = career.area_profesional;
             document.getElementById('details-area-full').innerText = career.area_profesional;

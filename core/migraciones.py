@@ -96,6 +96,25 @@ def asegurar_tabla_orientaciones():
     db.commit()
 
 
+def registrar_orientaciones(areas: list) -> None:
+    """
+    Registra áreas/orientaciones nuevas en la tabla `orientaciones` si no
+    existen (idempotente). Se usa al guardar formularios donde el admin puede
+    escribir un área a mano (preguntas, juego, noticias) para que esa área
+    quede disponible en todos los dropdowns de las gestiones.
+    """
+    asegurar_tabla_orientaciones()
+    db = obtener_db()
+    cursor = db.cursor()
+    for area in areas:
+        nombre = area.strip()[:100] if area else ''
+        if nombre:
+            cursor.execute(
+                "INSERT IGNORE INTO orientaciones (nombre) VALUES (%s)",
+                (nombre,))
+    db.commit()
+
+
 def obtener_areas_carrera(carrera_id: int) -> list:
     """Devuelve la lista de áreas/orientaciones asignadas a una carrera."""
     db = obtener_db()
@@ -236,4 +255,62 @@ def asegurar_columnas_botones_game(db, cursor):
         if nombre not in existentes:
             cursor.execute(f"ALTER TABLE game_carreras {ddl}")
             existentes.add(nombre)
+    db.commit()
+
+
+def asegurar_tabla_game_carreras():
+    """
+    Crea la tabla `game_carreras` si no existe y registra en ella (backfill)
+    todas las carreras del catálogo que todavía no tienen su tarjeta para el
+    juego "Descubre tu Carrera".
+
+    Es idempotente y no toca las tarjetas existentes, por lo que ejecutarlo en
+    cada arranque o al abrir el panel garantiza que ninguna carrera quede fuera
+    del juego ni se pierda. Las nuevas se agregan inactivas (el admin las activa
+    desde el panel).
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS game_carreras (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            carrera_id INT NOT NULL,
+            texto_boton VARCHAR(100) DEFAULT 'Ver carrera',
+            titulo_card VARCHAR(150),
+            descripcion_card TEXT,
+            activo TINYINT(1) DEFAULT 1,
+            orden INT DEFAULT 0,
+            boton_no VARCHAR(100) NOT NULL DEFAULT 'No es lo mío',
+            boton_info VARCHAR(100) NOT NULL DEFAULT 'Info',
+            boton_yes VARCHAR(100) NOT NULL DEFAULT 'Me interesa',
+            INDEX idx_carrera (carrera_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    """)
+    asegurar_columnas_botones_game(db, cursor)
+    # Backfill: registra las carreras sin tarjeta en el juego.
+    cursor.execute("""
+        INSERT INTO game_carreras (carrera_id, titulo_card, descripcion_card, activo, orden)
+        SELECT c.id, c.nombre, c.descripcion, 0, c.id
+        FROM carreras c
+        WHERE NOT EXISTS (
+            SELECT 1 FROM game_carreras gc WHERE gc.carrera_id = c.id
+        )
+    """)
+    db.commit()
+
+
+def asegurar_tabla_sesiones_activas():
+    """
+    Crea la tabla `sesiones_activas` si no existe. Guarda, por cada usuario
+    logueado, la última vez que se lo vio activo en el sitio, para poder
+    mostrar "usuarios en línea" en tiempo real en el panel.
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS sesiones_activas (
+            user_id INT NOT NULL PRIMARY KEY,
+            last_seen DATETIME NOT NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    """)
     db.commit()

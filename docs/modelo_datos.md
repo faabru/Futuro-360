@@ -22,8 +22,14 @@ erDiagram
     RESPUESTAS }o--|| PREGUNTAS : "refiere a"
     RESPUESTAS }o--|| OPCIONES : "selecciona"
     PASSWORD_RESETS }o--|| USUARIOS : "recupera"
+    USUARIOS ||--o| SESIONES_ACTIVAS : "presencia en línea"
     CARRERAS ||--o{ CARRERA_AREAS : "se clasifica"
     AREAS ||--o{ CARRERA_AREAS : "agrupa"
+
+    SESIONES_ACTIVAS {
+        int user_id PK, FK
+        datetime last_seen
+    }
 
     USUARIOS {
         int id PK
@@ -188,6 +194,7 @@ AREAS    1 ────< N CARRERA_AREAS  (un área agrupa varias carreras)
 RESPUESTAS N ────> 1 PREGUNTAS    (cada respuesta refiere a una pregunta)
 RESPUESTAS N ────> 1 OPCIONES     (cada respuesta selecciona una opción)
 PASSWORD_RESETS N ────> 1 USUARIOS (códigos de recuperación por email del usuario)
+USUARIOS 1 ────< 1 SESIONES_ACTIVAS (una fila por usuario logueado con su última actividad)
 ```
 
 ---
@@ -411,6 +418,17 @@ Códigos PIN de recuperación de contraseña.
 | `expira_en` | DATETIME | | Fecha de expiración |
 | `fecha_creacion` | TIMESTAMP | | Fecha de creación |
 
+### `sesiones_activas`
+Presencia en línea: una fila por usuario logueado con la última actividad registrada. Se actualiza en
+cada request (como máximo 1 escritura por sesión cada 60 s) y las filas con más de 5 minutos sin
+actividad se eliminan automáticamente. La tabla se crea sola al primer request; el dashboard la usa
+para mostrar **"Usuarios en línea"** en tiempo real.
+
+| Campo | Tipo | Clave | Descripción |
+|---|---|---|---|
+| `user_id` | INT | PK → `usuarios.id` | Usuario con actividad reciente |
+| `last_seen` | DATETIME | | Última fecha/hora de actividad |
+
 ---
 
 ## Relaciones entre entidades (resumen)
@@ -429,6 +447,7 @@ Códigos PIN de recuperación de contraseña.
 | `carreras` | 1 : N | `game_carreras` | `game_carreras.carrera_id` |
 | `carreras` | 1 : N | `carrera_areas` | `carrera_areas.carrera_id` |
 | `usuarios` | 1 : N | `password_resets` | `password_resets.email` (lógica) |
+| `usuarios` | 1 : 1 | `sesiones_activas` | `sesiones_activas.user_id` (lógica, fila por usuario) |
 
 ---
 
@@ -438,7 +457,9 @@ Códigos PIN de recuperación de contraseña.
 - **Claves foráneas** con `ON DELETE CASCADE` donde corresponde (tests → resultados, tests → respuestas,
   preguntas → opciones, preguntas → opciones_pregunta), garantizando integridad referencial.
 - **Unicidad** en campos clave: `usuarios.email`, `noticias.link`, `fuentes.nombre`,
-  `orientaciones.nombre`, `filtros_fecha.valor`, `resultados.test_id`.
+  `orientaciones.nombre`, `filtros_fecha.valor`, `resultados.test_id`, `sesiones_activas.user_id`.
+- La tabla `sesiones_activas` no requiere dump: se crea automáticamente al primer request de un
+  usuario logueado (`asegurar_tabla_sesiones_activas`).
 - **Normalización**: el modelo está normalizado hasta la **3ª Forma Normal** (tablas de áreas y
   categorías separadas de las entidades que las usan; datos no repetidos; cada tabla depende de su PK).
 - El esquema SQL completo se encuentra en `base de datos/futuro 360.sql` (migraciones históricas en

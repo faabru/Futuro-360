@@ -15,11 +15,13 @@ La fábrica ``create_app`` registra los blueprints y los manejadores globales
 de imágenes (una sola vez) y luego el servidor de desarrollo.
 """
 
+import time
+
 from flask import Flask, g, render_template, session
 
 from blueprints import registrar_blueprints
 from config import Config
-from core.startup import sincronizar_imagenes
+from core.startup import sincronizar_imagenes, sincronizar_juego
 from database_handler import inicializar_app, obtener_db
 
 
@@ -41,11 +43,43 @@ def create_app():
         id_usuario = session.get('user_id')
         if id_usuario is None:
             g.user = None
-        else:
-            db = obtener_db()
-            cursor = db.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id_usuario,))
-            g.user = cursor.fetchone()
+            return
+        db = obtener_db()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id_usuario,))
+        g.user = cursor.fetchone()
+        if g.user is None:
+            return
+        # Registrar actividad para el contador de "usuarios en línea".
+        # Máximo una escritura por sesión cada 60s para no recargar la BD.
+        ahora = time.time()
+        if ahora - session.get('_online_ts', 0) > 60:
+            session['_online_ts'] = ahora
+            try:
+                cursor.execute(
+                    "INSERT INTO sesiones_activas (user_id, last_seen) "
+                    "VALUES (%s, NOW()) ON DUPLICATE KEY UPDATE last_seen = NOW()",
+                    (id_usuario,))
+                cursor.execute(
+                    "DELETE FROM sesiones_activas "
+                    "WHERE last_seen < NOW() - INTERVAL 5 MINUTE")
+                db.commit()
+            except Exception:
+                # Si la tabla aún no existe (primera ejecución), la creamos
+                # y reintentamos una vez.
+                try:
+                    from core.migraciones import asegurar_tabla_sesiones_activas
+                    asegurar_tabla_sesiones_activas()
+                    cursor.execute(
+                        "INSERT INTO sesiones_activas (user_id, last_seen) "
+                        "VALUES (%s, NOW()) ON DUPLICATE KEY UPDATE last_seen = NOW()",
+                        (id_usuario,))
+                    cursor.execute(
+                        "DELETE FROM sesiones_activas "
+                        "WHERE last_seen < NOW() - INTERVAL 5 MINUTE")
+                    db.commit()
+                except Exception:
+                    pass
 
     @app.errorhandler(404)
     def pagina_no_encontrada(e):
@@ -72,4 +106,5 @@ if __name__ == '__main__':
         print("Ejecutando sincronización de imágenes...")
         sincronizar_imagenes()
         print("Sincronización completada. Iniciando servidor...")
+        sincronizar_juego()
     app.run(debug=True)

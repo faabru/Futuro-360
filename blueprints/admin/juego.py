@@ -10,7 +10,8 @@ Gestión del mini-juego "Descubre tu Carrera" e "Intereses en Juego" (panel admi
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from core.decoradores import ajax_o_redirect, requiere_admin
-from core.migraciones import asegurar_columnas_botones_game, asegurar_tabla_orientaciones
+from core.migraciones import (asegurar_columnas_botones_game, asegurar_tabla_game_carreras,
+                              asegurar_tabla_orientaciones, registrar_orientaciones)
 from database_handler import obtener_db
 
 bp = Blueprint('admin_juego', __name__)
@@ -21,6 +22,9 @@ bp = Blueprint('admin_juego', __name__)
 def admin_game_index():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
+
+    # Asegura que todas las carreras tengan su tarjeta en el juego.
+    asegurar_tabla_game_carreras()
 
     cursor.execute("SELECT COUNT(*) AS n FROM game_carreras WHERE activo = 1")
     carreras_activas = cursor.fetchone()['n']
@@ -45,6 +49,16 @@ def admin_game_carreras():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
     asegurar_columnas_botones_game(db, cursor)
+    # Asegura que todas las carreras del catálogo estén vinculadas al juego.
+    asegurar_tabla_game_carreras()
+
+    # Estadísticas del panel.
+    cursor.execute("SELECT COUNT(*) AS n FROM game_carreras")
+    carreras_total = cursor.fetchone()['n']
+    cursor.execute("SELECT COUNT(*) AS n FROM game_carreras WHERE activo = 1")
+    carreras_activas = cursor.fetchone()['n']
+    carreras_inactivas = carreras_total - carreras_activas
+
     cursor.execute("""
         SELECT gc.*, c.nombre as carrera_nombre, c.area_profesional
         FROM game_carreras gc
@@ -52,7 +66,10 @@ def admin_game_carreras():
         ORDER BY gc.orden, c.nombre
     """)
     items = cursor.fetchall()
-    return render_template('admin/game_carreras.html', items=items)
+    return render_template('admin/game_carreras.html', items=items,
+                           carreras_total=carreras_total,
+                           carreras_activas=carreras_activas,
+                           carreras_inactivas=carreras_inactivas)
 
 
 @bp.route('/admin/game/carreras/toggle/<int:id>', methods=['POST'])
@@ -100,10 +117,21 @@ def admin_game_preguntas():
     cursor = db.cursor(dictionary=True)
     cursor.execute("SELECT * FROM game_preguntas ORDER BY orden, id")
     preguntas = cursor.fetchall()
+    cursor.execute("SELECT COUNT(*) AS n FROM game_preguntas")
+    preguntas_total = cursor.fetchone()['n']
+    cursor.execute("SELECT COUNT(*) AS n FROM game_preguntas WHERE activo = 1")
+    preguntas_activas = cursor.fetchone()['n']
     asegurar_tabla_orientaciones()
     cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
     orientaciones = [o['nombre'] for o in cursor.fetchall()]
-    return render_template('admin/game_preguntas.html', preguntas=preguntas, orientaciones=orientaciones)
+    return render_template(
+        'admin/game_preguntas.html',
+        preguntas=preguntas,
+        orientaciones=orientaciones,
+        preguntas_total=preguntas_total,
+        preguntas_activas=preguntas_activas,
+        preguntas_inactivas=preguntas_total - preguntas_activas,
+    )
 
 
 @bp.route('/admin/game/preguntas/nueva', methods=['POST'])
@@ -126,6 +154,8 @@ def nueva_game_pregunta():
         (texto_pregunta, opcion_a_texto, opcion_a_area, opcion_b_texto, opcion_b_area)
         VALUES (%s, %s, %s, %s, %s)
     """, (texto_pregunta, opcion_a_texto, opcion_a_area, opcion_b_texto, opcion_b_area))
+    # Registra las áreas escritas a mano para que aparezcan en todos los dropdowns.
+    registrar_orientaciones([opcion_a_area, opcion_b_area])
     db.commit()
     flash('Pregunta agregada al juego exitosamente.', 'success')
     return redirect(url_for('admin_juego.admin_game_preguntas'))
