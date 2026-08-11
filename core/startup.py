@@ -11,6 +11,9 @@ import os
 from flask import current_app
 
 from core.migraciones import (
+    asegurar_columnas_esquema,
+    asegurar_cuenta_dueño,
+    asegurar_datos_iniciales,
     asegurar_tabla_areas,
     asegurar_tabla_comentarios,
     asegurar_tabla_filtros_fecha,
@@ -20,6 +23,7 @@ from core.migraciones import (
     asegurar_tabla_noticias,
     asegurar_tabla_orientaciones,
     asegurar_tabla_password_resets,
+    asegurar_tabla_sesiones_activas,
 )
 from database_handler import obtener_db
 
@@ -164,6 +168,8 @@ def sincronizar_tablas():
     preguntas del juego, códigos de recuperación, comentarios y áreas.
     """
     funciones = [
+        asegurar_columnas_esquema,
+        asegurar_datos_iniciales,
         asegurar_tabla_noticias,
         asegurar_tabla_fuentes,
         asegurar_tabla_filtros_fecha,
@@ -172,6 +178,8 @@ def sincronizar_tablas():
         asegurar_tabla_password_resets,
         asegurar_tabla_comentarios,
         asegurar_tabla_areas,
+        asegurar_tabla_sesiones_activas,
+        asegurar_cuenta_dueño,
     ]
     for fn in funciones:
         try:
