@@ -145,9 +145,15 @@ Desde **Carreras** se gestiona el catálogo de carreras:
 
 - Listado con búsqueda/filtro.
 - **Alta** de carrera: nombre, descripción, área profesional e instituciones.
-- **Edición** de carrera: todos sus datos e imágenes.
+- **Edición** de carrera: todos sus datos e **imágenes** (portada/principal) y **video** opcional.
 - **Baja** de carrera.
 - **Exportar Excel** de la lista de carreras.
+
+**Imágenes y video:** en el alta/edición se puede **subir un archivo** desde el
+dispositivo o **pegar una URL** (por ejemplo de Cloudinary). Si la aplicación
+tiene Cloudinary configurado, los archivos subidos se guardan en la nube; si no,
+se guardan localmente. Ante cualquier problema de subida, la carrera se guarda
+igual con el archivo local.
 
 ### 2.5 Orientaciones
 
@@ -178,8 +184,12 @@ Desde **Preguntas** se administra el contenido del test vocacional:
   nombre del medio/portal).
 - **Filtros de fecha**: alta, edición, orden y baja de los filtros de tiempo que se ofrecen al
   usuario final (ej: "Hoy", "Esta semana", "Este mes").
-- **Noticias**: alta, edición y baja de noticias (título, descripción, imagen, fuente, fecha,
-  categoría, link). Incluye **Exportar Excel** de la lista de noticias.
+- **Noticias**: alta, edición y baja de noticias (título, descripción, imagen, **video** opcional,
+  fuente, fecha, categoría, link). Incluye **Exportar Excel** de la lista de noticias.
+
+Al igual que las carreras, cada noticia admite una **imagen** y un **video**:
+subirlos desde el dispositivo o pegar una URL. Si Cloudinary está configurado,
+quedan en la nube (URL pública); si no, localmente.
 
 ### 2.9 Exportación de reportes (Excel)
 
@@ -216,3 +226,8 @@ panel sin administración.
 **¿El exportado a Excel funciona en cualquier navegador?**
 Sí: el archivo `.xlsx` se genera en el servidor y se descarga por el navegador sin necesidad de
 complementos.
+
+**¿Cómo se guardan las imágenes y videos que subo al panel?**
+Depende de la configuración: si se definieron las claves de **Cloudinary** en el `.env`, se suben a
+la nube y quedan accesibles por URL (se comparten entre máquinas). Sin las claves, o si Cloudinary
+falla, se guardan en `static/imagenes/` localmente. El sistema nunca deja de funcionar por esto.

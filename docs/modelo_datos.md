@@ -304,7 +304,8 @@ Catálogo de carreras de la plataforma.
 | `area_profesional` | VARCHAR(100) | | Área principal |
 | `instituciones` | TEXT | | Instituciones donde se dicta |
 | `popular` | TINYINT(1) | | Marca si es popular |
-| `imagen` / `imagen_portada` / `imagen_principal` | VARCHAR(500) | | Rutas de imágenes |
+| `imagen` / `imagen_portada` / `imagen_principal` | VARCHAR(500) | | Rutas de imágenes (local o URL de Cloudinary) |
+| `video` | VARCHAR(500) | | Video de la carrera (URL, local o de Cloudinary) |
 | `a_que_se_dedica` | TEXT | | Descripción del campo laboral |
 
 ### `carrera_areas`
@@ -350,7 +351,8 @@ Noticias educativas mostradas en la sección de noticias.
 | `id` | INT | PK | Identificador |
 | `titulo` | VARCHAR(300) | | Título |
 | `descripcion` | TEXT | | Cuerpo/resumen |
-| `imagen` | VARCHAR(500) | | Imagen |
+| `imagen` | VARCHAR(500) | | Imagen (ruta local o URL de Cloudinary) |
+| `video` | VARCHAR(500) | | Video de la noticia (URL, local o de Cloudinary) |
 | `fuente` | VARCHAR(100) | | Fuente (nombre del medio) |
 | `fecha` | DATE | | Fecha de la noticia |
 | `link` | VARCHAR(500) | UNIQUE | Enlace de origen |

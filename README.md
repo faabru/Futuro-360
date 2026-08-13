@@ -217,18 +217,73 @@ La base se prepara **sola al primer arranque** (no hace falta importar nada):
 
 ## Imágenes y videos (Cloudinary)
 
-- Las **imágenes y videos** de carreras y noticias se pueden subir a
-  [Cloudinary](https://cloudinary.com) (plan gratuito, 25 GB). Así los archivos
-  viven en la nube y se comparten entre máquinas sin ocupar el repositorio.
-- **Sin las claves, la app sigue funcionando**: sube los archivos a
-  `static/imagenes/` como antes (fallback local).
-- Para activarlo: completá `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` y
-  `CLOUDINARY_API_SECRET` en el `.env` y reiniciá la app.
-- En el alta/edición de carrera o noticia se puede **pegar la URL** de un medio
-  o **subir un archivo** desde el dispositivo (imagen y opcionalmente video:
-  mp4, webm, mov).
-- Para mover a la nube las imágenes que ya están locales (migración única):
-  `python scripts/migrar_imagenes_cloudinary.py`
+Las **imágenes y videos** de carreras y noticias se suben a
+[Cloudinary](https://cloudinary.com) (plan gratuito, 25 GB). Así los archivos
+viven en la nube, se comparten entre máquinas y no ocupan espacio en el repo.
+
+### Cómo funciona
+
+- `core/imagenes.py` centraliza las subidas (`guardar_archivo`).
+- Si Cloudinary está configurado (las tres variables en el `.env`), el archivo
+  se sube a la nube y se guarda su **URL pública** en la base de datos.
+- Si **no** está configurado, o Cloudinary falla por cualquier motivo
+  (credenciales, permisos, red), la app **sigue funcionando**: guarda el
+  archivo localmente en `static/imagenes/` y no rompe el panel.
+- En las plantillas, el filtro Jinja `|media` (registrado en `app.py`) resuelve
+  cada valor: las rutas locales (`imagenes/...`) las convierte a
+  `/static/imagenes/...` y las URLs completas (`https://res.cloudinary.com/...`)
+  las deja tal cual.
+- En el alta/edición de una carrera o noticia se puede **pegar la URL** de un
+  medio o **subir un archivo** desde el dispositivo (imagen, y opcionalmente
+  video: mp4, webm, mov, avi, mkv, m4v).
+
+### Activar Cloudinary
+
+1. Crear la cuenta en [cloudinary.com](https://cloudinary.com). El **cloud name**
+   figura en Settings → API Keys (es el mismo del "Entorno del producto").
+2. Completar en el `.env`:
+
+```env
+CLOUDINARY_CLOUD_NAME=tu_cloud_name
+CLOUDINARY_API_KEY=tu_api_key
+CLOUDINARY_API_SECRET=tu_api_secret
+```
+
+3. Reiniciar la app. La **primera subida** en el panel carrea el resto.
+
+> **Importante — rol de la API key:** la key debe tener rol **Master Admin**.
+> Si se crea con el rol "Media Library User", la app firma bien pero Cloudinary
+> rechaza la subida con
+> `Request forbidden due to missing permissions (actions=["create"])`.
+> Se corrige en Cloudinary → Settings → **API Keys** → editar la key → rol
+> **Master Admin**.
+
+> **Importante — copiar el API Secret:** el secreto se copia con el **botón de
+> copiar** de Cloudinary (Settings → API Keys → columna "API secret"). No se
+> debe escribir a mano: es largo y con caracteres mixtos; cualquier carácter de
+> más o de menos produce `Invalid Signature`. La API key y su secret deben ser
+> **del mismo par** (mezclarlos con otra key da exactamente ese error).
+
+### Migrar imágenes existentes
+
+Para mover a la nube las imágenes que ya están guardadas localmente
+(`static/imagenes/`) — migración única:
+
+```bash
+python scripts/migrar_imagenes_cloudinary.py
+```
+
+Sube `imagen`, `imagen_portada` e `imagen_principal` de carreras y `imagen` de
+noticias (solo las que empiezan con `imagenes/`) y actualiza la base de datos.
+Si Cloudinary no está configurado, avisa y no hace nada.
+
+### Solución de problemas
+
+| Error de Cloudinary | Causa | Solución |
+|---|---|---|
+| `Invalid Signature` | API key y API secret no son del mismo par, o el secret quedó incompleto al escribirse a mano | Revisar que la key use el secret correcto (copiar con el botón de copiar) en Settings → API Keys |
+| `Request forbidden due to missing permissions (actions=["create"])` | La API key tiene rol "Media Library User" que no permite subir | Cambiar el rol de la key a **Master Admin** |
+| `Invalid image file` | El archivo no es una imagen/video válido | El panel valida extensiones; verificar que el archivo no esté corrupto |
 
 ## Panel de administración
 
