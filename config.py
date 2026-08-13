@@ -46,8 +46,19 @@ class Config:
     RESEND_API_KEY = os.getenv('RESEND_API_KEY')
     MAIL_FROM = 'Futuro 360 <onboarding@resend.dev>'
 
+    # --- Cloudinary (imágenes y videos) --------------------------------------
+    # Si las tres claves están definidas, las subidas van a Cloudinary y se
+    # guardan como URL (compartida entre máquinas). Sin claves, se sigue
+    # guardando en static/imagenes/ (fallback local).
+    CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME') or None
+    CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY') or None
+    CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET') or None
+
 
 # --- Constantes de dominio ------------------------------------------------
 
 # Extensiones de imagen aceptadas en las subidas de archivos (carreras y noticias).
 EXTENSIONES_IMAGEN = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+# Extensiones de video aceptadas en las subidas (carreras y noticias).
+EXTENSIONES_VIDEO = {'mp4', 'webm', 'mov', 'avi', 'mkv', 'm4v'}

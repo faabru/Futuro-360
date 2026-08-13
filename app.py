@@ -17,7 +17,7 @@ de imágenes (una sola vez) y luego el servidor de desarrollo.
 
 import time
 
-from flask import Flask, g, render_template, session
+from flask import Flask, g, render_template, session, url_for
 
 from blueprints import registrar_blueprints
 from config import Config
@@ -48,6 +48,17 @@ def create_app():
 
     # Todos los blueprints (sitio público + panel admin) con sus rutas.
     registrar_blueprints(app)
+
+    @app.template_filter('media')
+    def media(valor):
+        """Devuelve una URL de imagen/video lista para usar en <img>/<video>.
+        Si el valor es una ruta local ('imagenes/...') genera la URL de static;
+        si ya es una URL completa (https, Cloudinary), la devuelve tal cual."""
+        if not valor:
+            return ''
+        if valor.startswith('imagenes/') or valor.startswith('static/'):
+            return url_for('static', filename=valor)
+        return valor
 
     @app.before_request
     def cargar_usuario_logueado():

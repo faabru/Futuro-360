@@ -7,15 +7,11 @@ Gestión de carreras desde el panel admin (ABM completo).
 - ``eliminar_carrera`` → baja.
 """
 
-import os
-import time
-
-from flask import (Blueprint, current_app, flash, redirect, render_template,
+from flask import (Blueprint, flash, redirect, render_template,
                    request, url_for)
-from werkzeug.utils import secure_filename
 
-from config import EXTENSIONES_IMAGEN
 from core.decoradores import ajax_o_redirect, requiere_admin
+from core.imagenes import guardar_archivo
 from core.migraciones import (asegurar_tabla_game_carreras, asegurar_tabla_orientaciones,
                               guardar_areas_carrera, obtener_areas_carrera)
 from database_handler import obtener_db
@@ -24,24 +20,16 @@ bp = Blueprint('admin_carreras', __name__)
 
 
 def guardar_imagen_carrera(archivo):
-    """Guarda una imagen subida desde el formulario en static/imagenes/.
-    Devuelve la ruta relativa 'imagenes/<nombre>' o None si no hay archivo válido."""
-    if archivo is None or not archivo.filename:
-        return None
+    """Guarda la imagen de una carrera (Cloudinary o local).
+    Devuelve la URL/ruta o None si no hay archivo válido."""
+    return guardar_archivo(archivo, prefijo='carrera', carpeta='', es_video=False)
 
-    nombre_original = secure_filename(archivo.filename)
-    if not nombre_original:
-        return None
 
-    ext = nombre_original.rsplit('.', 1)[-1].lower() if '.' in nombre_original else ''
-    if ext not in EXTENSIONES_IMAGEN:
-        return None
-
-    # Nombre único para evitar colisiones (prefijo con timestamp).
-    nombre = f"carrera_{int(time.time())}_{nombre_original}"
-    ruta = os.path.join(current_app.static_folder, 'imagenes', nombre)
-    archivo.save(ruta)
-    return f"imagenes/{nombre}"
+def guardar_video_carrera(archivo):
+    """Guarda el video de una carrera (Cloudinary o local).
+    Devuelve la URL/ruta o None si no hay archivo válido."""
+    return guardar_archivo(archivo, prefijo='carrera_video', carpeta='videos',
+                           es_video=True)
 
 
 @bp.route('/admin/carreras')
@@ -75,11 +63,17 @@ def nueva_carrera():
         if imagen_principal_subida:
             imagen_principal = imagen_principal_subida
 
+        # Video: archivo o URL.
+        video = request.form.get('video', '')
+        video_subido = guardar_video_carrera(request.files.get('video_file'))
+        if video_subido:
+            video = video_subido
+
         db = obtener_db()
         cursor = db.cursor()
         cursor.execute(
-            "INSERT INTO carreras (nombre, descripcion, area_profesional, instituciones, imagen_portada, imagen_principal, a_que_se_dedica) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (nombre, descripcion, area_profesional, '', imagen_portada, imagen_principal, a_que_se_dedica)
+            "INSERT INTO carreras (nombre, descripcion, area_profesional, instituciones, imagen_portada, imagen_principal, a_que_se_dedica, video) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+            (nombre, descripcion, area_profesional, '', imagen_portada, imagen_principal, a_que_se_dedica, video)
         )
         carrera_id_nueva = cursor.lastrowid
         db.commit()
@@ -124,9 +118,15 @@ def editar_carrera(id):
         if imagen_principal_subida:
             imagen_principal = imagen_principal_subida
 
+        # Video: archivo o URL.
+        video = request.form.get('video', '')
+        video_subido = guardar_video_carrera(request.files.get('video_file'))
+        if video_subido:
+            video = video_subido
+
         cursor.execute(
-            "UPDATE carreras SET nombre = %s, descripcion = %s, area_profesional = %s, imagen_portada = %s, imagen_principal = %s, a_que_se_dedica = %s WHERE id = %s",
-            (nombre, descripcion, area_profesional, imagen_portada, imagen_principal, a_que_se_dedica, id)
+            "UPDATE carreras SET nombre = %s, descripcion = %s, area_profesional = %s, imagen_portada = %s, imagen_principal = %s, a_que_se_dedica = %s, video = %s WHERE id = %s",
+            (nombre, descripcion, area_profesional, imagen_portada, imagen_principal, a_que_se_dedica, video, id)
         )
         db.commit()
         # Asegura que la carrera editada siga vinculada al juego.

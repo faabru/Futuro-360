@@ -103,7 +103,7 @@
                     <div class="col-md-6">
                         {% if carrera.imagen_principal %}
                         <img
-                            src="{{ url_for('static', filename=carrera.imagen_principal) }}"
+                            src="{{ carrera.imagen_principal|media }}"
                             onerror="this.onerror=null; this.src='{{ fallback_final_detalle }}';"
                             class="img-fluid h-100 object-fit-cover"
                             style="object-position: center; min-height: 400px;"
@@ -232,6 +232,28 @@
         </div>
     </div>
 </div>
+
+{% if carrera.video %}
+<!-- VIDEO DE LA CARRERA -->
+<div class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="section-card p-0 overflow-hidden shadow-lg border-0">
+                <div class="p-4 p-md-5">
+                    <h3 class="fw-bold mb-3 text-primary">
+                        <i class="bi bi-play-circle me-2"></i> Conocé más
+                    </h3>
+                    <video controls preload="metadata" class="w-100 rounded-3"
+                           style="max-height: 520px; background:#000;">
+                        <source src="{{ carrera.video|media }}" type="video/mp4">
+                        Tu navegador no soporta el reproductor de video.
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 
 {% endblock %}

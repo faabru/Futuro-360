@@ -9,17 +9,14 @@ Gestión de noticias, fuentes y filtros de fecha desde el panel admin.
   ``mover_filtro_fecha``, ``eliminar_filtro_fecha``.
 """
 
-import os
 import re
-import time
 from datetime import datetime
 
-from flask import (Blueprint, current_app, flash, redirect, render_template,
+from flask import (Blueprint, flash, redirect, render_template,
                    request, url_for)
-from werkzeug.utils import secure_filename
 
-from config import EXTENSIONES_IMAGEN
 from core.decoradores import ajax_o_redirect, requiere_admin
+from core.imagenes import guardar_archivo
 from core.migraciones import (asegurar_tabla_filtros_fecha, asegurar_tabla_fuentes,
                               asegurar_tabla_orientaciones, registrar_orientaciones)
 from database_handler import obtener_db
@@ -28,25 +25,17 @@ bp = Blueprint('admin_noticias', __name__)
 
 
 def guardar_imagen_noticia(archivo):
-    """Guarda la imagen de una noticia en static/imagenes/noticias/.
-    Devuelve la ruta relativa 'imagenes/noticias/<nombre>' o None."""
-    if archivo is None or not archivo.filename:
-        return None
+    """Guarda la imagen de una noticia (Cloudinary o local).
+    Devuelve la URL/ruta o None si no hay archivo válido."""
+    return guardar_archivo(archivo, prefijo='noticia', carpeta='noticias',
+                           es_video=False)
 
-    nombre_original = secure_filename(archivo.filename)
-    if not nombre_original:
-        return None
 
-    ext = nombre_original.rsplit('.', 1)[-1].lower() if '.' in nombre_original else ''
-    if ext not in EXTENSIONES_IMAGEN:
-        return None
-
-    carpeta = os.path.join(current_app.static_folder, 'imagenes', 'noticias')
-    os.makedirs(carpeta, exist_ok=True)
-
-    nombre = f"noticia_{int(time.time())}_{nombre_original}"
-    archivo.save(os.path.join(carpeta, nombre))
-    return f"imagenes/noticias/{nombre}"
+def guardar_video_noticia(archivo):
+    """Guarda el video de una noticia (Cloudinary o local).
+    Devuelve la URL/ruta o None si no hay archivo válido."""
+    return guardar_archivo(archivo, prefijo='noticia_video', carpeta='videos',
+                           es_video=True)
 
 
 @bp.route('/admin/noticias')
@@ -151,12 +140,18 @@ def nueva_noticia():
     if imagen_subida:
         imagen = imagen_subida
 
+    # Video: archivo o URL (opcional).
+    video = request.form.get('video', '')
+    video_subido = guardar_video_noticia(request.files.get('video_file'))
+    if video_subido:
+        video = video_subido
+
     db = obtener_db()
     cursor = db.cursor()
     cursor.execute("""
-        INSERT INTO noticias (titulo, descripcion, imagen, fuente, fecha, link, categoria, es_externa)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, 0)
-    """, (titulo, descripcion, imagen, fuente, fecha, link, categoria))
+        INSERT INTO noticias (titulo, descripcion, imagen, video, fuente, fecha, link, categoria, es_externa)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 0)
+    """, (titulo, descripcion, imagen, video, fuente, fecha, link, categoria))
     # Registra la categoría como área/orientación para que aparezca en los dropdowns.
     registrar_orientaciones([categoria])
     db.commit()
@@ -191,11 +186,21 @@ def editar_noticia(id):
             actual = cursor.fetchone()
             imagen = actual['imagen'] if actual else ''
 
+    # Video: archivo nuevo, o URL del formulario, o conservar el actual.
+    video = request.form.get('video', '').strip()
+    video_subido = guardar_video_noticia(request.files.get('video_file'))
+    if video_subido:
+        video = video_subido
+    elif not video:
+        cursor.execute("SELECT video FROM noticias WHERE id = %s", (id,))
+        actual_video = cursor.fetchone()
+        video = actual_video['video'] if (actual_video and actual_video['video']) else ''
+
     cursor.execute("""
         UPDATE noticias
-        SET titulo = %s, descripcion = %s, imagen = %s, fuente = %s, fecha = %s, link = %s, categoria = %s
+        SET titulo = %s, descripcion = %s, imagen = %s, video = %s, fuente = %s, fecha = %s, link = %s, categoria = %s
         WHERE id = %s
-    """, (titulo, descripcion, imagen, fuente, fecha, link, categoria, id))
+    """, (titulo, descripcion, imagen, video, fuente, fecha, link, categoria, id))
     # Registra la categoría como área/orientación para que aparezca en los dropdowns.
     registrar_orientaciones([categoria])
     db.commit()

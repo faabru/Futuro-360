@@ -96,10 +96,15 @@
                  data-categoria="{{ noticia.categoria|lower }}">
               <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden news-card bg-white">
                 
-                <!-- Imagen con fallback -->
+                <!-- Imagen o video con fallback -->
                 <div class="position-relative" style="height: 200px;">
-                  {% if noticia.imagen %}
-                    <img src="{{ noticia.imagen if not noticia.imagen.startswith('imagenes/') else url_for('static', filename=noticia.imagen) }}" class="w-100 h-100 object-fit-cover" alt="{{ noticia.titulo }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
+                  {% if noticia.video %}
+                    <video controls preload="metadata" class="w-100 h-100 object-fit-cover" style="background:#000;">
+                      <source src="{{ noticia.video|media }}" type="video/mp4">
+                      Tu navegador no soporta el reproductor de video.
+                    </video>
+                  {% elif noticia.imagen %}
+                    <img src="{{ noticia.imagen|media }}" class="w-100 h-100 object-fit-cover" alt="{{ noticia.titulo }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
                   {% else %}
                     <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light text-muted">
                       <i class="bi bi-image-alt display-4"></i>

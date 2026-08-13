@@ -37,6 +37,7 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 | Envío de emails | Resend |
 | Exportación Excel | openpyxl |
 | Informe PDF | reportlab |
+| Media (imágenes y videos) | Cloudinary (con fallback local) |
 | Variables de entorno | python-dotenv |
 
 ## Estructura del proyecto
@@ -52,6 +53,7 @@ futuro 360/
 ├── database_handler.py          # Conexión y ciclo de vida de la BD (una conexión por request)
 ├── core/                        # Lógica transversal reutilizable
 │   ├── decoradores.py           # requiere_login, requiere_admin, ajax_o_redirect, es_usuario_dueño
+│   ├── imagenes.py              # Subida de imágenes/videos (Cloudinary con fallback local)
 │   ├── migraciones.py           # Auto-migraciones idempotentes (tablas, columnas, datos iniciales)
 │   ├── mailer.py                # Envío de emails con Resend (códigos de recuperación)
 │   └── startup.py               # Sincronización de imágenes al arrancar
@@ -162,6 +164,12 @@ RESEND_API_KEY=re_XXXXXXXXXXXXX
 # Esa cuenta se crea en SU base al primer arranque.
 ADMIN_EMAIL=tu_correo@gmail.com
 ADMIN_PASSWORD=tu_contraseña_inicial
+
+# Imágenes y videos (Cloudinary) — OPCIONAL
+# Sin estas claves la app guarda los archivos localmente (igual funciona).
+CLOUDINARY_CLOUD_NAME=tu_cloud_name
+CLOUDINARY_API_KEY=tu_api_key
+CLOUDINARY_API_SECRET=tu_api_secret
 ```
 
 | Variable | Obligatoria | Descripción |
@@ -172,6 +180,9 @@ ADMIN_PASSWORD=tu_contraseña_inicial
 | `DB_NAME` | No | Nombre de la base de datos (default `futuro360`) |
 | `SECRET_KEY` | Recomendada | Clave de firma de sesiones de Flask |
 | `RESEND_API_KEY` | Solo para emails | Clave de la API de Resend |
+| `CLOUDINARY_CLOUD_NAME` | No | Cloud de Cloudinary para imágenes/videos |
+| `CLOUDINARY_API_KEY` | No | API key de Cloudinary |
+| `CLOUDINARY_API_SECRET` | No | API secret de Cloudinary |
 | `ADMIN_EMAIL` | No | Email del **dueño del panel** en esta máquina (default `fabriciovillagra05@gmail.com`) |
 | `ADMIN_PASSWORD` | No | Contraseña SOLO para crear esa cuenta la primera vez (default `123456789`). Luego puede cambiarse con la recuperación. |
 
@@ -203,6 +214,21 @@ La base se prepara **sola al primer arranque** (no hace falta importar nada):
   [`docs/modelo_datos.md`](docs/modelo_datos.md).
 - Las migraciones históricas están en `base de datos/migracion_parte1.sql` y
   `migracion_parte2.sql`.
+
+## Imágenes y videos (Cloudinary)
+
+- Las **imágenes y videos** de carreras y noticias se pueden subir a
+  [Cloudinary](https://cloudinary.com) (plan gratuito, 25 GB). Así los archivos
+  viven en la nube y se comparten entre máquinas sin ocupar el repositorio.
+- **Sin las claves, la app sigue funcionando**: sube los archivos a
+  `static/imagenes/` como antes (fallback local).
+- Para activarlo: completá `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` y
+  `CLOUDINARY_API_SECRET` en el `.env` y reiniciá la app.
+- En el alta/edición de carrera o noticia se puede **pegar la URL** de un medio
+  o **subir un archivo** desde el dispositivo (imagen y opcionalmente video:
+  mp4, webm, mov).
+- Para mover a la nube las imágenes que ya están locales (migración única):
+  `python scripts/migrar_imagenes_cloudinary.py`
 
 ## Panel de administración
 

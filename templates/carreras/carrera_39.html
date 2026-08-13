@@ -116,7 +116,7 @@
                     <div class="col-md-6">
                         {% if carrera.imagen_principal %}
                         <img
-                            src="{{ url_for('static', filename=carrera.imagen_principal) }}"
+                            src="{{ carrera.imagen_principal|media }}"
                             onerror="this.onerror=null; this.src='{{ fallback_final_detalle }}';"
                             class="img-fluid h-100 object-fit-cover"
                             style="object-position: center; min-height: 400px;"

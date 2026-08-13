@@ -141,7 +141,7 @@
                 <!-- IMAGEN DE LA CARRERA -->
                 {% if carrera.imagen_portada %}
                 <img
-                    src="{{ url_for('static', filename=carrera.imagen_portada) }}"
+                    src="{{ carrera.imagen_portada|media }}"
                     onerror="this.onerror=null; this.src='{{ fallback_final }}';"
                     class="card-img-top object-fit-cover"
                     style="height: 220px; object-position: center;"
