@@ -19,6 +19,7 @@
 {% endblock %}
 
 {% block panel_content %}
+{% from "admin/_media_uploader.html" import media_uploader_duo %}
 
 <!-- Gestión de filtros de fecha -->
 <div class="collapse mb-4" id="filtrosFechaCard">
@@ -313,27 +314,13 @@
                         <label class="form-label fw-bold">Descripción</label>
                         <textarea name="descripcion" class="form-control" rows="3" required></textarea>
                     </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Imagen desde archivo</label>
-                            <input type="file" name="imagen_file" class="form-control crop-imagen" accept=".png,.jpg,.jpeg,.gif,.webp">
-                            <div class="form-text">Si se sube, tiene prioridad sobre la URL.</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">URL de imagen</label>
-                            <input type="url" name="imagen" class="form-control" placeholder="https://...">
-                        </div>
+                    <div class="mb-3">
+                        {{ media_uploader_duo('imagen', 'imagen_file', 'Imagen desde archivo', 'URL de imagen', 'imagen',
+                            nota_file='Si se sube, tiene prioridad sobre la URL.') }}
                     </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Video desde archivo (opcional)</label>
-                            <input type="file" name="video_file" class="form-control" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska">
-                            <div class="form-text">mp4, webm, mov, avi.</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">URL de video</label>
-                            <input type="url" name="video" class="form-control" placeholder="https://...">
-                        </div>
+                    <div class="mb-3">
+                        {{ media_uploader_duo('video', 'video_file', 'Video desde archivo (opcional)', 'URL de video', 'video',
+                            nota_file='mp4, webm, mov, avi.') }}
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -440,27 +427,13 @@
                         <label class="form-label fw-bold">Descripción</label>
                         <textarea name="descripcion" class="form-control" rows="3" required></textarea>
                     </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Imagen desde archivo</label>
-                            <input type="file" name="imagen_file" class="form-control crop-imagen" accept=".png,.jpg,.jpeg,.gif,.webp">
-                            <div class="form-text">Si se sube, reemplaza a la imagen actual. Dejá en blanco para conservarla.</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">URL de imagen</label>
-                            <input type="url" name="imagen" class="form-control" placeholder="https://...">
-                        </div>
+                    <div class="mb-3">
+                        {{ media_uploader_duo('imagen', 'imagen_file', 'Imagen desde archivo', 'URL de imagen', 'imagen',
+                            nota_file='Si se sube, reemplaza a la imagen actual. Dejá en blanco para conservarla.') }}
                     </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Video desde archivo (opcional)</label>
-                            <input type="file" name="video_file" class="form-control" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska">
-                            <div class="form-text">mp4, webm, mov, avi.</div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">URL de video</label>
-                            <input type="url" name="video" class="form-control" placeholder="https://...">
-                        </div>
+                    <div class="mb-3">
+                        {{ media_uploader_duo('video', 'video_file', 'Video desde archivo (opcional)', 'URL de video', 'video',
+                            nota_file='mp4, webm, mov, avi.') }}
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -502,4 +475,8 @@
 </div>
 
 {% include "admin/_modal_crop.html" %}
+
+{% block admin_scripts %}
+<script src="{{ url_for('static', filename='media_uploader.js') }}"></script>
+{% endblock %}
 {% endblock %}

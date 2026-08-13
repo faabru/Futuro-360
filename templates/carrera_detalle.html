@@ -98,22 +98,22 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="section-card p-0 overflow-hidden shadow-lg border-0">
-                <div class="row g-0">
+                <div class="row g-0" style="align-items: flex-start;">
                     <!-- COLUMNA DE IMAGEN -->
                     <div class="col-md-6">
                         {% if carrera.imagen_principal %}
                         <img
                             src="{{ carrera.imagen_principal|media }}"
                             onerror="this.onerror=null; this.src='{{ fallback_final_detalle }}';"
-                            class="img-fluid h-100 object-fit-cover"
-                            style="object-position: center; min-height: 400px;"
+                            class="img-fluid w-100 object-fit-cover"
+                            style="object-position: center; min-height: 400px; max-height: 680px; height: auto;"
                             alt="{{ carrera.nombre }}">
                         {% else %}
                         <img
                             src="{{ fallback_final_detalle }}"
                             onerror="this.onerror=null; this.src='https://picsum.photos/seed/' + encodeURIComponent('{{ carrera.id }}_{{ carrera.nombre }}') + '/1200/800';"
-                            class="img-fluid h-100 object-fit-cover"
-                            style="object-position: center; min-height: 400px;"
+                            class="img-fluid w-100 object-fit-cover"
+                            style="object-position: center; min-height: 400px; max-height: 680px; height: auto;"
                             alt="{{ carrera.nombre }}">
                         {% endif %}
                     </div>

@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block panel_content %}
+{% from "admin/_media_uploader.html" import media_uploader %}
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="admin-card">
@@ -72,28 +73,25 @@
 
                     <div class="row g-4">
                         <div class="col-md-6 mb-4">
-                            <label for="imagen_portada" class="form-label fw-bold">Imagen de Portada</label>
-                            <input type="url" name="imagen_portada" id="imagen_portada" class="form-control" value="{{ carrera.imagen_portada if carrera else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
-                            <small class="text-muted d-block mt-2">O subí una imagen desde tu dispositivo:</small>
-                            <input type="file" name="imagen_portada_file" id="imagen_portada_file" class="form-control mt-2 crop-imagen" accept="image/jpeg,image/png,image/gif,image/webp">
-                            <small class="text-muted">Se mostrará en la grilla de carreras. Si subís un archivo, se usa en lugar de la URL.</small>
+                            {{ media_uploader('imagen_portada', 'imagen_portada_file', 'Imagen de Portada', 'imagen',
+                                valor=carrera.imagen_portada if carrera else '',
+                                placeholder='https://ejemplo.com/imagen.jpg',
+                                nota='Se mostrará en la grilla de carreras. Si subís un archivo, se usa en lugar de la URL.') }}
                         </div>
 
                         <div class="col-md-6 mb-4">
-                            <label for="imagen_principal" class="form-label fw-bold">Imagen Principal</label>
-                            <input type="url" name="imagen_principal" id="imagen_principal" class="form-control" value="{{ carrera.imagen_principal if carrera else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
-                            <small class="text-muted d-block mt-2">O subí una imagen desde tu dispositivo:</small>
-                            <input type="file" name="imagen_principal_file" id="imagen_principal_file" class="form-control mt-2 crop-imagen" accept="image/jpeg,image/png,image/gif,image/webp">
-                            <small class="text-muted">Se mostrará grande en el detalle de la carrera. Si subís un archivo, se usa en lugar de la URL.</small>
+                            {{ media_uploader('imagen_principal', 'imagen_principal_file', 'Imagen Principal', 'imagen',
+                                valor=carrera.imagen_principal if carrera else '',
+                                placeholder='https://ejemplo.com/imagen.jpg',
+                                nota='Se mostrará grande en el detalle de la carrera. Si subís un archivo, se usa en lugar de la URL.') }}
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <label for="video" class="form-label fw-bold">Video de la Carrera (opcional)</label>
-                        <input type="url" name="video" id="video" class="form-control" value="{{ carrera.video if carrera else '' }}" placeholder="https://res.cloudinary.com/.../video.mp4">
-                        <small class="text-muted d-block mt-2">O subí un video desde tu dispositivo (mp4, webm, mov):</small>
-                        <input type="file" name="video_file" id="video_file" class="form-control mt-2" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska">
-                        <small class="text-muted">Se mostrará en el detalle de la carrera. Si subís un archivo, se usa en lugar de la URL.</small>
+                        {{ media_uploader('video', 'video_file', 'Video de la Carrera (opcional)', 'video',
+                            valor=carrera.video if carrera else '',
+                            placeholder='https://res.cloudinary.com/.../video.mp4',
+                            nota='Se mostrará en el detalle de la carrera. Si subís un archivo, se usa en lugar de la URL.') }}
                     </div>
 
                     <div class="d-flex gap-2">
@@ -300,4 +298,5 @@
         actualizarAreas();
     });
 </script>
+<script src="{{ url_for('static', filename='media_uploader.js') }}"></script>
 {% endblock %}

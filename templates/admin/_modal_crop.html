@@ -2,33 +2,64 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 
 <div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow">
             <div class="modal-header border-0 py-3">
-                <h5 class="modal-title fw-bold"><i class="bi bi-crop me-2 text-primary"></i>Ajustar imagen</h5>
+                <h5 class="modal-title fw-bold crop-modal-title"><i class="bi bi-crop me-2"></i>Ajustar imagen</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-3">
+            <div class="modal-body pt-2 p-4">
                 <p class="text-muted small mb-2">Mové los bordes para encuadrar la foto. Podés rotarla y hacer zoom.</p>
-                <div class="bg-dark rounded-3 p-2">
-                    <img id="crop-imagen" src="" alt="Imagen a recortar" style="max-width:100%; display:block;">
+
+                <div class="crop-stage">
+                    <img id="crop-imagen" src="" alt="Imagen a recortar">
+                </div>
+
+                <div class="crop-controls">
+                    <div class="crop-controls-group">
+                        <span class="crop-controls-label">Proporción</span>
+                        <div class="crop-ratio-btns" id="cropRatioBtns">
+                            <button type="button" class="crop-ratio-btn active" data-ratio="libre">Libre</button>
+                            <button type="button" class="crop-ratio-btn" data-ratio="1">1:1</button>
+                            <button type="button" class="crop-ratio-btn" data-ratio="16/9">16:9</button>
+                            <button type="button" class="crop-ratio-btn" data-ratio="4/3">4:3</button>
+                            <button type="button" class="crop-ratio-btn" data-ratio="3/2">3:2</button>
+                        </div>
+                    </div>
+
+                    <div class="crop-controls-group">
+                        <span class="crop-controls-label">Rotar</span>
+                        <button type="button" class="crop-btn" id="crop-rotar-izq" title="Rotar -90°">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </button>
+                        <span class="crop-angle" id="crop-angle">0°</span>
+                        <button type="button" class="crop-btn" id="crop-rotar" title="Rotar 90°">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                        <input type="range" class="crop-range crop-range-rot" id="crop-rot-slider" min="-180" max="180" step="1" value="0" title="Rotación fina">
+                    </div>
+
+                    <div class="crop-controls-group">
+                        <span class="crop-controls-label">Zoom</span>
+                        <button type="button" class="crop-btn" id="crop-zoom-out" title="Alejar">
+                            <i class="bi bi-zoom-out"></i>
+                        </button>
+                        <input type="range" class="crop-range crop-range-zoom" id="crop-zoom-slider" min="0.1" max="3" step="0.01" value="1" title="Zoom fino">
+                        <button type="button" class="crop-btn" id="crop-zoom-in" title="Acercar">
+                            <i class="bi bi-zoom-in"></i>
+                        </button>
+                    </div>
+
+                    <button type="button" class="crop-reset-btn" id="crop-reset" title="Restablecer la imagen original">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restablecer
+                    </button>
                 </div>
             </div>
-            <div class="modal-footer border-0 d-flex justify-content-between">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-outline-secondary" id="crop-rotar" title="Rotar">
-                        <i class="bi bi-arrow-clockwise"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary" id="crop-zoom-in" title="Zoom +">
-                        <i class="bi bi-zoom-in"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary" id="crop-zoom-out" title="Zoom -">
-                        <i class="bi bi-zoom-out"></i>
-                    </button>
-                </div>
-                <div>
+            <div class="modal-footer border-0 d-flex justify-content-between align-items-center">
+                <span class="crop-hint">Se guarda como JPG de alta calidad.</span>
+                <div class="d-flex gap-2">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="crop-aplicar">
+                    <button type="button" class="admin-btn-primary" id="crop-aplicar">
                         <i class="bi bi-check-lg me-1"></i> Aplicar
                     </button>
                 </div>
@@ -40,61 +71,245 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 <script>
 (function () {
-    let cropper = null;
-    let inputActual = null;
+    'use strict';
+
+    var cropper = null;
+    var inputActual = null;
+    var cropperListo = false;
+    var zoomActual = 1;
+    var anguloActual = 0;
+    var imgPendiente = null;
+
+    function $(id) { return document.getElementById(id); }
+
+    var rotIzq = $('crop-rotar-izq');
+    var rotDer = $('crop-rotar');
+    var rotSlider = $('crop-rot-slider');
+    var angleLabel = $('crop-angle');
+    var zoomOut = $('crop-zoom-out');
+    var zoomIn = $('crop-zoom-in');
+    var zoomSlider = $('crop-zoom-slider');
+    var ratioBtns = document.querySelectorAll('.crop-ratio-btn');
+    var resetBtn = $('crop-reset');
+
+    function normalizarAngulo(a) {
+        var n = a % 360;
+        if (n > 180) n -= 360;
+        if (n < -180) n += 360;
+        return n;
+    }
+
+    // Ajuste inicial: el canvas ocupa todo el contenedor y la selección lo cubre.
+    // Se ejecuta en 'ready' (la instancia ya está asignada: build es asíncrono).
+    function ajustarInicial(inst) {
+        inst = inst || cropper;
+        if (!inst) return;
+        var cd = inst.getContainerData();
+        if (!cd || !cd.width || !cd.height) return;
+        var id = inst.getImageData();
+        // 1) El canvas ocupa el ancho del contenedor (alto según la relación de aspecto).
+        inst.setCanvasData({ left: 0, top: 0, width: cd.width, height: cd.height });
+        // 2) Si el canvas resultante no cubre el alto del contenedor (imágenes muy
+        //    anchas), zoom hasta cubrir el área visible sin deformar (recorta excedente).
+        var canvasD = inst.getCanvasData();
+        if (id && id.naturalHeight && canvasD && canvasD.height < cd.height) {
+            inst.zoomTo(cd.height / id.naturalHeight);
+            canvasD = inst.getCanvasData();
+        }
+        // 3) La selección cubre el área visible del stage.
+        inst.setCropBoxData({ left: 0, top: 0, width: cd.width, height: cd.height });
+        if (canvasD && id && id.naturalWidth) {
+            zoomActual = Math.max(0.01, Math.min(10, canvasD.width / id.naturalWidth));
+        }
+        anguloActual = 0;
+        actualizarControles();
+    }
+
+    function crearCropper() {
+        var img = $('crop-imagen');
+        if (cropper) { cropper.destroy(); cropper = null; }
+        cropperListo = false;
+        zoomActual = 1;
+        anguloActual = 0;
+
+        var ratio = ratioOriginal();
+        cropper = new Cropper(img, {
+            viewMode: 1,
+            autoCropArea: 1,
+            responsive: true,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+            aspectRatio: ratio,
+            background: false,
+            rotatable: true,
+            zoomable: true,
+            ready: function () {
+                cropperListo = true;
+                // La instancia queda disponible en cropper (o en img.cropper).
+                var inst = cropper || img.cropper;
+                ajustarInicial(inst);
+                sincronizarRatioBtns(ratio);
+            },
+            zoom: function (e) {
+                if (!cropperListo) return;
+                // detail.ratio es el zoom absoluto respecto al tamaño natural
+                var r = (e.detail && isFinite(e.detail.ratio)) ? e.detail.ratio : zoomActual;
+                zoomActual = Math.max(0.01, Math.min(10, r));
+                zoomSlider.value = Math.min(3, zoomActual);
+            }
+        });
+    }
+
+    function iniciarConImagen() {
+        if (!inputActual || !imgPendiente) return;
+        var img = $('crop-imagen');
+        if (img.getAttribute('src') === imgPendiente && img.complete && img.naturalWidth > 0) {
+            crearCropper();
+            return;
+        }
+        img.onload = function () {
+            crearCropper();
+        };
+        img.onerror = function () {
+            crearCropper();
+        };
+        if (img.getAttribute('src') !== imgPendiente) {
+            img.src = imgPendiente;
+        }
+    }
+
+    function actualizarControles() {
+        angleLabel.textContent = Math.round(anguloActual) + '°';
+        rotSlider.value = anguloActual;
+        zoomSlider.value = Math.min(3, Math.max(0.1, zoomActual));
+    }
+
+    function ratioNumerico(valor) {
+        if (valor === '1') return 1;
+        if (valor === '16/9') return 16 / 9;
+        if (valor === '4/3') return 4 / 3;
+        if (valor === '3/2') return 3 / 2;
+        return NaN;
+    }
+
+    function ratioOriginal() {
+        var attr = inputActual ? parseFloat(inputActual.getAttribute('data-ratio')) : NaN;
+        return isNaN(attr) ? NaN : attr;
+    }
+
+    function sincronizarRatioBtns(ratio) {
+        var sel = 'libre';
+        if (ratio === 1) sel = '1';
+        else if (ratio === 16 / 9) sel = '16/9';
+        else if (ratio === 4 / 3) sel = '4/3';
+        else if (ratio === 3 / 2) sel = '3/2';
+        ratioBtns.forEach(function (b) {
+            b.classList.toggle('active', b.getAttribute('data-ratio') === sel);
+        });
+    }
 
     document.addEventListener('change', function (e) {
-        const input = e.target;
+        var input = e.target;
         if (!input.classList.contains('crop-imagen')) return;
-        const file = input.files && input.files[0];
+        var file = input.files && input.files[0];
         if (!file) return;
         if (!file.type.startsWith('image/')) return;
 
         inputActual = input;
-        const img = document.getElementById('crop-imagen');
-        const reader = new FileReader();
+        var reader = new FileReader();
         reader.onload = function (ev) {
-            img.src = ev.target.result;
-            img.onload = function () {
-                if (cropper) { cropper.destroy(); cropper = null; }
-                const ratio = parseFloat(input.getAttribute('data-ratio'));
-                cropper = new Cropper(img, {
-                    aspectRatio: isNaN(ratio) ? NaN : ratio,
-                    viewMode: 1,
-                    autoCropArea: 1,
-                });
-            };
+            imgPendiente = ev.target.result;
+            var modal = bootstrap.Modal.getInstance($('cropModal'));
+            if (modal && $('cropModal').classList.contains('show')) {
+                iniciarConImagen();
+            }
         };
         reader.readAsDataURL(file);
-
-        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('cropModal'));
-        modal.show();
+        bootstrap.Modal.getOrCreateInstance($('cropModal')).show();
     });
 
-    document.getElementById('crop-rotar').addEventListener('click', function () {
-        if (cropper) cropper.rotate(-90);
+    function rotarPor(delta) {
+        if (!cropper) return;
+        anguloActual = normalizarAngulo(anguloActual + delta);
+        cropper.rotateTo(anguloActual);
+        actualizarControles();
+    }
+
+    rotIzq.addEventListener('click', function () { rotarPor(-90); });
+    rotDer.addEventListener('click', function () { rotarPor(90); });
+
+    rotSlider.addEventListener('input', function () {
+        if (!cropper) return;
+        anguloActual = parseFloat(this.value) || 0;
+        cropper.rotateTo(anguloActual);
+        angleLabel.textContent = Math.round(anguloActual) + '°';
     });
-    document.getElementById('crop-zoom-in').addEventListener('click', function () {
-        if (cropper) cropper.zoom(0.1);
+
+    zoomIn.addEventListener('click', function () {
+        if (cropper) cropper.zoom(0.2);
     });
-    document.getElementById('crop-zoom-out').addEventListener('click', function () {
-        if (cropper) cropper.zoom(-0.1);
+    zoomOut.addEventListener('click', function () {
+        if (cropper) cropper.zoom(-0.2);
     });
-    document.getElementById('crop-aplicar').addEventListener('click', function () {
+
+    zoomSlider.addEventListener('input', function () {
+        if (!cropper) return;
+        cropper.zoomTo(parseFloat(this.value) || 1);
+    });
+
+    ratioBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (!cropper) return;
+            cropper.setAspectRatio(ratioNumerico(btn.getAttribute('data-ratio')));
+            ratioBtns.forEach(function (b) {
+                b.classList.toggle('active', b === btn);
+            });
+        });
+    });
+
+    resetBtn.addEventListener('click', function () {
+        if (!cropper) return;
+        cropper.setAspectRatio(ratioOriginal());
+        cropper.rotateTo(0);
+        cropper.reset();
+        ajustarInicial();
+        sincronizarRatioBtns(ratioOriginal());
+    });
+
+    $('crop-aplicar').addEventListener('click', function () {
         if (!cropper || !inputActual) return;
-        const canvas = cropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1920, imageSmoothingQuality: 'high' });
+        var canvas = cropper.getCroppedCanvas({ maxWidth: 1920, maxHeight: 1920, imageSmoothingQuality: 'high' });
         canvas.toBlob(function (blob) {
-            const nombreOriginal = (inputActual.files[0] && inputActual.files[0].name) || 'imagen.jpg';
-            const nombre = nombreOriginal.replace(/\.[^.]+$/, '') + '.jpg';
-            const archivo = new File([blob], nombre, { type: 'image/jpeg' });
-            const dt = new DataTransfer();
+            var nombreOriginal = (inputActual.files[0] && inputActual.files[0].name) || 'imagen.jpg';
+            var nombre = nombreOriginal.replace(/\.[^.]+$/, '') + '.jpg';
+            var archivo = new File([blob], nombre, { type: 'image/jpeg' });
+            var dt = new DataTransfer();
             dt.items.add(archivo);
             inputActual.files = dt.files;
             cropper.destroy();
             cropper = null;
             inputActual = null;
-            bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
+            bootstrap.Modal.getInstance($('cropModal')).hide();
         }, 'image/jpeg', 0.92);
+    });
+
+    $('cropModal').addEventListener('shown.bs.modal', function () {
+        // Recién cuando el modal tiene layout real se crea el cropper, para que
+        // Cropper mida bien el contenedor (.crop-stage) desde el arranque.
+        if (inputActual && imgPendiente && !(cropper && cropperListo)) {
+            iniciarConImagen();
+        }
+    });
+
+    $('cropModal').addEventListener('hidden.bs.modal', function () {
+        if (cropper) { cropper.destroy(); cropper = null; }
+        inputActual = null;
+        imgPendiente = null;
     });
 })();
 </script>

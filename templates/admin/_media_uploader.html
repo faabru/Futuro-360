@@ -1,0 +1,95 @@
+{% macro media_uploader(campo_url, campo_file, label, tipo, valor='', placeholder='', nota='') %}
+{% set es_imagen = tipo == 'imagen' %}
+{% set accept = 'image/jpeg,image/png,image/gif,image/webp' if es_imagen else 'video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska,video/x-m4v' %}
+{% set icono = 'image' if es_imagen else 'film' %}
+{% set texto = 'Arrastrá una imagen acá o hacé clic para seleccionar' if es_imagen else 'Arrastrá un video acá o hacé clic para seleccionar' %}
+{% set hint = 'JPG, PNG, GIF o WEBP' if es_imagen else 'MP4, WEBM, MOV, AVI, MKV o M4V' %}
+{% set aria = 'Seleccionar imagen' if es_imagen else 'Seleccionar video' %}
+<div class="media-uploader" data-tipo="{{ tipo }}">
+    <label class="form-label fw-bold">{{ label }}</label>
+
+    <div class="media-source-tabs" role="tablist" aria-label="Origen del archivo">
+        <button type="button" class="media-tab" role="tab" data-tab="url" aria-selected="false">URL</button>
+        <button type="button" class="media-tab" role="tab" data-tab="file" aria-selected="false"><i class="bi bi-upload me-1"></i>Subir archivo</button>
+    </div>
+
+    <div class="media-panel" data-panel="url">
+        <input type="url" class="form-control media-url-input" name="{{ campo_url }}"
+               value="{{ valor }}" placeholder="{{ placeholder }}">
+    </div>
+
+    <div class="media-panel" data-panel="file">
+        <div class="drop-zone" tabindex="0" role="button" aria-label="{{ aria }}">
+            <input type="file" class="media-file-input {{ 'crop-imagen' if es_imagen }}" name="{{ campo_file }}"
+                   accept="{{ accept }}">
+            <div class="drop-zone-inner">
+                <i class="bi bi-{{ icono }} drop-zone-icon"></i>
+                <span class="drop-zone-text">{{ texto }}</span>
+                <span class="drop-zone-hint">{{ hint }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="media-preview">
+        <div class="media-preview-media"></div>
+        <div class="media-preview-info">
+            <span class="media-preview-name"></span>
+            <span class="media-preview-size"></span>
+        </div>
+        <button type="button" class="media-preview-remove" title="Quitar archivo" aria-label="Quitar archivo">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="media-error" role="alert"></div>
+    {% if nota %}<small class="form-text d-block media-note">{{ nota }}</small>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro media_uploader_duo(campo_url, campo_file, label_file, label_url, tipo, valor_url='', nota_file='', nota_url='') %}
+{% set es_imagen = tipo == 'imagen' %}
+{% set accept = 'image/jpeg,image/png,image/gif,image/webp' if es_imagen else 'video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska,video/x-m4v' %}
+{% set icono = 'image' if es_imagen else 'film' %}
+{% set texto = 'Arrastrá una imagen acá o hacé clic para seleccionar' if es_imagen else 'Arrastrá un video acá o hacé clic para seleccionar' %}
+{% set hint = 'JPG, PNG, GIF o WEBP' if es_imagen else 'MP4, WEBM, MOV, AVI, MKV o M4V' %}
+{% set aria = 'Seleccionar imagen desde archivo' if es_imagen else 'Seleccionar video desde archivo' %}
+<div class="media-uploader" data-tipo="{{ tipo }}" data-modo="duo">
+    <div class="media-duo">
+        <div class="media-duo-col">
+            <label class="form-label fw-bold">{{ label_file }}</label>
+            <div class="drop-zone" tabindex="0" role="button" aria-label="{{ aria }}">
+                <input type="file" class="media-file-input {{ 'crop-imagen' if es_imagen }}" name="{{ campo_file }}"
+                       accept="{{ accept }}">
+                <div class="drop-zone-inner">
+                    <i class="bi bi-{{ icono }} drop-zone-icon"></i>
+                    <span class="drop-zone-text">{{ texto }}</span>
+                    <span class="drop-zone-hint">{{ hint }}</span>
+                </div>
+            </div>
+            {% if nota_file %}<small class="form-text d-block media-note">{{ nota_file }}</small>{% endif %}
+        </div>
+
+        <div class="media-duo-sep" aria-hidden="true">o</div>
+
+        <div class="media-duo-col">
+            <label class="form-label fw-bold">{{ label_url }}</label>
+            <input type="url" class="form-control media-url-input" name="{{ campo_url }}"
+                   value="{{ valor_url }}" placeholder="https://...">
+            {% if nota_url %}<small class="form-text d-block media-note">{{ nota_url }}</small>{% endif %}
+        </div>
+    </div>
+
+    <div class="media-preview">
+        <div class="media-preview-media"></div>
+        <div class="media-preview-info">
+            <span class="media-preview-name"></span>
+            <span class="media-preview-size"></span>
+        </div>
+        <button type="button" class="media-preview-remove" title="Quitar archivo" aria-label="Quitar archivo">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="media-error" role="alert"></div>
+</div>
+{% endmacro %}
