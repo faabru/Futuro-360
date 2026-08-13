@@ -63,16 +63,21 @@ def guardar_archivo(archivo, prefijo, carpeta='', es_video=False):
     nombre_unico = f"{prefijo}_{int(time.time())}_{nombre_original}"
 
     if cloudinary_configurado():
-        _configurar_cloudinary()
-        import cloudinary.uploader
-        carpeta_url = carpeta or None
-        resultado = cloudinary.uploader.upload(
-            archivo,
-            folder=carpeta_url,
-            public_id=os.path.splitext(nombre_unico)[0],
-            resource_type='video' if es_video else 'image',
-        )
-        return resultado.get('secure_url')
+        try:
+            _configurar_cloudinary()
+            import cloudinary.uploader
+            resultado = cloudinary.uploader.upload(
+                archivo,
+                folder=carpeta or None,
+                public_id=os.path.splitext(nombre_unico)[0],
+                resource_type='video' if es_video else 'image',
+            )
+            return resultado.get('secure_url')
+        except Exception as e:
+            # Si Cloudinary rechaza la subida (credenciales, permisos, red),
+            # seguimos funcionando guardando el archivo localmente.
+            current_app.logger.warning(
+                'Cloudinary no disponible: %s. Guardando local.', e)
 
     # Fallback local: mismo comportamiento que antes de Cloudinary.
     base = os.path.join(current_app.static_folder, 'imagenes')
