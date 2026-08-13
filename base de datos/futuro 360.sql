@@ -8,32 +8,6 @@ USE `futuro360`;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE IF EXISTS `usuarios`;
-CREATE TABLE `usuarios` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) NOT NULL,
-  `apellido` varchar(100) DEFAULT NULL,
-  `email` varchar(150) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `rol` enum('usuario','admin') DEFAULT 'usuario',
-  `activo` tinyint(1) DEFAULT 1,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `es_dueño` tinyint(1) DEFAULT 0,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `rol`, `activo`, `created_at`, `updated_at`, `es_dueño`) VALUES (1, 'fabricio villagra', NULL, 'fabriciovillagra05@gmail.com', 'scrypt:32768:8:1$fbKF0AGu5nKUiKlM$6c31fae9b2dad27e986b4bb2a9e084be74caefbf5b17959af0afc4c098b26938d8cffc07326ce077ffc508cb8b57f4bba559475c32f8f8a9b49169cdd3963306', 'admin', 1, '2026-05-06 23:35:10', '2026-08-06 06:16:39', 1);
-INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `rol`, `activo`, `created_at`, `updated_at`, `es_dueño`) VALUES (2, 'perez', '', 'juancarlos@gmail.com', 'scrypt:32768:8:1$2rfLoMFMCIwLSMXq$e6417033e14addf80d85f05dcb982ffc8972d5df36afe1d2674a07d70e2b5a991e986cf1ba56fe6687e326afa4add32d0dc4999b8ab89ba1ef50284c921bd749', 'usuario', 1, '2026-04-14 14:47:42', '2026-08-06 06:16:39', 0);
-INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `rol`, `activo`, `created_at`, `updated_at`, `es_dueño`) VALUES (3, 'fabri', '', 'fafa@gmail.com', 'scrypt:32768:8:1$lvHVrAduO65FleD5$5b2419357c41702057ca59a1334842c8d166e8a20a7eb97ec4cb68f70778d2f120583a84221ebe518f6acb0e98c3438bb9efecb910a8594e8d8cb2818793a3b6', 'usuario', 1, '2026-04-14 15:23:09', '2026-04-14 15:23:09', 0);
-INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `rol`, `activo`, `created_at`, `updated_at`, `es_dueño`) VALUES (4, 'fabri', '', 'fafa@gmil.com', 'scrypt:32768:8:1$bBKYRLPbNz4cBII6$fd531a83e1d5cda5b9b9a2b2ef0174d5e2054a7216ea8a75090e08754b0b760fcde500b72b37757a560b92aaadefbea14d0b3375b1c3d985fced95a9133d91a0', 'usuario', 1, '2026-04-14 16:03:53', '2026-04-14 16:03:53', 0);
-INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `rol`, `activo`, `created_at`, `updated_at`, `es_dueño`) VALUES (5, 'carlos', '', 'manzano05@gamil.com', 'scrypt:32768:8:1$8YiBgRBK72QV3viO$b5db1e57c5b4392ba2c3f004d57b01a953f9cdad3ee4c24ca2a5b06b5537e59b8b3d927a04c6e81f4a887d1332c33e8a338226730f0af9788a3a42132621ecbc', 'usuario', 1, '2026-04-14 16:07:29', '2026-04-14 16:07:29', 0);
-INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `rol`, `activo`, `created_at`, `updated_at`, `es_dueño`) VALUES (6, 'peru', '', 'peru@gmail.com', 'scrypt:32768:8:1$9SDSm0Oketq7Uxkj$062d49c58b745cd42eb8af62d8ed506ba2c57b10c97e6073496f7b2a2eda0d0a4ce2245696e406f0006d35acfa4ed05f190b0ade43551279656af7de491addd9', 'usuario', 1, '2026-04-14 16:13:34', '2026-04-14 16:13:34', 0);
-INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `rol`, `activo`, `created_at`, `updated_at`, `es_dueño`) VALUES (8, 'Test User', NULL, 'test@example.com', 'scrypt:32768:8:1$ZO485zszm2D5HR5e$b58565e52e4e2868d756250f88bfd8eca4eb004c47dc295c5e146f8f99c25e4f6e9088abb4c1cc47e18c85c3649222848b725259e55a524dd1f201431c062ec5', 'usuario', 1, '2026-05-09 03:46:38', '2026-08-06 18:58:22', 0);
-INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `rol`, `activo`, `created_at`, `updated_at`, `es_dueño`) VALUES (9, 'fabricio cortes', NULL, 'elcolofabri2020@gmail.com', 'scrypt:32768:8:1$Z6qnKeNr7kTbIX9s$e63b9406c3b7ec2cc14250b18e9e0f138d97b529d5594bad543402b5f4af6c0a90075ddace0fa01b93150108903f257f7c3fd57a1edd0eb036b72a121c095564', 'usuario', 1, '2026-06-04 19:37:27', '2026-06-04 19:37:27', 0);
-INSERT INTO `usuarios` (`id`, `nombre`, `apellido`, `email`, `password`, `rol`, `activo`, `created_at`, `updated_at`, `es_dueño`) VALUES (15, 'peter', 'parker', 'spiderman@gmail.com', 'scrypt:32768:8:1$tmAPCJhKObASFLYh$24b93358e3c65a9d33b691d8f94adcabac3582ba8c31313234f790dbfd9cea63ac9384e2db24c4d6ad7ba4f9a27f8039447ca039e4c8e806a93fb11c5c906b35', 'admin', 1, '2026-08-06 18:59:40', '2026-08-11 01:54:42', 0);
-
 DROP TABLE IF EXISTS `carreras`;
 CREATE TABLE `carreras` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -324,7 +298,7 @@ CREATE TABLE `orientaciones` (
   `nombre` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `nombre` (`nombre`)
-) ENGINE=InnoDB AUTO_INCREMENT=1037 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1067 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (6, 'Agronomía');
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (10, 'Arte y Diseño');
@@ -395,7 +369,7 @@ CREATE TABLE `fuentes` (
   `activo` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id`),
   UNIQUE KEY `nombre` (`nombre`)
-) ENGINE=InnoDB AUTO_INCREMENT=570 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=620 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `fuentes` (`id`, `nombre`, `activo`) VALUES (8, 'La Gaceta', 1);
 INSERT INTO `fuentes` (`id`, `nombre`, `activo`) VALUES (10, 'UTN', 1);

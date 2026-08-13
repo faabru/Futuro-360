@@ -25,6 +25,7 @@ from core.migraciones import (
     asegurar_tabla_orientaciones,
     asegurar_tabla_password_resets,
     asegurar_tabla_sesiones_activas,
+    asegurar_tabla_usuarios,
 )
 from database_handler import obtener_db
 
@@ -169,6 +170,7 @@ def sincronizar_tablas():
     preguntas del juego, códigos de recuperación, comentarios y áreas.
     """
     funciones = [
+        asegurar_tabla_usuarios,
         asegurar_contenido_referencia,
         asegurar_columnas_esquema,
         asegurar_datos_iniciales,

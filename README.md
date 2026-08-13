@@ -157,8 +157,11 @@ SECRET_KEY=una_cadena_larga_y_aleatoria
 # Envío de emails (Resend)
 RESEND_API_KEY=re_XXXXXXXXXXXXX
 
-# Cuenta del panel (dueño del sistema)
+# Cuenta del panel (dueño del sistema, POR MÁQUINA)
+# Cada persona pone su propio correo y su propia contraseña inicial.
+# Esa cuenta se crea en SU base al primer arranque.
 ADMIN_EMAIL=tu_correo@gmail.com
+ADMIN_PASSWORD=tu_contraseña_inicial
 ```
 
 | Variable | Obligatoria | Descripción |
@@ -169,7 +172,8 @@ ADMIN_EMAIL=tu_correo@gmail.com
 | `DB_NAME` | No | Nombre de la base de datos (default `futuro360`) |
 | `SECRET_KEY` | Recomendada | Clave de firma de sesiones de Flask |
 | `RESEND_API_KEY` | Solo para emails | Clave de la API de Resend |
-| `ADMIN_EMAIL` | No | Email que identifica al **dueño** del panel (default `fabriciovillagra05@gmail.com`) |
+| `ADMIN_EMAIL` | No | Email del **dueño del panel** en esta máquina (default `fabriciovillagra05@gmail.com`) |
+| `ADMIN_PASSWORD` | No | Contraseña SOLO para crear esa cuenta la primera vez (default `123456789`). Luego puede cambiarse con la recuperación. |
 
 **Importante:** el archivo `.env` no se sube al repositorio (está en `.gitignore`). No se debe
 comprometer ninguna credencial en el código ni en los commits.
@@ -180,10 +184,14 @@ La base se prepara **sola al primer arranque** (no hace falta importar nada):
 
 - Al iniciar, la aplicación **crea la base `futuro360` si no existe**, crea las
   tablas que falten y **siembra el contenido de referencia** (carreras,
-  noticias, fuentes, preguntas del juego, orientaciones, usuarios de prueba)
-  usando como fuente `base de datos/futuro 360.sql`.
+  noticias, fuentes, preguntas del juego, orientaciones) usando como fuente
+  `base de datos/futuro 360.sql`.
 - Solo completa tablas **vacías** (o crea las que no existan): nunca pisa
   registros que ya haya en la máquina.
+- **Las cuentas de usuario NO viajan en el contenido**: cada máquina crea la
+  suya. La cuenta del dueño/admin se crea al primer arranque con tu
+  `ADMIN_EMAIL` y `ADMIN_PASSWORD` del `.env`, y las demás se registran desde
+  el sitio. Así vos entras con tu correo/contraseña y tu compañera con los suyos.
 - El dump `base de datos/futuro 360.sql` también puede importarse a mano
   (MySQL Workbench → Open SQL Script), pero es opcional con el auto-arranque.
 - El dump se regenera con `python scripts/exportar_base.py` cada vez que quieras

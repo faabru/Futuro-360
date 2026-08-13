@@ -10,9 +10,9 @@ Ese mismo archivo se usa al arrancar la aplicación para auto-crear las tablas
 faltantes y sembrar contenido en las que estén vacías (ver
 `asegurar_contenido_referencia` en core/migraciones.py).
 
-No incluye datos personales ni transitorios: tests, resultados, códigos de
-recuperación, comentarios ni sesiones (esas tablas se crean solas al arrancar
-la aplicación).
+No incluye cuentas de usuario (cada máquina tiene las suyas), ni datos
+personales o transitorios: tests, resultados, códigos de recuperación,
+comentarios ni sesiones (esas tablas se crean solas al arrancar).
 
 Uso:
     python scripts/exportar_base.py
@@ -26,9 +26,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Tablas cuyo esquema Y datos se exportan.
+# Tablas cuyo esquema Y datos se exportan (contenido compartido).
+# NOTA: `usuarios` NO se exporta a propósito: las cuentas son por máquina
+# (se crean con el .env propio o por el registro del sitio), no contenido.
 TABLAS_CONTENIDO = [
-    'usuarios', 'carreras', 'areas',
+    'carreras', 'areas',
     'preguntas', 'opciones_pregunta',
     'orientaciones', 'carrera_areas',
     'noticias', 'fuentes', 'fuentes_eliminadas', 'filtros_fecha',

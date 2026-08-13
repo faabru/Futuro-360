@@ -23,6 +23,35 @@ RUTA_DUMP = os.path.join(
     'base de datos', 'futuro 360.sql')
 
 
+def asegurar_tabla_usuarios():
+    """
+    Crea la tabla `usuarios` si no existe.
+
+    Cada máquina tiene sus propias cuentas (el contenido compartido no incluye
+    usuarios): la del dueño/admin se crea con asegurar_cuenta_dueño y las
+    demás, por el registro del sitio.
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INT NOT NULL AUTO_INCREMENT,
+            nombre VARCHAR(100) NOT NULL,
+            apellido VARCHAR(100) DEFAULT NULL,
+            email VARCHAR(150) NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            rol ENUM('usuario','admin') DEFAULT 'usuario',
+            activo TINYINT(1) DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            es_dueño TINYINT(1) DEFAULT 0,
+            PRIMARY KEY (id),
+            UNIQUE KEY email (email)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    """)
+    db.commit()
+
+
 def asegurar_cuenta_dueño():
     """
     Asegura que el email definido en ADMIN_EMAIL exista como administrador
@@ -36,6 +65,9 @@ def asegurar_cuenta_dueño():
     """
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
+
+    # Seguridad: si la tabla aún no existe, crearla primero.
+    asegurar_tabla_usuarios()
 
     # Columna que identifica al dueño del panel.
     cursor.execute("SHOW COLUMNS FROM usuarios LIKE 'es_dueño'")
@@ -63,10 +95,11 @@ def asegurar_cuenta_dueño():
                 "UPDATE usuarios SET password = %s WHERE email = %s",
                 (hash_legacy, Config.ADMIN_EMAIL))
     else:
+        nombre_dueño = Config.ADMIN_EMAIL.split('@')[0] or 'Dueño'
         cursor.execute(
             """INSERT INTO usuarios (nombre, apellido, email, password, rol, activo, es_dueño)
                VALUES (%s, %s, %s, %s, 'admin', 1, 1)""",
-            ('Fabricio', '', Config.ADMIN_EMAIL,
+            (nombre_dueño, '', Config.ADMIN_EMAIL,
              hash_legacy or generate_password_hash(Config.ADMIN_PASSWORD)))
 
     # La tabla legacy ya no se usa para autenticar: eliminarla.

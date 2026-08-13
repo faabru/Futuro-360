@@ -37,9 +37,10 @@ class Config:
     # automáticamente al iniciar (ver core/migraciones.py) con rol admin y la
     # marca es_dueño, que le otorga permisos exclusivos sobre otros admins.
     ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'fabriciovillagra05@gmail.com')
-    # Contraseña SOLO usada la primera vez que se crea la cuenta del dueño.
-    # Una vez creada, el dueño la cambia desde el flujo de recuperación.
-    ADMIN_PASSWORD = '123456789'
+    # Contraseña SOLO usada la primera vez que se crea la cuenta del dueño
+    # (su propio .env, aparte del de tu compañera). Una vez creada, se puede
+    # cambiar desde el flujo de recuperación.
+    ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', '123456789')
 
     # --- Email (Resend) ----------------------------------------------------
     RESEND_API_KEY = os.getenv('RESEND_API_KEY')
