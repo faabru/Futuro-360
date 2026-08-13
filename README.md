@@ -175,10 +175,19 @@ comprometer ninguna credencial en el código ni en los commits.
 
 ## Base de datos
 
-- El esquema se encuentra en `base de datos/futuro 360.sql`.
+- El **dump completo** (esquema actual + contenido: carreras, noticias, fuentes,
+  preguntas del juego, orientaciones, usuarios de prueba) está en
+  `base de datos/futuro 360.sql`. Se importa **una sola vez por máquina** desde
+  MySQL Workbench (Open SQL Script → ejecutar) o con:
+  `mysql -u root -p < "base de datos/futuro 360.sql"`.
+- El dump se regenera con `python scripts/exportar_base.py` cuando se quiera
+  actualizar el contenido de referencia (no editar el archivo a mano).
+- Al iniciar, la aplicación crea o ajusta automáticamente todo lo que haga
+  falta (columnas y tablas agregadas en versiones posteriores, cuenta del
+  dueño del panel), sin pasos manuales.
 - El modelo de datos completo (entidades, relaciones, claves) está documentado en
   [`docs/modelo_datos.md`](docs/modelo_datos.md).
-- Las migraciones posteriores al dump base están en `base de datos/migracion_parte1.sql` y
+- Las migraciones históricas están en `base de datos/migracion_parte1.sql` y
   `migracion_parte2.sql`.
 
 ## Panel de administración
