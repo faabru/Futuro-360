@@ -12,6 +12,7 @@ from flask import current_app
 
 from core.migraciones import (
     asegurar_columnas_esquema,
+    asegurar_contenido_referencia,
     asegurar_cuenta_dueño,
     asegurar_datos_iniciales,
     asegurar_tabla_areas,
@@ -168,6 +169,7 @@ def sincronizar_tablas():
     preguntas del juego, códigos de recuperación, comentarios y áreas.
     """
     funciones = [
+        asegurar_contenido_referencia,
         asegurar_columnas_esquema,
         asegurar_datos_iniciales,
         asegurar_tabla_noticias,

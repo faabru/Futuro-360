@@ -22,7 +22,7 @@ from flask import Flask, g, render_template, session
 from blueprints import registrar_blueprints
 from config import Config
 from core.startup import sincronizar_imagenes, sincronizar_juego, sincronizar_tablas
-from database_handler import inicializar_app, obtener_db
+from database_handler import asegurar_base_datos, inicializar_app, obtener_db
 
 
 def create_app():
@@ -40,6 +40,7 @@ def create_app():
     # fallos: si la BD no está disponible aún, el arranque continúa.
     try:
         with app.app_context():
+            asegurar_base_datos()
             sincronizar_tablas()
             sincronizar_juego()
     except Exception as e:

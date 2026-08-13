@@ -9,10 +9,18 @@ Todas las funciones de este módulo son idempotentes: se pueden ejecutar
 varias veces sin efectos secundarios.
 """
 
+import io
+import os
+import re
+
 from werkzeug.security import generate_password_hash
 
 from config import Config
 from database_handler import obtener_db
+
+RUTA_DUMP = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    'base de datos', 'futuro 360.sql')
 
 
 def asegurar_cuenta_dueño():
@@ -163,6 +171,99 @@ def asegurar_datos_iniciales():
         print(f'[datos] Error al marcar carreras populares: {e}')
 
     db.commit()
+
+
+def asegurar_contenido_referencia():
+    """
+    Hace que una base quede igual a la del desarrollador con solo `git pull` +
+    arrancar la app, sin importar dumps a mano.
+
+    Usa `base de datos/futuro 360.sql` como única fuente de verdad y, para las
+    tablas de contenido (carreras, noticias, fuentes, preguntas del juego...):
+
+    - si la tabla NO existe, la crea (esquema del dump) y le carga sus datos;
+    - si existe pero está VACÍA, solo le carga los datos;
+    - si existe y tiene registros, NO la toca (nunca pisa cambios locales).
+
+    También crea cualquier otra tabla de esquema del dump que falte (tests,
+    resultados, etc.) para que la base quede completa. Idempotente.
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+
+    if not os.path.exists(RUTA_DUMP):
+        print('[base] dump futuro 360.sql no encontrado; sin auto-bootstrap')
+        return
+
+    # --- Lectura del dump: acumula los bloques CREATE TABLE (multilínea)
+    # --- hasta su ';' final y las sentencias INSERT (una por línea).
+    creaciones = {}
+    inserciones = {}
+    acumulando = None
+    for ln in io.open(RUTA_DUMP, 'r', encoding='utf-8'):
+        s = ln.strip()
+        if not s or s.startswith('--'):
+            continue
+        if s.startswith('CREATE TABLE'):
+            m = re.match(r"CREATE TABLE `([A-Za-z0-9_]+)`", s)
+            if m:
+                acumulando = [s]
+                creaciones[m.group(1)] = acumulando
+            continue
+        if acumulando is not None:
+            acumulando.append(s)
+            if s.endswith(';'):
+                acumulando = None
+            continue
+        if s.startswith('INSERT INTO'):
+            m = re.match(r"INSERT INTO `([A-Za-z0-9_]+)`", s)
+            if m:
+                inserciones.setdefault(m.group(1), []).append(s)
+    creaciones = {t: '\n'.join(bloque) for t, bloque in creaciones.items()}
+
+    # --- Estado actual de cada tabla que el dump define.
+    estado = {}
+    for tabla in creaciones:
+        try:
+            cursor.execute("SELECT COUNT(*) FROM `%s`" % tabla)
+            estado[tabla] = cursor.fetchone()[0]
+        except Exception:
+            estado[tabla] = None  # no existe todavía
+
+    faltantes = [t for t, n in estado.items() if n is None]
+    vacias = [t for t, n in estado.items() if n == 0]
+    if not faltantes and not vacias:
+        print('[base] Esquema y contenido de referencia ya presentes')
+        return
+
+    try:
+        cursor.execute('SET FOREIGN_KEY_CHECKS=0')
+
+        # Crear tablas que no existen (todas las del dump: content + vacías).
+        creadas = 0
+        for tabla in faltantes:
+            cursor.execute(creaciones[tabla])
+            creadas += 1
+
+        # Sembrar datos solo en las tablas que quedaron sin contenido.
+        sembradas = 0
+        for tabla in faltantes + vacias:
+            for insert in inserciones.get(tabla, []):
+                cursor.execute(insert)
+                sembradas += 1
+
+        cursor.execute('SET FOREIGN_KEY_CHECKS=1')
+        db.commit()
+
+        if creadas:
+            print(f'[base] Tablas creadas: {", ".join(faltantes)}')
+        if sembradas:
+            print(f'[seed] {sembradas} registros sembrados en: '
+                  f'{", ".join(vacias)}'
+                  if vacias else f'[seed] {sembradas} registros sembrados')
+    except Exception as e:
+        db.rollback()
+        print(f'[base] Error al preparar contenido de referencia: {e}')
 
 
 def asegurar_tabla_orientaciones():

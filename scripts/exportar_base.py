@@ -6,6 +6,10 @@ Genera un dump completo y reimportable: crea las tablas con su esquema actual
 de contenido (carreras, noticias, fuentes, preguntas del juego, orientaciones,
 áreas, usuarios de prueba...).
 
+Ese mismo archivo se usa al arrancar la aplicación para auto-crear las tablas
+faltantes y sembrar contenido en las que estén vacías (ver
+`asegurar_contenido_referencia` en core/migraciones.py).
+
 No incluye datos personales ni transitorios: tests, resultados, códigos de
 recuperación, comentarios ni sesiones (esas tablas se crean solas al arrancar
 la aplicación).
@@ -59,6 +63,7 @@ def main():
     cur = db.cursor()
 
     salida = io.StringIO()
+
     salida.write("-- Futuro 360 - dump completo de contenido\n")
     salida.write("-- Generado con scripts/exportar_base.py (no editar a mano).\n")
     salida.write("-- Importar UNA VEZ desde MySQL Workbench (Open SQL Script).\n\n")

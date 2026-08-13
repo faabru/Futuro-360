@@ -34,6 +34,31 @@ def obtener_db():
     return g.db
 
 
+def asegurar_base_datos():
+    """
+    Crea la base de datos si no existe (con el nombre/configuración de
+    `Config.DB_NAME`), conectando sin seleccionar base primero.
+
+    Idempotente. Si MySQL no está disponible, lanza el error y el llamador
+    decide si continuar (el arranque de la app es tolerante a fallos).
+    """
+    conn = mysql.connector.connect(
+        host=Config.DB_HOST,
+        user=Config.DB_USER,
+        password=Config.DB_PASSWORD,
+        database=None,
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            f"CREATE DATABASE IF NOT EXISTS `{Config.DB_NAME}` "
+            "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+        conn.commit()
+        cur.close()
+    finally:
+        conn.close()
+
+
 def cerrar_db(e=None):
     """Cierra la conexión guardada en ``g`` al finalizar el request."""
     db = g.pop('db', None)

@@ -127,17 +127,18 @@ pip install -r requirements.txt
 
 # 4. Crear el archivo de configuración .env (ver sección siguiente)
 
-# 5. Importar la base de datos
-#    (ejecutar el dump en el cliente MySQL o desde la app al primer inicio)
-mysql -u root -p < "base de datos/futuro 360.sql"
-
-# 6. Ejecutar la aplicación
+# 5. Ejecutar la aplicación (¡no hace falta importar nada!)
 python app.py
+# En el primer arranque la app crea la base `futuro360` (si no existe),
+# sus tablas y siembra el contenido de referencia (carreras, noticias,
+# fuentes, preguntas del juego, etc.) automáticamente.
 # El servidor queda disponible en http://localhost:5000
 ```
 
-> **Nota**: al iniciar por primera vez, la aplicación sincroniza automáticamente los datos de imagen
-> de las carreras y asegura la existencia de la cuenta del dueño del panel (ver sección *Panel de administración*).
+> **Nota**: si preferís importar el dump a mano, seguí usando
+> `base de datos/futuro 360.sql`. Es opcional: al arrancar, la aplicación
+> crea la base, las tablas y el contenido si faltan, y **nunca pisa datos
+> que ya existan** (solo completa tablas vacías).
 
 ## Configuración (archivo `.env`)
 
@@ -175,16 +176,21 @@ comprometer ninguna credencial en el código ni en los commits.
 
 ## Base de datos
 
-- El **dump completo** (esquema actual + contenido: carreras, noticias, fuentes,
-  preguntas del juego, orientaciones, usuarios de prueba) está en
-  `base de datos/futuro 360.sql`. Se importa **una sola vez por máquina** desde
-  MySQL Workbench (Open SQL Script → ejecutar) o con:
-  `mysql -u root -p < "base de datos/futuro 360.sql"`.
-- El dump se regenera con `python scripts/exportar_base.py` cuando se quiera
-  actualizar el contenido de referencia (no editar el archivo a mano).
-- Al iniciar, la aplicación crea o ajusta automáticamente todo lo que haga
-  falta (columnas y tablas agregadas en versiones posteriores, cuenta del
-  dueño del panel), sin pasos manuales.
+La base se prepara **sola al primer arranque** (no hace falta importar nada):
+
+- Al iniciar, la aplicación **crea la base `futuro360` si no existe**, crea las
+  tablas que falten y **siembra el contenido de referencia** (carreras,
+  noticias, fuentes, preguntas del juego, orientaciones, usuarios de prueba)
+  usando como fuente `base de datos/futuro 360.sql`.
+- Solo completa tablas **vacías** (o crea las que no existan): nunca pisa
+  registros que ya haya en la máquina.
+- El dump `base de datos/futuro 360.sql` también puede importarse a mano
+  (MySQL Workbench → Open SQL Script), pero es opcional con el auto-arranque.
+- El dump se regenera con `python scripts/exportar_base.py` cada vez que quieras
+  publicar contenido nuevo para los demás (no editar el archivo a mano).
+- **Para compartir contenido entre máquinas**: corré
+  `python scripts/exportar_base.py`, subí el archivo regenerado a GitHub, y la
+  otra persona solo hace `git pull` y arranca la app: la toma sola.
 - El modelo de datos completo (entidades, relaciones, claves) está documentado en
   [`docs/modelo_datos.md`](docs/modelo_datos.md).
 - Las migraciones históricas están en `base de datos/migracion_parte1.sql` y
