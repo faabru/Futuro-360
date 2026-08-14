@@ -24,7 +24,12 @@ class Config:
     # --- Seguridad -------------------------------------------------------
     # Clave usada por Flask para firmar las cookies de sesión. En producción
     # DEBE definirse en el archivo .env con un valor largo y aleatorio.
-    SECRET_KEY = os.getenv('SECRET_KEY', 'default_secret_key')
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    if not SECRET_KEY:
+        import secrets
+        SECRET_KEY = secrets.token_hex(32)
+        print("[config] SECRET_KEY no definida en .env — usando clave temporal. "
+              "Las sesiones no persistirán entre reinicios.")
 
     # --- Base de datos (MySQL) -------------------------------------------
     DB_HOST = os.getenv('DB_HOST', 'localhost')
@@ -40,11 +45,16 @@ class Config:
     # Contraseña SOLO usada la primera vez que se crea la cuenta del dueño
     # (su propio .env, aparte del de tu compañera). Una vez creada, se puede
     # cambiar desde el flujo de recuperación.
-    ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', '123456789')
+    ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
+    if not ADMIN_PASSWORD:
+        raise ValueError(
+            "ADMIN_PASSWORD no está definida en el .env. "
+            "Agregá ADMIN_PASSWORD=TuContraseña en el archivo .env antes de iniciar."
+        )
 
     # --- Email (Resend) ----------------------------------------------------
     RESEND_API_KEY = os.getenv('RESEND_API_KEY')
-    MAIL_FROM = 'Futuro 360 <onboarding@resend.dev>'
+    MAIL_FROM = os.getenv('MAIL_FROM', 'Futuro 360 <onboarding@resend.dev>')
 
     # --- Cloudinary (imágenes y videos) --------------------------------------
     # Si las tres claves están definidas, las subidas van a Cloudinary y se

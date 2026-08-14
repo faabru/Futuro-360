@@ -119,8 +119,15 @@ cd "futuro 360"
 
 # 2. Crear y activar el entorno virtual
 python -m venv .venv
-.venv\Scripts\activate        # Windows
-source .venv/bin/activate     # Linux / macOS
+.venv\Scripts\Activate.ps1        # Windows (PowerShell)
+.venv\Scripts\activate            # Windows (cmd)
+source .venv/bin/activate         # Linux / macOS
+
+> **Importante (Windows)**: el comando `python` puede apuntar al alias de la
+> **Microsoft Store** (`WindowsApps\python.exe`) y no a la venv. Si al ejecutar
+> `python app.py` aparecen errores de módulos faltantes (p. ej. `reportlab`),
+> activá primero la venv con `.venv\Scripts\Activate.ps1` y volvé a intentar,
+> o arrancá directo con `.venv\Scripts\python.exe app.py`.
 
 # 3. Instalar dependencias
 pip install -r requirements.txt
