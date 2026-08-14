@@ -18,7 +18,7 @@
                 <form method="POST" enctype="multipart/form-data">
                     <div class="mb-4">
                         <label for="nombre" class="form-label fw-bold">Nombre de la Carrera</label>
-                        <input type="text" name="nombre" id="nombre" class="form-control form-control-lg" value="{{ carrera.nombre if carrera else '' }}" required placeholder="Ej: Ingeniería Informática">
+                        <input type="text" name="nombre" id="nombre" class="form-control form-control-lg" value="{{ (carrera.nombre or '') if carrera else '' }}" required placeholder="Ej: Ingeniería Informática">
                     </div>
 
                     <div class="mb-4">
@@ -63,12 +63,12 @@
 
                     <div class="mb-4">
                         <label for="descripcion" class="form-label fw-bold">Descripción Corta</label>
-                        <textarea name="descripcion" id="descripcion" class="form-control" rows="3" required placeholder="Describe brevemente la carrera...">{{ carrera.descripcion if carrera else '' }}</textarea>
+                        <textarea name="descripcion" id="descripcion" class="form-control" rows="3" required placeholder="Describe brevemente la carrera...">{{ (carrera.descripcion or '') if carrera else '' }}</textarea>
                     </div>
 
                     <div class="mb-4">
                         <label for="a_que_se_dedica" class="form-label fw-bold">¿A qué se dedica? (Detalle largo)</label>
-                        <textarea name="a_que_se_dedica" id="a_que_se_dedica" class="form-control" rows="5" placeholder="Los graduados en esta carrera se encargan de...">{{ carrera.a_que_se_dedica if carrera else '' }}</textarea>
+                        <textarea name="a_que_se_dedica" id="a_que_se_dedica" class="form-control" rows="5" placeholder="Los graduados en esta carrera se encargan de...">{{ (carrera.a_que_se_dedica or '') if carrera else '' }}</textarea>
                     </div>
 
                     <div class="row g-4">

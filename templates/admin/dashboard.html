@@ -124,6 +124,92 @@
     </div>
 </div>
 
+<!-- ===== CARRERAS POPULARES ===== -->
+<style>
+    .populares-lista {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: .55rem;
+        max-height: 430px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+    .populares-item {
+        display: flex;
+        align-items: center;
+        gap: .8rem;
+        padding: .65rem .9rem;
+        border: 1px solid var(--admin-border);
+        border-radius: var(--admin-radius);
+        background: var(--admin-surface);
+        transition: border-color .15s, background .15s, box-shadow .15s;
+    }
+    .populares-item:hover { border-color: rgba(47, 142, 171, .45); box-shadow: var(--admin-shadow); }
+    .populares-item.activo { border-color: rgba(47, 142, 171, .55); background: rgba(47, 142, 171, .07); }
+    .populares-info { min-width: 0; flex: 1; }
+    .populares-nombre {
+        font-weight: 600; font-size: .9rem; color: var(--admin-text);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .populares-area { font-size: .75rem; color: var(--admin-text-muted); margin-top: 1px; }
+    .switch-popular { position: relative; display: inline-block; width: 42px; height: 23px; flex: 0 0 auto; cursor: pointer; }
+    .switch-popular input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .switch-popular .slider {
+        position: absolute; cursor: pointer; inset: 0; border-radius: 23px;
+        background: var(--admin-border); transition: .18s;
+    }
+    .switch-popular .slider::before {
+        content: ''; position: absolute; width: 17px; height: 17px; left: 3px; top: 3px;
+        border-radius: 50%; background: #fff; transition: .18s; box-shadow: 0 1px 3px rgba(16, 24, 40, .25);
+    }
+    .switch-popular input:checked + .slider { background: var(--admin-primary); }
+    .switch-popular input:checked + .slider::before { transform: translateX(19px); }
+    .switch-popular input:focus-visible + .slider { outline: 2px solid rgba(47, 142, 171, .5); outline-offset: 2px; }
+    .populares-vacio { grid-column: 1 / -1; text-align: center; color: var(--admin-text-muted); padding: 2rem 0; }
+    .populares-item.oculto { display: none; }
+</style>
+<div class="admin-card mb-4" id="cardPopulares">
+    <div class="admin-card-header">
+        <div>
+            <h5><i class="bi bi-fire"></i>Carreras Populares</h5>
+            <div class="admin-card-subtitle">Elegí las carreras que querés destacar en la sección Carreras del sitio</div>
+        </div>
+        <span class="admin-badge admin-badge-primary" id="popularesBadge">0 destacadas</span>
+    </div>
+    <div class="admin-card-body">
+        <div class="row g-2 align-items-center mb-3">
+            <div class="col-md-5">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" id="popularesBuscar" class="form-control border-start-0"
+                           placeholder="Buscar carrera por nombre...">
+                </div>
+            </div>
+            <div class="col-md-7 text-md-end">
+                <span class="text-muted small"><i class="bi bi-lightbulb me-1"></i> Las carreras destacadas aparecen primero en el filtro "Populares" del sitio</span>
+            </div>
+        </div>
+        <div class="populares-lista" id="popularesLista">
+            {% for c in carreras %}
+            <div class="populares-item{% if c['popular'] %} activo{% endif %}" data-id="{{ c['id'] }}">
+                <label class="switch-popular" title="{% if c['popular'] %}Quitar de populares{% else %}Marcar como popular{% endif %}">
+                    <input type="checkbox"{% if c['popular'] %} checked{% endif %}>
+                    <span class="slider"></span>
+                </label>
+                <div class="populares-info">
+                    <div class="populares-nombre">{{ c['nombre'] }}</div>
+                    {% if c.get('area_profesional') %}
+                    <div class="populares-area"><i class="bi bi-tag me-1"></i>{{ c['area_profesional'] }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <p class="populares-vacio">No hay carreras cargadas todavía.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 <!-- Orientaciones / Áreas profesionales -->
 <div class="admin-card mb-4">
     <div class="admin-card-header">
@@ -157,71 +243,6 @@
         {% else %}
         <p class="text-muted mb-0 small">Aún no hay orientaciones. Agregá la primera.</p>
         {% endif %}
-    </div>
-</div>
-
-<!-- Listado de Usuarios -->
-<div class="admin-card">
-    <div class="admin-card-header">
-        <div>
-            <h5><i class="bi bi-people"></i>Listado de Usuarios</h5>
-            <div class="admin-card-subtitle">Usuarios registrados en la plataforma</div>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-            <span class="admin-badge admin-badge-primary" id="usuariosBadge">{{ usuarios|length }} total</span>
-            <button type="button" class="admin-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#nuevoUsuarioModal">
-                <i class="bi bi-person-plus me-1"></i> Nuevo Usuario
-            </button>
-            <button type="button" class="icon-btn" title="Exportar usuarios a Excel" onclick="exportarUsuarios()">
-                <i class="bi bi-file-earmark-excel"></i>
-            </button>
-            <button type="button" class="icon-btn" title="Recargar" onclick="recargarUsuarios()">
-                <i class="bi bi-arrow-clockwise"></i>
-            </button>
-        </div>
-    </div>
-    <div class="admin-card-body pb-2">
-        <form id="filtroUsuarios" class="row g-2 align-items-end" onsubmit="return false;">
-            <div class="col-md-4">
-                <label class="form-label small text-muted mb-1" for="f-nombre">Nombre</label>
-                <input type="text" id="f-nombre" name="nombre" class="form-control"
-                       placeholder="Buscar por nombre..." value="{{ f_nombre }}">
-            </div>
-            <div class="col-md-4">
-                <label class="form-label small text-muted mb-1" for="f-email">Email</label>
-                <input type="text" id="f-email" name="email" class="form-control"
-                       placeholder="Buscar por email..." value="{{ f_email }}">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label small text-muted mb-1" for="f-fecha">Fecha de registro</label>
-                <input type="date" id="f-fecha" name="fecha" class="form-control" value="{{ f_fecha }}">
-            </div>
-            <div class="col-md-2 d-flex gap-2">
-                <button type="button" class="admin-btn-primary flex-grow-1" onclick="filtrarUsuarios()">
-                    <i class="bi bi-search me-1"></i> Buscar
-                </button>
-                <button type="button" class="admin-btn-muted" onclick="limpiarFiltros()" title="Limpiar filtros">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-        </form>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Registro</th>
-                    <th class="text-end">Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tablaUsuarios">
-                {% include 'admin/_tabla_usuarios.html' %}
-            </tbody>
-        </table>
     </div>
 </div>
 
@@ -437,78 +458,84 @@
     });
 </script>
 <script>
-    function filtrarUsuarios() {
-        const params = new URLSearchParams();
-        const nombre = document.getElementById('f-nombre').value.trim();
-        const email = document.getElementById('f-email').value.trim();
-        const fecha = document.getElementById('f-fecha').value;
-        if (nombre) params.set('nombre', nombre);
-        if (email) params.set('email', email);
-        if (fecha) params.set('fecha', fecha);
-        params.set('fragmento', '1');
-
-        fetch('/admin?' + params.toString(), {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(function (res) {
-            if (!res.ok) throw new Error('Error del servidor');
-            return res.text();
-        })
-        .then(function (html) {
-            const tbody = document.getElementById('tablaUsuarios');
-            if (tbody) tbody.innerHTML = html;
-            const badge = document.getElementById('usuariosBadge');
-            if (badge) {
-                const total = (html.match(/<tr>/g) || []).length;
-                badge.textContent = total + (nombre || email || fecha ? ' resultados' : ' total');
-            }
-        })
-        .catch(function (err) {
-            alert('No se pudo filtrar: ' + err.message);
-        });
-    }
-
-    function limpiarFiltros() {
-        document.getElementById('f-nombre').value = '';
-        document.getElementById('f-email').value = '';
-        document.getElementById('f-fecha').value = '';
-        filtrarUsuarios();
-    }
-
-    function recargarUsuarios() {
-        filtrarUsuarios();
-    }
-
-    function exportarUsuarios() {
-        const params = new URLSearchParams();
-        const nombre = document.getElementById('f-nombre').value.trim();
-        const email = document.getElementById('f-email').value.trim();
-        const fecha = document.getElementById('f-fecha').value;
-        if (nombre) params.set('nombre', nombre);
-        if (email) params.set('email', email);
-        if (fecha) params.set('fecha', fecha);
-        window.location.href = '/admin/exportar/usuarios' + (params.toString() ? '?' + params.toString() : '');
-    }
-
-    function editarUsuario(usuario) {
-        document.getElementById('ed-nombre').value = usuario.nombre || '';
-        document.getElementById('ed-apellido').value = usuario.apellido || '';
-        document.getElementById('ed-email').value = usuario.email || '';
-        document.getElementById('ed-rol').value = usuario.rol || 'usuario';
-        document.getElementById('editarUsuarioForm').action = '/admin/usuarios/editar/' + usuario.id;
-        var modal = new bootstrap.Modal(document.getElementById('editarUsuarioModal'));
-        modal.show();
-    }
-
+    // Carreras Populares: toggle AJAX, contador, búsqueda y reordenamiento.
     document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('f-nombre').addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') { e.preventDefault(); filtrarUsuarios(); }
-        });
-        document.getElementById('f-email').addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') { e.preventDefault(); filtrarUsuarios(); }
-        });
-    });
+        const lista = document.getElementById('popularesLista');
+        const badge = document.getElementById('popularesBadge');
+        const buscar = document.getElementById('popularesBuscar');
+        if (!lista || !badge) return;
 
+        function toastPopulares(mensaje, tipo) {
+            const color = tipo === 'success' ? '#198754' : tipo === 'danger' ? '#dc3545' : '#2F8EAB';
+            const toast = document.createElement('div');
+            toast.textContent = mensaje;
+            toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;background:' + color +
+                ';color:#fff;padding:12px 20px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.25);font-weight:600;font-size:0.9rem;opacity:0;transition:opacity .25s ease;';
+            document.body.appendChild(toast);
+            requestAnimationFrame(function () { toast.style.opacity = '1'; });
+            setTimeout(function () { toast.style.opacity = '0'; setTimeout(function () { toast.remove(); }, 300); }, 2600);
+        }
+
+        function contar() {
+            const n = lista.querySelectorAll('.populares-item.activo').length;
+            badge.textContent = n + (n === 1 ? ' destacada' : ' destacadas');
+        }
+
+        function reordenar() {
+            Array.from(lista.querySelectorAll('.populares-item'))
+                .sort(function (a, b) {
+                    return (b.classList.contains('activo') ? 1 : 0) - (a.classList.contains('activo') ? 1 : 0);
+                })
+                .forEach(function (el) { lista.appendChild(el); });
+        }
+
+        function filtrar() {
+            const q = buscar.value.toLowerCase().trim();
+            lista.querySelectorAll('.populares-item').forEach(function (el) {
+                const nombre = el.querySelector('.populares-nombre');
+                el.classList.toggle('oculto', q !== '' && nombre && nombre.textContent.toLowerCase().indexOf(q) === -1);
+            });
+        }
+
+        lista.addEventListener('change', function (e) {
+            const input = e.target.closest('input[type="checkbox"]');
+            if (!input) return;
+            const item = e.target.closest('.populares-item');
+            const id = item.dataset.id;
+            const previo = input.checked;
+            item.classList.toggle('activo', previo);
+            contar();
+
+            fetch('/admin/carreras/popular/' + id, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function (res) {
+                return res.json().then(function (d) {
+                    if (!res.ok) throw new Error(d.error || 'Error del servidor');
+                    return d;
+                });
+            })
+            .then(function (data) {
+                item.classList.toggle('activo', data.popular === 1);
+                contar();
+                reordenar();
+                toastPopulares(data.popular === 1 ? 'Carrera destacada como popular' : 'Carrera quitada de populares', 'success');
+            })
+            .catch(function (err) {
+                input.checked = previo;
+                item.classList.toggle('activo', previo);
+                contar();
+                toastPopulares('No se pudo actualizar: ' + err.message, 'danger');
+            });
+        });
+
+        if (buscar) buscar.addEventListener('input', filtrar);
+        contar();
+        reordenar();
+    });
+</script>
+<script>
     // Usuarios en línea: refresco automático cada 30 segundos.
     function refrescarUsuariosEnLinea() {
         fetch('/admin/usuarios-en-linea', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })

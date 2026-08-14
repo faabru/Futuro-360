@@ -136,12 +136,16 @@ def nueva_noticia():
 
     # Imagen: si se sube un archivo, se usa en lugar de la URL.
     imagen = request.form.get('imagen', '')
+    if imagen == 'None':
+        imagen = ''
     imagen_subida = guardar_imagen_noticia(request.files.get('imagen_file'))
     if imagen_subida:
         imagen = imagen_subida
 
     # Video: archivo o URL (opcional).
     video = request.form.get('video', '')
+    if video == 'None':
+        video = ''
     video_subido = guardar_video_noticia(request.files.get('video_file'))
     if video_subido:
         video = video_subido
@@ -172,29 +176,25 @@ def editar_noticia(id):
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
 
-    # Imagen: si se sube archivo nuevo se usa; si no, se usa la URL del
-    # formulario; y si ambas están vacías, se conserva la imagen actual.
+    # Imagen: archivo nuevo, o URL del formulario. Un campo vacío (sin archivo)
+    # quita la imagen actual (el campo llega precargado con la imagen vigente).
     imagen_subida = guardar_imagen_noticia(request.files.get('imagen_file'))
     if imagen_subida:
         imagen = imagen_subida
     else:
-        imagen_form = request.form.get('imagen', '').strip()
-        if imagen_form:
-            imagen = imagen_form
-        else:
-            cursor.execute("SELECT imagen FROM noticias WHERE id = %s", (id,))
-            actual = cursor.fetchone()
-            imagen = actual['imagen'] if actual else ''
+        imagen = request.form.get('imagen', '').strip()
+        if imagen == 'None':
+            imagen = ''
 
-    # Video: archivo nuevo, o URL del formulario, o conservar el actual.
-    video = request.form.get('video', '').strip()
+    # Video: archivo nuevo, o URL del formulario. Un campo vacío (sin archivo)
+    # quita el video actual (el campo llega precargado con el video vigente).
     video_subido = guardar_video_noticia(request.files.get('video_file'))
     if video_subido:
         video = video_subido
-    elif not video:
-        cursor.execute("SELECT video FROM noticias WHERE id = %s", (id,))
-        actual_video = cursor.fetchone()
-        video = actual_video['video'] if (actual_video and actual_video['video']) else ''
+    else:
+        video = request.form.get('video', '').strip()
+        if video == 'None':
+            video = ''
 
     cursor.execute("""
         UPDATE noticias

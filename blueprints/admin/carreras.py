@@ -7,7 +7,7 @@ Gestión de carreras desde el panel admin (ABM completo).
 - ``eliminar_carrera`` → baja.
 """
 
-from flask import (Blueprint, flash, redirect, render_template,
+from flask import (Blueprint, flash, jsonify, redirect, render_template,
                    request, url_for)
 
 from core.decoradores import ajax_o_redirect, requiere_admin
@@ -37,9 +37,38 @@ def guardar_video_carrera(archivo):
 def admin_carreras():
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM carreras")
+
+    q = request.args.get('q', '').strip()
+    area = request.args.get('area', '').strip()
+
+    where = []
+    params = []
+    if q:
+        where.append("(c.nombre LIKE %s OR c.descripcion LIKE %s)")
+        params.extend(['%' + q + '%'] * 2)
+    if area:
+        where.append(
+            "(c.area_profesional = %s OR EXISTS ("
+            "SELECT 1 FROM carrera_areas ca WHERE ca.carrera_id = c.id AND ca.area = %s))")
+        params.extend([area, area])
+
+    sql = "SELECT c.* FROM carreras c"
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY c.nombre"
+    cursor.execute(sql, params)
     carreras = cursor.fetchall()
-    return render_template('admin/carreras_lista.html', carreras=carreras)
+
+    # Áreas disponibles: orientaciones gestionadas + áreas usadas en carreras.
+    asegurar_tabla_orientaciones()
+    cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
+    areas_registradas = [r['nombre'] for r in cursor.fetchall()]
+    cursor.execute("SELECT DISTINCT area_profesional FROM carreras WHERE area_profesional <> '' ORDER BY area_profesional")
+    areas_carreras = [r['area_profesional'] for r in cursor.fetchall()]
+    areas = list(dict.fromkeys(areas_registradas + areas_carreras))
+
+    return render_template('admin/carreras_lista.html', carreras=carreras,
+                           areas=areas, q=q, area_actual=area)
 
 
 @bp.route('/admin/carreras/nueva', methods=['GET', 'POST'])
@@ -56,6 +85,10 @@ def nueva_carrera():
         # Imágenes: si se sube un archivo, se usa en lugar de la URL.
         imagen_portada = request.form.get('imagen_portada', '')
         imagen_principal = request.form.get('imagen_principal', '')
+        if imagen_portada == 'None':
+            imagen_portada = ''
+        if imagen_principal == 'None':
+            imagen_principal = ''
         imagen_portada_subida = guardar_imagen_carrera(request.files.get('imagen_portada_file'))
         imagen_principal_subida = guardar_imagen_carrera(request.files.get('imagen_principal_file'))
         if imagen_portada_subida:
@@ -65,6 +98,8 @@ def nueva_carrera():
 
         # Video: archivo o URL.
         video = request.form.get('video', '')
+        if video == 'None':
+            video = ''
         video_subido = guardar_video_carrera(request.files.get('video_file'))
         if video_subido:
             video = video_subido
@@ -111,6 +146,10 @@ def editar_carrera(id):
         # Imágenes: si se sube un archivo, se usa en lugar de la URL.
         imagen_portada = request.form.get('imagen_portada', '')
         imagen_principal = request.form.get('imagen_principal', '')
+        if imagen_portada == 'None':
+            imagen_portada = ''
+        if imagen_principal == 'None':
+            imagen_principal = ''
         imagen_portada_subida = guardar_imagen_carrera(request.files.get('imagen_portada_file'))
         imagen_principal_subida = guardar_imagen_carrera(request.files.get('imagen_principal_file'))
         if imagen_portada_subida:
@@ -120,6 +159,8 @@ def editar_carrera(id):
 
         # Video: archivo o URL.
         video = request.form.get('video', '')
+        if video == 'None':
+            video = ''
         video_subido = guardar_video_carrera(request.files.get('video_file'))
         if video_subido:
             video = video_subido
@@ -141,6 +182,10 @@ def editar_carrera(id):
     cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
     orientaciones = [r['nombre'] for r in cursor.fetchall()]
     areas_carrera = obtener_areas_carrera(id)
+    # Si la carrera solo tiene el área en el campo clásico (sin filas en
+    # carrera_areas), la mostramos igual en el dropdown.
+    if not areas_carrera and carrera.get('area_profesional'):
+        areas_carrera = [carrera['area_profesional']]
     return render_template('admin/carrera_form.html', carrera=carrera,
                            orientaciones=orientaciones, areas_carrera=areas_carrera)
 
@@ -155,3 +200,19 @@ def eliminar_carrera(id):
     db.commit()
     flash('Carrera eliminada exitosamente.', 'info')
     return redirect(url_for('admin_carreras.admin_carreras'))
+
+
+@bp.route('/admin/carreras/popular/<int:id>', methods=['POST'])
+@requiere_admin
+def toggle_carrera_popular(id):
+    """Marca o desmarca una carrera como 'popular' (destacada en el sitio)."""
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT popular FROM carreras WHERE id = %s", (id,))
+    carrera = cursor.fetchone()
+    if not carrera:
+        return jsonify(ok=False, error='Carrera no encontrada'), 404
+    nuevo = 0 if carrera['popular'] else 1
+    cursor.execute("UPDATE carreras SET popular = %s WHERE id = %s", (nuevo, id))
+    db.commit()
+    return jsonify(ok=True, popular=nuevo)

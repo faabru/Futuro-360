@@ -268,14 +268,14 @@
                         <button type="button" class="icon-btn" title="Editar"
                                 data-bs-toggle="modal" data-bs-target="#editarNoticiaModal"
                                 data-url="{{ url_for('admin_noticias.editar_noticia', id=n.id) }}"
-                                data-titulo="{{ n.titulo }}"
-                                data-descripcion="{{ n.descripcion }}"
-                                data-imagen="{{ n.imagen }}"
-                                data-video="{{ n.video }}"
-                                data-fuente="{{ n.fuente }}"
-                                data-fecha="{{ n.fecha }}"
-                                data-link="{{ n.link }}"
-                                data-categoria="{{ n.categoria }}">
+                                data-titulo="{{ n.titulo or '' }}"
+                                data-descripcion="{{ n.descripcion or '' }}"
+                                data-imagen="{{ n.imagen or '' }}"
+                                data-video="{{ n.video or '' }}"
+                                data-fuente="{{ n.fuente or '' }}"
+                                data-fecha="{{ n.fecha or '' }}"
+                                data-link="{{ n.link or '' }}"
+                                data-categoria="{{ n.categoria or '' }}">
                             <i class="bi bi-pencil"></i>
                         </button>
                         <form action="{{ url_for('admin_noticias.eliminar_noticia', id=n.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Eliminar esta noticia?">

@@ -82,7 +82,7 @@
                             </ul>
                         </li>
                         {# Botón de administración (solo candado) #}
-                        {% if (g.user and g.user.rol == 'admin') or session.get('admin_autenticado') %}
+                        {% if session.get('admin_autenticado') %}
                             <li class="nav-item ms-lg-2">
                                 <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin.admin_dashboard') }}" title="Panel de administración" style="width:40px;height:40px;">
                                     <i class="bi bi-lock"></i>
@@ -101,7 +101,7 @@
                         <li class="nav-item ms-lg-3"><a class="nav-link {{ 'active' if request.endpoint == 'login' }}" href="{{ url_for('auth.login') }}">Ingresar</a></li>
                         <li class="nav-item ms-lg-2"><a class="btn btn-primary" href="{{ url_for('auth.registro') }}">Comenzar Gratis</a></li>
                         {# Botón de administración (solo candado) #}
-                        {% if (g.user and g.user.rol == 'admin') or session.get('admin_autenticado') %}
+                        {% if session.get('admin_autenticado') %}
                             <li class="nav-item ms-lg-2">
                                 <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin.admin_dashboard') }}" title="Panel de administración" style="width:40px;height:40px;">
                                     <i class="bi bi-lock"></i>
@@ -289,6 +289,14 @@
 
             aplicarIcono(document.documentElement.getAttribute('data-theme'));
         })();
+    </script>
+
+    {# --- HEARTBEAT: mantiene el estado "en línea" del usuario en tiempo real --- #}
+    <script>
+        setInterval(function () {
+            fetch('/heartbeat', { method: 'POST', keepalive: true })
+                .catch(function () {});
+        }, 30000);
     </script>
 </body>
 </html>

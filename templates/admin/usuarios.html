@@ -1,0 +1,339 @@
+{% extends "admin/panel_layout.html" %}
+
+{% block panel_title %}Roles{% endblock %}
+{% block panel_subtitle %}Gestioná los usuarios y sus roles en la plataforma.{% endblock %}
+
+{% block panel_actions %}
+<a href="{{ url_for('admin_reportes.admin_exportar', entidad='usuarios') }}" class="admin-btn-back">
+    <i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel
+</a>
+{% if es_dueño %}
+<button type="button" class="admin-btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoUsuarioModal">
+    <i class="bi bi-person-plus me-1"></i> Nuevo Usuario
+</button>
+{% endif %}
+{% endblock %}
+
+{% block panel_content %}
+
+<style>
+    .estado-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em; }
+    .estado-pill.activo { color: #198754; }
+    .estado-pill.inactivo { color: #dc3545; }
+    .admin-table-id { color: var(--admin-text-muted); font-size: 0.8rem; font-weight: 700; }
+    .filtro-group { position: relative; }
+    .filtro-group .form-control { padding-left: 2.4rem; }
+    .filtro-group .filtro-icon { position: absolute; left: .8rem; top: 50%; transform: translateY(-50%); color: var(--admin-text-muted); z-index: 5; pointer-events: none; font-size: .9rem; }
+    .roles-badge-user { background: rgba(47, 142, 171, 0.12); color: var(--admin-primary); }
+    .online-pill { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 700; margin-left: 10px; }
+    .online-pill.online { color: #198754; }
+    .online-pill.offline { color: #6c757d; }
+    #estadoTabs .btn { border-radius: 0; }
+    #estadoTabs .btn:first-child { border-top-left-radius: .5rem; border-bottom-left-radius: .5rem; }
+    #estadoTabs .btn:last-child { border-top-right-radius: .5rem; border-bottom-right-radius: .5rem; }
+</style>
+
+<!-- Bloques de resumen: total de usuarios y administradores -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon primary"><i class="bi bi-people"></i></div>
+            <div>
+                <div class="stat-label">Usuarios</div>
+                <div class="stat-value text-primary">{{ total_usuarios }}</div>
+                <div class="stat-sub"><i class="bi bi-person-check"></i> cuentas registradas</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon success"><i class="bi bi-activity"></i></div>
+            <div>
+                <div class="stat-label">En línea ahora</div>
+                <div class="stat-value text-success" id="enLineaValue">{{ total_en_linea }}</div>
+                <div class="stat-sub"><i class="bi bi-person-check"></i> usando la página</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon danger"><i class="bi bi-shield-lock"></i></div>
+            <div>
+                <div class="stat-label">Administradores</div>
+                <div class="stat-value text-danger">{{ total_admins }}</div>
+                <div class="stat-sub"><i class="bi bi-key"></i> con acceso al panel</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtro por estado de conexión -->
+<div class="btn-group w-100 mb-4" id="estadoTabs" role="group" aria-label="Estado de conexión">
+    <button type="button" class="btn {{ 'btn-primary' if f_estado == 'todos' else 'btn-outline-primary' }}" data-estado="todos" onclick="filtrarPorEstado('todos')">
+        <i class="bi bi-people me-1"></i> Todos
+    </button>
+    <button type="button" class="btn {{ 'btn-primary' if f_estado == 'en_linea' else 'btn-outline-primary' }}" data-estado="en_linea" onclick="filtrarPorEstado('en_linea')">
+        <i class="bi bi-circle-fill text-success me-1"></i> En línea ({{ total_en_linea }})
+    </button>
+    <button type="button" class="btn {{ 'btn-primary' if f_estado == 'desconectados' else 'btn-outline-primary' }}" data-estado="desconectados" onclick="filtrarPorEstado('desconectados')">
+        <i class="bi bi-circle me-1 text-muted"></i> Desconectados
+    </button>
+</div>
+
+<!-- Listado de Usuarios -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <div>
+            <h5><i class="bi bi-people"></i>Listado de Usuarios</h5>
+            <div class="admin-card-subtitle">Usuarios registrados en la plataforma</div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="admin-badge admin-badge-primary" id="usuariosBadge">{{ usuarios|length }} total</span>
+            <button type="button" class="icon-btn" title="Recargar" onclick="recargarUsuarios()">
+                <i class="bi bi-arrow-clockwise"></i>
+            </button>
+        </div>
+    </div>
+    <div class="admin-card-body pb-2">
+        <form id="filtroUsuarios" class="row g-2 align-items-end" onsubmit="return false;">
+            <div class="col-md-4">
+                <label class="form-label small text-muted mb-1" for="f-nombre">Nombre</label>
+                <div class="filtro-group">
+                    <i class="bi bi-person filtro-icon"></i>
+                    <input type="text" id="f-nombre" name="nombre" class="form-control"
+                           placeholder="Buscar por nombre..." value="{{ f_nombre }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted mb-1" for="f-email">Email</label>
+                <div class="filtro-group">
+                    <i class="bi bi-envelope filtro-icon"></i>
+                    <input type="text" id="f-email" name="email" class="form-control"
+                           placeholder="Buscar por email..." value="{{ f_email }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted mb-1" for="f-fecha">Fecha de registro</label>
+                <div class="filtro-group">
+                    <i class="bi bi-calendar3 filtro-icon"></i>
+                    <input type="date" id="f-fecha" name="fecha" class="form-control" value="{{ f_fecha }}">
+                </div>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="button" class="admin-btn-primary flex-grow-1" onclick="filtrarUsuarios()">
+                    <i class="bi bi-search me-1"></i> Buscar
+                </button>
+                <button type="button" class="admin-btn-muted" onclick="limpiarFiltros()" title="Limpiar filtros">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Registro</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaUsuarios">
+                {% include 'admin/_tabla_usuarios.html' %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Nuevo Usuario -->
+<div class="modal fade" id="nuevoUsuarioModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="bi bi-person-plus me-2 text-primary"></i>Nuevo Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form action="{{ url_for('admin_usuarios.admin_usuario_nuevo') }}" method="POST">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted fw-bold">Nombre *</label>
+                            <input type="text" name="nombre" class="form-control" placeholder="Ej: Juan" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted fw-bold">Apellido</label>
+                            <input type="text" name="apellido" class="form-control" placeholder="Ej: Pérez">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small text-muted fw-bold">Email *</label>
+                            <input type="email" name="email" class="form-control" placeholder="usuario@ejemplo.com" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted fw-bold">Contraseña *</label>
+                            <input type="password" name="password" class="form-control" placeholder="Mínimo 8 caracteres" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted fw-bold">Rol</label>
+                            <select name="rol" class="form-select">
+                                <option value="usuario">Usuario</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="admin-btn-muted" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="admin-btn-primary"><i class="bi bi-check-lg me-1"></i> Crear Usuario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Editar Usuario -->
+<div class="modal fade" id="editarUsuarioModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2 text-primary"></i>Editar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form action="#" method="POST" id="editarUsuarioForm">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted fw-bold">Nombre *</label>
+                            <input type="text" name="nombre" id="ed-nombre" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted fw-bold">Apellido</label>
+                            <input type="text" name="apellido" id="ed-apellido" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small text-muted fw-bold">Email *</label>
+                            <input type="email" name="email" id="ed-email" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small text-muted fw-bold">Nueva contraseña</label>
+                            <input type="password" name="password" class="form-control" placeholder="Dejar en blanco para no cambiar">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted fw-bold">Rol</label>
+                            <select name="rol" id="ed-rol" class="form-select">
+                                <option value="usuario">Usuario</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="admin-btn-muted" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="admin-btn-primary"><i class="bi bi-check-lg me-1"></i> Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block admin_scripts %}
+<script>
+    let estadoActual = {{ f_estado|tojson }};
+
+    function filtrarUsuarios() {
+        const params = new URLSearchParams();
+        const nombre = document.getElementById('f-nombre').value.trim();
+        const email = document.getElementById('f-email').value.trim();
+        const fecha = document.getElementById('f-fecha').value;
+        if (nombre) params.set('nombre', nombre);
+        if (email) params.set('email', email);
+        if (fecha) params.set('fecha', fecha);
+        if (estadoActual && estadoActual !== 'todos') params.set('estado', estadoActual);
+        params.set('fragmento', '1');
+
+        fetch('/admin/usuarios?' + params.toString(), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function (res) {
+            if (!res.ok) throw new Error('Error del servidor');
+            return res.text();
+        })
+        .then(function (html) {
+            const tbody = document.getElementById('tablaUsuarios');
+            if (tbody) tbody.innerHTML = html;
+            const badge = document.getElementById('usuariosBadge');
+            if (badge) {
+                const total = (html.match(/<tr data-usuario-id=/g) || []).length;
+                badge.textContent = total + ((nombre || email || fecha || estadoActual !== 'todos') ? ' resultados' : ' total');
+            }
+        })
+        .catch(function (err) {
+            alert('No se pudo filtrar: ' + err.message);
+        });
+    }
+
+    function filtrarPorEstado(estado) {
+        estadoActual = estado;
+        document.querySelectorAll('#estadoTabs .btn').forEach(function (b) {
+            b.classList.remove('btn-primary');
+            b.classList.add('btn-outline-primary');
+            if (b.dataset.estado === estado) {
+                b.classList.add('btn-primary');
+                b.classList.remove('btn-outline-primary');
+            }
+        });
+        filtrarUsuarios();
+    }
+
+    function limpiarFiltros() {
+        document.getElementById('f-nombre').value = '';
+        document.getElementById('f-email').value = '';
+        document.getElementById('f-fecha').value = '';
+        filtrarUsuarios();
+    }
+
+    function recargarUsuarios() {
+        filtrarUsuarios();
+    }
+
+    function editarUsuario(usuario) {
+        document.getElementById('ed-nombre').value = usuario.nombre || '';
+        document.getElementById('ed-apellido').value = usuario.apellido || '';
+        document.getElementById('ed-email').value = usuario.email || '';
+        document.getElementById('ed-rol').value = usuario.rol || 'usuario';
+        document.getElementById('editarUsuarioForm').action = '/admin/usuarios/editar/' + usuario.id;
+        var modal = new bootstrap.Modal(document.getElementById('editarUsuarioModal'));
+        modal.show();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('f-nombre').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); filtrarUsuarios(); }
+        });
+        document.getElementById('f-email').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); filtrarUsuarios(); }
+        });
+    });
+
+    // Auto-refresco: actualiza la tabla, el contador "En línea ahora" y el
+    // número de la pestaña "En línea (N)" cada 30 segundos sin recargar la página.
+    setInterval(function () {
+        filtrarUsuarios();
+        fetch('/admin/usuarios-en-linea', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (d) {
+            const v = document.getElementById('enLineaValue');
+            if (v) v.textContent = d.total;
+            const tab = document.querySelector('#estadoTabs button[data-estado="en_linea"]');
+            if (tab) tab.innerHTML = '<i class="bi bi-circle-fill text-success me-1"></i> En línea (' + d.total + ')';
+        })
+        .catch(function () {});
+    }, 30000);
+</script>
+{% endblock %}

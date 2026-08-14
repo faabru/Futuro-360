@@ -1,16 +1,22 @@
 {% for usuario in usuarios %}
 <tr data-usuario-id="{{ usuario.id }}">
-    <td class="fw-semibold">{{ usuario.id }}</td>
+    <td class="admin-table-id">{{ usuario.id }}</td>
     <td>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex align-items-center gap-3">
             <span class="user-avatar {% if usuario.rol == 'admin' %}avatar-admin{% else %}avatar-user{% endif %}">
                 {{ (usuario.nombre or 'U')[:1]|upper }}
             </span>
             <div>
-                <div class="fw-semibold">{{ usuario.nombre }}{% if usuario.apellido %} {{ usuario.apellido }}{% endif %}</div>
-                {% if usuario.activo == 0 %}
-                <div class="text-danger fw-bold" style="font-size:0.72rem;"><i class="bi bi-ban me-1"></i>Desactivado</div>
+                <div class="fw-bold">{{ usuario.nombre }}{% if usuario.apellido %} {{ usuario.apellido }}{% endif %}</div>
+                {% if usuario.activo == 1 %}
+                <span class="estado-pill activo"><i class="bi bi-check-circle-fill"></i> Activo</span>
+                {% else %}
+                <span class="estado-pill inactivo"><i class="bi bi-dash-circle-fill"></i> Desactivado</span>
                 {% endif %}
+                <span class="online-pill {{ 'online' if usuario.en_linea else 'offline' }}">
+                    <i class="bi {{ 'bi-circle-fill' if usuario.en_linea else 'bi-circle' }}"></i>
+                    {{ 'En línea' if usuario.en_linea else 'Desconectado' }}
+                </span>
             </div>
         </div>
     </td>
@@ -19,7 +25,7 @@
         {% if usuario.email == email_dueño %}
         <span class="admin-badge admin-badge-dueño"><i class="bi bi-star-fill me-1"></i>DUEÑO</span>
         {% else %}
-        <span class="admin-badge {% if usuario.rol == 'admin' %}admin-badge-danger{% else %}admin-badge-primary{% endif %}">
+        <span class="admin-badge {% if usuario.rol == 'admin' %}admin-badge-danger{% else %}roles-badge-user{% endif %}">
             {% if usuario.rol == 'admin' %}<i class="bi bi-shield-lock me-1"></i>{% else %}<i class="bi bi-person me-1"></i>{% endif %}
             {{ usuario.rol|upper }}
         </span>
@@ -27,28 +33,28 @@
     </td>
     <td>
         <span class="admin-date"><i class="bi bi-calendar3 me-1"></i>{{ usuario.created_at.strftime('%d/%m/%Y') }}</span>
-        <span class="admin-date admin-date-time">{{ usuario.created_at.strftime('%H:%M') }}</span>
+        <span class="admin-date-time">{{ usuario.created_at.strftime('%H:%M') }}</span>
     </td>
     <td class="text-end">
         {% if usuario.email != email_dueño %}
-        <div class="d-flex gap-1 justify-content-end">
-            <button type="button" class="icon-btn" title="Editar usuario"
-                    onclick='editarUsuario({{ usuario|tojson }})'>
-                <i class="bi bi-pencil"></i>
-            </button>
-            {% if usuario.rol != 'admin' or es_dueño %}
-            <form action="{{ url_for('admin_usuarios.admin_usuario_toggle', id=usuario.id) }}" method="POST" style="display:inline;">
-                <button type="submit" class="icon-btn {{ 'success' if usuario.activo == 0 }}" title="{{ 'Activar usuario' if usuario.activo == 0 else 'Desactivar usuario' }}">
-                    <i class="bi {{ 'bi-play-fill' if usuario.activo == 0 else 'bi-pause-fill' }}"></i>
+            {% if es_dueño %}
+            <div class="d-flex gap-1 justify-content-end">
+                <button type="button" class="icon-btn" title="Editar usuario"
+                        onclick='editarUsuario({{ usuario|tojson }})'>
+                    <i class="bi bi-pencil"></i>
                 </button>
-            </form>
-            <form action="{{ url_for('admin_usuarios.admin_usuario_eliminar', id=usuario.id) }}" method="POST" style="display:inline;"
-                  data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar a {{ usuario.nombre }}?">
-                <button type="submit" class="icon-btn danger" title="Eliminar usuario">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </form>
-            {% endif %}        </div>
+                <form action="{{ url_for('admin_usuarios.admin_usuario_eliminar', id=usuario.id) }}" method="POST" style="display:inline;"
+                      data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar a {{ usuario.nombre }}?">
+                    <button type="submit" class="icon-btn danger" title="Eliminar usuario">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </form>
+            </div>
+            {% else %}
+            <span class="text-muted small" title="Solo la cuenta principal puede administrar usuarios">
+                <i class="bi bi-lock-fill me-1"></i>
+            </span>
+            {% endif %}
         {% else %}
         <span class="text-muted small fw-bold" title="El dueño no se puede editar ni eliminar">
             <i class="bi bi-lock-fill me-1"></i>Protegido

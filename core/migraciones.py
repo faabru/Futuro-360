@@ -192,20 +192,30 @@ def asegurar_datos_iniciales():
         print(f'[datos] Error al insertar opción neutral: {e}')
 
     try:
-        cursor.execute("""
-            UPDATE carreras SET popular = 1 WHERE nombre IN (
-                'Ingeniería en Sistemas de Información',
-                'Medicina',
-                'Psicología',
-                'Abogacía',
-                'Contador Público Nacional',
-                'Ingeniería Civil',
-                'Licenciatura en Administración',
-                'Diseño Gráfico'
-            )
-        """)
-    except Exception as e:
-        print(f'[datos] Error al marcar carreras populares: {e}')
+        cursor.execute("SELECT COUNT(*) FROM carreras WHERE popular = 1")
+        hay_populares = cursor.fetchone()[0] > 0
+    except Exception:
+        # Si no se puede consultar, no sobreescribir lo que eligió el admin.
+        hay_populares = True
+
+    # El seed de carreras destacadas solo corre la primera vez (cuando todavía
+    # no hay ninguna), para no pisar las selecciones del panel de administración.
+    if not hay_populares:
+        try:
+            cursor.execute("""
+                UPDATE carreras SET popular = 1 WHERE nombre IN (
+                    'Ingeniería en Sistemas de Información',
+                    'Medicina',
+                    'Psicología',
+                    'Abogacía',
+                    'Contador Público Nacional',
+                    'Ingeniería Civil',
+                    'Licenciatura en Administración',
+                    'Diseño Gráfico'
+                )
+            """)
+        except Exception as e:
+            print(f'[datos] Error al marcar carreras populares: {e}')
 
     db.commit()
 

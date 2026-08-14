@@ -15,7 +15,7 @@
 
     <div class="media-panel" data-panel="url">
         <input type="url" class="form-control media-url-input" name="{{ campo_url }}"
-               value="{{ valor }}" placeholder="{{ placeholder }}">
+               value="{{ valor or '' }}" placeholder="{{ placeholder }}">
     </div>
 
     <div class="media-panel" data-panel="file">
@@ -74,7 +74,7 @@
         <div class="media-duo-col">
             <label class="form-label fw-bold">{{ label_url }}</label>
             <input type="url" class="form-control media-url-input" name="{{ campo_url }}"
-                   value="{{ valor_url }}" placeholder="https://...">
+                   value="{{ valor_url or '' }}" placeholder="https://...">
             {% if nota_url %}<small class="form-text d-block media-note">{{ nota_url }}</small>{% endif %}
         </div>
     </div>

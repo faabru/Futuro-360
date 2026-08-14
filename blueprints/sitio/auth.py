@@ -94,6 +94,34 @@ def logout():
     return redirect(url_for('principal.index'))
 
 
+@bp.route('/heartbeat', methods=['POST'])
+def heartbeat():
+    """Ping del navegador: mantiene el estado 'en línea' del usuario mientras
+    la pestaña está abierta, aunque no esté navegando. Responde 204 sin cuerpo."""
+    id_usuario = session.get('user_id')
+    if id_usuario:
+        db = obtener_db()
+        cursor = db.cursor()
+        try:
+            cursor.execute(
+                "INSERT INTO sesiones_activas (user_id, last_seen) "
+                "VALUES (%s, NOW()) ON DUPLICATE KEY UPDATE last_seen = NOW()",
+                (id_usuario,))
+            db.commit()
+        except Exception:
+            try:
+                from core.migraciones import asegurar_tabla_sesiones_activas
+                asegurar_tabla_sesiones_activas()
+                cursor.execute(
+                    "INSERT INTO sesiones_activas (user_id, last_seen) "
+                    "VALUES (%s, NOW()) ON DUPLICATE KEY UPDATE last_seen = NOW()",
+                    (id_usuario,))
+                db.commit()
+            except Exception:
+                pass
+    return '', 204
+
+
 # --- RECUPERACIÓN DE CONTRASEÑA (3 pasos) ---
 
 

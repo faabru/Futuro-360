@@ -37,21 +37,24 @@
 
         <nav class="admin-nav">
             <div class="admin-nav-section">Principal</div>
-            <a href="{{ url_for('admin.admin_dashboard') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_dashboard' }}">
+            <a href="{{ url_for('admin.admin_dashboard') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin.admin_dashboard' }}">
                 <i class="bi bi-speedometer2"></i> Resumen
             </a>
-            <a href="{{ url_for('admin_carreras.admin_carreras') }}" class="admin-nav-item {{ 'active' if request.endpoint in ['admin_carreras', 'editar_carrera', 'editar_carrera_visual', 'nueva_carrera'] }}">
+            <a href="{{ url_for('admin_carreras.admin_carreras') }}" class="admin-nav-item {{ 'active' if request.endpoint in ['admin_carreras.admin_carreras', 'admin_carreras.editar_carrera', 'admin_carreras.nueva_carrera'] }}">
                 <i class="bi bi-mortarboard"></i> Carreras
             </a>
-            <a href="{{ url_for('admin_preguntas.admin_preguntas') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_preguntas' }}">
+            <a href="{{ url_for('admin_preguntas.admin_preguntas') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_preguntas.admin_preguntas' }}">
                 <i class="bi bi-question-circle"></i> Preguntas del Test
             </a>
-            <a href="{{ url_for('admin_noticias.admin_noticias') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_noticias' }}">
+            <a href="{{ url_for('admin_noticias.admin_noticias') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_noticias.admin_noticias' }}">
                 <i class="bi bi-newspaper"></i> Noticias
+            </a>
+            <a href="{{ url_for('admin_usuarios.admin_usuarios') }}" class="admin-nav-item {{ 'active' if request.endpoint == 'admin_usuarios.admin_usuarios' }}">
+                <i class="bi bi-people"></i> Roles
             </a>
 
             <div class="admin-nav-section" style="margin-top: 14px;">Juegos</div>
-            <a href="{{ url_for('admin_juego.admin_game_index') }}" class="admin-nav-item {{ 'active' if request.endpoint in ['admin_game_index', 'admin_game_carreras', 'admin_game_preguntas'] }}">
+            <a href="{{ url_for('admin_juego.admin_game_index') }}" class="admin-nav-item {{ 'active' if request.endpoint in ['admin_juego.admin_game_index', 'admin_juego.admin_game_carreras', 'admin_juego.admin_game_preguntas'] }}">
                 <i class="bi bi-controller"></i> Panel del Juego
             </a>
         </nav>
@@ -297,5 +300,13 @@
 </script>
 
 {% block admin_scripts %}{% endblock %}
+
+{# --- HEARTBEAT: mantiene el estado "en línea" del usuario en tiempo real --- #}
+<script>
+    setInterval(function () {
+        fetch('/heartbeat', { method: 'POST', keepalive: true })
+            .catch(function () {});
+    }, 30000);
+</script>
 </body>
 </html>

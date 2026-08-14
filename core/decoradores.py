@@ -4,7 +4,9 @@ Decoradores de autorización y control de acceso.
 Concentran toda la lógica de permisos del sistema, que puede resumirse en:
 
 1. ``requiere_login``  → exige una sesión de usuario del sitio público.
-2. ``requiere_admin``  → exige sesión del panel O un usuario con rol admin.
+2. ``requiere_admin``  → exige la sesión exclusiva del panel (independiente
+                         del login del sitio: aunque la persona tenga rol admin
+                         en la web, debe autenticarse por separado).
 3. ``ajax_o_redirect`` → si la petición es AJAX responde JSON; si no, ejecuta
                          la vista normalmente (permite reutilizar un POST
                          tanto desde fetch() como desde un formulario común).
@@ -72,27 +74,19 @@ def requiere_login(f):
 
 def requiere_admin(f):
     """
-    Exige privilegios de administración.
+    Exige una sesión activa del panel de administración.
 
-    Se considera autorizado si:
-    - Ya tiene una sesión del panel activa (``session['admin_autenticado']``), o
-    - Está logueado en el sitio con rol ``admin``.
-
-    Cualquier otro caso redirige a login (sin sesión) o al dashboard (usuario
-    común sin permisos).
+    El acceso al panel es independiente de la sesión del sitio público: aunque
+    la persona esté logueada en la web con rol admin, debe autenticarse por
+    separado en ``/admin/login`` con su email y contraseña de administrador.
+    Cualquier otro caso redirige al login del panel.
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        # Acceso directo: sesión exclusiva del panel (botón "Panel Admin").
         if session.get('admin_autenticado'):
             return f(*args, **kwargs)
-        if g.user is None:
-            flash('Debes iniciar sesión para acceder a esta página.', 'warning')
-            return redirect(url_for(ENDPOINT_LOGIN))
-        if g.user.get('rol') != 'admin':
-            flash('No tienes permisos para acceder a esta sección.', 'danger')
-            return redirect(url_for(ENDPOINT_DASHBOARD))
-        return f(*args, **kwargs)
+        flash('Debés iniciar sesión como administrador para acceder al panel.', 'warning')
+        return redirect(url_for('admin_auth.admin_login'))
     return decorated_function
 
 

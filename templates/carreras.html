@@ -136,7 +136,7 @@
     <div class="row g-4" id="careerList">
         {% for carrera in carreras %}
         {% set fallback_final = fallback_carreras.get(carrera.nombre, fallback_area.get(carrera.area_profesional, 'https://picsum.photos/seed/' ~ (carrera.id ~ carrera.nombre|replace(' ', '_')) ~ '/800/400')) %}
-        <div class="col-md-6 col-lg-4 career-item" data-areas="{{ carrera.areas|join(',') }}">
+        <div class="col-md-6 col-lg-4 career-item" data-areas="{{ carrera.areas|join(',') }}" data-popular="{{ carrera.popular }}">
             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden section-card p-0 career-card">
                 <!-- IMAGEN DE LA CARRERA -->
                 {% if carrera.imagen_portada %}
@@ -216,7 +216,17 @@
             const careerName = item.querySelector('.career-name').innerText.toLowerCase();
             const areas = (item.dataset.areas || '').split(',');
             const matchesSearch = query === '' || careerName.includes(query);
-            const matchesArea = query !== '' || activeArea === 'populares' || activeArea === 'todas' || areas.includes(activeArea);
+
+            let matchesArea;
+            if (query !== '') {
+                matchesArea = true;
+            } else if (activeArea === 'todas') {
+                matchesArea = true;
+            } else if (activeArea === 'populares') {
+                matchesArea = item.dataset.popular === '1';
+            } else {
+                matchesArea = areas.includes(activeArea);
+            }
 
             item.style.display = (matchesSearch && matchesArea) ? 'block' : 'none';
         });

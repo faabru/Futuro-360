@@ -96,13 +96,23 @@
                  data-categoria="{{ noticia.categoria|lower }}">
               <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden news-card bg-white">
                 
-                <!-- Imagen o video con fallback -->
-                <div class="position-relative" style="height: 200px;">
+                <!-- Imagen o video con fallback (poster + play-on-click) -->
+                <div class="position-relative news-media{% if noticia.video %} has-video{% endif %}"
+                     style="height: 200px;"
+                     {% if noticia.video %}role="button" tabindex="0" aria-label="Reproducir video de la noticia"{% endif %}>
                   {% if noticia.video %}
-                    <video controls preload="metadata" class="w-100 h-100 object-fit-cover" style="background:#000;">
+                    <video class="w-100 h-100 object-fit-cover"
+                           {% if noticia.imagen %}poster="{{ noticia.imagen|media }}"{% endif %}
+                           preload="{% if noticia.imagen %}none{% else %}metadata{% endif %}"
+                           playsinline
+                           style="background:#000;"
+                           data-noticia-video>
                       <source src="{{ noticia.video|media }}" type="video/mp4">
                       Tu navegador no soporta el reproductor de video.
                     </video>
+                    <div class="news-play-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" aria-hidden="true">
+                      <span class="news-play-btn"><i class="bi bi-play-fill"></i></span>
+                    </div>
                   {% elif noticia.imagen %}
                     <img src="{{ noticia.imagen|media }}" class="w-100 h-100 object-fit-cover" alt="{{ noticia.titulo }}" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
                   {% else %}
@@ -157,6 +167,35 @@
   .news-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
   .news-card:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.1) !important; }
   .object-fit-cover { object-fit: cover; }
+
+  .news-media.has-video { cursor: pointer; }
+  .news-play-overlay {
+    pointer-events: none;
+    background: rgba(10, 25, 35, 0.15);
+    opacity: 1;
+    transition: opacity 0.25s ease;
+  }
+  .news-play-overlay.oculto { opacity: 0; visibility: hidden; }
+  .news-play-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(10, 25, 35, 0.55);
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.4rem;
+    line-height: 1;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+  .news-play-btn i { margin-left: 4px; }
+  .news-media.has-video:hover .news-play-btn {
+    transform: scale(1.12);
+    background: rgba(10, 25, 35, 0.72);
+    box-shadow: 0 0 0 6px rgba(47, 142, 171, 0.25), 0 8px 28px rgba(0, 0, 0, 0.32);
+  }
   .cat-dropdown-btn {
     background-color: var(--card-bg) !important;
     color: var(--text-main) !important;
@@ -253,6 +292,35 @@
   }
   sincronizarCategoria();
   filtrarNoticias();
+
+  // Videos en cards: el poster/imagen es el estado inicial y el video solo se
+  // carga y reproduce al hacer clic (patrón YouTube/Netflix).
+  document.querySelectorAll('.news-media.has-video').forEach(wrap => {
+    const video = wrap.querySelector('video[data-noticia-video]');
+    const overlay = wrap.querySelector('.news-play-overlay');
+    if (!video) return;
+
+    function iniciarReproduccion() {
+      if (video.paused) {
+        video.setAttribute('controls', '');
+        if (video.ended) video.currentTime = 0;
+        video.play().catch(() => {});
+      }
+    }
+
+    wrap.addEventListener('click', (e) => {
+      if (e.target.closest('.badge')) return;
+      iniciarReproduccion();
+    });
+    wrap.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        iniciarReproduccion();
+      }
+    });
+    video.addEventListener('play', () => overlay.classList.add('oculto'));
+    video.addEventListener('ended', () => overlay.classList.remove('oculto'));
+  });
 </script>
 
 {% endblock %}
