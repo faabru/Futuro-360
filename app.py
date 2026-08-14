@@ -110,11 +110,7 @@ def create_app():
 
     @app.errorhandler(500)
     def error_interno(e):
-        return render_template(
-            'base.html',
-            content="<div class='container py-5 text-center'><h1>500</h1>"
-                    "<p>Algo salió mal. Por favor, intenta más tarde.</p></div>"
-        ), 500
+        return render_template('500.html'), 500
 
     return app
 
@@ -126,10 +122,9 @@ app = create_app()
 if __name__ == '__main__':
     print("=== INICIANDO APLICACIÓN FLASK ===")
     with app.app_context():
-        print("Asegurando tablas de la base de datos...")
-        sincronizar_tablas()
+        # Las tablas y el juego ya se sincronizaron en create_app(); aquí solo
+        # se asocian las imágenes locales que falten (una sola vez por arranque).
         print("Ejecutando sincronización de imágenes...")
         sincronizar_imagenes()
         print("Sincronización completada. Iniciando servidor...")
-        sincronizar_juego()
     app.run(debug=True)

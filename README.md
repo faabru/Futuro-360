@@ -93,7 +93,7 @@ futuro 360/
 │   ├── test.html, resultado_detalle.html, mis_resultados.html
 │   ├── carreras.html, carrera_detalle.html, juego.html, noticias.html
 │   ├── recuperar_password.html, verificar_codigo.html, nueva_password.html
-│   ├── dashboard.html, 404.html, base.html
+│   ├── dashboard.html, 404.html, 500.html, base.html
 │   └── admin/                   # Vistas del panel de administración
 |
 ├── recuperacion de contraseña/  # Servicio Node.js (alternativa) de envío de PIN
