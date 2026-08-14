@@ -148,15 +148,21 @@ def admin_usuario_editar(id):
         flash('El usuario no existe.', 'warning')
         return redirect(url_for('admin_usuarios.admin_usuarios'))
 
-    # Solo la cuenta principal (dueño) puede editar usuarios.
+    # Solo la cuenta principal (dueño) puede editar, y solo administradores.
     if not es_usuario_dueño():
-        flash('Solo la cuenta principal puede editar usuarios.', 'danger')
+        flash('Solo la cuenta principal puede editar administradores.', 'danger')
+        return redirect(url_for('admin_usuarios.admin_usuarios'))
+    if usuario.get('rol') != 'admin':
+        flash('Solo se pueden editar administradores.', 'danger')
+        return redirect(url_for('admin_usuarios.admin_usuarios'))
+    if usuario.get('es_dueño') or usuario['id'] == session.get('admin_id'):
+        flash('No podés editar la cuenta del dueño del panel.', 'danger')
         return redirect(url_for('admin_usuarios.admin_usuarios'))
 
     nombre = request.form.get('nombre', '')
     apellido = request.form.get('apellido', '')
     email = request.form.get('email', '')
-    rol = request.form.get('rol', 'usuario')
+    rol = request.form.get('rol', 'admin')
     password = request.form.get('password', '')
 
     error, msg = _validar_usuario_formulario(nombre, apellido, email, rol)
@@ -168,16 +174,6 @@ def admin_usuario_editar(id):
     if cursor.fetchone():
         flash('Ya existe otro usuario con ese email.', 'warning')
         return redirect(url_for('admin_usuarios.admin_usuarios'))
-
-    # El dueño del panel no puede ser editado por nadie.
-    if usuario.get('es_dueño'):
-        flash('La cuenta del dueño del panel no se puede editar.', 'danger')
-        return redirect(url_for('admin_usuarios.admin_usuarios'))
-    # Solo el dueño puede modificar el rol/email de otros administradores.
-    if usuario.get('rol') == 'admin' and not es_usuario_dueño():
-        if rol != 'admin' or email.strip() != usuario['email']:
-            flash('Solo el dueño puede modificar el rol o el email de un administrador.', 'danger')
-            return redirect(url_for('admin_usuarios.admin_usuarios'))
 
     try:
         if password:
@@ -193,10 +189,10 @@ def admin_usuario_editar(id):
                 "UPDATE usuarios SET nombre = %s, apellido = %s, email = %s, rol = %s WHERE id = %s",
                 (nombre, apellido.strip(), email.strip(), rol, id))
         db.commit()
-        flash('Usuario actualizado correctamente.', 'success')
+        flash('Administrador actualizado correctamente.', 'success')
     except Exception as e:
         db.rollback()
-        flash(f'Error al actualizar el usuario: {e}', 'danger')
+        flash(f'Error al actualizar el administrador: {e}', 'danger')
     return redirect(url_for('admin_usuarios.admin_usuarios'))
 
 
@@ -244,7 +240,29 @@ def admin_usuario_eliminar(id):
 @requiere_admin
 @ajax_o_redirect
 def admin_usuario_toggle(id):
-    # Pausar o reactivar usuarios está deshabilitado para todos: ni la cuenta
-    # principal ni los administradores pueden hacerlo desde el panel.
-    flash('No está permitido pausar ni reactivar usuarios desde el panel.', 'danger')
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
+    usuario = cursor.fetchone()
+    if not usuario:
+        flash('El usuario no existe.', 'warning')
+        return redirect(url_for('admin_usuarios.admin_usuarios'))
+
+    # Solo la cuenta principal (dueño) puede pausar/suspender administradores.
+    if not es_usuario_dueño():
+        flash('Solo la cuenta principal puede pausar administradores.', 'danger')
+        return redirect(url_for('admin_usuarios.admin_usuarios'))
+    # Solo se puede pausar a administradores (no a usuarios comunes).
+    if usuario.get('rol') != 'admin':
+        flash('Solo se pueden pausar administradores.', 'danger')
+        return redirect(url_for('admin_usuarios.admin_usuarios'))
+    if usuario.get('es_dueño') or usuario['id'] == session.get('admin_id'):
+        flash('No podés pausar la cuenta del dueño del panel.', 'danger')
+        return redirect(url_for('admin_usuarios.admin_usuarios'))
+
+    nuevo_estado = 0 if usuario.get('activo') else 1
+    cursor.execute("UPDATE usuarios SET activo = %s WHERE id = %s", (nuevo_estado, id))
+    db.commit()
+    flash('Usuario actualizado correctamente.', 'success')
     return redirect(url_for('admin_usuarios.admin_usuarios'))

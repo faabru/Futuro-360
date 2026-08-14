@@ -168,8 +168,8 @@ def asegurar_columnas_esquema():
 def asegurar_datos_iniciales():
     """
     Reproduce de forma idempotente los datos iniciales que antes vivían en
-    migraciones manuales (migracion_parte1.sql), para que una base recién
-    importada quede idéntica a la de desarrollo:
+    migraciones manuales, para que una base recién importada quede idéntica
+    a la de desarrollo:
 
     - Agrega la opción "Ninguna de las anteriores" (área Neutral) a cada
       pregunta que no la tenga.

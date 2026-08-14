@@ -80,9 +80,7 @@ futuro 360/
 ├── .env                         # Configuración local (NO se sube al repositorio)
 ├── .gitignore
 ├── base de datos/
-│   ├── futuro 360.sql           # Esquema base + datos iniciales (carreras, preguntas, opciones)
-│   ├── migracion_parte1.sql     # Migraciones históricas
-│   └── migracion_parte2.sql
+│   └── futuro 360.sql           # Esquema base + datos iniciales (carreras, preguntas, opciones)
 ├── static/
 │   ├── style.css                # Estilos del sitio público
 │   ├── admin.css                # Estilos del panel admin
@@ -212,8 +210,9 @@ La base se prepara **sola al primer arranque** (no hace falta importar nada):
   otra persona solo hace `git pull` y arranca la app: la toma sola.
 - El modelo de datos completo (entidades, relaciones, claves) está documentado en
   [`docs/modelo_datos.md`](docs/modelo_datos.md).
-- Las migraciones históricas están en `base de datos/migracion_parte1.sql` y
-  `migracion_parte2.sql`.
+- Las migraciones históricas ya no son manuales: las columnas nuevas (p. ej. `popular`)
+  y los datos iniciales (opción "Ninguna de las anteriores") se aseguran
+  automáticamente al arrancar desde `core/migraciones.py`.
 
 ## Imágenes y videos (Cloudinary)
 

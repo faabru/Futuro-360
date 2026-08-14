@@ -39,10 +39,17 @@
         {% if usuario.email != email_dueño %}
             {% if es_dueño %}
             <div class="d-flex gap-1 justify-content-end">
-                <button type="button" class="icon-btn" title="Editar usuario"
+                {% if usuario.rol == 'admin' %}
+                <button type="button" class="icon-btn" title="Editar administrador"
                         onclick='editarUsuario({{ usuario|tojson }})'>
                     <i class="bi bi-pencil"></i>
                 </button>
+                <form action="{{ url_for('admin_usuarios.admin_usuario_toggle', id=usuario.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="icon-btn {{ 'success' if usuario.activo == 0 }}" title="{{ 'Activar administrador' if usuario.activo == 0 else 'Pausar/Suspender administrador' }}">
+                        <i class="bi {{ 'bi-play-fill' if usuario.activo == 0 else 'bi-pause-fill' }}"></i>
+                    </button>
+                </form>
+                {% endif %}
                 <form action="{{ url_for('admin_usuarios.admin_usuario_eliminar', id=usuario.id) }}" method="POST" style="display:inline;"
                       data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar a {{ usuario.nombre }}?">
                     <button type="submit" class="icon-btn danger" title="Eliminar usuario">

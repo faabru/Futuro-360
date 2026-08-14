@@ -193,12 +193,12 @@
     </div>
 </div>
 
-<!-- Modal Editar Usuario -->
+<!-- Modal Editar Administrador -->
 <div class="modal fade" id="editarUsuarioModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2 text-primary"></i>Editar Usuario</h5>
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2 text-primary"></i>Editar Administrador</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <form action="#" method="POST" id="editarUsuarioForm">
@@ -223,8 +223,8 @@
                         <div class="col-md-6">
                             <label class="form-label small text-muted fw-bold">Rol</label>
                             <select name="rol" id="ed-rol" class="form-select">
-                                <option value="usuario">Usuario</option>
                                 <option value="admin">Administrador</option>
+                                <option value="usuario">Usuario</option>
                             </select>
                         </div>
                     </div>
@@ -304,7 +304,7 @@
         document.getElementById('ed-nombre').value = usuario.nombre || '';
         document.getElementById('ed-apellido').value = usuario.apellido || '';
         document.getElementById('ed-email').value = usuario.email || '';
-        document.getElementById('ed-rol').value = usuario.rol || 'usuario';
+        document.getElementById('ed-rol').value = usuario.rol || 'admin';
         document.getElementById('editarUsuarioForm').action = '/admin/usuarios/editar/' + usuario.id;
         var modal = new bootstrap.Modal(document.getElementById('editarUsuarioModal'));
         modal.show();

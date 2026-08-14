@@ -464,5 +464,7 @@ para mostrar **"Usuarios en línea"** en tiempo real.
   usuario logueado (`asegurar_tabla_sesiones_activas`).
 - **Normalización**: el modelo está normalizado hasta la **3ª Forma Normal** (tablas de áreas y
   categorías separadas de las entidades que las usan; datos no repetidos; cada tabla depende de su PK).
-- El esquema SQL completo se encuentra en `base de datos/futuro 360.sql` (migraciones históricas en
-  `migracion_parte1.sql` y `migracion_parte2.sql`).
+- El esquema SQL completo se encuentra en `base de datos/futuro 360.sql`. Las
+  migraciones históricas se aplican automáticamente al arrancar desde
+  `core/migraciones.py` (`asegurar_columnas_esquema`, `asegurar_datos_iniciales`,
+  `asegurar_tabla_game_carreras`, entre otras).
