@@ -16,6 +16,27 @@ from flask import g
 from config import Config
 
 
+def _config_conexion(database=None):
+    """Construye los parámetros de conexión a MySQL desde la configuración.
+
+    - ``DB_PORT``: puerto de conexión; si no está definido usa 3306.
+    - ``DB_SSL_CA``: si apunta a un certificado CA, habilita TLS/SSL
+      verificando el certificado del servidor (Aiven). Sin él, se mantiene
+      el comportamiento local actual (sin SSL).
+    """
+    config = {
+        'host': Config.DB_HOST,
+        'user': Config.DB_USER,
+        'password': Config.DB_PASSWORD,
+        'port': int(Config.DB_PORT or 3306),
+    }
+    if database is not None:
+        config['database'] = database
+    if Config.DB_SSL_CA:
+        config['ssl_ca'] = Config.DB_SSL_CA
+    return config
+
+
 def obtener_db():
     """
     Devuelve la conexión activa a la base de datos.
@@ -25,12 +46,7 @@ def obtener_db():
     conexión, mejorando el rendimiento.
     """
     if 'db' not in g:
-        g.db = mysql.connector.connect(
-            host=Config.DB_HOST,
-            user=Config.DB_USER,
-            password=Config.DB_PASSWORD,
-            database=Config.DB_NAME,
-        )
+        g.db = mysql.connector.connect(**_config_conexion(Config.DB_NAME))
     return g.db
 
 
@@ -41,20 +57,25 @@ def asegurar_base_datos():
 
     Idempotente. Si MySQL no está disponible, lanza el error y el llamador
     decide si continuar (el arranque de la app es tolerante a fallos).
+
+    Si el usuario no tiene permiso para crear la base (p. ej. un usuario
+    administrado como en Aiven), el intento se registra en consola y NO
+    detiene el arranque: si la base ya existe, el paso siguiente
+    (``sincronizar_tablas``) asegura tablas y columnas dentro de ella.
     """
-    conn = mysql.connector.connect(
-        host=Config.DB_HOST,
-        user=Config.DB_USER,
-        password=Config.DB_PASSWORD,
-        database=None,
-    )
+    conn = mysql.connector.connect(**_config_conexion())
     try:
         cur = conn.cursor()
-        cur.execute(
-            f"CREATE DATABASE IF NOT EXISTS `{Config.DB_NAME}` "
-            "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        conn.commit()
-        cur.close()
+        try:
+            cur.execute(
+                f"CREATE DATABASE IF NOT EXISTS `{Config.DB_NAME}` "
+                "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            print(f'[bd] No se pudo crear la base `{Config.DB_NAME}`: {e}')
+        finally:
+            cur.close()
     finally:
         conn.close()
 

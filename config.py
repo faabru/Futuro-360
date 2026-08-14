@@ -10,6 +10,7 @@ comportamiento del sistema sin tener que recorrer el código buscando valores
 """
 
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -36,6 +37,20 @@ class Config:
     DB_USER = os.getenv('DB_USER', 'root')
     DB_PASSWORD = os.getenv('DB_PASSWORD', '')
     DB_NAME = os.getenv('DB_NAME', 'futuro360')
+    # Puerto de MySQL (Aiven usa uno propio). Default 3306 si no está definido.
+    DB_PORT = os.getenv('DB_PORT', '3306')
+    # Ruta al certificado CA para conexión TLS/SSL (Aiven). Si no está
+    # definido, la conexión sigue usando el comportamiento local sin SSL.
+    # Se resuelve a una ruta absoluta relativa a la raíz del proyecto para
+    # que funcione sin importar desde qué directorio se ejecute Flask.
+    _db_ssl_ca = os.getenv('DB_SSL_CA')
+    if _db_ssl_ca:
+        _ruta_ca = Path(_db_ssl_ca)
+        if not _ruta_ca.is_absolute():
+            _ruta_ca = Path(__file__).resolve().parent / _ruta_ca
+        DB_SSL_CA = str(_ruta_ca)
+    else:
+        DB_SSL_CA = None
 
     # --- Cuenta del panel (dueño del sistema) -----------------------------
     # El acceso al panel es solo por email. La cuenta con este correo se crea
