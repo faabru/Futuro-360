@@ -620,3 +620,31 @@ html[data-theme="dark"] #preloader {
 html[data-theme="dark"] .page-hero-bg {
     background: linear-gradient(135deg, #0B1620 0%, #13232E 100%);
 }
+
+/* --- IMAGEN DE CARRERA (DETALLE) --- */
+.carrera-img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+    min-height: 400px;
+    max-height: 680px;
+}
+
+/* --- AJUSTES RESPONSIVOS MOBILE-FIRST --- */
+@media (max-width: 991.98px) {
+    .hero-section { padding: 110px 0 70px; }
+    .stat-number { font-size: 2.4rem; }
+    .auth-card { padding: 2.5rem; }
+    .glass-card { padding: 1.75rem; }
+}
+
+@media (max-width: 575.98px) {
+    .hero-section { padding: 80px 0 50px; }
+    .stat-number { font-size: 2rem; }
+    .auth-card { padding: 2rem 1.25rem; }
+    .glass-card { padding: 1.25rem; }
+    .step-number { width: 44px; height: 44px; font-size: 0.95rem; }
+    .carrera-img { min-height: 260px; max-height: 420px; }
+    .form-control-lg { font-size: 1rem; }
+}

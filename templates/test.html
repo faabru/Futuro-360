@@ -1,11 +1,15 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import boton_volver %}
 {% block content %}
 
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
+            <div class="mb-3">
+                {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
+            </div>
             <div class="card border-0 shadow-lg animate__animated animate__fadeIn">
-                <div class="card-body p-5">
+                <div class="card-body p-4 p-md-5">
                     <!-- Progreso -->
                     <div class="mb-5">
                         <div class="d-flex justify-content-between mb-2">

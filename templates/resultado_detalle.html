@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import boton_volver %}
 
 {% block content %}
 <style>
@@ -315,6 +316,11 @@
 <div class="container py-4 py-lg-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
+
+            <!-- ===== BOTÓN VOLVER ===== -->
+            <div class="mb-3">
+                {{ boton_volver(url_for('vocacional.mis_resultados'), etiqueta='Volver a mis resultados') }}
+            </div>
 
             <!-- ===== HERO DEL PERFIL ===== -->
             <div class="perfil-hero">

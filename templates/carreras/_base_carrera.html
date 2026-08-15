@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import boton_volver %}
 
 {#
   ════════════════════════════════════════════════════════════
@@ -120,30 +121,25 @@
                         <img
                             src="{{ carrera.imagen_principal|media }}"
                             onerror="this.onerror=null; this.src='{{ fallback_area.get(carrera.area_profesional, url_for('static', filename='carreras/placeholder.svg')) }}';"
-                            class="img-fluid w-100 object-fit-cover"
-                            style="object-position: center; min-height: 400px; max-height: 680px; height: auto;"
+                            class="img-fluid carrera-img"
                             alt="{{ carrera.nombre }}">
                         {% else %}
                         <img
                             src="{{ fallback_area.get(carrera.area_profesional, url_for('static', filename='carreras/placeholder.svg')) }}"
-                            class="img-fluid w-100 object-fit-cover"
-                            style="object-position: center; min-height: 400px; max-height: 680px; height: auto;"
+                            class="img-fluid carrera-img"
                             alt="{{ carrera.nombre }}">
                         {% endif %}
                     </div>
 
                     <!-- COLUMNA DE CONTENIDO -->
-                    <div class="col-md-6 p-5">
+                    <div class="col-md-6 p-4 p-md-5">
 
                         <!-- ENCABEZADO Y NAVEGACIÓN -->
-                        <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
                             <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold">
                                 {{ carrera.area_profesional }}
                             </span>
-                            <a href="{{ url_for('carreras.carreras') }}"
-                               class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm">
-                                Volver
-                            </a>
+                            {{ boton_volver(url_for('carreras.carreras'), etiqueta='Volver a carreras') }}
                         </div>
 
                         <h1 class="display-5 fw-bold mb-4 text-primary">{{ carrera.nombre }}</h1>
@@ -220,12 +216,19 @@ async function buscarUniversidades(carreraId) {
         loading.style.display = 'none';
         btn.disabled = false;
 
-        if (!data.resultados || data.resultados.length === 0) {
+        const googleUrl = 'https://www.google.com/search?q=' +
+            encodeURIComponent('{{ carrera.nombre }} universidad facultad Tucumán inscripción');
+
+        if (data.error || !data.resultados || data.resultados.length === 0) {
             contenedor.innerHTML = `
-                <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
+                <div class="alert alert-warning alert-sm py-3 px-3 mt-2 small mb-2">
                     <i class="bi bi-exclamation-triangle me-1"></i>
-                    No se encontraron resultados. Intentá de nuevo.
-                </div>`;
+                    No pudimos cargar resultados automáticos en este momento.
+                </div>
+                <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
+                   class="btn btn-outline-primary btn-sm rounded-pill shadow-sm d-inline-flex align-items-center gap-1">
+                    <i class="bi bi-google"></i> Buscar en Google
+                </a>`;
             return;
         }
 
@@ -247,11 +250,17 @@ async function buscarUniversidades(carreraId) {
     } catch (e) {
         loading.style.display = 'none';
         btn.disabled = false;
+        const googleUrl = 'https://www.google.com/search?q=' +
+            encodeURIComponent('{{ carrera.nombre }} universidad facultad Tucumán inscripción');
         contenedor.innerHTML = `
-            <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
+            <div class="alert alert-warning alert-sm py-3 px-3 mt-2 small mb-2">
                 <i class="bi bi-wifi-off me-1"></i>
-                Error al buscar. Verificá tu conexión e intentá de nuevo.
-            </div>`;
+                Sin conexión al servidor.
+            </div>
+            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
+               class="btn btn-outline-primary btn-sm rounded-pill shadow-sm d-inline-flex align-items-center gap-1">
+                <i class="bi bi-google"></i> Buscar en Google
+            </a>`;
     }
 }
 

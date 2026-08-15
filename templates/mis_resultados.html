@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import boton_volver %}
 
 {% block content %}
 <!-- SECCIÓN PRINCIPAL: HISTORIAL DE RESULTADOS (CRUD) -->
 <div class="row justify-content-center">
     <div class="col-md-10">
-        <div class="card shadow p-5 mt-5 border-0 bg-white">
-            
-            <!-- ENCABEZADO DE LA SECCIÓN -->
-            <h1 class="text-center mb-5 text-primary fw-bold">Mis Resultados</h1>
-            
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-5 mb-4">
+            <h1 class="mb-0 text-primary fw-bold">Mis Resultados</h1>
+            {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
+        </div>
+        <div class="card shadow p-4 p-md-5 border-0 bg-white">
+
             {% if resultados %}
                 <!-- TABLA DE RESULTADOS EXISTENTES -->
                 <div class="table-responsive">

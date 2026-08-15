@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import boton_volver %}
 
 {% block content %}
 {% set fallback_carreras = {
@@ -105,27 +106,25 @@
                         <img
                             src="{{ carrera.imagen_principal|media }}"
                             onerror="this.onerror=null; this.src='{{ fallback_final_detalle }}';"
-                            class="img-fluid w-100 object-fit-cover"
-                            style="object-position: center; min-height: 400px; max-height: 680px; height: auto;"
+                            class="img-fluid carrera-img"
                             alt="{{ carrera.nombre }}">
                         {% else %}
                         <img
                             src="{{ fallback_final_detalle }}"
                             onerror="this.onerror=null; this.src='https://picsum.photos/seed/' + encodeURIComponent('{{ carrera.id }}_{{ carrera.nombre }}') + '/1200/800';"
-                            class="img-fluid w-100 object-fit-cover"
-                            style="object-position: center; min-height: 400px; max-height: 680px; height: auto;"
+                            class="img-fluid carrera-img"
                             alt="{{ carrera.nombre }}">
                         {% endif %}
                     </div>
                     
                     <!-- COLUMNA DE CONTENIDO -->
-                    <div class="col-md-6 p-5">
+                    <div class="col-md-6 p-4 p-md-5">
                         <!-- ENCABEZADO Y NAVEGACIÓN -->
                         <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
                             {% for area in carrera.areas %}
                             <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold">{{ area }}</span>
                             {% endfor %}
-                            <a href="{{ url_for('carreras.carreras') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-sm ms-auto">Volver</a>
+                            {{ boton_volver(url_for('carreras.carreras'), etiqueta='Volver a carreras', clases='ms-auto') }}
                         </div>
                         
                         <h1 class="display-5 fw-bold mb-4 text-primary">{{ carrera.nombre }}</h1>
@@ -180,12 +179,14 @@
 
                                     if (data.error || !data.resultados || data.resultados.length === 0) {
                                         contenedor.innerHTML = `
-                                            <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
+                                            <div class="alert alert-warning alert-sm py-3 px-3 mt-2 small mb-2">
                                                 <i class="bi bi-exclamation-triangle me-1"></i>
-                                                No se pudieron cargar resultados automáticos.
-                                                <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
-                                                   class="alert-link ms-1">Buscar en Google →</a>
-                                            </div>`;
+                                                No pudimos cargar resultados automáticos en este momento.
+                                            </div>
+                                            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
+                                               class="btn btn-outline-primary btn-sm rounded-pill shadow-sm d-inline-flex align-items-center gap-1">
+                                                <i class="bi bi-google"></i> Buscar en Google
+                                            </a>`;
                                         return;
                                     }
 
