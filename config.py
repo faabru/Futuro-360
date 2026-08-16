@@ -9,7 +9,9 @@ comportamiento del sistema sin tener que recorrer el código buscando valores
 "hardcodeados".
 """
 
+import atexit
 import os
+import tempfile
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -17,6 +19,58 @@ from dotenv import load_dotenv
 # Carga las variables definidas en el archivo .env (BD, secretos, emails, etc.).
 # Si el archivo no existe, se usan los valores por defecto definidos abajo.
 load_dotenv()
+
+
+def _materializar_ca(contenido_pem):
+    """Escribe un certificado CA (PEM) a un archivo temporal del sistema.
+
+    Útil para plataformas (Render/Railway) donde el certificado llega por la
+    variable ``DB_SSL_CA_CONTENT`` y no puede subirse al repositorio.
+
+    - Valida que el PEM contenga ``BEGIN CERTIFICATE`` y ``END CERTIFICATE``.
+    - Conserva los saltos de línea tal como vienen (normaliza a LF) para que
+      el archivo sea un PEM válido.
+    - Usa ``tempfile.NamedTemporaryFile`` en el directorio temporal del SISTEMA
+      (nunca dentro del proyecto), con permisos restrictivos.
+    - Registra el borrado seguro del archivo con ``atexit`` para que se elimine
+      cuando el proceso termine.
+
+    Devuelve la ruta (str) del archivo temporal, o ``None`` si el contenido no
+    es un PEM válido (en cuyo caso se conecta sin SSL y se informa en consola).
+    """
+    if not contenido_pem:
+        return None
+    # Normaliza saltos de línea y elimina espacios/fin de línea sobrantes.
+    pem = contenido_pem.strip().replace('\r\n', '\n').replace('\r', '\n') + '\n'
+    if '-----BEGIN CERTIFICATE-----' not in pem or '-----END CERTIFICATE-----' not in pem:
+        print("[config] DB_SSL_CA_CONTENT no parece un certificado PEM válido "
+              "(faltan BEGIN/END CERTIFICATE). Conectando sin SSL.")
+        return None
+
+    archivo = tempfile.NamedTemporaryFile(
+        mode='w',
+        suffix='.pem',
+        prefix='aiven-ca-',
+        delete=False,
+        encoding='utf-8',
+    )
+    try:
+        archivo.write(pem)
+        archivo.flush()
+        os.fsync(archivo.fileno())
+    finally:
+        archivo.close()
+
+    def _limpiar():
+        try:
+            if os.path.exists(archivo.name):
+                os.unlink(archivo.name)
+        except OSError:
+            pass
+
+    # Borrado seguro al finalizar el proceso (gunicorn, flask, python app.py...).
+    atexit.register(_limpiar)
+    return archivo.name
 
 
 class Config:
@@ -39,18 +93,34 @@ class Config:
     DB_NAME = os.getenv('DB_NAME', 'futuro360')
     # Puerto de MySQL (Aiven usa uno propio). Default 3306 si no está definido.
     DB_PORT = os.getenv('DB_PORT', '3306')
-    # Ruta al certificado CA para conexión TLS/SSL (Aiven). Si no está
-    # definido, la conexión sigue usando el comportamiento local sin SSL.
-    # Se resuelve a una ruta absoluta relativa a la raíz del proyecto para
-    # que funcione sin importar desde qué directorio se ejecute Flask.
-    _db_ssl_ca = os.getenv('DB_SSL_CA')
-    if _db_ssl_ca:
-        _ruta_ca = Path(_db_ssl_ca)
-        if not _ruta_ca.is_absolute():
-            _ruta_ca = Path(__file__).resolve().parent / _ruta_ca
-        DB_SSL_CA = str(_ruta_ca)
+    # Certificado CA para conexión TLS/SSL (Aiven). Se resuelve de una de dos
+    # formas según el entorno:
+    #
+    #   1) DB_SSL_CA_CONTENT  → el contenido del certificado PEM. Pensado para
+    #      plataformas como Render/Railway donde el certificado no se sube al
+    #      repositorio: se define esta variable con el texto completo del PEM y
+    #      la app lo escribe a un archivo temporal del SISTEMA (nunca dentro
+    #      del proyecto) para que mysql-connector-python (que requiere una
+    #      ruta física) lo use.
+    #
+    #   2) DB_SSL_CA  → ruta al archivo PEM local (desarrollo). Se resuelve a
+    #      una ruta absoluta relativa a la raíz del proyecto para que funcione
+    #      sin importar desde qué directorio se ejecute Flask.
+    #
+    # Si no se define ninguna, la conexión sigue usando el comportamiento local
+    # sin SSL. Nunca se desactiva la verificación del certificado.
+    DB_SSL_CA = None
+    _db_ssl_ca_content = os.getenv('DB_SSL_CA_CONTENT')
+    if _db_ssl_ca_content:
+        _archivo_ca = _materializar_ca(_db_ssl_ca_content)
+        DB_SSL_CA = _archivo_ca
     else:
-        DB_SSL_CA = None
+        _db_ssl_ca = os.getenv('DB_SSL_CA')
+        if _db_ssl_ca:
+            _ruta_ca = Path(_db_ssl_ca)
+            if not _ruta_ca.is_absolute():
+                _ruta_ca = Path(__file__).resolve().parent / _ruta_ca
+            DB_SSL_CA = str(_ruta_ca)
 
     # --- Cuenta del panel (dueño del sistema) -----------------------------
     # El acceso al panel es solo por email. La cuenta con este correo se crea

@@ -20,9 +20,12 @@ def _config_conexion(database=None):
     """Construye los parámetros de conexión a MySQL desde la configuración.
 
     - ``DB_PORT``: puerto de conexión; si no está definido usa 3306.
-    - ``DB_SSL_CA``: si apunta a un certificado CA, habilita TLS/SSL
-      verificando el certificado del servidor (Aiven). Sin él, se mantiene
-      el comportamiento local actual (sin SSL).
+    - ``DB_SSL_CA``: si apunta a un certificado CA, habilita TLS/SSL con
+      verificación REAL del certificado del servidor (Aiven). Se exige SSL
+      (``ssl_disabled=False``) y verificación de la identidad del host contra
+      el certificado (``ssl_verify_identity=True``), nunca ``ssl_disabled``
+      ni verificación desactivada. Sin certificado se mantiene el
+      comportamiento local actual (sin SSL).
     """
     config = {
         'host': Config.DB_HOST,
@@ -33,7 +36,9 @@ def _config_conexion(database=None):
     if database is not None:
         config['database'] = database
     if Config.DB_SSL_CA:
+        config['ssl_disabled'] = False
         config['ssl_ca'] = Config.DB_SSL_CA
+        config['ssl_verify_identity'] = True
     return config
 
 

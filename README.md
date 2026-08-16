@@ -192,7 +192,8 @@ CLOUDINARY_API_SECRET=tu_api_secret
 | `DB_USER` | No | Usuario de MySQL (default `root`) |
 | `DB_PASSWORD` | No | Contraseña de MySQL (default vacío) |
 | `DB_NAME` | No | Nombre de la base de datos (default `futuro360`) |
-| `DB_SSL_CA` | No | Ruta al certificado CA para TLS/SSL (Aiven). Si no se define, se conecta sin SSL |
+| `DB_SSL_CA` | No | Ruta al certificado CA para TLS/SSL (Aiven) en desarrollo. Se resuelve relativa a la raíz del proyecto. Si no se define, se conecta sin SSL |
+| `DB_SSL_CA_CONTENT` | No | Contenido PEM del certificado CA (para Render/Railway). Si está definido, la app lo escribe a un archivo temporal al arrancar y lo usa en lugar de `DB_SSL_CA` |
 | `SECRET_KEY` | Recomendada | Clave de firma de sesiones de Flask |
 | `RESEND_API_KEY` | Solo para emails | Clave de la API de Resend |
 | `MAIL_FROM` | No | Remitente de los emails (default `Futuro 360 <onboarding@resend.dev>`) |
@@ -361,14 +362,20 @@ web: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
    `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `RESEND_API_KEY`, `CLOUDINARY_*` (opcional).
    `PORT` lo asigna Railway y gunicorn lo usa solo.
 4. Si la BD es remota con TLS (p. ej. Aiven), configurar también `DB_PORT` y
-   `DB_SSL_CA` (en Railway el valor de `DB_SSL_CA` debe ser un **path absoluto**
-   del certificado subido al servicio o una URL).
+   el certificado CA. La forma recomendada (sin subir el cert al repo) es
+   definir `DB_SSL_CA_CONTENT` con el **contenido PEM completo** del
+   certificado; la app lo escribe a un archivo temporal al arrancar.
 
 ### Desplegar en Render
 
 1. Crear un Web Service apuntando al repo (build: `pip install -r requirements.txt`).
 2. Start Command: `gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120`.
 3. Cargar las mismas variables de entorno en el panel de Render.
+4. Para Aiven con TLS (recomendado, no sube el cert al repo): definir
+   `DB_SSL_CA_CONTENT` con el **contenido PEM completo** del certificado CA.
+   La app lo materializa a un archivo temporal en el arranque y se conecta
+   con SSL REQUIRED y verificación real del certificado. No hace falta
+   definir `DB_SSL_CA` en producción.
 4. La app sincroniza el esquema y el contenido en el primer arranque.
 
 > **Importante — una sola conexión por request:** la app abre UNA conexión a
