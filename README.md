@@ -32,8 +32,9 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 | Capa | Tecnología |
 |---|---|
 | Backend | Python 3 + Flask 3 |
+| Servidor WSGI | gunicorn (despliegue vía `Procfile`) |
 | Base de datos | MySQL (conector `mysql-connector-python`) |
-| Frontend | HTML + CSS + JavaScript (plantillas Jinja2) |
+| Frontend | HTML + CSS + JavaScript (plantillas Jinja2, Bootstrap 5) |
 | Envío de emails | Resend |
 | Exportación Excel | openpyxl |
 | Informe PDF | reportlab |
@@ -77,6 +78,7 @@ futuro 360/
 │       └── noticias.py          # ABM de noticias, fuentes y filtros de fecha
 ├── scripts/                     # Utilidades de desarrollo (sync de imágenes, checks, etc.)
 ├── requirements.txt             # Dependencias de Python
+├── Procfile                     # Comando WSGI para producción (gunicorn)
 ├── .env                         # Configuración local (NO se sube al repositorio)
 ├── .gitignore
 ├── base de datos/
@@ -154,15 +156,21 @@ Crear un archivo `.env` en la raíz del proyecto con las siguientes variables:
 ```env
 # Base de datos
 DB_HOST=localhost
+DB_PORT=3306
 DB_USER=root
 DB_PASSWORD=tu_password
 DB_NAME=futuro360
+# Ruta al certificado CA para conexión TLS/SSL (p. ej. Aiven).
+# Se resuelve relativa a la raíz del proyecto. Opcional.
+DB_SSL_CA=
 
 # Seguridad
 SECRET_KEY=una_cadena_larga_y_aleatoria
 
 # Envío de emails (Resend)
 RESEND_API_KEY=re_XXXXXXXXXXXXX
+# Remitente que verán los destinatarios (opcional, default: Futuro 360 <onboarding@resend.dev>)
+MAIL_FROM=Futuro 360 <onboarding@resend.dev>
 
 # Cuenta del panel (dueño del sistema, POR MÁQUINA)
 # Cada persona pone su propio correo y su propia contraseña inicial.
@@ -180,16 +188,20 @@ CLOUDINARY_API_SECRET=tu_api_secret
 | Variable | Obligatoria | Descripción |
 |---|---|---|
 | `DB_HOST` | No | Host del servidor MySQL (default `localhost`) |
+| `DB_PORT` | No | Puerto de MySQL (default `3306`; Aiven usa uno propio) |
 | `DB_USER` | No | Usuario de MySQL (default `root`) |
 | `DB_PASSWORD` | No | Contraseña de MySQL (default vacío) |
 | `DB_NAME` | No | Nombre de la base de datos (default `futuro360`) |
+| `DB_SSL_CA` | No | Ruta al certificado CA para TLS/SSL (Aiven). Si no se define, se conecta sin SSL |
 | `SECRET_KEY` | Recomendada | Clave de firma de sesiones de Flask |
 | `RESEND_API_KEY` | Solo para emails | Clave de la API de Resend |
+| `MAIL_FROM` | No | Remitente de los emails (default `Futuro 360 <onboarding@resend.dev>`) |
 | `CLOUDINARY_CLOUD_NAME` | No | Cloud de Cloudinary para imágenes/videos |
 | `CLOUDINARY_API_KEY` | No | API key de Cloudinary |
 | `CLOUDINARY_API_SECRET` | No | API secret de Cloudinary |
 | `ADMIN_EMAIL` | No | Email del **dueño del panel** en esta máquina (default `fabriciovillagra05@gmail.com`) |
-| `ADMIN_PASSWORD` | No | Contraseña SOLO para crear esa cuenta la primera vez (default `123456789`). Luego puede cambiarse con la recuperación. |
+| `ADMIN_PASSWORD` | **Sí** | Contraseña SOLO para crear esa cuenta la primera vez. Requerida en el `.env`; puede cambiarse luego con la recuperación |
+| `PORT` | Solo hosting | Puerto HTTP que asigna la plataforma (Render/Railway) para gunicorn; no se define localmente |
 
 **Importante:** el archivo `.env` no se sube al repositorio (está en `.gitignore`). No se debe
 comprometer ninguna credencial en el código ni en los commits.
@@ -326,12 +338,43 @@ excluyente del TFI.
 
 ## Notas de despliegue (producción)
 
-- Para producción se recomienda un servidor WSGI (por ejemplo `waitress` o `gunicorn` en Linux)
-  en lugar de `app.run(debug=True)`.
-- Configurar `SECRET_KEY` y las credenciales de BD en el entorno de producción.
-- La base de datos `futuro360` debe estar creada e importada antes de iniciar.
-- El servicio Node de `recuperacion de contraseña/` es un módulo alternativo opcional; la aplicación
-  principal envía los PIN directamente con Resend desde `core/mailer.py`.
+La aplicación se sirve con **gunicorn** (WSGI). El repositorio incluye un
+[`Procfile`](Procfile) en la raíz:
+
+```
+web: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
+```
+
+- Importa la instancia `app` de `app.py` (creada a nivel de módulo), por lo que
+  funciona con cualquier plataforma que ejecute el `Procfile`.
+- Al arrancar, la app **crea/actualiza la base y el contenido solo** (no hace
+  falta importar nada a mano), igual que en local.
+- `debug=False` está fijado en `app.py` para no exponer el debugger de
+  Werkzeug en producción.
+
+### Desplegar en Railway
+
+1. Crear un proyecto nuevo en [Railway](https://railway.app) apuntando al repo.
+2. Railway detecta el `Procfile` y arranca `web: gunicorn ...` automáticamente.
+3. Definir las variables de entorno en **Variables** (ver tabla de la sección
+   Configuración): `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `SECRET_KEY`,
+   `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `RESEND_API_KEY`, `CLOUDINARY_*` (opcional).
+   `PORT` lo asigna Railway y gunicorn lo usa solo.
+4. Si la BD es remota con TLS (p. ej. Aiven), configurar también `DB_PORT` y
+   `DB_SSL_CA` (en Railway el valor de `DB_SSL_CA` debe ser un **path absoluto**
+   del certificado subido al servicio o una URL).
+
+### Desplegar en Render
+
+1. Crear un Web Service apuntando al repo (build: `pip install -r requirements.txt`).
+2. Start Command: `gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120`.
+3. Cargar las mismas variables de entorno en el panel de Render.
+4. La app sincroniza el esquema y el contenido en el primer arranque.
+
+> **Importante — una sola conexión por request:** la app abre UNA conexión a
+> MySQL por request (`database_handler.py`). En bases con límite de conexiones
+> simultáneas (Aiven free) no conviene lanzar más de 2 workers ni ejecutar
+> `create_app()` más de una vez por proceso.
 
 ## Autor
 

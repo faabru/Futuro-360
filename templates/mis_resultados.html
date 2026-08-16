@@ -30,7 +30,7 @@
                                     <td><span class="badge bg-primary px-3 py-2 rounded-pill">{{ resultado.area_profesional_sugerida }}</span></td>
                                     
                                     <!-- ACCIÓN: VER DETALLE (READ) -->
-                                    <td><a href="{{ url_for('vocacional.ver_resultado', resultado_id=resultado.id) }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 shadow-sm">Ver Informe</a></td>
+                                    <td><a href="{{ url_for('vocacional.ver_resultado', resultado_id=resultado.id) }}" class="btn btn-outline-primary rounded-pill px-3 shadow-sm">Ver Informe</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

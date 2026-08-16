@@ -10,19 +10,19 @@ SET FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS `carreras`;
 CREATE TABLE `carreras` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(150) NOT NULL,
-  `descripcion` text DEFAULT NULL,
-  `area_profesional` varchar(100) NOT NULL,
-  `instituciones` text DEFAULT NULL,
-  `popular` tinyint(1) DEFAULT 0,
-  `imagen` varchar(500) DEFAULT '',
-  `imagen_portada` varchar(500) DEFAULT NULL,
-  `imagen_principal` varchar(500) DEFAULT NULL,
-  `a_que_se_dedica` text DEFAULT NULL,
-  `video` varchar(500) DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la carrera',
+  `nombre` varchar(150) NOT NULL COMMENT 'Nombre de la carrera',
+  `descripcion` text DEFAULT NULL COMMENT 'Descripción de la carrera',
+  `area_profesional` varchar(100) NOT NULL COMMENT 'Área principal',
+  `instituciones` text DEFAULT NULL COMMENT 'Instituciones donde se dicta',
+  `popular` tinyint(1) DEFAULT 0 COMMENT '1 = carrera destacada',
+  `imagen` varchar(500) DEFAULT '' COMMENT 'Imagen principal (ruta local o URL de Cloudinary)',
+  `imagen_portada` varchar(500) DEFAULT NULL COMMENT 'Imagen de portada',
+  `imagen_principal` varchar(500) DEFAULT NULL COMMENT 'Imagen de detalle',
+  `a_que_se_dedica` text DEFAULT NULL COMMENT 'Descripción del campo laboral',
+  `video` varchar(500) DEFAULT NULL COMMENT 'Video de la carrera (URL, local o de Cloudinary)',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Catálogo de carreras de la plataforma';
 
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (1, 'Ingeniería en Sistemas de Información', 'Diseño y desarrollo de software, bases de datos, redes y sistemas informáticos.', 'Tecnología', 'UTN - FR Tucumán, UNT - FACET', 1, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648779/tecnologia-Ingenier%C3%ADa%20en%20Sistemas%20de%20Informaci%C3%B3n-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648780/tecnologia-Ingenier%C3%ADa%20en%20Sistemas%20de%20Informaci%C3%B3n-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (2, 'Licenciatura en Sistemas de Información', 'Análisis, diseño e implementación de sistemas de información empresariales.', 'Tecnología', 'UNT - FACET, UNSTA', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648781/tecnologia-Licenciatura%20en%20Sistemas%20de%20Informaci%C3%B3n-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648782/tecnologia-Licenciatura%20en%20Sistemas%20de%20Informaci%C3%B3n-principal.jpg', NULL, NULL);
@@ -69,29 +69,29 @@ INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `inst
 
 DROP TABLE IF EXISTS `areas`;
 CREATE TABLE `areas` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) NOT NULL,
-  `descripcion` text DEFAULT NULL,
-  `icono` varchar(50) DEFAULT NULL,
-  `color` varchar(20) DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador del área',
+  `nombre` varchar(100) NOT NULL COMMENT 'Nombre del área profesional',
+  `descripcion` text DEFAULT NULL COMMENT 'Descripción del área',
+  `icono` varchar(50) DEFAULT NULL COMMENT 'Ícono asociado',
+  `color` varchar(20) DEFAULT NULL COMMENT 'Color representativo',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Áreas profesionales del test y de las carreras';
 
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (1, 'Ciencias Exactas', 'Matem??tica, F??sica, Ingenier??a, Inform??tica', '????', '#4F8EF7');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (2, 'Ciencias de la Salud', 'Medicina, Enfermer??a, Bioqu??mica, Farmacia', '??????', '#2DC87A');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (3, 'Ciencias Sociales', 'Derecho, Psicolog??a, Sociolog??a, Trabajo Social', '????', '#F7A94F');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (4, 'Arte y Dise??o', 'Arquitectura, Bellas Artes, Dise??o, M??sica', '????', '#E05CDB');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (5, 'Humanidades', 'Historia, Filosof??a, Letras, Comunicaci??n', '????', '#F7574F');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (6, 'Ciencias Naturales', 'Biolog??a, Geolog??a, Ecolog??a, Veterinaria', '????', '#4FC9F7');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (7, 'Econom??a y Negocios', 'Administraci??n, Econom??a, Comercio, Marketing', '????', '#F7D94F');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (1, 'Ciencias Exactas', 'Matemática, Física, Ingeniería, Informática', '🔬', '#4F8EF7');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (2, 'Ciencias de la Salud', 'Medicina, Enfermería, Bioquímica, Farmacia', '🩺', '#2DC87A');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (3, 'Ciencias Sociales', 'Derecho, Psicología, Sociología, Trabajo Social', '⚖️', '#F7A94F');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (4, 'Arte y Diseño', 'Arquitectura, Bellas Artes, Diseño, Música', '🎨', '#E05CDB');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (5, 'Humanidades', 'Historia, Filosofía, Letras, Comunicación', '📚', '#F7574F');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (6, 'Ciencias Naturales', 'Biología, Geología, Ecología, Veterinaria', '🌿', '#4FC9F7');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (7, 'Economía y Negocios', 'Administración, Economía, Comercio, Marketing', '💼', '#F7D94F');
 
 DROP TABLE IF EXISTS `preguntas`;
 CREATE TABLE `preguntas` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `texto_pregunta` varchar(255) NOT NULL,
-  `area_profesional` varchar(100) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la pregunta',
+  `texto_pregunta` varchar(255) NOT NULL COMMENT 'Enunciado de la pregunta',
+  `area_profesional` varchar(100) NOT NULL COMMENT 'Área asociada a la pregunta',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Preguntas del test vocacional';
 
 INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (1, '¿Qué tipo de problemas te sentís más motivado/a a resolver hoy?', 'General');
 INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (2, 'Si pudieras elegir un entorno para trabajar diariamente, ¿cuál sería?', 'General');
@@ -126,14 +126,14 @@ INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (30,
 
 DROP TABLE IF EXISTS `opciones_pregunta`;
 CREATE TABLE `opciones_pregunta` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `pregunta_id` int(11) NOT NULL,
-  `texto_opcion` varchar(300) NOT NULL,
-  `area_profesional` varchar(100) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la opción',
+  `pregunta_id` int(11) NOT NULL COMMENT 'Pregunta asociada (FK → preguntas.id, borrado en cascada)',
+  `texto_opcion` varchar(300) NOT NULL COMMENT 'Texto de la opción',
+  `area_profesional` varchar(100) NOT NULL COMMENT 'Área que suma la opción',
   PRIMARY KEY (`id`),
   KEY `pregunta_id` (`pregunta_id`),
   CONSTRAINT `opciones_pregunta_ibfk_1` FOREIGN KEY (`pregunta_id`) REFERENCES `preguntas` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7659 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7659 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Opciones de respuesta del test (esquema original, legacy)';
 
 INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7501, 1, 'Desafíos lógicos, numéricos o estadísticos', 'Tecnología');
 INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7502, 1, 'Problemas de salud física o bienestar de las personas', 'Salud');
@@ -295,11 +295,11 @@ INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_prof
 
 DROP TABLE IF EXISTS `orientaciones`;
 CREATE TABLE `orientaciones` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la orientación',
+  `nombre` varchar(100) NOT NULL COMMENT 'Nombre del área/orientación profesional',
   PRIMARY KEY (`id`),
   UNIQUE KEY `nombre` (`nombre`)
-) ENGINE=InnoDB AUTO_INCREMENT=1075 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1075 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Áreas/orientaciones de agrupación de carreras gestionables desde el panel';
 
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (6, 'Agronomía');
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (10, 'Arte y Diseño');
@@ -320,12 +320,12 @@ INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (405, 'Tecnologia y Computac
 
 DROP TABLE IF EXISTS `carrera_areas`;
 CREATE TABLE `carrera_areas` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `carrera_id` int(11) NOT NULL,
-  `area` varchar(100) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la relación',
+  `carrera_id` int(11) NOT NULL COMMENT 'Carrera asociada (FK → carreras.id)',
+  `area` varchar(100) NOT NULL COMMENT 'Área/orientación asignada a la carrera',
   PRIMARY KEY (`id`),
   KEY `idx_carrera` (`carrera_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Tabla puente entre carreras y áreas';
 
 INSERT INTO `carrera_areas` (`id`, `carrera_id`, `area`) VALUES (62, 43, 'Agronomía');
 INSERT INTO `carrera_areas` (`id`, `carrera_id`, `area`) VALUES (63, 43, 'Arte y Diseño');
@@ -333,20 +333,20 @@ INSERT INTO `carrera_areas` (`id`, `carrera_id`, `area`) VALUES (64, 43, 'Cienci
 
 DROP TABLE IF EXISTS `noticias`;
 CREATE TABLE `noticias` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `titulo` varchar(300) NOT NULL,
-  `descripcion` text DEFAULT NULL,
-  `imagen` varchar(500) DEFAULT NULL,
-  `fuente` varchar(100) NOT NULL,
-  `fecha` date NOT NULL,
-  `link` varchar(500) DEFAULT '#',
-  `categoria` varchar(100) DEFAULT 'General',
-  `es_externa` tinyint(1) DEFAULT 0,
-  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
-  `video` varchar(500) DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la noticia',
+  `titulo` varchar(300) NOT NULL COMMENT 'Título de la noticia',
+  `descripcion` text DEFAULT NULL COMMENT 'Resumen o cuerpo de la noticia',
+  `imagen` varchar(500) DEFAULT NULL COMMENT 'Imagen (ruta local o URL de Cloudinary)',
+  `fuente` varchar(100) NOT NULL COMMENT 'Fuente (nombre del medio)',
+  `fecha` date NOT NULL COMMENT 'Fecha de la noticia',
+  `link` varchar(500) DEFAULT '#' COMMENT 'Enlace de origen (único)',
+  `categoria` varchar(100) DEFAULT 'General' COMMENT 'Categoría de la noticia',
+  `es_externa` tinyint(1) DEFAULT 0 COMMENT '1 = redirige al link externo',
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Fecha de alta',
+  `video` varchar(500) DEFAULT NULL COMMENT 'Video de la noticia (URL, local o de Cloudinary)',
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_link` (`link`(255))
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Noticias educativas mostradas en la sección de noticias';
 
 INSERT INTO `noticias` (`id`, `titulo`, `descripcion`, `imagen`, `fuente`, `fecha`, `link`, `categoria`, `es_externa`, `fecha_creacion`, `video`) VALUES (1, 'Nuevas becas estratégicas para ingeniería', 'La Universidad Nacional de Tucumán abre 50 nuevas becas completas para carreras de ingeniería con énfasis en tecnología e innovación para el ciclo 2026.', 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&q=80', 'La Gaceta', '2026-05-07', '#1', 'Ingeniería', 0, '2026-05-09 16:55:02', NULL);
 INSERT INTO `noticias` (`id`, `titulo`, `descripcion`, `imagen`, `fuente`, `fecha`, `link`, `categoria`, `es_externa`, `fecha_creacion`, `video`) VALUES (2, 'Tendencias: IA y programación dominan las inscripciones 2026', 'Según datos estadísticos, las carreras tecnológicas crecen un 34% en inscriptos. Python, inteligencia artificial y ciberseguridad lideran las preferencias.', 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=600&q=80', 'Universia', '2026-05-06', '#2', 'Tecnología', 0, '2026-05-09 16:55:02', NULL);
@@ -366,12 +366,12 @@ INSERT INTO `noticias` (`id`, `titulo`, `descripcion`, `imagen`, `fuente`, `fech
 
 DROP TABLE IF EXISTS `fuentes`;
 CREATE TABLE `fuentes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(100) NOT NULL,
-  `activo` tinyint(1) DEFAULT 1,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la fuente',
+  `nombre` varchar(100) NOT NULL COMMENT 'Nombre de la fuente (único)',
+  `activo` tinyint(1) DEFAULT 1 COMMENT '1 = habilitada',
   PRIMARY KEY (`id`),
   UNIQUE KEY `nombre` (`nombre`)
-) ENGINE=InnoDB AUTO_INCREMENT=634 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=634 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Fuentes de noticias disponibles';
 
 INSERT INTO `fuentes` (`id`, `nombre`, `activo`) VALUES (8, 'La Gaceta', 1);
 INSERT INTO `fuentes` (`id`, `nombre`, `activo`) VALUES (10, 'UTN', 1);
@@ -382,25 +382,25 @@ INSERT INTO `fuentes` (`id`, `nombre`, `activo`) VALUES (418, 'Prueba', 1);
 
 DROP TABLE IF EXISTS `fuentes_eliminadas`;
 CREATE TABLE `fuentes_eliminadas` (
-  `nombre` varchar(100) NOT NULL,
+  `nombre` varchar(100) NOT NULL COMMENT 'Nombre de la fuente eliminada (evita que reingrese)',
   PRIMARY KEY (`nombre`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Registro de fuentes dadas de baja a propósito';
 
 INSERT INTO `fuentes_eliminadas` (`nombre`) VALUES ('El País Tecnología');
 INSERT INTO `fuentes_eliminadas` (`nombre`) VALUES ('Universia');
 
 DROP TABLE IF EXISTS `filtros_fecha`;
 CREATE TABLE `filtros_fecha` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `valor` varchar(20) NOT NULL,
-  `etiqueta` varchar(50) NOT NULL,
-  `activo` tinyint(1) DEFAULT 1,
-  `orden` int(11) DEFAULT 0,
-  `condicion` varchar(250) NOT NULL DEFAULT '',
-  `es_fijo` tinyint(1) DEFAULT 0,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador del filtro',
+  `valor` varchar(20) NOT NULL COMMENT 'Valor interno del filtro',
+  `etiqueta` varchar(50) NOT NULL COMMENT 'Texto visible del filtro',
+  `activo` tinyint(1) DEFAULT 1 COMMENT '1 = habilitado',
+  `orden` int(11) DEFAULT 0 COMMENT 'Orden de aparición',
+  `condicion` varchar(250) NOT NULL DEFAULT '' COMMENT 'Condición SQL de filtrado sobre la fecha',
+  `es_fijo` tinyint(1) DEFAULT 0 COMMENT '1 = no editable desde el panel',
   PRIMARY KEY (`id`),
   UNIQUE KEY `valor` (`valor`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Filtros de tiempo del buscador de noticias';
 
 INSERT INTO `filtros_fecha` (`id`, `valor`, `etiqueta`, `activo`, `orden`, `condicion`, `es_fijo`) VALUES (1, 'todas', 'Todas', 1, 0, '', 1);
 INSERT INTO `filtros_fecha` (`id`, `valor`, `etiqueta`, `activo`, `orden`, `condicion`, `es_fijo`) VALUES (2, 'hoy', 'Hoy', 1, 1, 'fecha = CURDATE()', 1);
@@ -413,20 +413,20 @@ INSERT INTO `filtros_fecha` (`id`, `valor`, `etiqueta`, `activo`, `orden`, `cond
 
 DROP TABLE IF EXISTS `game_carreras`;
 CREATE TABLE `game_carreras` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `carrera_id` int(11) NOT NULL,
-  `texto_boton` varchar(100) DEFAULT 'Ver carrera',
-  `titulo_card` varchar(150) DEFAULT NULL,
-  `descripcion_card` text DEFAULT NULL,
-  `activo` tinyint(1) DEFAULT 1,
-  `orden` int(11) DEFAULT 0,
-  `boton_no` varchar(100) NOT NULL DEFAULT 'No es lo mío',
-  `boton_info` varchar(100) NOT NULL DEFAULT 'Info',
-  `boton_yes` varchar(100) NOT NULL DEFAULT 'Me interesa',
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la tarjeta',
+  `carrera_id` int(11) NOT NULL COMMENT 'Carrera asociada (FK → carreras.id, borrado en cascada)',
+  `texto_boton` varchar(100) DEFAULT 'Ver carrera' COMMENT 'Texto del botón de la tarjeta',
+  `titulo_card` varchar(150) DEFAULT NULL COMMENT 'Título que se muestra en la tarjeta',
+  `descripcion_card` text DEFAULT NULL COMMENT 'Descripción de la tarjeta',
+  `activo` tinyint(1) DEFAULT 1 COMMENT '1 = visible en el juego',
+  `orden` int(11) DEFAULT 0 COMMENT 'Orden de aparición',
+  `boton_no` varchar(100) NOT NULL DEFAULT 'No es lo mío' COMMENT 'Texto del botón "No"',
+  `boton_info` varchar(100) NOT NULL DEFAULT 'Info' COMMENT 'Texto del botón "Info"',
+  `boton_yes` varchar(100) NOT NULL DEFAULT 'Me interesa' COMMENT 'Texto del botón "Me interesa"',
   PRIMARY KEY (`id`),
   KEY `carrera_id` (`carrera_id`),
   CONSTRAINT `game_carreras_ibfk_1` FOREIGN KEY (`carrera_id`) REFERENCES `carreras` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=500 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=500 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Carreras que participan en el juego de descubrimiento';
 
 INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (437, 1, 'Ver carrera', 'Ingeniería en Sistemas de Información', 'Diseño y desarrollo de software, bases de datos, redes y sistemas informáticos.', 0, 1, 'No es lo mío', 'Info', 'Me interesa');
 INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (438, 2, 'Ver carrera', 'Licenciatura en Sistemas de Información', 'Análisis, diseño e implementación de sistemas de información empresariales.', 0, 2, 'No es lo mío', 'Info', 'Me interesa');
@@ -473,17 +473,17 @@ INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `
 
 DROP TABLE IF EXISTS `game_preguntas`;
 CREATE TABLE `game_preguntas` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `texto_pregunta` varchar(300) NOT NULL,
-  `opcion_a_texto` varchar(200) NOT NULL,
-  `opcion_a_area` varchar(100) NOT NULL,
-  `opcion_b_texto` varchar(200) NOT NULL,
-  `opcion_b_area` varchar(100) NOT NULL,
-  `activo` tinyint(1) DEFAULT 1,
-  `orden` int(11) DEFAULT 0,
-  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la pregunta',
+  `texto_pregunta` varchar(300) NOT NULL COMMENT 'Enunciado de la pregunta',
+  `opcion_a_texto` varchar(200) NOT NULL COMMENT 'Texto de la opción A',
+  `opcion_a_area` varchar(100) NOT NULL COMMENT 'Área que suma la opción A',
+  `opcion_b_texto` varchar(200) NOT NULL COMMENT 'Texto de la opción B',
+  `opcion_b_area` varchar(100) NOT NULL COMMENT 'Área que suma la opción B',
+  `activo` tinyint(1) DEFAULT 1 COMMENT '1 = visible en el juego',
+  `orden` int(11) DEFAULT 0 COMMENT 'Orden de aparición',
+  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Fecha de alta',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Preguntas del juego "Descubre tu Carrera"';
 
 INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (1, 'Te regalan un kit de herramientas. Que haces primero?', 'Desarmo la radio para ver como funciona por dentro', 'Tecnologia', 'Ayudo a un vecino a arreglar su silla rota', 'Servicio Social', 0, 0, '2026-07-16 17:52:16');
 INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (2, 'Estas en un museo. A que sala vas?', 'Sala de innovaciones cientificas y robots', 'Tecnologia', 'Sala de cuadros clasicos y esculturas', 'Arte y Diseno', 0, 0, '2026-07-16 17:52:16');
@@ -492,32 +492,32 @@ INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_
 
 DROP TABLE IF EXISTS `tests`;
 CREATE TABLE `tests` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `usuario_id` int(11) NOT NULL,
-  `fecha` datetime DEFAULT current_timestamp(),
-  `completado` tinyint(1) DEFAULT 0,
-  `fecha_realizacion` timestamp NOT NULL DEFAULT current_timestamp(),
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador del test',
+  `usuario_id` int(11) NOT NULL COMMENT 'Usuario que realizó el test (FK → usuarios.id, borrado en cascada)',
+  `fecha` datetime DEFAULT current_timestamp() COMMENT 'Fecha del intento',
+  `completado` tinyint(1) DEFAULT 0 COMMENT '1 = test finalizado',
+  `fecha_realizacion` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Fecha de realización',
   PRIMARY KEY (`id`),
   KEY `usuario_id` (`usuario_id`),
   CONSTRAINT `tests_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Intentos de test vocacional realizados por los usuarios';
 
 DROP TABLE IF EXISTS `resultados`;
 CREATE TABLE `resultados` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `test_id` int(11) NOT NULL,
-  `area_profesional_sugerida` varchar(100) NOT NULL,
-  `area_id` int(11) NOT NULL,
-  `puntaje` int(11) DEFAULT 0,
-  `detalle` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`detalle`)),
-  `created_at` datetime DEFAULT current_timestamp(),
-  `notas_personales` text DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador del resultado',
+  `test_id` int(11) NOT NULL COMMENT 'Test asociado (FK → tests.id, único: 1 resultado por test)',
+  `area_profesional_sugerida` varchar(100) NOT NULL COMMENT 'Área recomendada',
+  `area_id` int(11) NOT NULL COMMENT 'Área recomendada (FK → areas.id)',
+  `puntaje` int(11) DEFAULT 0 COMMENT 'Puntaje obtenido',
+  `detalle` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'Detalle del resultado (JSON)',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT 'Fecha de creación',
+  `notas_personales` text DEFAULT NULL COMMENT 'Notas editables por el usuario',
   PRIMARY KEY (`id`),
   UNIQUE KEY `test_id` (`test_id`),
   KEY `area_id` (`area_id`),
   CONSTRAINT `resultados_ibfk_1` FOREIGN KEY (`test_id`) REFERENCES `tests` (`id`) ON DELETE CASCADE,
   CONSTRAINT `resultados_ibfk_2` FOREIGN KEY (`area_id`) REFERENCES `areas` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Resultado del test: área vocacional sugerida y detalle';
 
 SET FOREIGN_KEY_CHECKS=1;
 

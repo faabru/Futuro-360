@@ -633,16 +633,35 @@ html[data-theme="dark"] .admin-btn-back:hover {
     gap: 10px;
 }
 
+/* En móvil las acciones flotan sobre el topbar sticky y tapan contenido:
+   se integran al flujo normal del encabezado de página. */
+@media (max-width: 767.98px) {
+    .admin-fixed-actions {
+        position: static;
+        margin: 0 0 14px;
+        justify-content: flex-start;
+    }
+}
+
 .btn-outline-secondary,
 .btn-outline-primary,
 .btn-outline-danger {
     border-radius: 10px;
 }
 
-/* Botones de icono en tablas */
+/* Botón de cierre de chips de áreas con área de toque mínima (44×44px) */
+.areas-chip-close {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botones de icono en tablas (área de toque 44×44px) */
 .icon-btn {
-    width: 34px;
-    height: 34px;
+    width: 44px;
+    height: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1529,8 +1548,8 @@ html[data-theme="dark"] .media-duo-sep {
 }
 
 .crop-btn {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: 9px;
     border: 1px solid var(--admin-border);
     background: var(--admin-surface);

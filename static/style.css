@@ -81,6 +81,29 @@ body {
     scroll-behavior: smooth; /* Desplazamiento suave entre anclas */
 }
 
+/* --- ACCESIBILIDAD: anillo de foco visible al navegar con teclado --- */
+:focus-visible {
+    outline: 3px solid rgba(47, 142, 171, 0.55);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+/* --- ÁREA DE TOQUE MÍNIMA EN TÁCTIL ---
+   Solo en pantallas pequeñas/tablets: botones, enlaces con clase de botón y
+   controles de formulario respetan el mínimo de 44×44px recomendado por
+   accesibilidad. En desktop (mouse) no se fuerza para no deformar tablas
+   compactas ni inputs pequeños (form-control-sm). Bootstrap 5 estira los
+   .input-group-text a la altura del input automáticamente. */
+@media (max-width: 991.98px) {
+    a.btn,
+    button:not(.btn-close),
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea {
+        min-height: 44px;
+    }
+}
+
 /* --- PRELOADER: Pantalla de carga inicial --- */
 #preloader {
     position: fixed;
@@ -219,8 +242,8 @@ body {
 
 /* Botón de modo oscuro */
 .theme-toggle {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 12px;
     border: 1px solid var(--card-border);
     background: var(--card-bg);
@@ -394,6 +417,7 @@ html[data-theme="dark"] #preloader {
 
 /* --- TARJETAS CON EFECTO GLASSMORFISMO --- */
 .glass-card {
+    position: relative;
     background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);

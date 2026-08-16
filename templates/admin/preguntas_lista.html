@@ -33,7 +33,7 @@
                         <div class="admin-badge admin-badge-muted m-1 p-2 d-inline-flex align-items-center">
                             <span class="fw-semibold text-primary me-2">[{{ op.area_profesional }}]</span> {{ op.texto_opcion }}
                             <form action="{{ url_for('admin_preguntas.eliminar_opcion_pregunta', id=op.id) }}" method="POST" class="ms-2 d-inline" data-ajax="delete" data-confirm="¿Estás seguro de eliminar esta opción?">
-                                <button type="submit" class="btn-close" style="font-size: 0.5rem;" aria-label="Eliminar opción"></button>
+                                <button type="submit" class="btn-close icon-btn-close" aria-label="Eliminar opción"></button>
                             </form>
                         </div>
                         {% endfor %}
@@ -185,6 +185,16 @@
         background: #2F8EAB;
         color: #fff;
     }
+    /* Botón de cierre con área de toque mínima (44×44px) para quitar una opción */
+    .icon-btn-close {
+        width: 44px;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        font-size: 0.85rem;
+    }
     .pq-options {
         display: flex;
         flex-direction: column;
@@ -303,6 +313,21 @@
         border-color: #1E3A4A;
     }
     html[data-theme="dark"] .pregunta-modal .area-dropdown .list-group-item:hover { background: #0F1E29; }
+
+    /* En pantallas angostas las filas de opciones se apilan para que el input
+       de área (width:180px fijo) no comprima el texto de la opción. */
+    @media (max-width: 575.98px) {
+        .pq-option {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .pq-option .pq-option-area {
+            width: 100% !important;
+        }
+        .pq-option-text {
+            width: 100%;
+        }
+    }
 </style>
 
 <script>

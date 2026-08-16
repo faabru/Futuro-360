@@ -270,8 +270,7 @@
 
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'btn-close btn-close-sm areas-chip-close';
-            btn.style.fontSize = '0.5rem';
+            btn.className = 'btn-close areas-chip-close';
             btn.setAttribute('aria-label', 'Quitar ' + area);
             btn.addEventListener('click', function () {
                 const check = Array.from(document.querySelectorAll('.area-check'))

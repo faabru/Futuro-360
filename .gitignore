@@ -11,3 +11,9 @@ sync_*.py
 check_db.py
 lista_imagenes.txt
 .env
+
+# Certificados SSL de Aiven — nunca subir a GitHub
+certs/
+*.pem
+*.key
+*.crt

@@ -128,7 +128,7 @@
 <style>
     .populares-lista {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
         gap: .55rem;
         max-height: 430px;
         overflow-y: auto;
@@ -152,18 +152,18 @@
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .populares-area { font-size: .75rem; color: var(--admin-text-muted); margin-top: 1px; }
-    .switch-popular { position: relative; display: inline-block; width: 42px; height: 23px; flex: 0 0 auto; cursor: pointer; }
+    .switch-popular { position: relative; display: inline-block; width: 48px; height: 28px; flex: 0 0 auto; cursor: pointer; }
     .switch-popular input { position: absolute; opacity: 0; width: 0; height: 0; }
     .switch-popular .slider {
-        position: absolute; cursor: pointer; inset: 0; border-radius: 23px;
+        position: absolute; cursor: pointer; inset: 0; border-radius: 28px;
         background: var(--admin-border); transition: .18s;
     }
     .switch-popular .slider::before {
-        content: ''; position: absolute; width: 17px; height: 17px; left: 3px; top: 3px;
+        content: ''; position: absolute; width: 22px; height: 22px; left: 3px; top: 3px;
         border-radius: 50%; background: #fff; transition: .18s; box-shadow: 0 1px 3px rgba(16, 24, 40, .25);
     }
     .switch-popular input:checked + .slider { background: var(--admin-primary); }
-    .switch-popular input:checked + .slider::before { transform: translateX(19px); }
+    .switch-popular input:checked + .slider::before { transform: translateX(20px); }
     .switch-popular input:focus-visible + .slider { outline: 2px solid rgba(47, 142, 171, .5); outline-offset: 2px; }
     .populares-vacio { grid-column: 1 / -1; text-align: center; color: var(--admin-text-muted); padding: 2rem 0; }
     .populares-item.oculto { display: none; }
@@ -233,7 +233,7 @@
             <span class="admin-badge admin-badge-muted">
                 {{ o.nombre }}
                 <form action="{{ url_for('admin_orientaciones.eliminar_orientacion', id=o.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Eliminar la orientación {{ o.nombre }}?">
-                    <button type="submit" class="btn btn-link btn-sm p-0 ms-1 text-danger" title="Eliminar orientación">
+                    <button type="submit" class="btn btn-link p-2 ms-1 text-danger" title="Eliminar orientación">
                         <i class="bi bi-x-circle"></i>
                     </button>
                 </form>

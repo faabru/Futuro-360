@@ -3,6 +3,18 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 
+<style>
+    /* En pantallas angostas los 6 inputs del código se comprimen:
+       se reduce la tipografía para que el dígito no se recorte. */
+    @media (max-width: 400px) {
+        .digit-input {
+            font-size: 1.15rem !important;
+            padding: 0.4rem 0.25rem !important;
+            height: 52px !important;
+        }
+    }
+</style>
+
 <div class="container admin-login">
     <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
         <div class="col-md-5 col-lg-4">
@@ -25,9 +37,9 @@
                 <form action="{{ url_for('admin_auth.admin_verificar_codigo') }}" method="POST">
                     <div class="d-flex justify-content-between mb-4 gap-2">
                         {% for i in range(1, 7) %}
-                        <input type="text" name="d{{ i }}" class="form-control form-control-lg text-center fw-bold fs-2 digit-input"
+                        <input type="text" name="d{{ i }}" class="form-control form-control-lg text-center fw-bold fs-2 digit-input flex-fill"
                                maxlength="1" pattern="\d" inputmode="numeric" required
-                               style="width: 50px; height: 60px;">
+                               style="height: 60px; min-width: 0;">
                         {% endfor %}
                     </div>
 

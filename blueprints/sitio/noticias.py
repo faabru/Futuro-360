@@ -34,11 +34,21 @@ def noticias():
     params = []
 
     # Filtro por fecha: usa la condición guardada en la tabla filtros_fecha.
+    # Solo se aplican condiciones predefinidas (whitelist) para no concatenar
+    # SQL arbitrario guardado en la BD. Las condiciones válidas solo operan
+    # sobre la columna `fecha` con funciones de fecha de MySQL.
     if filtro_fecha != 'todas':
         cursor.execute("SELECT condicion FROM filtros_fecha WHERE valor = %s", (filtro_fecha,))
         fila_fecha = cursor.fetchone()
-        if fila_fecha and fila_fecha['condicion']:
-            query += " AND " + fila_fecha['condicion']
+        condicion = fila_fecha['condicion'] if fila_fecha else ''
+        condiciones_validas = {
+            'fecha = CURDATE()',
+            'fecha = DATE_SUB(CURDATE(), INTERVAL 1 DAY)',
+            'fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)',
+            'fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)',
+        }
+        if condicion in condiciones_validas:
+            query += " AND " + condicion
 
     if filtro_fuente != 'todas':
         query += " AND fuente = %s"

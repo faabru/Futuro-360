@@ -84,13 +84,13 @@
                         {# Botón de administración (solo candado) #}
                         {% if session.get('admin_autenticado') %}
                             <li class="nav-item ms-lg-2">
-                                <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin.admin_dashboard') }}" title="Panel de administración" style="width:40px;height:40px;">
+                                <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin.admin_dashboard') }}" title="Panel de administración" style="width:44px;height:44px;">
                                     <i class="bi bi-lock"></i>
                                 </a>
                             </li>
                         {% else %}
                             <li class="nav-item ms-lg-2">
-                                <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin_auth.admin_login') }}" title="Acceso de administración" style="width:40px;height:40px;">
+                                <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin_auth.admin_login') }}" title="Acceso de administración" style="width:44px;height:44px;">
                                     <i class="bi bi-lock"></i>
                                 </a>
                             </li>
@@ -103,13 +103,13 @@
                         {# Botón de administración (solo candado) #}
                         {% if session.get('admin_autenticado') %}
                             <li class="nav-item ms-lg-2">
-                                <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin.admin_dashboard') }}" title="Panel de administración" style="width:40px;height:40px;">
+                                <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin.admin_dashboard') }}" title="Panel de administración" style="width:44px;height:44px;">
                                     <i class="bi bi-lock"></i>
                                 </a>
                             </li>
                         {% else %}
                             <li class="nav-item ms-lg-2">
-                                <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin_auth.admin_login') }}" title="Acceso de administración" style="width:40px;height:40px;">
+                                <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin_auth.admin_login') }}" title="Acceso de administración" style="width:44px;height:44px;">
                                     <i class="bi bi-lock"></i>
                                 </a>
                             </li>

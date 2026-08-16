@@ -140,18 +140,18 @@
                 {{ f.nombre }}
                 {% if not f.activo %}<span class="ms-1 text-secondary">(oculta)</span>{% endif %}
                 <form action="{{ url_for('admin_noticias.toggle_fuente', id=f.id) }}" method="POST" style="display:inline;" title="Mostrar/ocultar" data-ajax="toggle">
-                    <button type="submit" class="btn btn-link btn-sm p-0 ms-1 {{ 'text-success' if f.activo else 'text-secondary' }}">
+                    <button type="submit" class="btn btn-link p-2 ms-1 {{ 'text-success' if f.activo else 'text-secondary' }}">
                         <i class="bi {{ 'bi-eye' if f.activo else 'bi-eye-slash' }}"></i>
                     </button>
                 </form>
-                <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-primary" title="Renombrar"
+                <button type="button" class="btn btn-link p-2 ms-1 text-primary" title="Renombrar"
                         data-bs-toggle="modal" data-bs-target="#editarFuenteModal"
                         data-url="{{ url_for('admin_noticias.editar_fuente', id=f.id) }}"
                         data-nombre="{{ f.nombre }}">
                     <i class="bi bi-pencil"></i>
                 </button>
                 <form action="{{ url_for('admin_noticias.eliminar_fuente', id=f.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Eliminar la fuente {{ f.nombre }}?">
-                    <button type="submit" class="btn btn-link btn-sm p-0 ms-1 text-danger" title="Eliminar fuente">
+                    <button type="submit" class="btn btn-link p-2 ms-1 text-danger" title="Eliminar fuente">
                         <i class="bi bi-x-circle"></i>
                     </button>
                 </form>
@@ -298,7 +298,7 @@
 
 <!-- Modal Nueva Noticia -->
 <div class="modal fade" id="nuevaNoticiaModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <form action="{{ url_for('admin_noticias.nueva_noticia') }}" method="POST" enctype="multipart/form-data">
                 <div class="modal-header">
@@ -411,7 +411,7 @@
 
 <!-- Modal Editar Noticia -->
 <div class="modal fade" id="editarNoticiaModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <form id="editarNoticiaForm" method="POST" enctype="multipart/form-data">
                 <div class="modal-header">

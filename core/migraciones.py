@@ -35,19 +35,20 @@ def asegurar_tabla_usuarios():
     cursor = db.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS usuarios (
-            id INT NOT NULL AUTO_INCREMENT,
-            nombre VARCHAR(100) NOT NULL,
-            apellido VARCHAR(100) DEFAULT NULL,
-            email VARCHAR(150) NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            rol ENUM('usuario','admin') DEFAULT 'usuario',
-            activo TINYINT(1) DEFAULT 1,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            es_dueño TINYINT(1) DEFAULT 0,
+            id INT NOT NULL AUTO_INCREMENT COMMENT 'Identificador único del usuario',
+            nombre VARCHAR(100) NOT NULL COMMENT 'Nombre de pila',
+            apellido VARCHAR(100) DEFAULT NULL COMMENT 'Apellido (opcional)',
+            email VARCHAR(150) NOT NULL COMMENT 'Correo electrónico, único, usado para login y recuperación',
+            password VARCHAR(255) NOT NULL COMMENT 'Hash de la contraseña (Werkzeug)',
+            rol ENUM('usuario','admin') DEFAULT 'usuario' COMMENT 'Rol de acceso: usuario o admin',
+            activo TINYINT(1) DEFAULT 1 COMMENT '1 = habilitado, 0 = deshabilitado',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de alta',
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Última actualización',
+            es_dueño TINYINT(1) DEFAULT 0 COMMENT '1 = dueño del panel (permisos exclusivos)',
             PRIMARY KEY (id),
             UNIQUE KEY email (email)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        COMMENT='Cuentas del sistema: visitantes registrados, administradores y el dueño'
     """)
     db.commit()
 
@@ -323,17 +324,19 @@ def asegurar_tabla_orientaciones():
     cursor = db.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS orientaciones (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            nombre VARCHAR(100) NOT NULL UNIQUE
+            id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador de la orientación',
+            nombre VARCHAR(100) NOT NULL UNIQUE COMMENT 'Nombre del área/orientación profesional'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        COMMENT='Áreas/orientaciones de agrupación de carreras gestionables desde el panel'
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS carrera_areas (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            carrera_id INT NOT NULL,
-            area VARCHAR(100) NOT NULL,
+            id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador de la relación',
+            carrera_id INT NOT NULL COMMENT 'Carrera asociada (FK → carreras.id)',
+            area VARCHAR(100) NOT NULL COMMENT 'Área/orientación asignada a la carrera',
             INDEX idx_carrera (carrera_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        COMMENT='Tabla puente entre carreras y áreas'
     """)
     cursor.execute("""
         INSERT IGNORE INTO orientaciones (nombre)
@@ -400,18 +403,19 @@ def asegurar_tabla_noticias():
     cursor = db.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS noticias (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            titulo VARCHAR(300) NOT NULL,
-            descripcion TEXT DEFAULT NULL,
-            imagen VARCHAR(500) DEFAULT NULL,
-            fuente VARCHAR(100) NOT NULL,
-            fecha DATE NOT NULL,
-            link VARCHAR(500) DEFAULT '#',
-            categoria VARCHAR(100) DEFAULT 'General',
-            es_externa TINYINT(1) DEFAULT 0,
-            fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador de la noticia',
+            titulo VARCHAR(300) NOT NULL COMMENT 'Título de la noticia',
+            descripcion TEXT DEFAULT NULL COMMENT 'Resumen o cuerpo de la noticia',
+            imagen VARCHAR(500) DEFAULT NULL COMMENT 'Imagen (ruta local o URL de Cloudinary)',
+            fuente VARCHAR(100) NOT NULL COMMENT 'Fuente (nombre del medio)',
+            fecha DATE NOT NULL COMMENT 'Fecha de la noticia',
+            link VARCHAR(500) DEFAULT '#' COMMENT 'Enlace de origen (único)',
+            categoria VARCHAR(100) DEFAULT 'General' COMMENT 'Categoría de la noticia',
+            es_externa TINYINT(1) DEFAULT 0 COMMENT '1 = redirige al link externo',
+            fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de alta',
             UNIQUE KEY unique_link (link(255))
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        COMMENT='Noticias educativas mostradas en la sección de noticias'
     """)
     db.commit()
 
@@ -427,17 +431,19 @@ def asegurar_tabla_fuentes():
     cursor = db.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS fuentes (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            nombre VARCHAR(100) NOT NULL UNIQUE
+            id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador de la fuente',
+            nombre VARCHAR(100) NOT NULL UNIQUE COMMENT 'Nombre de la fuente (único)'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        COMMENT='Fuentes de noticias disponibles'
     """)
     cursor.execute("SHOW COLUMNS FROM fuentes LIKE 'activo'")
     if not cursor.fetchone():
         cursor.execute("ALTER TABLE fuentes ADD COLUMN activo TINYINT(1) DEFAULT 1")
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS fuentes_eliminadas (
-            nombre VARCHAR(100) NOT NULL PRIMARY KEY
+            nombre VARCHAR(100) NOT NULL PRIMARY KEY COMMENT 'Nombre de la fuente eliminada (evita que reingrese)'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        COMMENT='Registro de fuentes dadas de baja a propósito'
     """)
     cursor.execute("SELECT nombre FROM fuentes_eliminadas")
     eliminadas = {r[0] for r in cursor.fetchall()}
@@ -461,14 +467,15 @@ def asegurar_tabla_filtros_fecha():
     cursor = db.cursor(dictionary=True)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS filtros_fecha (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            valor VARCHAR(30) NOT NULL UNIQUE,
-            etiqueta VARCHAR(50) NOT NULL,
-            condicion VARCHAR(250) NOT NULL DEFAULT '',
-            activo TINYINT(1) DEFAULT 1,
-            orden INT DEFAULT 0,
-            es_fijo TINYINT(1) DEFAULT 0
+            id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del filtro',
+            valor VARCHAR(30) NOT NULL UNIQUE COMMENT 'Valor interno del filtro',
+            etiqueta VARCHAR(50) NOT NULL COMMENT 'Texto visible del filtro',
+            condicion VARCHAR(250) NOT NULL DEFAULT '' COMMENT 'Condición SQL de filtrado sobre la fecha',
+            activo TINYINT(1) DEFAULT 1 COMMENT '1 = habilitado',
+            orden INT DEFAULT 0 COMMENT 'Orden de aparición',
+            es_fijo TINYINT(1) DEFAULT 0 COMMENT '1 = no editable desde el panel'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        COMMENT='Filtros de tiempo del buscador de noticias'
     """)
     # Backfill de columnas agregadas en versiones posteriores.
     for col, ddl in [
@@ -546,18 +553,19 @@ def asegurar_tabla_game_carreras():
     cursor = db.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS game_carreras (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            carrera_id INT NOT NULL,
-            texto_boton VARCHAR(100) DEFAULT 'Ver carrera',
-            titulo_card VARCHAR(150),
-            descripcion_card TEXT,
-            activo TINYINT(1) DEFAULT 1,
-            orden INT DEFAULT 0,
-            boton_no VARCHAR(100) NOT NULL DEFAULT 'No es lo mío',
-            boton_info VARCHAR(100) NOT NULL DEFAULT 'Info',
-            boton_yes VARCHAR(100) NOT NULL DEFAULT 'Me interesa',
+            id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador de la tarjeta',
+            carrera_id INT NOT NULL COMMENT 'Carrera asociada (FK → carreras.id)',
+            texto_boton VARCHAR(100) DEFAULT 'Ver carrera' COMMENT 'Texto del botón de la tarjeta',
+            titulo_card VARCHAR(150) COMMENT 'Título que se muestra en la tarjeta',
+            descripcion_card TEXT COMMENT 'Descripción de la tarjeta',
+            activo TINYINT(1) DEFAULT 1 COMMENT '1 = visible en el juego',
+            orden INT DEFAULT 0 COMMENT 'Orden de aparición',
+            boton_no VARCHAR(100) NOT NULL DEFAULT 'No es lo mío' COMMENT 'Texto del botón "No"',
+            boton_info VARCHAR(100) NOT NULL DEFAULT 'Info' COMMENT 'Texto del botón "Info"',
+            boton_yes VARCHAR(100) NOT NULL DEFAULT 'Me interesa' COMMENT 'Texto del botón "Me interesa"',
             INDEX idx_carrera (carrera_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        COMMENT='Carreras que participan en el juego de descubrimiento'
     """)
     asegurar_columnas_botones_game(db, cursor)
     # Backfill: registra las carreras sin tarjeta en el juego.
@@ -582,9 +590,10 @@ def asegurar_tabla_sesiones_activas():
     cursor = db.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS sesiones_activas (
-            user_id INT NOT NULL PRIMARY KEY,
-            last_seen DATETIME NOT NULL
+            user_id INT NOT NULL PRIMARY KEY COMMENT 'Usuario con actividad reciente (FK → usuarios.id)',
+            last_seen DATETIME NOT NULL COMMENT 'Última fecha/hora de actividad registrada'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        COMMENT='Presencia en línea: una fila por usuario logueado (usuarios en línea)'
     """)
     db.commit()
 
@@ -598,16 +607,17 @@ def asegurar_tabla_game_preguntas():
     cursor = db.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS game_preguntas (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            texto_pregunta VARCHAR(300) NOT NULL,
-            opcion_a_texto VARCHAR(200) NOT NULL,
-            opcion_a_area VARCHAR(100) NOT NULL,
-            opcion_b_texto VARCHAR(200) NOT NULL,
-            opcion_b_area VARCHAR(100) NOT NULL,
-            activo TINYINT(1) DEFAULT 1,
-            orden INT DEFAULT 0,
-            fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador de la pregunta',
+            texto_pregunta VARCHAR(300) NOT NULL COMMENT 'Enunciado de la pregunta',
+            opcion_a_texto VARCHAR(200) NOT NULL COMMENT 'Texto de la opción A',
+            opcion_a_area VARCHAR(100) NOT NULL COMMENT 'Área que suma la opción A',
+            opcion_b_texto VARCHAR(200) NOT NULL COMMENT 'Texto de la opción B',
+            opcion_b_area VARCHAR(100) NOT NULL COMMENT 'Área que suma la opción B',
+            activo TINYINT(1) DEFAULT 1 COMMENT '1 = visible en el juego',
+            orden INT DEFAULT 0 COMMENT 'Orden de aparición',
+            fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de alta'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        COMMENT='Preguntas del juego "Descubre tu Carrera"'
     """)
     db.commit()
 
@@ -621,15 +631,16 @@ def asegurar_tabla_password_resets():
     cursor = db.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS password_resets (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            email VARCHAR(255) NOT NULL,
-            codigo VARCHAR(6) NOT NULL,
-            usado TINYINT(1) DEFAULT 0,
-            expira_en DATETIME NOT NULL,
-            fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del registro',
+            email VARCHAR(255) NOT NULL COMMENT 'Email del usuario (FK lógica → usuarios.email)',
+            codigo VARCHAR(6) NOT NULL COMMENT 'Código PIN de 6 dígitos',
+            usado TINYINT(1) DEFAULT 0 COMMENT '1 = código ya utilizado',
+            expira_en DATETIME NOT NULL COMMENT 'Fecha de expiración del código',
+            fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación',
             KEY idx_email (email),
             KEY idx_codigo (codigo)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        COMMENT='Códigos PIN de recuperación de contraseña'
     """)
     db.commit()
 
@@ -643,12 +654,13 @@ def asegurar_tabla_comentarios():
     cursor = db.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS comentarios (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            nombre VARCHAR(100) DEFAULT NULL,
-            email VARCHAR(100) DEFAULT NULL,
-            mensaje TEXT DEFAULT NULL,
-            fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del comentario',
+            nombre VARCHAR(100) DEFAULT NULL COMMENT 'Nombre del remitente',
+            email VARCHAR(100) DEFAULT NULL COMMENT 'Email del remitente',
+            mensaje TEXT DEFAULT NULL COMMENT 'Contenido del mensaje',
+            fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de envío'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        COMMENT='Mensajes enviados desde el formulario de contacto'
     """)
     db.commit()
 
@@ -662,11 +674,12 @@ def asegurar_tabla_areas():
     cursor = db.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS areas (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            nombre VARCHAR(100) NOT NULL,
-            descripcion TEXT DEFAULT NULL,
-            icono VARCHAR(50) DEFAULT NULL,
-            color VARCHAR(20) DEFAULT NULL
+            id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del área',
+            nombre VARCHAR(100) NOT NULL COMMENT 'Nombre del área profesional',
+            descripcion TEXT DEFAULT NULL COMMENT 'Descripción del área',
+            icono VARCHAR(50) DEFAULT NULL COMMENT 'Ícono asociado',
+            color VARCHAR(20) DEFAULT NULL COMMENT 'Color representativo'
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        COMMENT='Áreas profesionales del test y de las carreras'
     """)
     db.commit()

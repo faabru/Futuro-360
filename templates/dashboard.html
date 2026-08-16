@@ -338,7 +338,7 @@
             <div class="history-card h-100">
                 <div class="history-header">
                     <h5><i class="bi bi-journal-check text-primary me-2"></i>Historial de Tests Recientes</h5>
-                    <a href="{{ url_for('vocacional.mis_resultados') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                    <a href="{{ url_for('vocacional.mis_resultados') }}" class="btn btn-outline-primary rounded-pill px-3">
                         Ver todo el historial <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
@@ -355,7 +355,7 @@
                         </div>
                         <div class="text-end flex-shrink-0">
                             <small class="text-muted d-block"><i class="bi bi-clock me-1"></i>{{ test.fecha_realizacion.strftime('%d/%m/%Y') }}</small>
-                            <a href="{{ url_for('vocacional.ver_resultado', resultado_id=test.id) }}" class="btn btn-sm btn-outline-primary rounded-pill mt-1 px-3">Ver informe</a>
+                            <a href="{{ url_for('vocacional.ver_resultado', resultado_id=test.id) }}" class="btn btn-outline-primary rounded-pill mt-1 px-3">Ver informe</a>
                         </div>
                     </div>
                     {% endfor %}
@@ -375,7 +375,7 @@
             <div class="history-card h-100">
                 <div class="history-header">
                     <h5><i class="bi bi-newspaper text-primary me-2"></i>Últimas novedades</h5>
-                    <a href="{{ url_for('noticias.noticias') }}" class="btn btn-link btn-sm p-0 text-decoration-none">Ver todas</a>
+                    <a href="{{ url_for('noticias.noticias') }}" class="btn btn-link btn-sm p-2 text-decoration-none">Ver todas</a>
                 </div>
                 <div class="p-3 d-flex flex-column gap-2">
                     {% if noticias_recientes %}

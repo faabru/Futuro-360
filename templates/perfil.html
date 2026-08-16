@@ -37,7 +37,7 @@
             <div class="text-center">
                 <p class="text-danger small mb-3">Si eliminas tu cuenta, todos tus resultados se borrarán permanentemente.</p>
                 <form action="{{ url_for('auth.eliminar_usuario') }}" method="POST" onsubmit="return confirm('¿Estás seguro de eliminar tu cuenta? Esta acción es irreversible.');">
-                    <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar mi Cuenta</button>
+                    <button type="submit" class="btn btn-outline-danger">Eliminar mi Cuenta</button>
                 </form>
             </div>
         </div>

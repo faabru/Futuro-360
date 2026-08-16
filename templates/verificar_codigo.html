@@ -1,6 +1,18 @@
 {% extends "base.html" %} 
 {% block content %} 
 
+<style>
+    /* En pantallas angostas (≤400px) los 6 inputs del código se comprimen:
+       se reduce la tipografía y el padding para que el dígito no se recorte. */
+    @media (max-width: 400px) {
+        .digit-input {
+            font-size: 1.15rem !important;
+            padding: 0.4rem 0.25rem !important;
+            height: 52px !important;
+        }
+    }
+</style>
+
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-md-6 col-lg-5">

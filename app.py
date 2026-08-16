@@ -11,8 +11,13 @@ Flask y arrancar el servidor. Toda la lógica está organizada en módulos:
 - ``blueprints/``          → rutas del sitio público y del panel admin.
 
 La fábrica ``create_app`` registra los blueprints y los manejadores globales
-(before_request y errores). Al ejecutar el archivo se inicia la sincronización
-de imágenes (una sola vez) y luego el servidor de desarrollo.
+(before_request y errores). La instancia ``app`` se crea a nivel de módulo
+para que cualquier servidor WSGI (``python app.py``, ``flask run``, gunicorn
+vía ``Procfile``, waitress, etc.) la importe directamente.
+
+En producción se sirve con **gunicorn** (ver ``Procfile``) y el arranque
+directo con ``python app.py`` queda como modo de desarrollo con
+``debug=False`` (no se expone el debugger de Werkzeug).
 """
 
 import time
@@ -120,11 +125,11 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    print("=== INICIANDO APLICACIÓN FLASK ===")
+    print("=== INICIANDO FUTURO 360 ===")
     with app.app_context():
-        # Las tablas y el juego ya se sincronizaron en create_app(); aquí solo
-        # se asocian las imágenes locales que falten (una sola vez por arranque).
-        print("Ejecutando sincronización de imágenes...")
+        print("Sincronizando imágenes...")
         sincronizar_imagenes()
-        print("Sincronización completada. Iniciando servidor...")
-    app.run(debug=True)
+        print("Listo. Iniciando servidor...")
+    # debug=False en producción para no exponer el debugger de Werkzeug.
+    # Gunicorn ignora este flag, pero es buena práctica dejarlo en False.
+    app.run(debug=False)

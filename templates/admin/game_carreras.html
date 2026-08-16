@@ -75,50 +75,6 @@
                             </button>
                         </td>
                     </tr>
-
-                    <div class="modal fade" id="editarGameModal{{ item.id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form action="{{ url_for('admin_juego.editar_game_carrera', id=item.id) }}" method="POST">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title fw-bold">Editar tarjeta del juego</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label fw-bold">Título en la tarjeta</label>
-                                            <input type="text" name="titulo_card" class="form-control" value="{{ item.titulo_card }}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label fw-bold">Descripción breve</label>
-                                            <textarea name="descripcion_card" class="form-control" rows="3" required>{{ item.descripcion_card }}</textarea>
-                                        </div>
-                                        <hr>
-                                        <div class="mb-3">
-                                            <label class="form-label fw-bold">Textos de los 3 botones del juego</label>
-                                            <p class="text-muted small mb-2">Son los botones que ven los usuarios al descubrir esta carrera. Personalizá el texto de cada uno.</p>
-                                            <div class="input-group mb-2">
-                                                <span class="input-group-text">🔴 No</span>
-                                                <input type="text" name="boton_no" class="form-control" value="{{ item.boton_no or 'No es lo mío' }}" maxlength="50">
-                                            </div>
-                                            <div class="input-group mb-2">
-                                                <span class="input-group-text">🔵 Info</span>
-                                                <input type="text" name="boton_info" class="form-control" value="{{ item.boton_info or 'Info' }}" maxlength="50">
-                                            </div>
-                                            <div class="input-group mb-2">
-                                                <span class="input-group-text">🟢 Sí</span>
-                                                <input type="text" name="boton_yes" class="form-control" value="{{ item.boton_yes or 'Me interesa' }}" maxlength="50">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="admin-btn-primary">Guardar</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                     {% else %}
                     <tr>
                         <td colspan="5"><div class="admin-empty"><i class="bi bi-mortarboard"></i>No hay carreras vinculadas al juego. Creá una carrera nueva desde el admin.</div></td>
@@ -128,4 +84,52 @@
             </table>
         </div>
     </div>
+
+    {# Modales de edición: se renderizan FUERA de la tabla (HTML válido).
+       Cada modal se identifica con editarGameModal{{ item.id }}. #}
+    {% for item in items %}
+    <div class="modal fade" id="editarGameModal{{ item.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form action="{{ url_for('admin_juego.editar_game_carrera', id=item.id) }}" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Editar tarjeta del juego</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Título en la tarjeta</label>
+                            <input type="text" name="titulo_card" class="form-control" value="{{ item.titulo_card }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Descripción breve</label>
+                            <textarea name="descripcion_card" class="form-control" rows="3" required>{{ item.descripcion_card }}</textarea>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Textos de los 3 botones del juego</label>
+                            <p class="text-muted small mb-2">Son los botones que ven los usuarios al descubrir esta carrera. Personalizá el texto de cada uno.</p>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text">🔴 No</span>
+                                <input type="text" name="boton_no" class="form-control" value="{{ item.boton_no or 'No es lo mío' }}" maxlength="50">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text">🔵 Info</span>
+                                <input type="text" name="boton_info" class="form-control" value="{{ item.boton_info or 'Info' }}" maxlength="50">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text">🟢 Sí</span>
+                                <input type="text" name="boton_yes" class="form-control" value="{{ item.boton_yes or 'Me interesa' }}" maxlength="50">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="admin-btn-primary">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 {% endblock %}
