@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import boton_volver %}
 
 {% block content %}
 {% set fallback_carreras = {
@@ -94,6 +95,10 @@
 
 <!-- SECCIÓN PRINCIPAL: GUÍA DE CARRERAS -->
 <div class="container py-5">
+
+    <div class="mb-4">
+        {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
+    </div>
 
     <!-- ENCABEZADO -->
     <div class="row mb-5">

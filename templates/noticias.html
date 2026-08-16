@@ -1,8 +1,13 @@
 {% extends 'base.html' %} 
+{% from 'macros.html' import boton_volver %}
 {% block content %} 
 
 <div class="page-hero-bg container-fluid py-5">
   <div class="container">
+
+    <div class="mb-4">
+        {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
+    </div>
 
     <!-- encabezado del area de noticias -->
     <div class="row mb-5 text-center">
