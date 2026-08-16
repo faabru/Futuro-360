@@ -637,12 +637,14 @@ html[data-theme="dark"] #preloader {
 /* --- FONDO GRADIENTE DE PÁGINA (NOTICIAS, ETC.) --- */
 .page-hero-bg {
     min-height: 100vh;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    /* Fondo transparente: deja visible la imagen de fondo del body
+       (body-modo-sol.png / body-modo-noche.png) en modo claro y oscuro. */
+    background: transparent;
     transition: background 0.3s ease;
 }
 
 html[data-theme="dark"] .page-hero-bg {
-    background: linear-gradient(135deg, #0B1620 0%, #13232E 100%);
+    background: transparent;
 }
 
 /* --- IMAGEN DE CARRERA (DETALLE) --- */
