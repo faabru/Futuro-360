@@ -12,15 +12,17 @@ import io
 import json
 import re
 import traceback
+from datetime import datetime
 
 from flask import (Blueprint, Response, flash, g, redirect, render_template,
-                   request, url_for)
+                   request, send_file, url_for)
 from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.units import mm
-from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
-                                TableStyle)
+from reportlab.lib.units import cm, mm
+from reportlab.platypus import (HRFlowable, Paragraph, SimpleDocTemplate,
+                                Spacer, Table, TableStyle)
 
 from core.decoradores import requiere_login
 from database_handler import obtener_db
@@ -230,6 +232,292 @@ def ver_resultado(resultado_id):
 
 
 # --- INFORME PDF DEL RESULTADO VOCACIONAL (mejora TFI: reportes en PDF) ---
+def generar_pdf_resultado(resultado, usuario):
+    """
+    Genera un informe PDF profesional del resultado del test vocacional.
+    Diseño moderno con cabecera de color, secciones bien definidas y tipografía limpia.
+    """
+    buffer = io.BytesIO()
+
+    # ── Configuración del documento ──
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=2*cm,
+        leftMargin=2*cm,
+        topMargin=2*cm,
+        bottomMargin=2*cm,
+        title=f"Informe Vocacional — {usuario['nombre']}",
+        author="Futuro 360",
+        subject="Resultado del Test Vocacional"
+    )
+
+    # ── Paleta de colores ──
+    AZUL_PRIMARIO   = colors.HexColor('#1a56db')   # azul principal
+    AZUL_OSCURO     = colors.HexColor('#1e3a5f')   # encabezado
+    AZUL_CLARO      = colors.HexColor('#e8f0fe')   # fondo suave
+    GRIS_TEXTO      = colors.HexColor('#374151')   # texto principal
+    GRIS_SUAVE      = colors.HexColor('#6b7280')   # texto secundario
+    VERDE_EXITO     = colors.HexColor('#059669')   # destacado positivo
+    BLANCO          = colors.white
+
+    # ── Estilos ──
+    styles = getSampleStyleSheet()
+
+    estilo_nombre = ParagraphStyle(
+        'nombre', fontSize=22, fontName='Helvetica-Bold',
+        textColor=BLANCO, alignment=TA_LEFT, leading=28
+    )
+    estilo_subtitulo_header = ParagraphStyle(
+        'subtitulo_header', fontSize=11, fontName='Helvetica',
+        textColor=colors.HexColor('#bfdbfe'), alignment=TA_LEFT, leading=16
+    )
+    estilo_area = ParagraphStyle(
+        'area', fontSize=28, fontName='Helvetica-Bold',
+        textColor=AZUL_PRIMARIO, alignment=TA_CENTER, leading=36
+    )
+    estilo_seccion = ParagraphStyle(
+        'seccion', fontSize=13, fontName='Helvetica-Bold',
+        textColor=AZUL_OSCURO, alignment=TA_LEFT, leading=18,
+        spaceBefore=12, spaceAfter=6
+    )
+    estilo_cuerpo = ParagraphStyle(
+        'cuerpo', fontSize=10, fontName='Helvetica',
+        textColor=GRIS_TEXTO, alignment=TA_LEFT, leading=16
+    )
+    estilo_nota = ParagraphStyle(
+        'nota', fontSize=9, fontName='Helvetica-Oblique',
+        textColor=GRIS_SUAVE, alignment=TA_LEFT, leading=14
+    )
+    estilo_pie = ParagraphStyle(
+        'pie', fontSize=8, fontName='Helvetica',
+        textColor=GRIS_SUAVE, alignment=TA_CENTER, leading=12
+    )
+
+    # ── Parsear el desglose de puntajes ──
+    puntajes = {}
+    try:
+        import json as _json
+        detalle_data = _json.loads(resultado.get('detalle', '{}'))
+        detalle_texto = detalle_data.get('texto', '')
+        # Extraer puntajes del texto "Área: N pts"
+        import re
+        matches = re.findall(r'([^:,]+):\s*(\d+)\s*pts', detalle_texto)
+        puntajes = {m[0].strip(): int(m[1]) for m in matches}
+    except Exception:
+        pass
+
+    area_principal = resultado.get('area_profesional_sugerida', 'Sin determinar')
+    notas = resultado.get('notas_personales', '')
+    fecha_test = resultado.get('fecha_realizacion', datetime.now())
+    if hasattr(fecha_test, 'strftime'):
+        fecha_str = fecha_test.strftime('%d de %B de %Y')
+    else:
+        fecha_str = str(fecha_test)
+
+    # ── Contenido del PDF ──
+    elementos = []
+
+    # ╔══════════════════════════════╗
+    # ║  CABECERA con fondo azul     ║
+    # ╚══════════════════════════════╝
+    datos_header = [
+        [
+            Paragraph("Futuro 360", estilo_nombre),
+            Paragraph(f"Fecha: {fecha_str}", ParagraphStyle(
+                'fecha', fontSize=9, fontName='Helvetica',
+                textColor=colors.HexColor('#bfdbfe'), alignment=TA_RIGHT
+            ))
+        ],
+        [
+            Paragraph("Informe de Orientación Vocacional", estilo_subtitulo_header),
+            ''
+        ],
+        [
+            Paragraph(f"Estudiante: {usuario.get('nombre', '')}", ParagraphStyle(
+                'est', fontSize=10, fontName='Helvetica',
+                textColor=BLANCO, alignment=TA_LEFT
+            )),
+            ''
+        ],
+    ]
+    tabla_header = Table(datos_header, colWidths=[13*cm, 4*cm])
+    tabla_header.setStyle(TableStyle([
+        ('BACKGROUND',  (0,0), (-1,-1), AZUL_OSCURO),
+        ('TEXTCOLOR',   (0,0), (-1,-1), BLANCO),
+        ('TOPPADDING',  (0,0), (-1,-1), 16),
+        ('BOTTOMPADDING',(0,-1),(-1,-1), 16),
+        ('LEFTPADDING', (0,0), (-1,-1), 20),
+        ('RIGHTPADDING',(0,0), (-1,-1), 16),
+        ('ROUNDEDCORNERS', [8]),
+        ('SPAN', (0,1), (-1,1)),
+        ('SPAN', (0,2), (-1,2)),
+    ]))
+    elementos.append(tabla_header)
+    elementos.append(Spacer(1, 0.5*cm))
+
+    # ╔══════════════════════════════╗
+    # ║  ÁREA PRINCIPAL DESTACADA    ║
+    # ╚══════════════════════════════╝
+    tabla_area = Table(
+        [[Paragraph("Área de Mayor Afinidad", ParagraphStyle(
+            'lbl', fontSize=10, fontName='Helvetica',
+            textColor=AZUL_PRIMARIO, alignment=TA_CENTER
+          ))],
+         [Paragraph(area_principal, estilo_area)],
+         [Paragraph(
+            "Esta es el área profesional con mayor afinidad según tus respuestas.",
+            ParagraphStyle('sub', fontSize=9, fontName='Helvetica',
+            textColor=GRIS_SUAVE, alignment=TA_CENTER)
+          )]],
+        colWidths=[17*cm]
+    )
+    tabla_area.setStyle(TableStyle([
+        ('BACKGROUND',    (0,0), (-1,-1), AZUL_CLARO),
+        ('TOPPADDING',    (0,0), (-1,-1), 14),
+        ('BOTTOMPADDING', (0,-1),(-1,-1), 14),
+        ('LEFTPADDING',   (0,0), (-1,-1), 12),
+        ('RIGHTPADDING',  (0,0), (-1,-1), 12),
+        ('ROUNDEDCORNERS', [8]),
+    ]))
+    elementos.append(tabla_area)
+    elementos.append(Spacer(1, 0.4*cm))
+
+    # ╔══════════════════════════════╗
+    # ║  DESGLOSE DE PUNTAJES        ║
+    # ╚══════════════════════════════╝
+    if puntajes:
+        elementos.append(Paragraph("Desglose por área", estilo_seccion))
+        elementos.append(HRFlowable(width="100%", thickness=1,
+                                     color=AZUL_CLARO, spaceAfter=8))
+
+        max_puntaje = max(puntajes.values()) if puntajes else 1
+        filas_puntajes = []
+
+        for area, pts in sorted(puntajes.items(), key=lambda x: x[1], reverse=True):
+            porcentaje = int((pts / max_puntaje) * 100)
+            es_principal = area == area_principal
+
+            # Barra de progreso como tabla anidada
+            barra_llena  = int(porcentaje * 0.10)  # max 10 celdas
+            barra_vacia  = 10 - barra_llena
+
+            celdas_barra = ([['']*barra_llena + ['']*barra_vacia])
+            barra = Table(celdas_barra, colWidths=[0.8*cm]*10, rowHeights=[0.35*cm])
+            estilo_barra = [
+                ('BACKGROUND', (0,0), (barra_llena-1, 0), AZUL_PRIMARIO if not es_principal else VERDE_EXITO),
+                ('BACKGROUND', (barra_llena,0), (-1,0), colors.HexColor('#e5e7eb')),
+                ('ROUNDEDCORNERS', [4]),
+                ('LEFTPADDING',  (0,0),(-1,-1), 0),
+                ('RIGHTPADDING', (0,0),(-1,-1), 1),
+                ('TOPPADDING',   (0,0),(-1,-1), 0),
+                ('BOTTOMPADDING',(0,0),(-1,-1), 0),
+            ]
+            barra.setStyle(TableStyle(estilo_barra))
+
+            nombre_estilo = ParagraphStyle(
+                'an', fontSize=10,
+                fontName='Helvetica-Bold' if es_principal else 'Helvetica',
+                textColor=VERDE_EXITO if es_principal else GRIS_TEXTO
+            )
+            pts_estilo = ParagraphStyle(
+                'pts', fontSize=10, fontName='Helvetica-Bold',
+                textColor=AZUL_PRIMARIO, alignment=TA_RIGHT
+            )
+
+            filas_puntajes.append([
+                Paragraph(f"{'★ ' if es_principal else ''}{area}", nombre_estilo),
+                barra,
+                Paragraph(f"{pts} pts", pts_estilo)
+            ])
+
+        tabla_puntajes = Table(filas_puntajes, colWidths=[6*cm, 8.5*cm, 2.5*cm])
+        tabla_puntajes.setStyle(TableStyle([
+            ('ROWBACKGROUNDS', (0,0), (-1,-1), [BLANCO, colors.HexColor('#f9fafb')]),
+            ('TOPPADDING',    (0,0), (-1,-1), 8),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+            ('LEFTPADDING',   (0,0), (-1,-1), 8),
+            ('RIGHTPADDING',  (0,0), (-1,-1), 8),
+            ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+            ('LINEBELOW',     (0,0), (-1,-2), 0.5, colors.HexColor('#e5e7eb')),
+        ]))
+        elementos.append(tabla_puntajes)
+        elementos.append(Spacer(1, 0.4*cm))
+
+    # ╔══════════════════════════════╗
+    # ║  NOTAS PERSONALES            ║
+    # ╚══════════════════════════════╝
+    if notas and notas.strip():
+        elementos.append(Paragraph("Mis notas personales", estilo_seccion))
+        elementos.append(HRFlowable(width="100%", thickness=1,
+                                     color=AZUL_CLARO, spaceAfter=8))
+        tabla_notas = Table(
+            [[Paragraph(notas, estilo_cuerpo)]],
+            colWidths=[17*cm]
+        )
+        tabla_notas.setStyle(TableStyle([
+            ('BACKGROUND',    (0,0), (-1,-1), colors.HexColor('#f0fdf4')),
+            ('TOPPADDING',    (0,0), (-1,-1), 12),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 12),
+            ('LEFTPADDING',   (0,0), (-1,-1), 14),
+            ('RIGHTPADDING',  (0,0), (-1,-1), 14),
+            ('ROUNDEDCORNERS', [6]),
+        ]))
+        elementos.append(tabla_notas)
+        elementos.append(Spacer(1, 0.4*cm))
+
+    # ╔══════════════════════════════╗
+    # ║  PRÓXIMOS PASOS              ║
+    # ╚══════════════════════════════╝
+    elementos.append(Paragraph("¿Qué sigue?", estilo_seccion))
+    elementos.append(HRFlowable(width="100%", thickness=1,
+                                 color=AZUL_CLARO, spaceAfter=8))
+
+    pasos = [
+        ("1", "Explorá las carreras del área en el catálogo de Futuro 360."),
+        ("2", "Usá el buscador por carrera para ver universidades en Tucumán."),
+        ("3", "Consultá los requisitos de ingreso de cada facultad."),
+        ("4", "Si tenés dudas, repetí el test en otro momento para comparar resultados."),
+    ]
+    for num, texto in pasos:
+        fila = Table([[
+            Paragraph(num, ParagraphStyle('num', fontSize=11, fontName='Helvetica-Bold',
+                      textColor=BLANCO, alignment=TA_CENTER)),
+            Paragraph(texto, estilo_cuerpo)
+        ]], colWidths=[0.8*cm, 16.2*cm])
+        fila.setStyle(TableStyle([
+            ('BACKGROUND',    (0,0), (0,0), AZUL_PRIMARIO),
+            ('TOPPADDING',    (0,0), (-1,-1), 6),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+            ('LEFTPADDING',   (0,0), (-1,-1), 8),
+            ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+            ('ROUNDEDCORNERS', [4]),
+        ]))
+        elementos.append(fila)
+        elementos.append(Spacer(1, 0.2*cm))
+
+    # ╔══════════════════════════════╗
+    # ║  PIE DE PÁGINA               ║
+    # ╚══════════════════════════════╝
+    elementos.append(Spacer(1, 0.6*cm))
+    elementos.append(HRFlowable(width="100%", thickness=0.5, color=AZUL_CLARO))
+    elementos.append(Spacer(1, 0.2*cm))
+    elementos.append(Paragraph(
+        f"Futuro 360 · Plataforma de Orientación Vocacional · Tucumán, Argentina · "
+        f"futuro-360.onrender.com · {datetime.now().strftime('%Y')}",
+        estilo_pie
+    ))
+    elementos.append(Paragraph(
+        "Este informe es orientativo y no reemplaza el asesoramiento profesional.",
+        estilo_pie
+    ))
+
+    # ── Construir el PDF ──
+    doc.build(elementos)
+    buffer.seek(0)
+    return buffer
+
+
 @bp.route('/resultado/<int:resultado_id>/pdf')
 @requiere_login
 def descargar_resultado_pdf(resultado_id):
@@ -237,143 +525,25 @@ def descargar_resultado_pdf(resultado_id):
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
     cursor.execute("""
-        SELECT r.*, t.fecha_realizacion, u.nombre, u.apellido, u.email
+        SELECT r.*, t.fecha_realizacion
         FROM resultados r
         JOIN tests t ON r.test_id = t.id
-        JOIN usuarios u ON t.usuario_id = u.id
         WHERE r.id = %s AND t.usuario_id = %s
     """, (resultado_id, g.user['id']))
     resultado = cursor.fetchone()
 
     if not resultado:
-        flash('No se pudo encontrar el resultado solicitado.', 'danger')
+        flash('Resultado no encontrado.', 'danger')
         return redirect(url_for('vocacional.mis_resultados'))
 
-    # Interpretar el detalle (misma lógica que la vista del resultado).
-    detalle_texto = resultado['detalle'] or ''
-    resumen_puntuacion = []
-    try:
-        detalle_data = json.loads(detalle_texto)
-        detalle_texto = detalle_data.get('texto', detalle_texto)
-        resumen_puntuacion = detalle_data.get('resumen', [])
-    except Exception:
-        pass
-    if not resumen_puntuacion:
-        partes = re.findall(r'([\w\s]+?):\s*(\d+)\s*pts', detalle_texto)
-        resumen_puntuacion = [{"area": a.strip(), "puntos": int(p)} for a, p in partes]
+    buffer = generar_pdf_resultado(resultado, g.user)
 
-    # Carreras sugeridas para el área dominante.
-    area = resultado['area_profesional_sugerida']
-    cursor.execute(
-        """SELECT c.nombre, c.area_profesional FROM carreras c
-           LEFT JOIN carrera_areas ca ON ca.carrera_id = c.id
-           WHERE c.area_profesional = %s OR ca.area = %s
-           GROUP BY c.id LIMIT 6""",
-        (area, area))
-    carreras = cursor.fetchall()
-    if not carreras:
-        cursor.execute(
-            "SELECT nombre, area_profesional FROM carreras WHERE area_profesional LIKE %s LIMIT 6",
-            (f"%{area}%",))
-        carreras = cursor.fetchall()
-
-    # --- Construcción del PDF ---
-    estilos = getSampleStyleSheet()
-    titulo = ParagraphStyle('Titulo', parent=estilos['Title'], fontName='Helvetica-Bold',
-                            fontSize=18, textColor=colors.HexColor('#142B38'), spaceAfter=4)
-    subtitulo = ParagraphStyle('Subtitulo', parent=estilos['Normal'], fontName='Helvetica',
-                               fontSize=11, textColor=colors.HexColor('#2F8EAB'), spaceAfter=2)
-    cabecera = ParagraphStyle('Cabecera', parent=estilos['Normal'], fontName='Helvetica-Bold',
-                              fontSize=9, textColor=colors.HexColor('#2F8EAB'), spaceAfter=8)
-    normal = ParagraphStyle('Normal', parent=estilos['Normal'], fontName='Helvetica',
-                            fontSize=10, leading=15, textColor=colors.HexColor('#1F2937'))
-    seccion = ParagraphStyle('Seccion', parent=estilos['Heading2'], fontName='Helvetica-Bold',
-                             fontSize=13, textColor=colors.HexColor('#142B38'), spaceBefore=16, spaceAfter=8)
-
-    story = []
-    story.append(Paragraph('FUTURO 360', titulo))
-    story.append(Paragraph('Orientación Vocacional · Tucumán, Argentina', subtitulo))
-    story.append(Spacer(1, 10))
-    story.append(Paragraph('Informe del resultado vocacional', cabecera))
-    story.append(Paragraph(f"<b>Estudiante:</b> {resultado['nombre'] or ''} {resultado['apellido'] or ''}",
-                           normal))
-    story.append(Paragraph(f"<b>Email:</b> {resultado['email']}", normal))
-    fecha = resultado['fecha_realizacion']
-    if hasattr(fecha, 'strftime'):
-        fecha = fecha.strftime('%d/%m/%Y')
-    story.append(Paragraph(f"<b>Fecha del test:</b> {fecha}", normal))
-    story.append(Spacer(1, 12))
-
-    # Área dominante (caja destacada).
-    tbl_area = Table([[Paragraph(f"ÁREA PROFESIONAL DOMINANTE", cabecera),
-                       Paragraph(f"<font color='#2F8EAB'><b>{area}</b></font>", normal)]],
-                     colWidths=[100 * mm, 90 * mm])
-    tbl_area.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#EFF7FA')),
-        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#2F8EAB')),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('TOPPADDING', (0, 0), (-1, -1), 10),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-    ]))
-    story.append(tbl_area)
-
-    # Interpretación.
-    story.append(Paragraph('Interpretación del resultado', seccion))
-    story.append(Paragraph(detalle_texto or 'Sin detalle disponible.', normal))
-
-    # Afinidad por área.
-    if resumen_puntuacion:
-        story.append(Paragraph('Afinidad por área', seccion))
-        total_pts = sum(float(i.get('puntos', 0) or 0) for i in resumen_puntuacion) or 1
-        filas = [['Área', 'Puntos', 'Participación']]
-        for i in resumen_puntuacion:
-            pts = float(i.get('puntos', 0) or 0)
-            pct = (pts / total_pts) * 100
-            filas.append([str(i.get('area', '')), f"{pts:g}", f"{pct:.1f}%"])
-        tbl = Table(filas, colWidths=[90 * mm, 50 * mm, 50 * mm])
-        tbl.setStyle(TableStyle([
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#142B38')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#F3F6F9')]),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#D1D9E0')),
-            ('ALIGN', (1, 0), (-1, -1), 'CENTER'),
-            ('FONTSIZE', (0, 0), (-1, -1), 9),
-            ('TOPPADDING', (0, 0), (-1, -1), 7),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
-        ]))
-        story.append(tbl)
-
-    # Carreras recomendadas.
-    story.append(Paragraph('Carreras recomendadas', seccion))
-    if carreras:
-        for i, c in enumerate(carreras, 1):
-            story.append(Paragraph(f"{i}. <b>{c['nombre']}</b> — {c['area_profesional']}", normal))
-    else:
-        story.append(Paragraph('Consultá el catálogo de carreras en la plataforma.', normal))
-
-    # Notas personales.
-    if resultado.get('notas_personales'):
-        story.append(Paragraph('Notas personales', seccion))
-        story.append(Paragraph(resultado['notas_personales'], normal))
-
-    story.append(Spacer(1, 24))
-    story.append(Paragraph('Informe generado por Futuro 360 · Orientación Vocacional',
-                           ParagraphStyle('Footer', parent=estilos['Normal'], fontName='Helvetica',
-                                          fontSize=8, textColor=colors.HexColor('#9CA3AF'))))
-
-    buf = io.BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=A4,
-                            leftMargin=22 * mm, rightMargin=22 * mm,
-                            topMargin=20 * mm, bottomMargin=20 * mm,
-                            title='Informe Vocacional Futuro 360',
-                            author='Futuro 360')
-    doc.build(story)
-    buf.seek(0)
-
-    return Response(buf, mimetype='application/pdf', headers={
-        'Content-Disposition': f'attachment; filename=resultado_vocacional_{resultado_id}.pdf'
-    })
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name=f"informe-vocacional-{g.user['nombre'].replace(' ','-')}.pdf",
+        mimetype='application/pdf'
+    )
 
 
 @bp.route('/mis-resultados')
