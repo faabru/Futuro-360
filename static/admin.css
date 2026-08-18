@@ -7,11 +7,12 @@
     --admin-primary: #2F8EAB;
     --admin-primary-dark: #142B38;
     --admin-accent: #42A6C2;
-    --admin-bg: #F4F7FA;
+    --admin-bg: #E9F2F7;
     --admin-surface: #FFFFFF;
-    --admin-border: #E6EDF1;
+    --admin-border: #C9DEE9;
+    --admin-border-strong: #A9CEDA;
     --admin-text: #1E2A38;
-    --admin-text-muted: #64748B;
+    --admin-text-muted: #5B7186;
     --admin-sidebar-w: 264px;
     --admin-radius: 14px;
     --admin-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.12);
@@ -321,6 +322,8 @@
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
+    background: #F3F8FB;
+    border-radius: var(--admin-radius) var(--admin-radius) 0 0;
 }
 
 .admin-card-header h5 {
@@ -457,9 +460,9 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
 }
 
 .admin-card .table thead th {
-    background: #F8FAFC;
+    background: #E4EFF5;
     border-bottom: 1px solid var(--admin-border);
-    color: var(--admin-text-muted);
+    color: var(--admin-primary-dark);
     font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -1167,7 +1170,10 @@ html[data-theme="dark"] .filter-bar {
     background: var(--admin-surface);
     border-color: var(--admin-border);
 }
-html[data-theme="dark"] .admin-card-header { border-bottom-color: var(--admin-border); }
+html[data-theme="dark"] .admin-card-header {
+    border-bottom-color: var(--admin-border);
+    background: #101E2A;
+}
 html[data-theme="dark"] .admin-card-header h5 { color: var(--admin-text); }
 html[data-theme="dark"] .game-option-card .text-dark { color: var(--admin-text) !important; }
 
