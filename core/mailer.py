@@ -50,6 +50,39 @@ def generar_codigo() -> str:
     return str(random.randint(100000, 999999))
 
 
+def enviar_mensaje_soporte(nombre: str, email: str, asunto: str, mensaje: str) -> None:
+    """
+    Envía al dueño (ADMIN_EMAIL) un correo de notificación con el mensaje
+    recibido desde el centro de soporte.
+
+    Lanza una excepción si el envío falla (quien llama la decide manejar).
+    """
+    resend.Emails.send({
+        "from": Config.MAIL_FROM,
+        "to": [Config.ADMIN_EMAIL],
+        "subject": f"📬 Mensaje de soporte - {asunto}",
+        "html": f"""
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 10px; overflow: hidden;">
+            <div style="background-color: #0d6efd; padding: 20px; text-align: center; color: white;">
+                <h1 style="margin: 0;">🎓 Futuro 360 · Centro de Soporte</h1>
+            </div>
+            <div style="padding: 30px; line-height: 1.6; color: #333;">
+                <h2 style="color: #0d6efd;">Nuevo mensaje de soporte</h2>
+                <p><strong>Asunto:</strong> {asunto}</p>
+                <p><strong>Nombre:</strong> {nombre}</p>
+                <p><strong>Email:</strong> {email}</p>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 16px 0;">
+                <p><strong>Mensaje:</strong></p>
+                <div style="background-color: #f8f9fa; padding: 16px; border-radius: 6px; color: #333;">{mensaje}</div>
+            </div>
+            <div style="background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 0.75em; color: #999;">
+                Futuro 360 · Orientación Vocacional · Tucumán, Argentina
+            </div>
+        </div>
+        """,
+    })
+
+
 def enviar_codigo_reset(destinatario: str, codigo: str, panel: bool = False) -> None:
     """
     Envía un correo con el código de verificación.

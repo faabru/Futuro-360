@@ -8,6 +8,7 @@ Rutas legales y de soporte del sitio público.
 
 from flask import Blueprint, render_template, request
 
+from core.mailer import enviar_mensaje_soporte
 from database_handler import obtener_db
 
 bp = Blueprint('legal', __name__)
@@ -32,6 +33,12 @@ def soporte():
                 (f"[{asunto}] {nombre}", email, mensaje)
             )
             db.commit()
+            # Notificar al dueño (ADMIN_EMAIL) por correo. Si el envío falla,
+            # el mensaje igual quedó guardado en la BD.
+            try:
+                enviar_mensaje_soporte(nombre, email, asunto, mensaje)
+            except Exception:
+                pass
             enviado = True
 
     return render_template('sitio/soporte.html', enviado=enviado)
