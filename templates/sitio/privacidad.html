@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import boton_volver %}
+{% block content %}
+
+<div class="page-hero-bg container-fluid py-5">
+  <div class="container">
+
+    <div class="mb-4">
+        {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
+    </div>
+
+    <!-- encabezado -->
+    <div class="row mb-5 text-center">
+      <div class="col-lg-8 mx-auto">
+        <h1 class="display-4 fw-bold text-primary mb-3">
+          <i class="bi bi-shield-lock me-2"></i>Política de Privacidad
+        </h1>
+        <p class="text-muted">Última actualización: agosto 2026</p>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+
+          <div class="mb-4">
+            <h4 class="fw-bold text-primary">1. Información que recopilamos</h4>
+            <p class="text-muted">Al registrarte en Futuro 360 recopilamos:</p>
+            <ul class="text-muted">
+              <li>Datos de registro: nombre completo y dirección de email.</li>
+              <li>Datos del test: respuestas al test vocacional y resultados generados.</li>
+              <li>Datos de uso: páginas visitadas y tiempo de sesión (no se comparten con terceros).</li>
+            </ul>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="fw-bold text-primary">2. Cómo usamos tu información</h4>
+            <p class="text-muted">Utilizamos tu información para:</p>
+            <ul class="text-muted">
+              <li>Brindarte acceso a la plataforma y guardar tu historial de resultados.</li>
+              <li>Enviarte emails relacionados con tu cuenta (recuperación de contraseña).</li>
+              <li>Mejorar la experiencia de la plataforma.</li>
+            </ul>
+            <p class="text-muted fw-semibold mb-0">
+              No vendemos ni compartimos tu información personal con terceros.
+            </p>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="fw-bold text-primary">3. Almacenamiento y seguridad</h4>
+            <p class="text-muted mb-0">
+              Tus datos se almacenan en servidores seguros con conexión cifrada SSL/TLS. Las
+              contraseñas se almacenan con hash criptográfico y nunca en texto plano.
+            </p>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="fw-bold text-primary">4. Tus derechos</h4>
+            <p class="text-muted">Tenés derecho a:</p>
+            <ul class="text-muted">
+              <li>Acceder a tus datos personales desde tu perfil.</li>
+              <li>Modificar tu información en cualquier momento.</li>
+              <li>Eliminar tu cuenta y todos tus datos desde la sección de perfil.</li>
+              <li>Solicitar información sobre el uso de tus datos contactándonos.</li>
+            </ul>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="fw-bold text-primary">5. Cookies</h4>
+            <p class="text-muted mb-0">
+              Futuro 360 usa cookies de sesión estrictamente necesarias para mantener tu inicio de
+              sesión activo. No utilizamos cookies de seguimiento ni publicidad.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="fw-bold text-primary">6. Contacto</h4>
+            <p class="text-muted mb-0">
+              Para ejercer tus derechos o realizar consultas sobre privacidad, contactanos en nuestro
+              <a href="{{ url_for('legal.soporte') }}">centro de soporte</a>.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

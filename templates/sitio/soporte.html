@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import boton_volver %}
+{% block content %}
+
+<div class="page-hero-bg container-fluid py-5">
+  <div class="container">
+
+    <div class="mb-4">
+        {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
+    </div>
+
+    <!-- encabezado del centro de soporte -->
+    <div class="row mb-5 text-center">
+      <div class="col-lg-8 mx-auto">
+        <h1 class="display-4 fw-bold text-primary mb-3">
+          <i class="bi bi-headset me-2"></i>Centro de Soporte
+        </h1>
+        <p class="lead text-muted">
+          Estamos aquí para ayudarte. Envianos tu consulta y te respondemos a la brevedad.
+        </p>
+      </div>
+    </div>
+
+    <!-- tarjetas de contacto rápido -->
+    <div class="row g-4 mb-5 justify-content-center">
+      <div class="col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 text-center bg-white">
+          <div class="icon-box-footer mx-auto mb-3">
+            <i class="bi bi-envelope-fill"></i>
+          </div>
+          <h5 class="fw-bold mb-1">Email</h5>
+          <span class="text-muted">Futuro360@gmail.com</span>
+        </div>
+      </div>
+      <div class="col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 text-center bg-white">
+          <div class="icon-box-footer mx-auto mb-3">
+            <i class="bi bi-telephone-fill"></i>
+          </div>
+          <h5 class="fw-bold mb-1">Teléfono</h5>
+          <span class="text-muted">+54 3865 647 991</span>
+        </div>
+      </div>
+      <div class="col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 text-center bg-white">
+          <div class="icon-box-footer mx-auto mb-3">
+            <i class="bi bi-geo-alt-fill"></i>
+          </div>
+          <h5 class="fw-bold mb-1">Ubicación</h5>
+          <span class="text-muted">Tucumán, Argentina</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+        {% if enviado %}
+          <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+            <div class="bg-success bg-opacity-10 p-3 rounded-circle d-inline-block mx-auto mb-3">
+              <i class="bi bi-check-circle-fill text-success fs-1"></i>
+            </div>
+            <h3 class="fw-bold text-success mb-2">¡Mensaje enviado!</h3>
+            <p class="text-muted mb-0">
+              Gracias por contactarnos. Te responderemos a la brevedad en {{ request.form.get('email') }}.
+            </p>
+          </div>
+        {% else %}
+          <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+            <h3 class="fw-bold mb-4 text-center">
+              <i class="bi bi-chat-left-dots me-2 text-primary"></i>Envianos tu consulta
+            </h3>
+            <form method="POST" action="{{ url_for('legal.soporte') }}" class="row g-3">
+              <div class="col-md-6">
+                <label for="nombre" class="form-label fw-semibold">Nombre completo</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" required
+                       placeholder="Tu nombre y apellido">
+              </div>
+              <div class="col-md-6">
+                <label for="email" class="form-label fw-semibold">Email</label>
+                <input type="email" class="form-control" id="email" name="email" required
+                       placeholder="tucorreo@ejemplo.com">
+              </div>
+              <div class="col-12">
+                <label for="asunto" class="form-label fw-semibold">Tipo de consulta</label>
+                <select class="form-select" id="asunto" name="asunto">
+                  <option value="Consulta general" selected>Consulta general</option>
+                  <option value="Problema técnico">Problema técnico</option>
+                  <option value="Sugerencia">Sugerencia</option>
+                  <option value="Reporte de error">Reporte de error</option>
+                  <option value="Consulta sobre carreras">Consulta sobre carreras</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label for="mensaje" class="form-label fw-semibold">Mensaje</label>
+                <textarea class="form-control" id="mensaje" name="mensaje" rows="5" required
+                          placeholder="Contanos en qué podemos ayudarte..."></textarea>
+              </div>
+              <div class="col-12 text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm fw-bold">
+                  <i class="bi bi-send me-2"></i>Enviar mensaje
+                </button>
+              </div>
+            </form>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

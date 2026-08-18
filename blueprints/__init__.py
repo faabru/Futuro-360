@@ -22,6 +22,7 @@ def registrar_blueprints(app):
     from blueprints.sitio.carreras import bp as sitio_carreras_bp
     from blueprints.sitio.juegos import bp as sitio_juegos_bp
     from blueprints.sitio.noticias import bp as sitio_noticias_bp
+    from blueprints.sitio.legal import bp as sitio_legal_bp
 
     from blueprints.admin.auth import bp as admin_auth_bp
     from blueprints.admin.dashboard import bp as admin_dashboard_bp
@@ -35,6 +36,7 @@ def registrar_blueprints(app):
 
     for bp in [sitio_auth_bp, sitio_principal_bp, sitio_vocacional_bp,
                sitio_carreras_bp, sitio_juegos_bp, sitio_noticias_bp,
+               sitio_legal_bp,
                admin_auth_bp, admin_dashboard_bp, admin_usuarios_bp,
                admin_orientaciones_bp, admin_carreras_bp, admin_preguntas_bp,
                admin_juego_bp, admin_noticias_bp, admin_reportes_bp]:

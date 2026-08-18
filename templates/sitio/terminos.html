@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import boton_volver %}
+{% block content %}
+
+<div class="page-hero-bg container-fluid py-5">
+  <div class="container">
+
+    <div class="mb-4">
+        {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
+    </div>
+
+    <!-- encabezado -->
+    <div class="row mb-5 text-center">
+      <div class="col-lg-8 mx-auto">
+        <h1 class="display-4 fw-bold text-primary mb-3">
+          <i class="bi bi-file-earmark-text me-2"></i>Términos y Condiciones
+        </h1>
+        <p class="text-muted">Última actualización: agosto 2026</p>
+      </div>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+
+          <div class="mb-4">
+            <h4 class="fw-bold text-primary">1. Aceptación de los términos</h4>
+            <p class="text-muted mb-0">
+              Al acceder y utilizar la plataforma Futuro 360, el usuario acepta los presentes
+              términos y condiciones. Si no está de acuerdo con alguno de ellos, le solicitamos
+              que no utilice nuestros servicios.
+            </p>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="fw-bold text-primary">2. Descripción del servicio</h4>
+            <p class="text-muted mb-0">
+              Futuro 360 es una plataforma de orientación vocacional que ofrece herramientas para
+              ayudar a los estudiantes a identificar sus intereses y conectarlos con carreras
+              universitarias disponibles en la provincia de Tucumán, Argentina.
+            </p>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="fw-bold text-primary">3. Uso de la plataforma</h4>
+            <p class="text-muted">El usuario se compromete a:</p>
+            <ul class="text-muted">
+              <li>Proporcionar información veraz al registrarse.</li>
+              <li>No utilizar la plataforma para fines ilegales o no autorizados.</li>
+              <li>Mantener la confidencialidad de sus credenciales de acceso.</li>
+              <li>No compartir su cuenta con terceros.</li>
+            </ul>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="fw-bold text-primary">4. Propiedad intelectual</h4>
+            <p class="text-muted mb-0">
+              Todo el contenido de Futuro 360, incluyendo textos, imágenes, logos y código fuente,
+              es propiedad de sus creadores. Queda prohibida su reproducción sin autorización expresa.
+            </p>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="fw-bold text-primary">5. Limitación de responsabilidad</h4>
+            <p class="text-muted mb-0">
+              Los resultados del test vocacional son orientativos y no constituyen asesoramiento
+              profesional. Futuro 360 no se responsabiliza por las decisiones académicas o laborales
+              que el usuario tome basándose en los resultados obtenidos.
+            </p>
+          </div>
+
+          <div class="mb-4">
+            <h4 class="fw-bold text-primary">6. Modificaciones</h4>
+            <p class="text-muted mb-0">
+              Futuro 360 se reserva el derecho de modificar estos términos en cualquier momento.
+              Las modificaciones entran en vigencia desde su publicación en esta página.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="fw-bold text-primary">7. Contacto</h4>
+            <p class="text-muted mb-0">
+              Para consultas sobre estos términos, contactanos en nuestro
+              <a href="{{ url_for('legal.soporte') }}">centro de soporte</a> o al email
+              Futuro360@gmail.com.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
