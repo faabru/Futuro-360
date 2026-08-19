@@ -634,6 +634,9 @@ def asegurar_tabla_password_resets():
     """
     Crea la tabla `password_resets` si no existe. Guarda los códigos PIN de
     recuperación de contraseña.
+
+    El PIN se guarda HASHEADO (werkzeug: scrypt/pbkdf2), no en claro, por eso
+    la columna `codigo` es VARCHAR(255) y no VARCHAR(6).
     """
     db = obtener_db()
     cursor = db.cursor()
@@ -641,15 +644,24 @@ def asegurar_tabla_password_resets():
         CREATE TABLE IF NOT EXISTS password_resets (
             id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador del registro',
             email VARCHAR(255) NOT NULL COMMENT 'Email del usuario (FK lógica → usuarios.email)',
-            codigo VARCHAR(6) NOT NULL COMMENT 'Código PIN de 6 dígitos',
+            codigo VARCHAR(255) NOT NULL COMMENT 'Hash del código PIN (werkzeug, no en claro)',
             usado TINYINT(1) DEFAULT 0 COMMENT '1 = código ya utilizado',
             expira_en DATETIME NOT NULL COMMENT 'Fecha de expiración del código',
             fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación',
             KEY idx_email (email),
             KEY idx_codigo (codigo)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        COMMENT='Códigos PIN de recuperación de contraseña'
+        COMMENT='Códigos PIN de recuperación de contraseña (hash)'
     """)
+    # Migración para bases ya creadas: la columna solía ser VARCHAR(6) (PIN en
+    # claro). Ahora guardamos el hash, que no entra en 6 caracteres.
+    try:
+        cursor.execute(
+            "ALTER TABLE password_resets MODIFY COLUMN codigo VARCHAR(255) "
+            "NOT NULL COMMENT 'Hash del código PIN (werkzeug, no en claro)'")
+    except Exception:
+        # La columna ya tiene el tamaño correcto o la tabla no existía aún.
+        pass
     db.commit()
 
 

@@ -6,13 +6,17 @@ logout y recuperación de contraseña del panel en 3 pasos (igual que el sitio,
 pero con correo y plantillas propios).
 """
 
-from flask import (Blueprint, flash, redirect, render_template, request,
-                   session, url_for)
+from flask import (Blueprint, current_app, flash, redirect, render_template,
+                   request, session, url_for)
 from werkzeug.security import check_password_hash, generate_password_hash
 
+import requests
+
+from config import Config
 from core.decoradores import es_usuario_dueño
-from core.mailer import enviar_codigo_reset, generar_codigo
 from core.migraciones import asegurar_cuenta_dueño
+from core.seguridad import (minutos_restantes_bloqueo, permite_intento,
+                            registrar_exito, registrar_fallo)
 from database_handler import obtener_db
 
 bp = Blueprint('admin_auth', __name__)
@@ -28,6 +32,15 @@ def admin_login():
         usuario = request.form.get('usuario', '').strip()
         password = request.form.get('password', '')
 
+        # Anti fuerza bruta: bloquea el email tras varios intentos fallidos.
+        if not permite_intento('admin_login', usuario):
+            flash(
+                f'Demasiados intentos fallidos. Esperá '
+                f'{minutos_restantes_bloqueo("admin_login", usuario)} minutos '
+                f'e intentá de nuevo.',
+                'danger')
+            return render_template('admin/login.html')
+
         asegurar_cuenta_dueño()
         db = obtener_db()
         cursor = db.cursor(dictionary=True)
@@ -39,6 +52,7 @@ def admin_login():
         )
         admin = cursor.fetchone()
         if admin and check_password_hash(admin['password'], password):
+            registrar_exito('admin_login', usuario)
             session['admin_autenticado'] = True
             session['admin_id'] = admin['id']
             session['admin_nombre'] = f"{admin['nombre']} {admin.get('apellido', '')}".strip()
@@ -47,6 +61,7 @@ def admin_login():
             flash('¡Bienvenido al panel de administración!', 'success')
             return redirect(url_for('admin.admin_dashboard'))
 
+        registrar_fallo('admin_login', usuario)
         flash('Email o contraseña incorrectos.', 'danger')
 
     return render_template('admin/login.html')
@@ -77,22 +92,34 @@ def admin_recuperar_password():
             (email,)
         )
         if cursor.fetchone():
-            codigo = generar_codigo()
+            # El PIN y el envío del correo los genera el servidor Node de
+            # recuperación ("recuperacion de contraseña/server.js"), que usa
+            # Resend. Acá solo le pedimos el PIN para guardarlo en la BD.
+            try:
+                resp = requests.post(
+                    f"{Config.NODE_RECUPERACION_URL}/recuperar",
+                    json={'email': email},
+                    timeout=15)
+                resp.raise_for_status()
+                codigo = str(resp.json().get('pin', ''))
+            except Exception as e:
+                current_app.logger.error('Error al pedir PIN al server Node: %s', e)
+                flash('No se pudo enviar el correo. Intentá de nuevo en unos minutos.', 'danger')
+                return render_template('admin/recuperar_password.html')
+
+            if not codigo:
+                flash('No se pudo enviar el correo. Intentá de nuevo en unos minutos.', 'danger')
+                return render_template('admin/recuperar_password.html')
 
             cursor2 = db.cursor()
             cursor2.execute("DELETE FROM password_resets WHERE email = %s", (email,))
             cursor2.execute("""
                 INSERT INTO password_resets (email, codigo, expira_en)
                 VALUES (%s, %s, DATE_ADD(NOW(), INTERVAL 15 MINUTE))
-            """, (email, codigo))
+            """, (email, generate_password_hash(codigo)))
             db.commit()
 
-            try:
-                enviar_codigo_reset(email, codigo, panel=True)
-                flash('✅ Te enviamos un código de 6 dígitos a tu correo. Revisá también spam.', 'success')
-            except Exception as e:
-                flash(f'Error al enviar el email: {str(e)}', 'danger')
-                return render_template('admin/recuperar_password.html')
+            flash('✅ Te enviamos un código de 6 dígitos a tu correo. Revisá también spam.', 'success')
         else:
             # Siempre el mismo mensaje por seguridad.
             flash('✅ Si el correo está registrado, recibirás el código en breve.', 'info')
@@ -115,25 +142,36 @@ def admin_verificar_codigo():
         digitos = [request.form.get(f'd{i}', '') for i in range(1, 7)]
         codigo_ingresado = ''.join(digitos).strip()
 
+        # Anti fuerza bruta: máximo 5 intentos por email y bloqueo de 15 min.
+        if not permite_intento('codigo_admin', email):
+            flash(
+                f'Demasiados intentos. Esperá '
+                f'{minutos_restantes_bloqueo("codigo_admin", email)} minutos.',
+                'danger')
+            return render_template('admin/verificar_codigo.html', email=email)
+
         db = obtener_db()
         cursor = db.cursor(dictionary=True)
         cursor.execute("""
             SELECT * FROM password_resets
-            WHERE email = %s AND codigo = %s AND usado = 0 AND expira_en > NOW()
-        """, (email, codigo_ingresado))
+            WHERE email = %s AND usado = 0 AND expira_en > NOW()
+            ORDER BY id DESC LIMIT 1
+        """, (email,))
         reset = cursor.fetchone()
 
-        if reset:
+        # El PIN se guardó hasheado: se valida con check_password_hash.
+        if reset and check_password_hash(reset['codigo'], codigo_ingresado):
+            registrar_exito('codigo_admin', email)
             cursor2 = db.cursor()
             cursor2.execute(
                 "UPDATE password_resets SET usado = 1 WHERE id = %s",
-                (reset['id'],)
-            )
+                (reset['id'],))
             db.commit()
             session['admin_reset_verificado'] = True
             flash('✅ Código verificado. Ahora podés crear tu nueva contraseña.', 'success')
             return redirect(url_for('admin_auth.admin_nueva_password'))
         else:
+            registrar_fallo('codigo_admin', email)
             flash('❌ Código incorrecto o expirado. Intentá de nuevo o solicitá uno nuevo.', 'danger')
 
     return render_template('admin/verificar_codigo.html', email=email)

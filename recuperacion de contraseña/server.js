@@ -1,6 +1,8 @@
 const express = require("express");
 const { Resend } = require("resend");
-require("dotenv").config();
+const path = require("path");
+// Cargar el .env desde la raíz del proyecto (donde vive RESEND_API_KEY).
+require("dotenv").config({ path: path.resolve(__dirname, "..", ".env") });
 
 const app = express();
 
