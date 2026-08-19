@@ -14,10 +14,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 import re
 
-import requests
-
-from config import Config
 from core.decoradores import requiere_login
+from core.nodo_recuperacion import solicitar_pin
 from core.seguridad import (minutos_restantes_bloqueo, permite_intento,
                             registrar_exito, registrar_fallo)
 from database_handler import obtener_db
@@ -164,20 +162,11 @@ def recuperar_password():
         if usuario:
             # El PIN y el envío del correo los genera el servidor Node de
             # recuperación ("recuperacion de contraseña/server.js"), que usa
-            # Resend. Acá solo le pedimos el PIN para guardarlo en la BD.
+            # Resend. Si el servidor no está activo, la app lo levanta solo.
             try:
-                resp = requests.post(
-                    f"{Config.NODE_RECUPERACION_URL}/recuperar",
-                    json={'email': email},
-                    timeout=15)
-                resp.raise_for_status()
-                codigo = str(resp.json().get('pin', ''))
+                codigo = solicitar_pin(email)
             except Exception as e:
                 current_app.logger.error('Error al pedir PIN al server Node: %s', e)
-                flash('No se pudo enviar el correo. Intentá de nuevo en unos minutos.', 'danger')
-                return render_template('recuperar_password.html')
-
-            if not codigo:
                 flash('No se pudo enviar el correo. Intentá de nuevo en unos minutos.', 'danger')
                 return render_template('recuperar_password.html')
 
