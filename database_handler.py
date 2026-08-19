@@ -8,6 +8,17 @@ Provee la conexión a MySQL y su ciclo de vida dentro de Flask:
 
 Patrón utilizado: una única conexión por petición, que evita abrir/cerrar
 conexiones en cada consulta y previene errores de "connection lost".
+
+LIMITACIÓN DE CONEXIONES (Aiven free tier):
+El plan gratuito de Aiven MySQL permite un máximo de ~10 conexiones
+simultáneas. El Procfile arranca gunicorn con 2 workers; cada worker abarca
+varias requests y cada request abre UNA conexión a la BD (guardada en ``g``
+y cerrada al final del request). Con ese diseño la app nunca abre más de
+unas pocas conexiones a la vez y no supera el límite.
+
+Si en el futuro se aumenta el número de workers (más tráfico), habrá que
+subir el límite de conexiones de Aiven o migrar a un pool de conexiones
+(ver el ejemplo comentado abajo en ``obtener_db``).
 """
 
 import mysql.connector
@@ -53,6 +64,40 @@ def obtener_db():
     if 'db' not in g:
         g.db = mysql.connector.connect(**_config_conexion(Config.DB_NAME))
     return g.db
+
+
+# ══════════════════════════════════════════════════════════════════════
+# ESCALAR A UN POOL DE CONEXIONES (cuando se necesite)
+# ══════════════════════════════════════════════════════════════════════
+# Actualmente hay una conexión por request (simple y suficiente para el
+# tráfico actual con Aiven free tier). Si el tráfico crece y hay que
+# escalar, se puede migrar a un pool reutilizando conexiones. Ejemplo
+# (descomentar y reemplazar la lógica de obtener_db):
+#
+#   from mysql.connector import pooling
+#
+#   _pool = None
+#
+#   def _crear_pool():
+#       global _pool
+#       if _pool is None:
+#           _pool = pooling.MySQLConnectionPool(
+#               pool_name='futuro360',
+#               pool_size=5,          # acompasar al límite de Aiven
+#               ** _config_conexion(Config.DB_NAME),
+#           )
+#       return _pool
+#
+#   def obtener_db():
+#       if 'db' not in g:
+#           g.db = _crear_pool().get_connection()
+#       return g.db
+#
+# IMPORTANTE: con pool, las conexiones se devuelven al cerrarlas (db.close()
+# la libera al pool en vez de cerrarla), así que cerrar_db() sigue valiendo.
+# Además, aumentar workers de gunicorn requiere subir pool_size y el límite
+# de conexiones en Aiven (plan pagado) para no agotar conexiones.
+# ══════════════════════════════════════════════════════════════════════
 
 
 def asegurar_base_datos():

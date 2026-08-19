@@ -76,12 +76,20 @@ def asegurar_cuenta_dueño():
         cursor.execute("ALTER TABLE usuarios ADD COLUMN es_dueño TINYINT(1) DEFAULT 0")
 
     # Credenciales legacy del panel (por si ya existían de versiones anteriores).
+    # SEGURIDAD: las contraseñas SIEMPRE se guardan hasheadas con
+    # generate_password_hash (Werkzeug). Nunca se escribe texto plano en la BD.
+    # El hash_legacy de admin_config ya es un hash; si por cualquier motivo ese
+    # valor no tiene formato de hash (p. ej. quedó texto plano de una versión
+    # muy vieja), se regenera con generate_password_hash en vez de migrarlo.
     hash_legacy = None
     try:
         cursor.execute("SELECT email, password_hash FROM admin_config")
         for fila in cursor.fetchall():
             if fila['email'] == Config.ADMIN_EMAIL:
-                hash_legacy = fila['password_hash']
+                legacy = fila['password_hash']
+                if legacy and legacy.startswith(
+                        ('scrypt:', 'pbkdf2:', 'sha256:', 'sha1:', 'md5:')):
+                    hash_legacy = legacy
     except Exception:
         pass  # La tabla legacy ya no existe: nada que migrar.
 

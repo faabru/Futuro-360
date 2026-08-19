@@ -76,15 +76,49 @@ def _materializar_ca(contenido_pem):
 class Config:
     """Configuración base de la aplicación Flask."""
 
+    # --- Entorno de ejecución ---------------------------------------------
+    # Cómo saber si estamos en producción:
+    #   - FLASK_ENV=production (convención estándar de Flask) o APP_ENV=production
+    #   - Variable RENDER="true" que Render define automáticamente en sus
+    #     servidores (ver https://render.com/docs/env-vars).
+    #   - Variable RAILWAY_RUNTIME que Railway define automáticamente.
+    # En cualquier otro caso se asume desarrollo.
+    FLASK_ENV = os.getenv('FLASK_ENV') or os.getenv('APP_ENV') or 'development'
+    ES_PRODUCCION = (
+        FLASK_ENV == 'production'
+        or os.getenv('RENDER') == 'true'
+        or bool(os.getenv('RAILWAY_RUNTIME'))
+    )
+
     # --- Seguridad -------------------------------------------------------
     # Clave usada por Flask para firmar las cookies de sesión. En producción
     # DEBE definirse en el archivo .env con un valor largo y aleatorio.
+    #
+    # Si no está definida:
+    #   - En PRODUCCIÓN se detiene el arranque con un error claro (igual que
+    #     ADMIN_PASSWORD). Generar una aleatoria en memoria aquí invalidaría
+    #     todas las sesiones en cada reinicio/deploy (los usuarios quedarían
+    #     deslogueados) y es inseguro: la clave cambiaría en cada worker.
+    #   - En DESARROLLO se usa una clave temporal, pero con un warning muy
+    #     visible para que no llegue a producción sin configurar.
     SECRET_KEY = os.getenv('SECRET_KEY')
     if not SECRET_KEY:
+        if ES_PRODUCCION:
+            raise ValueError(
+                "SECRET_KEY no está definida en el .env y el entorno es "
+                "producción. Agregá SECRET_KEY=<valor_largo_aleatorio> al "
+                ".env (puede generarse con: python -c "
+                "'import secrets; print(secrets.token_hex(32))'). "
+                "Sin ella, las sesiones se invalidan en cada reinicio."
+            )
         import secrets
         SECRET_KEY = secrets.token_hex(32)
-        print("[config] SECRET_KEY no definida en .env — usando clave temporal. "
-              "Las sesiones no persistirán entre reinicios.")
+        # Sin emojis ni tildes raras que rompan consolas legacy (cp1252).
+        print("\n[config] ADVERTENCIA: SECRET_KEY no definida en .env. "
+              "Se usó una clave temporal en memoria. "
+              "Esto es SOLO para desarrollo: las sesiones se invalidan en "
+              "cada reinicio. En producción el arranque fallará hasta que "
+              "definas SECRET_KEY en el .env.\n")
 
     # --- Base de datos (MySQL) -------------------------------------------
     DB_HOST = os.getenv('DB_HOST', 'localhost')

@@ -74,7 +74,13 @@ def create_app():
             return
         db = obtener_db()
         cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id_usuario,))
+        # SOLO las columnas que la sesión necesita (base.html, dashboard,
+        # perfil, decoradores, etc.). Se excluye 'password' para no traer el
+        # hash a memoria en cada request.
+        cursor.execute(
+            "SELECT id, nombre, apellido, email, es_dueño FROM usuarios "
+            "WHERE id = %s",
+            (id_usuario,))
         g.user = cursor.fetchone()
         if g.user is None:
             return
@@ -88,6 +94,15 @@ def create_app():
                     "INSERT INTO sesiones_activas (user_id, last_seen) "
                     "VALUES (%s, NOW()) ON DUPLICATE KEY UPDATE last_seen = NOW()",
                     (id_usuario,))
+                # TRADE-OFF: el DELETE de sesiones viejas se ejecuta en el
+                # before_request de cada usuario activo (máx. 1 vez/60s por
+                # usuario). Es simple y suficiente para el tráfico actual, pero
+                # suma una escritura a la BD por cada request "heartbeat".
+                # Si el tráfico crece, conviene mover esta limpieza a un job
+                # periódico (APScheduler/CRON) que ejecute:
+                #   DELETE FROM sesiones_activas
+                #   WHERE last_seen < NOW() - INTERVAL 5 MINUTE
+                # y dejar aquí solo el INSERT/UPDATE (ON DUPLICATE KEY).
                 cursor.execute(
                     "DELETE FROM sesiones_activas "
                     "WHERE last_seen < NOW() - INTERVAL 5 MINUTE")
