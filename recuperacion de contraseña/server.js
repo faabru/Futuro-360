@@ -10,6 +10,12 @@ app.use(express.json());
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Health check: la app Python pregunta si el server está activo. No dispara
+// ningún email (GET, responde 200 con JSON).
+app.get("/health", (req, res) => {
+    res.status(200).json({ ok: true });
+});
+
 app.post("/recuperar", async (req, res) => {
 
     try {
@@ -21,7 +27,7 @@ app.post("/recuperar", async (req, res) => {
 
         // enviar correo
         await resend.emails.send({
-            from: "onboarding@resend.dev",
+            from: process.env.RESEND_FROM || "onboarding@resend.dev",
             to: email,
             subject: "Recuperación de contraseña",
             html: `
@@ -44,6 +50,6 @@ app.post("/recuperar", async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
+app.listen(process.env.PORT || 3000, () => {
     console.log("Servidor funcionando");
 });
