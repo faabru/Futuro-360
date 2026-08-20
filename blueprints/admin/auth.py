@@ -11,8 +11,8 @@ from flask import (Blueprint, current_app, flash, redirect, render_template,
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from core.decoradores import es_usuario_dueño
+from core.mailer import PIN_EXPIRA_MINUTOS, solicitar_pin
 from core.migraciones import asegurar_cuenta_dueño
-from core.nodo_recuperacion import solicitar_pin
 from core.seguridad import (minutos_restantes_bloqueo, permite_intento,
                             registrar_exito, registrar_fallo)
 from database_handler import obtener_db
@@ -102,9 +102,9 @@ def admin_recuperar_password():
 
             cursor2 = db.cursor()
             cursor2.execute("DELETE FROM password_resets WHERE email = %s", (email,))
-            cursor2.execute("""
+            cursor2.execute(f"""
                 INSERT INTO password_resets (email, codigo, expira_en)
-                VALUES (%s, %s, DATE_ADD(NOW(), INTERVAL 15 MINUTE))
+                VALUES (%s, %s, DATE_ADD(NOW(), INTERVAL {PIN_EXPIRA_MINUTOS} MINUTE))
             """, (email, generate_password_hash(codigo)))
             db.commit()
 

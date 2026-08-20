@@ -198,10 +198,6 @@ class Config:
     # --- Email (Resend) ----------------------------------------------------
     RESEND_API_KEY = os.getenv('RESEND_API_KEY')
     MAIL_FROM = os.getenv('MAIL_FROM', 'Futuro 360 <onboarding@resend.dev>')
-    # Servidor Node que envía los correos de recuperación de contraseña
-    # (prototipo en "recuperacion de contraseña/server.js"). El flujo Python
-    # le pide el PIN y él se encarga de generar el código y mandarlo por Resend.
-    NODE_RECUPERACION_URL = os.getenv('NODE_RECUPERACION_URL', 'http://localhost:3000')
 
     # --- Cloudinary (imágenes y videos) --------------------------------------
     # Si las tres claves están definidas, las subidas van a Cloudinary y se

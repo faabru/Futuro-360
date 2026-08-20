@@ -1,14 +1,10 @@
-# Futuro 360 - Blueprint de Render (blueprint con 2 servicios).
+# Futuro 360 - Blueprint de Render (un único servicio web Flask).
 #
-# Servicio 1 (futuro360): la app Flask (gunicorn). Su variable
-#   NODE_RECUPERACION_URL apunta al Servicio 2 para la recuperación de
-#   contraseña por Resend.
-#
-# Servicio 2 (futuro360-node): el server Node (recuperacion de contraseña/
-#   server.js) que genera el PIN y lo envía por Resend.
+# La recuperación de contraseña y el soporte se envían desde Python con el
+# SDK de Resend (core/mailer.py): no hay segundo servicio Node.
 #
 # En el dashboard de Render hay que definir ademas (secrets, sync: false):
-#   SECRET_KEY, DB_URL/DB_* (Aiven), RESEND_API_KEY, MAIL_FROM, ADMIN_PASSWORD,
+#   SECRET_KEY, DB_* (Aiven), RESEND_API_KEY, MAIL_FROM, ADMIN_PASSWORD,
 #   y las de Cloudinary si se usan.
 services:
   - type: web
@@ -20,11 +16,6 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.14.0
-      - key: NODE_RECUPERACION_URL
-        fromService:
-          type: web
-          name: futuro360-node
-          property: url
       - key: SECRET_KEY
         sync: false
       - key: ADMIN_PASSWORD
@@ -48,19 +39,4 @@ services:
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
-        sync: false
-
-  - type: web
-    name: futuro360-node
-    runtime: node
-    rootDir: recuperacion de contraseña
-    buildCommand: npm install
-    startCommand: node server.js
-    healthCheckPath: /health
-    envVars:
-      - key: NODE_VERSION
-        value: 22.0.0
-      - key: RESEND_API_KEY
-        sync: false
-      - key: RESEND_FROM
         sync: false
