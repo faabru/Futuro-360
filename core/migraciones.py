@@ -322,6 +322,33 @@ def asegurar_contenido_referencia():
         print(f'[base] Error al preparar contenido de referencia: {e}')
 
 
+def condicion_fecha_segura(condicion) -> bool:
+    """
+    Valida que una condición SQL de filtrado de noticias sea segura para
+    concatenar en un query (whitelist estricta por expresión regular).
+
+    SOLO se permiten condiciones que operan sobre la columna `fecha` con:
+      - operadores de comparación (=, >=, <=, >, <),
+      - una fecha literal 'YYYY-MM-DD',
+      - CURDATE() o DATE_SUB(CURDATE(), INTERVAL N DAY) (presets fijos),
+      - y como máximo un AND con otra fecha literal (rango definido por el
+        admin en el panel, p. ej. "fecha >= '2024-01-01' AND fecha <= '2024-12-31'").
+
+    Cualquier otra construcción (subqueries, UNION, funciones arbitrarias,
+    más de una AND, etc.) se rechaza. Así la condición guardada en la BD por
+    un admin nunca puede convertirse en inyección SQL.
+    """
+    if not condicion or not isinstance(condicion, str):
+        return False
+    import re
+    return bool(re.fullmatch(
+        r"fecha\s*(>=|<=|=|>|<)\s*"
+        r"('[0-9]{4}-[0-9]{2}-[0-9]{2}'|CURDATE\(\)"
+        r"|DATE_SUB\(CURDATE\(\), INTERVAL [0-9]+ DAY\))"
+        r"(\s+AND\s+fecha\s*(>=|<=|=|>|<)\s*'[0-9]{4}-[0-9]{2}-[0-9]{2}')?",
+        condicion.strip()))
+
+
 def asegurar_tabla_orientaciones():
     """
     Crea la tabla de orientaciones (y la puente carrera_areas) si no existen

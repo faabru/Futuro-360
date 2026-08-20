@@ -12,6 +12,7 @@
             
             <!-- FORMULARIO DE ACCESO (POST) -->
             <form action="{{ url_for('auth.login') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <!-- CAMPO: CORREO ELECTRÓNICO -->
                 <div class="mb-4">
                     <label for="email" class="form-label small fw-800 text-uppercase text-muted">Correo Electrónico</label>

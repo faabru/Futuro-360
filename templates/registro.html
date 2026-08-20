@@ -12,6 +12,7 @@
             
             <!-- FORMULARIO DE CREACIÓN (POST) -->
             <form action="{{ url_for('auth.registro') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <!-- CAMPO: NOMBRE COMPLETO -->
                 <div class="mb-4">
                     <label for="nombre" class="form-label small fw-800 text-uppercase text-muted">Nombre Completo</label>

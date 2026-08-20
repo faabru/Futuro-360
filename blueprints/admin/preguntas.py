@@ -35,7 +35,10 @@ def admin_preguntas():
 @bp.route('/admin/preguntas/nueva', methods=['POST'])
 @requiere_admin
 def nueva_pregunta():
-    texto_pregunta = request.form['texto_pregunta']
+    texto_pregunta = request.form.get('texto_pregunta', '').strip()
+    if not texto_pregunta:
+        flash('El texto de la pregunta es obligatorio.', 'danger')
+        return redirect(url_for('admin_preguntas.admin_preguntas'))
     db = obtener_db()
     cursor = db.cursor()
     cursor.execute("INSERT INTO preguntas (texto_pregunta, area_profesional) VALUES (%s, %s)",

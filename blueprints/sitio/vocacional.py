@@ -14,8 +14,8 @@ import re
 import traceback
 from datetime import datetime
 
-from flask import (Blueprint, Response, flash, g, redirect, render_template,
-                   request, send_file, url_for)
+from flask import (Blueprint, Response, current_app, flash, g, redirect,
+                   render_template, request, send_file, url_for)
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import A4
@@ -142,7 +142,9 @@ def test():
         except Exception as e:
             traceback.print_exc()
             db.rollback()
-            flash(f'Error al guardar: {str(e)}', 'danger')
+            # No se expone el error interno al usuario (solo se registra en log).
+            current_app.logger.error('Error al guardar resultado del test: %s', e)
+            flash('No se pudo guardar tu resultado. Intentá de nuevo.', 'danger')
             return redirect(url_for('vocacional.test'))
 
     # GET: cargar preguntas con sus opciones.
@@ -567,6 +569,8 @@ def mis_resultados():
             texto = detalle_data.get('texto', item['detalle'])
         except Exception:
             texto = item['detalle']
+        # Seguridad contra None (si el JSON tiene "texto": null no romper).
+        texto = texto or item['detalle'] or ''
         item['detalle_texto'] = texto if len(texto) <= 160 else texto[:160].rsplit(' ', 1)[0] + '…'
     return render_template('mis_resultados.html', resultados=resultados)
 

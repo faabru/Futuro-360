@@ -91,6 +91,30 @@ class Config:
     )
 
     # --- Seguridad -------------------------------------------------------
+    # Cookies de sesión seguras:
+    #   - SESSION_COOKIE_SAMESITE='Lax': mitiga CSRF (el navegador no envía la
+    #     cookie en requests cross-site de tipo POST, solo en navegación
+    #     top-level GET).
+    #   - SESSION_COOKIE_HTTPONLY=True: la cookie no se puede leer desde JS
+    #     (mitiga robo de sesión por XSS).
+    #   - SESSION_COOKIE_SECURE: la cookie solo viaja por HTTPS. En producción
+    #     se fuerza True; en desarrollo local (http://localhost) queda False
+    #     para que la sesión funcione.
+    # Flask-WTF (CSRFProtect, ver app.py) protege todos los POST/PUT/PATCH/DELETE
+    # con un token por sesión. SESSION_COOKIE_SAMESITE='Lax' es una capa
+    # adicional de defensa en profundidad, no un sustituto del token CSRF.
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SECURE = ES_PRODUCCION
+
+    # Flask-WTF / CSRF: el token se regenera por sesión. Sin límite de tiempo
+    # (None) para que un usuario con la pestaña abierta no reciba 400/CSRF
+    # inválido al enviar un formulario después de 1 hora (default es 3600s).
+    # La cookie de sesión (que firma el token) ya expira con la sesión misma.
+    WTF_CSRF_TIME_LIMIT = None
+    # Si un request POST falla la validación CSRF, Flask-WTF devuelve 400.
+    WTF_CSRF_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE']
+
     # Clave usada por Flask para firmar las cookies de sesión. En producción
     # DEBE definirse en el archivo .env con un valor largo y aleatorio.
     #

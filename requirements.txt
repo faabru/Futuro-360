@@ -21,3 +21,5 @@ cloudinary==1.40.0
 gunicorn==25.3.0
 # Búsqueda web de universidades (DuckDuckGo).
 ddgs==9.14.4
+# Protección CSRF (tokens por formulario/AJAX). Trae wtforms como dependencia.
+flask-wtf==1.2.1

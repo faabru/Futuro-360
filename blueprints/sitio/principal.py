@@ -52,6 +52,8 @@ def dashboard():
             texto = detalle_data.get('texto', item['detalle'])
         except Exception:
             texto = item['detalle']
+        # Seguridad contra None (si el JSON tiene "texto": null no romper).
+        texto = texto or item['detalle'] or ''
         item['detalle_texto'] = texto if len(texto) <= 160 else texto[:160].rsplit(' ', 1)[0] + '…'
         historial.append(item)
 

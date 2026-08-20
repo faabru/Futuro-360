@@ -8,6 +8,9 @@
     <meta name="author" content="Futuro 360">
     <meta name="keywords" content="orientación, carrera, perfil profesional, test pro">
     <title>Futuro 360 </title>
+    {# Token CSRF para las llamadas AJAX (fetch): se lee desde JS y se envía
+       como cabecera X-CSRFToken en cada request POST. #}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {# --- TEMA (CLARO/OSCURO): se aplica antes de pintar para evitar parpadeo --- #}
     <script>
@@ -291,10 +294,41 @@
         })();
     </script>
 
+    {# --- CSRF AJAX: expone el token y lo incluye en todos los fetch() --- #}
+    <script>
+        (function () {
+            // Lee el token del meta tag presente en base.html.
+            var token = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+            // Guarda el token en window para que las páginas lo usen.
+            window.CSRF_TOKEN = token;
+
+            // Helper: devuelve los headers para un fetch() incluyendo el token
+            // si el método cambia estado (POST/PUT/PATCH/DELETE).
+            window.csrfHeaders = function (headers) {
+                headers = headers || {};
+                headers['X-CSRFToken'] = token;
+                return headers;
+            };
+
+            // Intercepta fetch() para agregar la cabecera CSRF automáticamente
+            // en toda llamada que no sea GET/HEAD/OPTIONS. Así cualquier
+            // fetch() de la app queda protegido sin tocar cada llamada.
+            var fetchOriginal = window.fetch;
+            window.fetch = function (url, options) {
+                options = options || {};
+                var method = (options.method || 'GET').toUpperCase();
+                if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+                    options.headers = window.csrfHeaders(options.headers || {});
+                }
+                return fetchOriginal.call(this, url, options);
+            };
+        })();
+    </script>
+
     {# --- HEARTBEAT: mantiene el estado "en línea" del usuario en tiempo real --- #}
     <script>
         setInterval(function () {
-            fetch('/heartbeat', { method: 'POST', keepalive: true })
+            fetch('/heartbeat', { method: 'POST', keepalive: true, headers: window.csrfHeaders() })
                 .catch(function () {});
         }, 30000);
     </script>

@@ -16,6 +16,7 @@
         <div class="admin-card">
             <div class="admin-card-body p-4 p-md-5">
                 <form method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-4">
                         <label for="nombre" class="form-label fw-bold">Nombre de la Carrera</label>
                         <input type="text" name="nombre" id="nombre" class="form-control form-control-lg" value="{{ (carrera.nombre or '') if carrera else '' }}" required placeholder="Ej: Ingeniería Informática">

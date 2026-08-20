@@ -196,6 +196,9 @@ def editar_carrera(id):
 def eliminar_carrera(id):
     db = obtener_db()
     cursor = db.cursor()
+    # Limpiar las áreas vinculadas: carrera_areas no tiene FK a carreras, así
+    # que se borran manualmente para no dejar filas huérfanas en el filtro.
+    cursor.execute("DELETE FROM carrera_areas WHERE carrera_id = %s", (id,))
     cursor.execute("DELETE FROM carreras WHERE id = %s", (id,))
     db.commit()
     flash('Carrera eliminada exitosamente.', 'info')

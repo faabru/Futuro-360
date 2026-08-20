@@ -23,11 +23,17 @@ directo con ``python app.py`` queda como modo de desarrollo con
 import time
 
 from flask import Flask, g, render_template, session, url_for
+from flask_wtf.csrf import CSRFProtect
 
 from blueprints import registrar_blueprints
 from config import Config
 from core.startup import sincronizar_imagenes, sincronizar_juego, sincronizar_tablas
 from database_handler import asegurar_base_datos, inicializar_app, obtener_db
+
+# Protección CSRF global: valida el token en todo request POST/PUT/PATCH/DELETE.
+# Cualquier endpoint que no pueda incluir el token (p. ej. /heartbeat) se
+# marca con @csrf.exempt de forma explícita y justificada.
+csrf = CSRFProtect()
 
 
 def create_app():
@@ -35,6 +41,10 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     app.secret_key = Config.SECRET_KEY
+
+    # Activa la protección CSRF global (junto con SESSION_COOKIE_SAMESITE='Lax'
+    # cubre el vector principal de CSRF sin romper los fetch() de la app).
+    csrf.init_app(app)
 
     # Cierre automático de la conexión a MySQL al terminar cada request.
     inicializar_app(app)

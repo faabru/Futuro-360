@@ -9,7 +9,7 @@ from flask import Blueprint, render_template, request
 
 from core.decoradores import requiere_login
 from core.migraciones import (asegurar_tabla_filtros_fecha, asegurar_tabla_fuentes,
-                              asegurar_tabla_orientaciones)
+                              asegurar_tabla_orientaciones, condicion_fecha_segura)
 from database_handler import obtener_db
 
 bp = Blueprint('noticias', __name__)
@@ -34,20 +34,15 @@ def noticias():
     params = []
 
     # Filtro por fecha: usa la condición guardada en la tabla filtros_fecha.
-    # Solo se aplican condiciones predefinidas (whitelist) para no concatenar
-    # SQL arbitrario guardado en la BD. Las condiciones válidas solo operan
-    # sobre la columna `fecha` con funciones de fecha de MySQL.
+    # Se valida con la whitelist estricta condicion_fecha_segura (la misma que
+    # usa el panel admin), que permite tanto los presets fijos como los rangos
+    # personalizados que el admin crea desde el panel. Así un filtro
+    # personalizado funciona igual en la página pública y en el panel.
     if filtro_fecha != 'todas':
         cursor.execute("SELECT condicion FROM filtros_fecha WHERE valor = %s", (filtro_fecha,))
         fila_fecha = cursor.fetchone()
         condicion = fila_fecha['condicion'] if fila_fecha else ''
-        condiciones_validas = {
-            'fecha = CURDATE()',
-            'fecha = DATE_SUB(CURDATE(), INTERVAL 1 DAY)',
-            'fecha >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)',
-            'fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)',
-        }
-        if condicion in condiciones_validas:
+        if condicion_fecha_segura(condicion):
             query += " AND " + condicion
 
     if filtro_fuente != 'todas':

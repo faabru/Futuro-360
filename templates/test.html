@@ -43,6 +43,7 @@
 
 <!-- Formulario oculto para el envío final -->
 <form id="final-form" action="{{ url_for('vocacional.test') }}" method="POST" style="display: none;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 </form>
 
 <style>

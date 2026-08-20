@@ -33,6 +33,7 @@
                         <div class="admin-badge admin-badge-muted m-1 p-2 d-inline-flex align-items-center">
                             <span class="fw-semibold text-primary me-2">[{{ op.area_profesional }}]</span> {{ op.texto_opcion }}
                             <form action="{{ url_for('admin_preguntas.eliminar_opcion_pregunta', id=op.id) }}" method="POST" class="ms-2 d-inline" data-ajax="delete" data-confirm="¿Estás seguro de eliminar esta opción?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="btn-close icon-btn-close" aria-label="Eliminar opción"></button>
                             </form>
                         </div>
@@ -40,6 +41,7 @@
                     </td>
                     <td class="text-end">
                         <form action="{{ url_for('admin_preguntas.eliminar_pregunta', id=p.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar esta pregunta y todas sus opciones?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
                                 <i class="bi bi-trash me-1"></i> Borrar
                             </button>
@@ -61,6 +63,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content pregunta-modal">
             <form action="{{ url_for('admin_preguntas.nueva_pregunta') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="pregunta-modal-head">
                     <div class="d-flex align-items-center gap-3">
                         <div class="pregunta-modal-icon"><i class="bi bi-patch-question"></i></div>

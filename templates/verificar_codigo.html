@@ -33,6 +33,7 @@
 
           <!-- Formulario de Código -->
           <form action="{{ url_for('auth.verificar_codigo') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="d-flex justify-content-between mb-4 gap-2">
               {% for i in range(1, 7) %}
               <input type="text" name="d{{ i }}" class="form-control form-control-lg text-center fw-bold fs-2 digit-input flex-fill" 

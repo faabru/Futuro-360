@@ -72,6 +72,7 @@
                                 <i class="bi bi-pencil"></i>
                             </a>
                             <form action="{{ url_for('admin_carreras.eliminar_carrera', id=carrera.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar esta carrera?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="icon-btn danger" title="Eliminar">
                                     <i class="bi bi-trash"></i>
                                 </button>

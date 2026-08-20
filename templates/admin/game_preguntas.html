@@ -74,6 +74,7 @@
                     </td>
                     <td>
                         <form action="{{ url_for('admin_juego.toggle_game_pregunta', id=p.id) }}" method="POST" data-ajax="toggle">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit"
                                     class="badge border-0 {% if p.activo %}bg-success{% else %}bg-secondary{% endif %}"
                                     title="Click para cambiar estado">
@@ -84,6 +85,7 @@
                     <td>
                         <form action="{{ url_for('admin_juego.eliminar_game_pregunta', id=p.id) }}" method="POST"
                               data-ajax="delete" data-confirm="¿Eliminar esta pregunta del juego?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="icon-btn danger" title="Eliminar">
                                 <i class="bi bi-trash"></i>
                             </button>
@@ -114,6 +116,7 @@
             </div>
 
             <form action="{{ url_for('admin_juego.nueva_game_pregunta') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="modal-body pt-3">
 
                     <div class="mb-3">

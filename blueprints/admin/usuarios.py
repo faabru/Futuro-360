@@ -5,8 +5,8 @@ y activación/desactivación).
 
 import re
 
-from flask import (Blueprint, flash, g, redirect, render_template, request,
-                   session, url_for)
+from flask import (Blueprint, current_app, flash, g, redirect, render_template,
+                   request, session, url_for)
 from werkzeug.security import generate_password_hash
 
 from config import Config
@@ -132,7 +132,8 @@ def admin_usuario_nuevo():
         flash('Usuario creado correctamente.', 'success')
     except Exception as e:
         db.rollback()
-        flash(f'Error al crear el usuario: {e}', 'danger')
+        current_app.logger.error('Error al crear usuario: %s', e)
+        flash('No se pudo crear el usuario. Intentá de nuevo.', 'danger')
     return redirect(url_for('admin_usuarios.admin_usuarios'))
 
 
@@ -192,7 +193,8 @@ def admin_usuario_editar(id):
         flash('Administrador actualizado correctamente.', 'success')
     except Exception as e:
         db.rollback()
-        flash(f'Error al actualizar el administrador: {e}', 'danger')
+        current_app.logger.error('Error al actualizar el administrador: %s', e)
+        flash('No se pudo actualizar el administrador. Intentá de nuevo.', 'danger')
     return redirect(url_for('admin_usuarios.admin_usuarios'))
 
 
@@ -232,7 +234,8 @@ def admin_usuario_eliminar(id):
         flash('Usuario eliminado correctamente.', 'success')
     except Exception as e:
         db.rollback()
-        flash(f'Error al eliminar el usuario: {e}', 'danger')
+        current_app.logger.error('Error al eliminar usuario: %s', e)
+        flash('No se pudo eliminar el usuario. Intentá de nuevo.', 'danger')
     return redirect(url_for('admin_usuarios.admin_usuarios'))
 
 

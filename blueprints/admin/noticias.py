@@ -18,7 +18,8 @@ from flask import (Blueprint, flash, redirect, render_template,
 from core.decoradores import ajax_o_redirect, requiere_admin
 from core.imagenes import guardar_archivo
 from core.migraciones import (asegurar_tabla_filtros_fecha, asegurar_tabla_fuentes,
-                              asegurar_tabla_orientaciones, registrar_orientaciones)
+                              asegurar_tabla_orientaciones, condicion_fecha_segura,
+                              registrar_orientaciones)
 from database_handler import obtener_db
 
 bp = Blueprint('admin_noticias', __name__)
@@ -56,11 +57,14 @@ def admin_noticias():
     params = []
 
     # Filtro por fecha: usa la condición guardada en la tabla filtros_fecha.
+    # Se valida con whitelist estricta (condicion_fecha_segura) para que una
+    # condición guardada por el admin no pueda convertirse en inyección SQL.
     if filtro_fecha != 'todas':
         cursor.execute("SELECT condicion FROM filtros_fecha WHERE valor = %s", (filtro_fecha,))
         fila_fecha = cursor.fetchone()
-        if fila_fecha and fila_fecha['condicion']:
-            query += " AND " + fila_fecha['condicion']
+        condicion = fila_fecha['condicion'] if fila_fecha else ''
+        if condicion_fecha_segura(condicion):
+            query += " AND " + condicion
 
     if filtro_fuente != 'todas':
         query += " AND fuente = %s"

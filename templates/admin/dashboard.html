@@ -222,6 +222,7 @@
             sección <a href="{{ url_for('carreras.carreras') }}">Carreras</a> del sitio.
         </p>
         <form action="{{ url_for('admin_orientaciones.nueva_orientacion') }}" method="POST" class="d-flex gap-2 mb-3">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="text" name="nombre" class="form-control" placeholder="Ej: Educación, Deportes..." required>
             <button type="submit" class="admin-btn-primary text-nowrap">
                 <i class="bi bi-plus-lg me-1"></i> Agregar
@@ -233,6 +234,7 @@
             <span class="admin-badge admin-badge-muted">
                 {{ o.nombre }}
                 <form action="{{ url_for('admin_orientaciones.eliminar_orientacion', id=o.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Eliminar la orientación {{ o.nombre }}?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn-link p-2 ms-1 text-danger" title="Eliminar orientación">
                         <i class="bi bi-x-circle"></i>
                     </button>
@@ -255,6 +257,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <form action="{{ url_for('admin_usuarios.admin_usuario_nuevo') }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -300,6 +303,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <form action="#" method="POST" id="editarUsuarioForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-6">

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Futuro 360 · Panel Admin{% endblock %}</title>
+    {# Token CSRF para las llamadas AJAX del panel (fetch con X-CSRFToken). #}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     {# --- TEMA (CLARO/OSCURO): se aplica antes de pintar para evitar parpadeo --- #}
     <script>
         (function () {
@@ -112,6 +114,29 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // --- CSRF AJAX global: expone el token y lo agrega a todo fetch() que
+    //     cambie estado (POST/PUT/PATCH/DELETE). Mismo helper que base.html,
+    //     porque el panel tiene su propio layout. ---
+    (function () {
+        var token = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+        window.CSRF_TOKEN = token;
+        window.csrfHeaders = function (headers) {
+            headers = headers || {};
+            headers['X-CSRFToken'] = token;
+            return headers;
+        };
+        var fetchOriginal = window.fetch;
+        window.fetch = function (url, options) {
+            options = options || {};
+            var method = (options.method || 'GET').toUpperCase();
+            if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+                options.headers = window.csrfHeaders(options.headers || {});
+            }
+            return fetchOriginal.call(this, url, options);
+        };
+    })();
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const themeToggle = document.getElementById('adminThemeToggle');
@@ -304,7 +329,7 @@
 {# --- HEARTBEAT: mantiene el estado "en línea" del usuario en tiempo real --- #}
 <script>
     setInterval(function () {
-        fetch('/heartbeat', { method: 'POST', keepalive: true })
+        fetch('/heartbeat', { method: 'POST', keepalive: true, headers: window.csrfHeaders() })
             .catch(function () {});
     }, 30000);
 </script>
