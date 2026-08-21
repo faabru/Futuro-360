@@ -195,6 +195,12 @@ class Config:
             "Agregá ADMIN_PASSWORD=TuContraseña en el archivo .env antes de iniciar."
         )
 
+    # --- URL pública del sitio ----------------------------------------------
+    # Render define RENDER_EXTERNAL_URL automáticamente con la URL primaria
+    # del servicio; se usa para armar enlaces dentro de los correos (ej. el
+    # botón "Volver a registrarme" del aviso de cuenta eliminada).
+    URL_PUBLICA = os.getenv('RENDER_EXTERNAL_URL') or 'https://futuro-360.onrender.com'
+
     # --- Email (Resend) ----------------------------------------------------
     RESEND_API_KEY = os.getenv('RESEND_API_KEY')
     MAIL_FROM = os.getenv('MAIL_FROM', 'Futuro 360 <onboarding@resend.dev>')

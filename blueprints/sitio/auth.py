@@ -15,7 +15,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import re
 
 from core.decoradores import requiere_login
-from core.mailer import PIN_EXPIRA_MINUTOS, solicitar_pin
+from core.mailer import (PIN_EXPIRA_MINUTOS, notificar_cuenta_eliminada,
+                         solicitar_pin)
 from core.seguridad import (minutos_restantes_bloqueo, permite_intento,
                             registrar_exito, registrar_fallo)
 from database_handler import obtener_db
@@ -322,8 +323,18 @@ def eliminar_usuario():
     """Baja definitiva de la cuenta del usuario (D de CRUD)."""
     db = obtener_db()
     cursor = db.cursor()
+    # Se guardan antes de eliminar: g.user y la sesión dejan de ser confiables.
+    email = g.user['email']
+    nombre = g.user['nombre']
     cursor.execute("DELETE FROM usuarios WHERE id = %s", (g.user['id'],))
     db.commit()
     session.clear()
+    # Aviso por correo de la baja. Si el envío falla no afecta la operación:
+    # solo se registra en los logs.
+    try:
+        notificar_cuenta_eliminada(email, nombre, False)
+    except Exception as e:
+        current_app.logger.warning(
+            'Cuenta %s eliminada pero fallo el aviso por correo: %s', email, e)
     flash('Tu cuenta ha sido eliminada. Lamentamos verte partir.', 'info')
     return redirect(url_for('principal.index'))

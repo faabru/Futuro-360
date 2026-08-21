@@ -11,6 +11,7 @@ from werkzeug.security import generate_password_hash
 
 from config import Config
 from core.decoradores import ajax_o_redirect, es_usuario_dueño, requiere_admin
+from core.mailer import notificar_cuenta_eliminada
 from database_handler import obtener_db
 
 bp = Blueprint('admin_usuarios', __name__)
@@ -231,6 +232,16 @@ def admin_usuario_eliminar(id):
     try:
         cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
         db.commit()
+        # Aviso por correo a la cuenta eliminada. No bloquea la operación:
+        # si el envío falla (ej. dirección inexistente) solo queda en logs.
+        try:
+            notificar_cuenta_eliminada(
+                usuario['email'], usuario['nombre'],
+                usuario.get('rol') == 'admin')
+        except Exception as e:
+            current_app.logger.warning(
+                'Cuenta %s eliminada pero fallo el aviso por correo: %s',
+                usuario['email'], e)
         flash('Usuario eliminado correctamente.', 'success')
     except Exception as e:
         db.rollback()
