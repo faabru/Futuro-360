@@ -429,6 +429,56 @@ def guardar_areas_carrera(carrera_id: int, areas: list) -> None:
     db.commit()
 
 
+def asegurar_tabla_universidades():
+    """
+    Crea las tablas de universidades y la puente carrera_universidad si no
+    existen, y carga las universidades de Tucumán con oferta en el catálogo
+    (INSERT IGNORE: idempotente, seguro en cada arranque).
+
+    Las RELACIONES carrera-universidad NO se cargan automáticamente: el
+    dueño del sistema las define a mano revisando los sitios oficiales,
+    porque no hay forma confiable de deducirlas sin verificación humana.
+    """
+    db = obtener_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS universidades (
+            id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Identificador de la universidad',
+            nombre VARCHAR(150) NOT NULL UNIQUE COMMENT 'Nombre oficial de la institucion',
+            siglas VARCHAR(20) DEFAULT NULL COMMENT 'Siglas de uso comun (ej: UNT)',
+            tipo ENUM('publica','privada') NOT NULL COMMENT 'Gestion de la institucion',
+            sitio_web VARCHAR(200) NOT NULL COMMENT 'Dominio oficial (ej: unt.edu.ar)',
+            activo TINYINT(1) DEFAULT 1 COMMENT '1 = visible en el sitio',
+            INDEX idx_tipo (tipo)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        COMMENT='Universidades de Tucuman con oferta en el catalogo'
+    """)
+    # La puente usa FKs reales con CASCADE (a diferencia de carrera_areas):
+    # borrar una carrera o universidad limpia sus relaciones automaticamente.
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS carrera_universidad (
+            carrera_id INT NOT NULL COMMENT 'Carrera (FK -> carreras.id)',
+            universidad_id INT NOT NULL COMMENT 'Universidad que la dicta (FK -> universidades.id)',
+            PRIMARY KEY (carrera_id, universidad_id),
+            CONSTRAINT fk_cu_carrera FOREIGN KEY (carrera_id)
+                REFERENCES carreras(id) ON DELETE CASCADE,
+            CONSTRAINT fk_cu_universidad FOREIGN KEY (universidad_id)
+                REFERENCES universidades(id) ON DELETE CASCADE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        COMMENT='Tabla puente: que universidad dicta cada carrera'
+    """)
+    cursor.executemany("""
+        INSERT IGNORE INTO universidades (nombre, siglas, tipo, sitio_web)
+        VALUES (%s, %s, %s, %s)
+    """, [
+        ('Universidad Nacional de Tucumán', 'UNT', 'publica', 'unt.edu.ar'),
+        ('UTN - Facultad Regional Tucumán', 'UTN FRT', 'publica', 'frt.utn.edu.ar'),
+        ('Universidad del Norte Santo Tomás de Aquino', 'UNSTA', 'privada', 'unsta.edu.ar'),
+        ('Universidad San Pablo-T', 'USP-T', 'privada', 'usp-t.edu.ar'),
+    ])
+    db.commit()
+
+
 def asegurar_tabla_noticias():
     """
     Crea la tabla `noticias` si no existe. Es necesaria para la portada, la

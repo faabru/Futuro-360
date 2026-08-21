@@ -25,6 +25,7 @@ from core.migraciones import (
     asegurar_tabla_orientaciones,
     asegurar_tabla_password_resets,
     asegurar_tabla_sesiones_activas,
+    asegurar_tabla_universidades,
     asegurar_tabla_usuarios,
 )
 from database_handler import obtener_db
@@ -183,6 +184,7 @@ def sincronizar_tablas():
         asegurar_tabla_comentarios,
         asegurar_tabla_areas,
         asegurar_tabla_sesiones_activas,
+        asegurar_tabla_universidades,
         asegurar_cuenta_dueño,
     ]
     for fn in funciones:
