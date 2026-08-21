@@ -191,10 +191,14 @@
                                     }
 
                                     let html = '<div class="mt-2">';
+                                    // Escape de HTML: los textos vienen de sitios externos
+                                    // y no deben inyectarse tal cual en la página.
+                                    const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
                                     data.resultados.forEach(item => {
                                         html += `<div class="py-2 border-bottom border-light">
-                                            <a href="${item.url}" target="_blank" rel="noopener noreferrer"
-                                               class="fw-semibold text-primary text-decoration-none d-block">${item.titulo}</a>
+                                            <a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer"
+                                               class="fw-semibold text-primary text-decoration-none d-block">${esc(item.titulo)}</a>
+                                            ${item.descripcion ? `<span class="text-muted small d-block mt-1">${esc(item.descripcion)}</span>` : ''}
                                         </div>`;
                                     });
                                     html += `<div class="pt-2">
