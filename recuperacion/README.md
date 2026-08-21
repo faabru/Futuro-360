@@ -48,7 +48,7 @@ un email sumaba complejidad sin ningún beneficio técnico:
 ## Cómo ejecutarlo (solo si se necesita demostrarlo)
 
 ```bash
-cd docs/recuperacion
+cd recuperacion
 npm install
 node server.js   # escucha en http://localhost:3000
 ```
