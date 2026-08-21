@@ -475,7 +475,11 @@ def asegurar_tabla_universidades():
         ('UTN - Facultad Regional Tucumán', 'UTN FRT', 'publica', 'frt.utn.edu.ar'),
         ('Universidad del Norte Santo Tomás de Aquino', 'UNSTA', 'privada', 'unsta.edu.ar'),
         ('Universidad San Pablo-T', 'USP-T', 'privada', 'usp-t.edu.ar'),
+        ('Universidad Empresarial Siglo 21', 'SIGLO 21', 'privada', 'siglo21.edu.ar'),
     ])
+    # Universidades SIN relaciones manuales (USP-T y SIGLO 21): el buscador
+    # las descubre automaticamente buscando site:dominio con el nombre de la
+    # carrera; si no hay resultados, no se muestran.
     # Relaciones iniciales carrera-universidad APROBADAS a mano: se revisó el
     # texto historico de carreras.instituciones contra los sitios oficiales,
     # y se completo con verificacion manual del dueño contra cada web.

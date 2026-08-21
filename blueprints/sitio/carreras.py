@@ -111,10 +111,15 @@ def detalle_carrera(carrera_id):
 def buscar_universidades(carrera_id):
     """Busca enlaces sobre esta carrera (API de DuckDuckGo).
 
-    Sin parámetros: búsqueda general de universidades que la dictan.
-    Con ``?universidad_id=N``: búsqueda enfocada en el sitio oficial de esa
-    universidad (valida que esté relacionada con la carrera), para mostrar
-    los enlaces de la facultad dentro de la página.
+    Modos (mutuamente excluyentes):
+    - ``?universidad_id=N``: enlaces de esta carrera en el sitio oficial de
+      esa universidad (valida que esté relacionada en la puente).
+    - ``?universidad_id=N&modo=info``: enlaces informativos y noticias sobre
+      esa universidad, sin restringir el dominio.
+    - ``?descubrir=1``: busca esta carrera en el resto del catálogo de
+      universidades; solo devuelve las que tienen al menos un resultado real
+      dentro de su dominio.
+    - Sin parámetros: búsqueda general (fallback para carreras sin datos).
     """
     # Verificar sesión manualmente para poder responder JSON si no está logueado.
     if g.user is None:
@@ -128,42 +133,77 @@ def buscar_universidades(carrera_id):
     if not carrera:
         return {"error": "Carrera no encontrada", "resultados": []}, 404
 
-    universidad_id = request.args.get('universidad_id', type=int)
-    universidad = None
-    if universidad_id:
-        # Solo se aceptan universidades relacionadas con esta carrera.
-        cursor.execute("""
-            SELECT u.id, u.nombre, u.sitio_web
-            FROM carrera_universidad cu
-            JOIN universidades u ON u.id = cu.universidad_id
-            WHERE cu.carrera_id = %s AND u.id = %s AND u.activo = 1
-        """, (carrera_id, universidad_id))
-        universidad = cursor.fetchone()
-        if not universidad:
-            return {"error": "Esa universidad no está asociada a la carrera", "resultados": []}, 400
-        query_base = f'site:{universidad["sitio_web"]} "{carrera["nombre"]}"'
-    else:
-        # Construir una consulta enfocada en la carrera y la ubicación.
-        query_base = f"{carrera['nombre']} universidad facultad Tucumán site:edu.ar OR site:gov.ar"
-
-    if not query_base:
-        return {"error": "Consulta vacía", "resultados": []}, 400
-
-    # Llamada a la búsqueda de DuckDuckGo.
-    try:
+    def _buscar(query, max_results=5):
+        """Ejecuta la búsqueda y devuelve resultados ya con dominio verificado."""
         from ddgs import DDGS
-
-        resultados = []
         with DDGS() as ddgs:
-            # ddgs.text devuelve diccionarios con: title, href, body.
-            results = list(ddgs.text(query_base, max_results=5))
-
-        for item in results:
-            resultados.append({
+            results = list(ddgs.text(query, max_results=max_results))
+        return [
+            {
                 "titulo": item.get("title", ""),
                 "url": item.get("href", "#"),
                 "descripcion": item.get("body", "")
-            })
+            }
+            for item in results
+        ]
+
+    universidad_id = request.args.get('universidad_id', type=int)
+    modo = request.args.get('modo', 'carrera')
+
+    try:
+        # --- Descubrimiento: otras universidades del catálogo que la dictan ---
+        if request.args.get('descubrir'):
+            cursor.execute("""
+                SELECT u.id, u.nombre, u.siglas, u.tipo, u.sitio_web
+                FROM universidades u
+                WHERE u.activo = 1 AND u.id NOT IN (
+                    SELECT universidad_id FROM carrera_universidad WHERE carrera_id = %s
+                )
+                ORDER BY u.nombre
+            """, (carrera_id,))
+            candidatas = cursor.fetchall()
+
+            encontradas = []
+            for u in candidatas:
+                try:
+                    res = _buscar(f'site:{u["sitio_web"]} "{carrera["nombre"]}"', max_results=3)
+                except Exception:
+                    continue  # una universidad que falla no tira las demás
+                # Solo resultados realmente dentro del dominio (descarta publicidad).
+                res = [r for r in res if u["sitio_web"] in (r["url"] or "")]
+                if res:
+                    encontradas.append({
+                        "id": u["id"], "nombre": u["nombre"], "siglas": u["siglas"],
+                        "tipo": u["tipo"], "sitio_web": u["sitio_web"],
+                        "resultados": res,
+                    })
+            return {"encontradas": encontradas, "status": "success"}, 200
+
+        # --- Enlaces por universidad (carrera o info/noticias) ---
+        universidad = None
+        if universidad_id:
+            cursor.execute("""
+                SELECT u.id, u.nombre, u.sitio_web
+                FROM carrera_universidad cu
+                JOIN universidades u ON u.id = cu.universidad_id
+                WHERE cu.carrera_id = %s AND u.id = %s AND u.activo = 1
+            """, (carrera_id, universidad_id))
+            universidad = cursor.fetchone()
+            if not universidad:
+                return {"error": "Esa universidad no está asociada a la carrera", "resultados": []}, 400
+
+            if modo == 'info':
+                query_base = f'universidad {universidad["nombre"]} noticias'
+            else:
+                query_base = f'site:{universidad["sitio_web"]} "{carrera["nombre"]}"'
+        else:
+            # Búsqueda general enfocada en la carrera y la ubicación.
+            query_base = f"{carrera['nombre']} universidad facultad Tucumán site:edu.ar OR site:gov.ar"
+
+        if not query_base:
+            return {"error": "Consulta vacía", "resultados": []}, 400
+
+        resultados = _buscar(query_base)
 
         return {
             "resultados": resultados,

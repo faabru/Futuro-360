@@ -5,24 +5,35 @@
 
    Contexto requerido (lo provee detalle_carrera en carreras.py):
      - carrera: fila de la tabla carreras
-     - universidades: lista de universidades que la dictan
+     - universidades: lista de universidades relacionadas con la carrera
        (id, nombre, siglas, tipo, sitio_web) — puede venir vacía.
 
-   Flujo: todo queda detrás del botón "Buscar carrera".
+   Flujo: todo queda detrás del botón "Buscar carrera" (a su lado hay un
+   acceso directo a Google, "Búsqueda personalizada").
    - Con universidades: al tocarlo se muestra la lista con badge
-     pública/privada, link al sitio oficial y botón "Ver en su
-     facultad" que trae los enlaces de esa universidad a la página.
-   - Sin universidades: al tocarlo dispara el buscador automático
-     (DuckDuckGo) y muestra los resultados en la página.
+     pública/privada y tres acciones por universidad: Sitio oficial,
+     "Ver en su facultad" (enlaces de la carrera dentro del sitio) e
+     "Info y noticias" (enlaces informativos, sin restringir dominio).
+   - En ambos casos se lanza además el DESCUBRIMIENTO: busca la carrera
+     en el resto del catálogo de universidades (Siglo 21, San Pablo-T,
+     etc.) y muestra solo las que tienen resultados reales.
    ============================================================ #}
 <div class="mb-5" id="seccion-instituciones">
     <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla en Tucumán?</h5>
 
-    <button id="btn-buscar-carrera"
-            class="btn btn-outline-primary rounded-pill mt-2 shadow-sm d-inline-flex align-items-center gap-2">
-        <i class="bi bi-search"></i>
-        Buscar carrera
-    </button>
+    <div class="d-flex gap-2 flex-wrap">
+        <button id="btn-buscar-carrera"
+                class="btn btn-outline-primary rounded-pill mt-2 shadow-sm d-inline-flex align-items-center gap-2">
+            <i class="bi bi-search"></i>
+            Buscar carrera
+        </button>
+        <a href="https://www.google.com/search?q={{ (carrera.nombre ~ ' universidad Tucumán inscripción')|urlencode }}"
+           target="_blank" rel="noopener noreferrer"
+           class="btn btn-outline-secondary rounded-pill mt-2 shadow-sm d-inline-flex align-items-center gap-2">
+            <i class="bi bi-google"></i>
+            Búsqueda personalizada
+        </a>
+    </div>
 
     <div id="panel-instituciones" class="mt-3" style="display:none;">
         {% if universidades %}
@@ -42,17 +53,25 @@
                         <i class="bi bi-globe"></i> Sitio oficial
                     </a>
                     <button type="button"
-                            class="btn-mas-info btn btn-sm btn-outline-primary rounded-pill d-inline-flex align-items-center gap-1"
+                            class="btn-uni-buscar btn btn-sm btn-outline-primary rounded-pill d-inline-flex align-items-center gap-1"
                             data-carrera-id="{{ carrera.id }}"
-                            data-universidad-id="{{ u.id }}">
+                            data-universidad-id="{{ u.id }}"
+                            data-modo="carrera">
                         <i class="bi bi-search"></i> Ver en su facultad
+                    </button>
+                    <button type="button"
+                            class="btn-uni-buscar btn btn-sm btn-outline-info rounded-pill d-inline-flex align-items-center gap-1"
+                            data-carrera-id="{{ carrera.id }}"
+                            data-universidad-id="{{ u.id }}"
+                            data-modo="info">
+                        <i class="bi bi-newspaper"></i> Info y noticias
                     </button>
                 </div>
             </div>
             {% endfor %}
         </div>
 
-        <!-- Los enlaces de la facultad se cargan acá, sin salir de la página -->
+        <!-- Los enlaces por universidad se cargan acá, sin salir de la página -->
         <div id="resultados-universidad" class="mt-3"></div>
         {% else %}
         <p class="text-muted small mb-2">Todavía no cargamos qué universidades dictan esta carrera.</p>
@@ -68,13 +87,62 @@
 
         <div id="resultados-busqueda" class="mt-3"></div>
         {% endif %}
+
+        <!-- Descubrimiento: otras universidades del catálogo con esta carrera -->
+        <div id="descubrimiento" class="mt-4"></div>
     </div>
 
     <script>
     (function () {
         const btnPrincipal = document.getElementById('btn-buscar-carrera');
         const panel = document.getElementById('panel-instituciones');
+        const descubrimiento = document.getElementById('descubrimiento');
+        const carreraId = {{ carrera.id }};
         const hayUniversidades = {% if universidades %}true{% else %}false{% endif %};
+        let descubrimientoIniciado = false;
+
+        function iniciarDescubrimiento() {
+            if (descubrimientoIniciado) return;
+            descubrimientoIniciado = true;
+            descubrimiento.innerHTML =
+                '<span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>' +
+                '<span class="text-muted small">Buscando esta carrera en otras universidades...</span>';
+
+            // Escape de HTML: los textos vienen de sitios externos.
+            const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+            fetch(`/carrera/${carreraId}/buscar-universidades?descubrir=1`)
+                .then(r => r.json())
+                .then(data => {
+                    const encontradas = data.encontradas || [];
+                    if (!encontradas.length) {
+                        descubrimiento.innerHTML =
+                            '<p class="text-muted small mb-0"><i class="bi bi-check2 me-1"></i>' +
+                            'No encontramos esta carrera en otras universidades del catálogo.</p>';
+                        return;
+                    }
+                    let html = '<h6 class="text-muted small mt-2 mb-1">También aparece en:</h6>';
+                    encontradas.forEach(u => {
+                        html += `<div class="py-2 border-bottom border-light">
+                            <span class="fw-semibold">${esc(u.nombre)}</span>
+                            ${u.siglas ? `<span class="text-muted small ms-1">(${esc(u.siglas)})</span>` : ''}
+                            <span class="badge rounded-pill ${u.tipo === 'publica' ? 'bg-success' : 'bg-warning text-dark'} ms-2">
+                                ${u.tipo === 'publica' ? 'Pública' : 'Privada'}</span>
+                            <a href="https://${esc(u.sitio_web)}" target="_blank" rel="noopener noreferrer"
+                               class="small text-decoration-none ms-2">sitio oficial ↗</a>`;
+                        u.resultados.forEach(item => {
+                            html += `<a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer"
+                                       class="d-block small text-primary text-decoration-none mt-1">${esc(item.titulo)}</a>`;
+                        });
+                        html += '</div>';
+                    });
+                    descubrimiento.innerHTML = html;
+                })
+                .catch(() => {
+                    descubrimiento.innerHTML =
+                        '<p class="text-muted small mb-0"><i class="bi bi-wifi-off me-1"></i>No pudimos buscar en otras universidades.</p>';
+                });
+        }
 
         btnPrincipal.addEventListener('click', function () {
             btnPrincipal.style.display = 'none';
@@ -84,6 +152,7 @@
                 // Sin universidades cargadas: correr la búsqueda automática.
                 document.getElementById('btn-buscar-web').click();
             }
+            iniciarDescubrimiento();
         });
     })();
     </script>
@@ -94,18 +163,29 @@
         const contenedor = document.getElementById('resultados-universidad');
         // Escape de HTML: los textos vienen de sitios externos.
         const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-        const ICONO = '<i class="bi bi-search"></i> Ver en su facultad';
+        const ICONOS = {
+            carrera: '<i class="bi bi-search"></i> Ver en su facultad',
+            info: '<i class="bi bi-newspaper"></i> Info y noticias'
+        };
 
-        document.querySelectorAll('.btn-mas-info').forEach(btn => {
+        function restaurarBotones() {
+            document.querySelectorAll('.btn-uni-buscar').forEach(b => {
+                b.disabled = false;
+                b.innerHTML = ICONOS[b.getAttribute('data-modo')] || ICONOS.carrera;
+            });
+        }
+
+        document.querySelectorAll('.btn-uni-buscar').forEach(btn => {
             btn.addEventListener('click', function () {
                 const carreraId = this.getAttribute('data-carrera-id');
                 const universidadId = this.getAttribute('data-universidad-id');
+                const modo = this.getAttribute('data-modo');
 
-                document.querySelectorAll('.btn-mas-info').forEach(b => { b.disabled = true; });
+                document.querySelectorAll('.btn-uni-buscar').forEach(b => { b.disabled = true; });
                 this.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Buscando...';
                 contenedor.innerHTML = '';
 
-                fetch(`/carrera/${carreraId}/buscar-universidades?universidad_id=${universidadId}`)
+                fetch(`/carrera/${carreraId}/buscar-universidades?universidad_id=${universidadId}&modo=${modo}`)
                     .then(response => {
                         // Si la sesión expiró, el servidor devuelve 401 con JSON
                         if (response.status === 401) {
@@ -114,21 +194,21 @@
                         return response.json();
                     })
                     .then(data => {
-                        document.querySelectorAll('.btn-mas-info').forEach(b => {
-                            b.disabled = false;
-                            b.innerHTML = ICONO;
-                        });
+                        restaurarBotones();
 
                         if (data.error || !data.resultados || data.resultados.length === 0) {
                             contenedor.innerHTML = `
                                 <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small mb-0">
                                     <i class="bi bi-exclamation-triangle me-1"></i>
-                                    No encontramos enlaces de esta carrera en el sitio de esa universidad.
+                                    No encontramos enlaces para esta búsqueda.
                                 </div>`;
                             return;
                         }
 
-                        let html = `<h6 class="text-muted small mt-3 mb-1">Enlaces en ${esc(data.universidad || 'el sitio de la universidad')}:</h6><div class="mt-1">`;
+                        const titulo = modo === 'info'
+                            ? `Información y noticias sobre ${esc(data.universidad || 'la universidad')}:`
+                            : `Enlaces en ${esc(data.universidad || 'el sitio de la universidad')}:`;
+                        let html = `<h6 class="text-muted small mt-3 mb-1">${titulo}</h6><div class="mt-1">`;
                         data.resultados.forEach(item => {
                             html += `<div class="py-2 border-bottom border-light">
                                 <a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer"
@@ -140,10 +220,7 @@
                         contenedor.innerHTML = html;
                     })
                     .catch(err => {
-                        document.querySelectorAll('.btn-mas-info').forEach(b => {
-                            b.disabled = false;
-                            b.innerHTML = ICONO;
-                        });
+                        restaurarBotones();
                         if (err && err.tipo === 'sesion') {
                             contenedor.innerHTML = `
                                 <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small mb-0">
