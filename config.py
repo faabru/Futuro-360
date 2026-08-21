@@ -199,6 +199,15 @@ class Config:
     RESEND_API_KEY = os.getenv('RESEND_API_KEY')
     MAIL_FROM = os.getenv('MAIL_FROM', 'Futuro 360 <onboarding@resend.dev>')
 
+    # --- Gmail SMTP (recuperación de contraseña) ---------------------------
+    # Cuenta Gmail que envía los PIN de recuperación. Requiere verificación
+    # en dos pasos activada y una "contraseña de aplicación" de 16 caracteres
+    # (NO la contraseña normal de la cuenta). Si faltan estas variables,
+    # solicitar_pin() falla con un error claro y el flujo lo muestra como
+    # "No se pudo enviar el correo" (try/except ya existente en los callers).
+    GMAIL_USER = os.getenv('GMAIL_USER')
+    GMAIL_APP_PASSWORD = os.getenv('GMAIL_APP_PASSWORD')
+
     # --- Cloudinary (imágenes y videos) --------------------------------------
     # Si las tres claves están definidas, las subidas van a Cloudinary y se
     # guardan como URL (compartida entre máquinas). Sin claves, se sigue
