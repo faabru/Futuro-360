@@ -477,16 +477,19 @@ def asegurar_tabla_universidades():
         ('Universidad San Pablo-T', 'USP-T', 'privada', 'usp-t.edu.ar'),
     ])
     # Relaciones iniciales carrera-universidad APROBADAS a mano: se revisó el
-    # texto historico de carreras.instituciones contra los sitios oficiales.
-    # INSERT IGNORE -> idempotente. Las carreras sin relacion aqui quedan sin
-    # universidad hasta que el dueño las verifique y las cargue manualmente
-    # (ids 3, 18, 25, 27 y 41 quedaron pendientes de revision; USP-T sin
-    # relaciones hasta revisar su oferta academica).
+    # texto historico de carreras.instituciones contra los sitios oficiales,
+    # y se completo con verificacion manual del dueño contra cada web.
+    # INSERT IGNORE -> idempotente. La unica carrera sin relacion es la 25
+    # (Tec. Produccion Agropecuaria, dictada por institutos fuera del
+    # catalogo). USP-T sin relaciones hasta revisar su oferta academica.
+    # La carrera 41 (Periodismo) fue ELIMINADA del catalogo: era orientacion
+    # de Comunicacion Social (40), no carrera de grado independiente.
     # NOTA: si en el futuro se agrega gestion de relaciones desde el panel,
     # evaluar si este seed debe dejar de reinsertar (hoy no hay UI que borre).
     relaciones_aprobadas = [
         (1, 'UNT'), (1, 'UTN FRT'),
         (2, 'UNT'), (2, 'UNSTA'),
+        (3, 'UTN FRT'),
         (4, 'UNT'), (4, 'UTN FRT'),
         (5, 'UNT'), (5, 'UTN FRT'),
         (6, 'UNT'), (6, 'UTN FRT'),
@@ -501,6 +504,7 @@ def asegurar_tabla_universidades():
         (15, 'UNT'),
         (16, 'UNT'), (16, 'UNSTA'),
         (17, 'UNT'),
+        (18, 'UNSTA'),
         (19, 'UNT'),
         (20, 'UNT'),
         (21, 'UNT'),
@@ -508,6 +512,7 @@ def asegurar_tabla_universidades():
         (23, 'UNT'),
         (24, 'UNT'),
         (26, 'UNT'), (26, 'UNSTA'),
+        (27, 'UNT'), (27, 'UNSTA'),
         (28, 'UNT'),
         (29, 'UNSTA'),
         (30, 'UNT'), (30, 'UNSTA'),
