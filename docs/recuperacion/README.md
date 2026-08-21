@@ -19,7 +19,7 @@ La app Flask le hablaba por HTTP a través del módulo `core/nodo_recuperacion.p
 
 ## Por qué se migró a Flask
 
-El prototipo no hacía nada que Flask no pudiera hacer por sí solo: el SDK
+El servicio Node no hacía nada que Flask no pudiera hacer por sí solo: el SDK
 oficial de Resend para Python ya estaba integrado (`core/mailer.py`) para el
 envío de mensajes de soporte. Mantener un segundo proceso/servicio solo para
 un email sumaba complejidad sin ningún beneficio técnico:
