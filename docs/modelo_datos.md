@@ -25,6 +25,22 @@ erDiagram
     USUARIOS ||--o| SESIONES_ACTIVAS : "presencia en línea"
     CARRERAS ||--o{ CARRERA_AREAS : "se clasifica"
     AREAS ||--o{ CARRERA_AREAS : "agrupa"
+    CARRERAS ||--o{ CARRERA_UNIVERSIDAD : "se dicta en"
+    UNIVERSIDADES ||--o{ CARRERA_UNIVERSIDAD : "dicta"
+
+    UNIVERSIDADES {
+        int id PK
+        varchar nombre UK
+        varchar siglas
+        enum tipo
+        varchar sitio_web
+        tinyint activo
+    }
+
+    CARRERA_UNIVERSIDAD {
+        int carrera_id PK, FK
+        int universidad_id PK, FK
+    }
 
     SESIONES_ACTIVAS {
         int user_id PK, FK
@@ -191,6 +207,7 @@ AREAS    1 ────< N RESULTADOS     (el resultado sugiere un área)
 CARRERAS 1 ────< N GAME_CARRERAS  (una carrera puede aparecer en el juego)
 CARRERAS 1 ────< N CARRERA_AREAS  (una carrera se asocia a varias áreas)
 AREAS    1 ────< N CARRERA_AREAS  (un área agrupa varias carreras)
+CARRERAS M ────< N UNIVERSIDADES  (vía CARRERA_UNIVERSIDAD: qué universidad dicta cada carrera)
 RESPUESTAS N ────> 1 PREGUNTAS    (cada respuesta refiere a una pregunta)
 RESPUESTAS N ────> 1 OPCIONES     (cada respuesta selecciona una opción)
 PASSWORD_RESETS N ────> 1 USUARIOS (códigos de recuperación por email del usuario)
@@ -316,6 +333,32 @@ Tabla puente entre carreras y áreas.
 | `id` | INT | PK | Identificador |
 | `carrera_id` | INT | FK → `carreras.id` | Carrera |
 | `area` | VARCHAR(100) | | Área asociada |
+
+### `universidades`
+Catálogo fijo de universidades de Tucumán con oferta en la plataforma. Se carga
+por seed idempotente al arrancar (`core/migraciones.py`); las relaciones con
+carreras se definen a mano tras verificar los sitios oficiales.
+
+| Campo | Tipo | Clave | Descripción |
+|---|---|---|---|
+| `id` | INT | PK | Identificador |
+| `nombre` | VARCHAR(150) | UNIQUE | Nombre oficial de la institución |
+| `siglas` | VARCHAR(20) | | Siglas de uso común (ej. `UNT`) |
+| `tipo` | ENUM('publica','privada') | | Gestión de la institución |
+| `sitio_web` | VARCHAR(200) | | Dominio oficial (ej. `unt.edu.ar`) |
+| `activo` | TINYINT(1) | | 1 = visible en el sitio |
+
+### `carrera_universidad`
+Tabla puente entre carreras y universidades: qué universidad dicta cada carrera.
+
+| Campo | Tipo | Clave | Descripción |
+|---|---|---|---|
+| `carrera_id` | INT | PK, FK → `carreras.id` (CASCADE) | Carrera |
+| `universidad_id` | INT | PK, FK → `universidades.id` (CASCADE) | Universidad que la dicta |
+
+PK compuesta: un par carrera-universidad no puede repetirse. Ambas FKs usan
+`ON DELETE CASCADE`. La columna `carreras.instituciones` (texto libre histórico)
+quedó obsoleta: la fuente de verdad es ahora esta tabla.
 
 ### `game_carreras`
 Configuración de las carreras que participan en el juego de descubrimiento.
@@ -448,6 +491,7 @@ para mostrar **"Usuarios en línea"** en tiempo real.
 | `respuestas` | N : 1 | `opciones` | `respuestas.opcion_id` |
 | `carreras` | 1 : N | `game_carreras` | `game_carreras.carrera_id` |
 | `carreras` | 1 : N | `carrera_areas` | `carrera_areas.carrera_id` |
+| `carreras` | M : N (vía puente) | `universidades` | `carrera_universidad` (`carrera_id`, `universidad_id`, CASCADE) |
 | `usuarios` | 1 : N | `password_resets` | `password_resets.email` (lógica) |
 | `usuarios` | 1 : 1 | `sesiones_activas` | `sesiones_activas.user_id` (lógica, fila por usuario) |
 

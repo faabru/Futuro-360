@@ -1,7 +1,8 @@
 # Futuro 360 - Blueprint de Render (un único servicio web Flask).
 #
-# La recuperación de contraseña y el soporte se envían desde Python con el
-# SDK de Resend (core/mailer.py): no hay segundo servicio Node.
+# Emails (core/mailer.py): PIN de recuperacion y aviso de cuenta eliminada
+# van por la API v3 de Brevo; el formulario de contacto/soporte usa Resend.
+# Ambos por HTTPS porque Render bloquea el SMTP saliente.
 #
 # En el dashboard de Render hay que definir ademas (secrets, sync: false):
 #   SECRET_KEY, DB_* (Aiven), RESEND_API_KEY, MAIL_FROM, ADMIN_PASSWORD,

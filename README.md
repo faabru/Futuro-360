@@ -110,7 +110,8 @@ futuro 360/
 - Python 3.10 o superior
 - MySQL 5.7 / 8.x (servidor local o remoto)
 - `pip` y `venv` disponibles
-- (Opcional) Cuenta en [Resend](https://resend.com) para el envío de emails
+- Cuenta en [Brevo](https://www.brevo.com) para los emails transaccionales (PIN de recuperación de contraseña y aviso de cuenta eliminada)
+- (Opcional) Cuenta en [Resend](https://resend.com) — solo para el formulario de contacto/soporte
 
 ## Instalación
 
@@ -167,7 +168,12 @@ DB_SSL_CA=
 # Seguridad
 SECRET_KEY=una_cadena_larga_y_aleatoria
 
-# Envío de emails (Resend)
+# Emails transaccionales (Brevo): PIN de recuperación y aviso de cuenta eliminada
+BREVO_API_KEY=xkeysib-XXXXXXXXXXXXXXXX
+# Email remitente, debe estar verificado como remitente en Brevo
+SENDER_EMAIL=tu_correo@gmail.com
+
+# Formulario de contacto/soporte (Resend)
 RESEND_API_KEY=re_XXXXXXXXXXXXX
 # Remitente que verán los destinatarios (opcional, default: Futuro 360 <onboarding@resend.dev>)
 MAIL_FROM=Futuro 360 <onboarding@resend.dev>
@@ -195,8 +201,10 @@ CLOUDINARY_API_SECRET=tu_api_secret
 | `DB_SSL_CA` | No | Ruta al certificado CA para TLS/SSL (Aiven) en desarrollo. Se resuelve relativa a la raíz del proyecto. Si no se define, se conecta sin SSL |
 | `DB_SSL_CA_CONTENT` | No | Contenido PEM del certificado CA (para Render/Railway). Si está definido, la app lo escribe a un archivo temporal al arrancar y lo usa en lugar de `DB_SSL_CA` |
 | `SECRET_KEY` | Recomendada | Clave de firma de sesiones de Flask |
-| `RESEND_API_KEY` | Solo para emails | Clave de la API de Resend |
-| `MAIL_FROM` | No | Remitente de los emails (default `Futuro 360 <onboarding@resend.dev>`) |
+| `BREVO_API_KEY` | Solo para emails transaccionales | Clave v3 de la API de Brevo (`xkeysib-...`): PIN de recuperación y aviso de cuenta eliminada |
+| `SENDER_EMAIL` | Con `BREVO_API_KEY` | Email remitente verificado en Brevo |
+| `RESEND_API_KEY` | Solo para el formulario de soporte | Clave de la API de Resend (formulario de contacto) |
+| `MAIL_FROM` | No | Remitente de Resend (default `Futuro 360 <onboarding@resend.dev>`) |
 | `CLOUDINARY_CLOUD_NAME` | No | Cloud de Cloudinary para imágenes/videos |
 | `CLOUDINARY_API_KEY` | No | API key de Cloudinary |
 | `CLOUDINARY_API_SECRET` | No | API secret de Cloudinary |
@@ -206,6 +214,22 @@ CLOUDINARY_API_SECRET=tu_api_secret
 
 **Importante:** el archivo `.env` no se sube al repositorio (está en `.gitignore`). No se debe
 comprometer ninguna credencial en el código ni en los commits.
+
+## Envío de emails
+
+El sitio usa **dos proveedores de email**, cada uno para un propósito distinto.
+Ambos envían por **API HTTPS** (no SMTP) porque plataformas como Render bloquean
+el tráfico SMTP saliente:
+
+| Funcionalidad | Proveedor | Variables |
+|---|---|---|
+| PIN de recuperación de contraseña | Brevo (API v3) | `BREVO_API_KEY`, `SENDER_EMAIL` |
+| Aviso por correo al eliminar una cuenta (usuario o admin) | Brevo (API v3) | `BREVO_API_KEY`, `SENDER_EMAIL` |
+| Formulario de contacto / soporte | Resend | `RESEND_API_KEY`, `MAIL_FROM` |
+
+Todo el código de envío está centralizado en `core/mailer.py`. Si falta la
+configuración de un proveedor, solo esa funcionalidad queda sin enviar: el
+resto del sitio sigue funcionando con normalidad.
 
 ## Base de datos
 
@@ -359,7 +383,7 @@ web: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
 2. Railway detecta el `Procfile` y arranca `web: gunicorn ...` automáticamente.
 3. Definir las variables de entorno en **Variables** (ver tabla de la sección
    Configuración): `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `SECRET_KEY`,
-   `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `RESEND_API_KEY`, `CLOUDINARY_*` (opcional).
+   `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `BREVO_API_KEY`, `SENDER_EMAIL`, `RESEND_API_KEY`, `CLOUDINARY_*` (opcional).
    `PORT` lo asigna Railway y gunicorn lo usa solo.
 4. Si la BD es remota con TLS (p. ej. Aiven), configurar también `DB_PORT` y
    el certificado CA. La forma recomendada (sin subir el cert al repo) es

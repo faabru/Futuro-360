@@ -62,8 +62,11 @@ Es la funcionalidad principal de la plataforma:
 - La sección **Carreras** muestra todas las carreras ordenadas por área profesional.
 - Cada carrera tiene: **nombre**, **descripción**, **área** e **instituciones** donde se dicta.
 - Se pueden filtrar o buscar por área de interés.
-- En el detalle de cada carrera existe la opción **Buscar universidades** que lista los centros
-  educativos de la provincia que ofrecen esa carrera.
+- En el detalle de cada carrera, la sección **"¿Dónde estudiarla en Tucumán?"** muestra la lista de
+  universidades que la dictan, con su badge **Pública/Privada**, acceso al **sitio oficial** de cada
+  una y un botón **"Más info"** que busca la carrera específicamente en el sitio de esa universidad.
+- Si todavía no hay universidades cargadas para esa carrera, aparece un botón **"Buscar en internet"**
+  que realiza la búsqueda automáticamente.
 
 ### 1.8 Juego de descubrimiento
 
