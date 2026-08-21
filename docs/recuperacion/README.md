@@ -1,4 +1,4 @@
-# Prototipo Node — Recuperación de contraseña (material de tesis)
+# Recuperación de contraseña — versión anterior en Node.js (material de tesis)
 
 > **Estado actual: NO forma parte del flujo de la aplicación.**
 > Se conserva como material de referencia de la tesis. La lógica vive hoy
@@ -48,7 +48,7 @@ un email sumaba complejidad sin ningún beneficio técnico:
 ## Cómo ejecutarlo (solo si se necesita demostrarlo)
 
 ```bash
-cd docs/prototipo-node-recuperacion
+cd docs/recuperacion
 npm install
 node server.js   # escucha en http://localhost:3000
 ```

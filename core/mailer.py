@@ -11,8 +11,8 @@ testing de Resend no lo afecta. El PIN va por la API HTTPS de Brevo porque
 Render bloquea el SMTP saliente (puertos 25/465/587) en todos sus planes;
 la API llega a CUALQUIER usuario y solo exige verificar la dirección
 remitente en Brevo (sin comprar dominio).
-(Historia: esto antes vivía en un prototipo Node; ver
-docs/prototipo-node-recuperacion/README.md.)
+(Historia: esto antes vivía en un servicio Node separado; ver
+docs/recuperacion/README.md.)
 """
 
 import secrets

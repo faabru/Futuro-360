@@ -98,11 +98,12 @@ futuro 360/
 │   ├── dashboard.html, 404.html, 500.html, base.html
 │   └── admin/                   # Vistas del panel de administración
 |
-├── recuperacion de contraseña/  # Servicio Node.js (alternativa) de envío de PIN
 ├── README.md
 └── docs/
     ├── manual_usuario.md        # Manual de usuario
-    └── modelo_datos.md          # Modelo entidad/relación de la base de datos
+    ├── modelo_datos.md          # Modelo entidad/relación de la base de datos
+    ├── mejora_y_presupuesto.md  # Mejora propuesta y presupuesto (TFI)
+    └── recuperacion/            # Versión anterior en Node del envío de PIN (referencia de tesis)
 ```
 
 ## Requisitos previos
