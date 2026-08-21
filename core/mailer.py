@@ -39,12 +39,59 @@ GMAIL_SMTP_TIMEOUT = 15
 
 
 def _html_pin(pin: str) -> str:
-    """Plantilla HTML del correo del PIN (misma que usaba el prototipo Node)."""
-    return f"""
-        <h1>Tu PIN es:</h1>
-        <h2>{pin}</h2>
-        <p>El código vence en {PIN_EXPIRA_MINUTOS} minutos.</p>
     """
+    Plantilla HTML del correo del PIN.
+
+    Todo el CSS va INLINE (style="...") porque Gmail, Outlook y otros
+    clientes recortan las etiquetas <style> del head. El layout usa tablas
+    anidadas: es lo unico que Outlook renderiza de forma confiable.
+    Paleta: identidad de Futuro 360 (static/style.css :root).
+    Los acentos y emojis van como entidades HTML para maxima compatibilidad.
+    """
+    return f"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0; padding:0; background-color:#EAF4F9;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#EAF4F9;">
+    <tr>
+        <td align="center" style="padding:32px 12px;">
+            <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%; max-width:600px; background-color:#ffffff; border:1px solid #C6E2EC; border-radius:16px; overflow:hidden;">
+                <tr>
+                    <td style="background-color:#142B38; padding:30px 40px; text-align:center;">
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:22px; font-weight:bold; color:#FFFFFF;">&#127891; Futuro 360</div>
+                        <div style="font-family:Arial,Helvetica,sans-serif; font-size:13px; color:#B7E0EA; margin-top:4px;">Orientaci&oacute;n Vocacional</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:36px 40px; font-family:Arial,Helvetica,sans-serif; color:#142B38;">
+                        <h1 style="margin:0 0 8px 0; font-size:21px; font-weight:bold; color:#142B38;">Tu PIN es:</h1>
+                        <p style="margin:0 0 24px 0; font-size:14px; line-height:1.6; color:#2A7390;">Ingres&aacute; este c&oacute;digo de 6 d&iacute;gitos en la p&aacute;gina de verificaci&oacute;n para continuar con la recuperaci&oacute;n de tu contrase&ntilde;a.</p>
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td align="center" style="background-color:#EAF4F9; border:1px solid #C6E2EC; border-radius:12px; padding:22px 16px;">
+                                    <span style="font-family:Arial,Helvetica,sans-serif; font-size:42px; font-weight:bold; letter-spacing:12px; color:#2F8EAB;">{pin}</span>
+                                </td>
+                            </tr>
+                        </table>
+                        <p style="margin:22px 0 0 0; font-size:14px; color:#142B38;">&#9201; El c&oacute;digo vence en <strong>{PIN_EXPIRA_MINUTOS} minutos</strong>.</p>
+                        <hr style="border:none; border-top:1px solid #C6E2EC; margin:26px 0;">
+                        <p style="margin:0; font-size:13px; line-height:1.6; color:#2A7390;">&#128274; Si no solicitaste este c&oacute;digo, pod&eacute;s ignorar este correo. Tu contrase&ntilde;a actual no fue modificada.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="background-color:#EAF4F9; padding:16px 40px; text-align:center; font-family:Arial,Helvetica,sans-serif; font-size:12px; color:#2A7390;">
+                        Futuro 360 &middot; Orientaci&oacute;n Vocacional &middot; Tucum&aacute;n, Argentina
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>"""
 
 
 def solicitar_pin(email: str) -> str:
