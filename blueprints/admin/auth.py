@@ -96,7 +96,7 @@ def admin_recuperar_password():
             try:
                 codigo = solicitar_pin(email)
             except Exception as e:
-                current_app.logger.error('Error al pedir PIN al server Node: %s', e)
+                current_app.logger.error('Error al enviar el PIN de recuperacion: %s', e)
                 flash('No se pudo enviar el correo. Intentá de nuevo en unos minutos.', 'danger')
                 return render_template('admin/recuperar_password.html')
 
