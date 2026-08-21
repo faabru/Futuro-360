@@ -476,6 +476,58 @@ def asegurar_tabla_universidades():
         ('Universidad del Norte Santo Tomás de Aquino', 'UNSTA', 'privada', 'unsta.edu.ar'),
         ('Universidad San Pablo-T', 'USP-T', 'privada', 'usp-t.edu.ar'),
     ])
+    # Relaciones iniciales carrera-universidad APROBADAS a mano: se revisó el
+    # texto historico de carreras.instituciones contra los sitios oficiales.
+    # INSERT IGNORE -> idempotente. Las carreras sin relacion aqui quedan sin
+    # universidad hasta que el dueño las verifique y las cargue manualmente
+    # (ids 3, 18, 25, 27 y 41 quedaron pendientes de revision; USP-T sin
+    # relaciones hasta revisar su oferta academica).
+    # NOTA: si en el futuro se agrega gestion de relaciones desde el panel,
+    # evaluar si este seed debe dejar de reinsertar (hoy no hay UI que borre).
+    relaciones_aprobadas = [
+        (1, 'UNT'), (1, 'UTN FRT'),
+        (2, 'UNT'), (2, 'UNSTA'),
+        (4, 'UNT'), (4, 'UTN FRT'),
+        (5, 'UNT'), (5, 'UTN FRT'),
+        (6, 'UNT'), (6, 'UTN FRT'),
+        (7, 'UNT'), (7, 'UTN FRT'),
+        (8, 'UNT'),
+        (9, 'UNT'),
+        (10, 'UNT'),
+        (11, 'UNT'),
+        (12, 'UNT'),
+        (13, 'UNT'), (13, 'UNSTA'),
+        (14, 'UNT'),
+        (15, 'UNT'),
+        (16, 'UNT'), (16, 'UNSTA'),
+        (17, 'UNT'),
+        (19, 'UNT'),
+        (20, 'UNT'),
+        (21, 'UNT'),
+        (22, 'UNT'),
+        (23, 'UNT'),
+        (24, 'UNT'),
+        (26, 'UNT'), (26, 'UNSTA'),
+        (28, 'UNT'),
+        (29, 'UNSTA'),
+        (30, 'UNT'), (30, 'UNSTA'),
+        (31, 'UNT'),
+        (32, 'UNT'),
+        (33, 'UNT'),
+        (34, 'UNT'),
+        (35, 'UNT'),
+        (36, 'UNT'), (36, 'UNSTA'),
+        (37, 'UNT'),
+        (38, 'UNT'),
+        (39, 'UNT'),
+        (40, 'UNT'),
+        (42, 'UNSTA'),
+    ]
+    for carrera_id, siglas in relaciones_aprobadas:
+        cursor.execute("""
+            INSERT IGNORE INTO carrera_universidad (carrera_id, universidad_id)
+            SELECT %s, id FROM universidades WHERE siglas = %s
+        """, (carrera_id, siglas))
     db.commit()
 
 
