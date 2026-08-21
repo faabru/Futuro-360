@@ -156,29 +156,8 @@
                             </p>
                         </div>
 
-                        <!-- DÓNDE ESTUDIARLA EN TUCUMÁN (dinámico desde la BD) -->
-                        <div class="mb-5" id="seccion-instituciones">
-                            <h5 class="fw-bold mb-3">
-                                <i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla en Tucumán?
-                            </h5>
-
-                            <!-- BOTÓN BUSCAR EN INTERNET -->
-                            <button id="btn-buscar-uni"
-                                    class="btn btn-outline-primary rounded-pill mt-2 shadow-sm d-inline-flex align-items-center gap-2">
-                                <i class="bi bi-search"></i>
-                                Buscar en internet
-                            </button>
-
-                            <!-- Spinner de carga -->
-                            <div id="loading-busqueda" class="mt-3" style="display:none;">
-                                <span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>
-                                <span class="text-muted small">Buscando información...</span>
-                            </div>
-
-                            <!-- Contenedor de resultados DuckDuckGo -->
-                            <div id="resultados-busqueda" class="mt-3"></div>
-
-                        </div>
+                        <!-- DÓNDE ESTUDIARLA EN TUCUMÁN (partial compartido con la plantilla genérica) -->
+                        {% include 'carreras/_seccion_universidades.html' %}
 
                     </div><!-- /col-md-6 contenido -->
                 </div><!-- /row g-0 -->
@@ -186,84 +165,5 @@
         </div><!-- /col-lg-10 -->
     </div><!-- /row -->
 </div><!-- /container -->
-
-<script>
-/**
- * buscarUniversidades(carreraId)
- * Llama a /carrera/<id>/buscar-universidades (DuckDuckGo vía DDGS)
- * IMPORTANTE: La API devuelve JSON con campo "url" (no "link") en cada resultado.
- */
-async function buscarUniversidades(carreraId) {
-    const btn        = document.getElementById('btn-buscar-uni');
-    const loading    = document.getElementById('loading-busqueda');
-    const contenedor = document.getElementById('resultados-busqueda');
-
-    btn.disabled = true;
-    loading.style.display = 'block';
-    contenedor.innerHTML  = '';
-
-    const googleUrl = 'https://www.google.com/search?q=' +
-        encodeURIComponent('{{ carrera.nombre }} universidad facultad Tucumán inscripción');
-
-    try {
-        const resp = await fetch(`/carrera/${carreraId}/buscar-universidades`);
-        const data = await resp.json();
-
-        loading.style.display = 'none';
-        btn.disabled = false;
-
-        if (data.error || !data.resultados || data.resultados.length === 0) {
-            contenedor.innerHTML = `
-                <div class="alert alert-warning alert-sm py-3 px-3 mt-2 small mb-2">
-                    <i class="bi bi-exclamation-triangle me-1"></i>
-                    No pudimos cargar resultados automáticos en este momento.
-                </div>
-                <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
-                   class="btn btn-outline-primary rounded-pill shadow-sm d-inline-flex align-items-center gap-1">
-                    <i class="bi bi-google"></i> Buscar en Google
-                </a>`;
-            return;
-        }
-
-        let html = '<div class="mt-2">';
-        data.resultados.forEach(r => {
-            /* ⚠ La ruta devuelve "url" (no "link") — usar r.url */
-            html += `
-                <div class="py-2 border-bottom border-light">
-                    <a href="${r.url}" target="_blank" rel="noopener noreferrer"
-                       class="fw-semibold text-primary text-decoration-none d-block">
-                        ${r.titulo}
-                    </a>
-                    <span class="text-muted small d-block">${r.descripcion}</span>
-                </div>`;
-        });
-        html += `
-            <div class="pt-2">
-                <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
-                   class="small text-muted">Ver más en Google →</a>
-            </div>`;
-        html += '</div>';
-        contenedor.innerHTML = html;
-
-    } catch (e) {
-        loading.style.display = 'none';
-        btn.disabled = false;
-        contenedor.innerHTML = `
-            <div class="alert alert-warning alert-sm py-3 px-3 mt-2 small mb-2">
-                <i class="bi bi-wifi-off me-1"></i>
-                Sin conexión al servidor.
-            </div>
-            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
-               class="btn btn-outline-primary rounded-pill shadow-sm d-inline-flex align-items-center gap-1">
-                <i class="bi bi-google"></i> Buscar en Google
-            </a>`;
-    }
-}
-
-// Vincular botón con el id de carrera provisto por Flask
-document.getElementById('btn-buscar-uni').addEventListener('click', function () {
-    buscarUniversidades({{ carrera.id }});
-});
-</script>
 
 {% endblock %}

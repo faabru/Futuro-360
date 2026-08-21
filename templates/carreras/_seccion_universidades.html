@@ -1,0 +1,135 @@
+{# ============================================================
+   Sección "¿Dónde estudiarla en Tucumán?" — compartida por la
+   plantilla genérica (carrera_detalle.html) y las individuales
+   (carreras/carrera_39.html y futuras).
+
+   Contexto requerido (lo provee detalle_carrera en carreras.py):
+     - carrera: fila de la tabla carreras
+     - universidades: lista de universidades que la dictan
+       (id, nombre, siglas, tipo, sitio_web) — puede venir vacía.
+
+   Con universidades: lista con badge pública/privada, link al sitio
+   oficial y botón "Más info" que busca site:dominio "carrera" en Google.
+   Sin universidades: fallback al buscador automático (DuckDuckGo).
+   ============================================================ #}
+<div class="mb-5" id="seccion-instituciones">
+    <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla en Tucumán?</h5>
+
+    {% if universidades %}
+    <div class="list-group list-group-flush">
+        {% for u in universidades %}
+        <div class="list-group-item bg-transparent px-0 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <span class="fw-semibold">{{ u.nombre }}</span>
+                {% if u.siglas %}<span class="text-muted small ms-1">({{ u.siglas }})</span>{% endif %}
+                <span class="badge rounded-pill {{ 'bg-success' if u.tipo == 'publica' else 'bg-warning text-dark' }} ms-2">
+                    {{ 'Pública' if u.tipo == 'publica' else 'Privada' }}
+                </span>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="https://{{ u.sitio_web }}" target="_blank" rel="noopener noreferrer"
+                   class="btn btn-sm btn-outline-secondary rounded-pill d-inline-flex align-items-center gap-1">
+                    <i class="bi bi-globe"></i> Sitio oficial
+                </a>
+                <a href="https://www.google.com/search?q={{ ('site:' ~ u.sitio_web ~ ' "' ~ carrera.nombre ~ '" Tucumán')|urlencode }}"
+                   target="_blank" rel="noopener noreferrer"
+                   class="btn btn-sm btn-outline-primary rounded-pill d-inline-flex align-items-center gap-1">
+                    <i class="bi bi-search"></i> Más info
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted small mb-2">Todavía no cargamos qué universidades dictan esta carrera.</p>
+
+    <button id="btn-buscar-web"
+            data-carrera-id="{{ carrera.id }}"
+            class="btn btn-outline-primary rounded-pill mt-2 shadow-sm d-inline-flex align-items-center gap-2">
+        <i class="bi bi-search"></i>
+        Buscar en internet
+    </button>
+
+    <div id="resultados-busqueda" class="mt-3"></div>
+
+    <script>
+    document.getElementById('btn-buscar-web').addEventListener('click', function () {
+        const carreraId = this.getAttribute('data-carrera-id');
+        const nombreCarrera = "{{ carrera.nombre }}";
+        const btn = this;
+        const contenedor = document.getElementById('resultados-busqueda');
+
+        const googleUrl = 'https://www.google.com/search?q=' +
+            encodeURIComponent(nombreCarrera + ' universidad Tucumán inscripción');
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Buscando...';
+        contenedor.innerHTML = '';
+
+        fetch(`/carrera/${carreraId}/buscar-universidades`)
+            .then(response => {
+                // Si la sesión expiró, el servidor devuelve 401 con JSON
+                if (response.status === 401) {
+                    return response.json().then(d => { throw {tipo: 'sesion', msg: d.error}; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-search"></i> Buscar en internet';
+
+                if (data.error || !data.resultados || data.resultados.length === 0) {
+                    contenedor.innerHTML = `
+                        <div class="alert alert-warning alert-sm py-3 px-3 mt-2 small mb-2">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            No pudimos cargar resultados automáticos en este momento.
+                        </div>
+                        <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
+                           class="btn btn-outline-primary rounded-pill shadow-sm d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-google"></i> Buscar en Google
+                        </a>`;
+                    return;
+                }
+
+                let html = '<div class="mt-2">';
+                // Escape de HTML: los textos vienen de sitios externos
+                // y no deben inyectarse tal cual en la página.
+                const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+                data.resultados.forEach(item => {
+                    html += `<div class="py-2 border-bottom border-light">
+                        <a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer"
+                           class="fw-semibold text-primary text-decoration-none d-block">${esc(item.titulo)}</a>
+                        ${item.descripcion ? `<span class="text-muted small d-block mt-1">${esc(item.descripcion)}</span>` : ''}
+                    </div>`;
+                });
+                html += `<div class="pt-2">
+                    <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
+                       class="small text-muted">Ver más en Google →</a>
+                </div>`;
+                html += '</div>';
+                contenedor.innerHTML = html;
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-search"></i> Buscar en internet';
+                if (err && err.tipo === 'sesion') {
+                    contenedor.innerHTML = `
+                        <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
+                            <i class="bi bi-lock me-1"></i>
+                            Sesión expirada.
+                            <a href="/login" class="alert-link ms-1">Iniciá sesión nuevamente →</a>
+                        </div>`;
+                } else {
+                    contenedor.innerHTML = `
+                        <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
+                            <i class="bi bi-wifi-off me-1"></i>
+                            Sin conexión al servidor.
+                            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
+                               class="alert-link ms-1">Buscar en Google →</a>
+                        </div>`;
+                }
+            });
+    });
+    </script>
+    {% endif %}
+</div>

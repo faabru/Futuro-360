@@ -83,6 +83,17 @@ def detalle_carrera(carrera_id):
         areas = [carrera['area_profesional']]
     carrera['areas'] = areas
 
+    # Universidades de Tucumán que dictan esta carrera (tabla puente).
+    # Públicas primero, luego privadas, alfabético dentro de cada grupo.
+    cursor.execute("""
+        SELECT u.id, u.nombre, u.siglas, u.tipo, u.sitio_web
+        FROM carrera_universidad cu
+        JOIN universidades u ON u.id = cu.universidad_id
+        WHERE cu.carrera_id = %s AND u.activo = 1
+        ORDER BY FIELD(u.tipo, 'publica', 'privada'), u.nombre
+    """, (carrera_id,))
+    universidades = cursor.fetchall()
+
     # Verificar si existe un template HTML individual para esta carrera.
     # Ejemplo: templates/carreras/carrera_39.html para Arquitectura (id=39).
     template_individual = f'carreras/carrera_{carrera_id}.html'
@@ -90,10 +101,10 @@ def detalle_carrera(carrera_id):
 
     if os.path.exists(template_path):
         # Usar el template personalizado de esta carrera específica.
-        return render_template(template_individual, carrera=carrera)
+        return render_template(template_individual, carrera=carrera, universidades=universidades)
     else:
         # Fallback al template genérico — ninguna carrera queda sin página.
-        return render_template('carrera_detalle.html', carrera=carrera)
+        return render_template('carrera_detalle.html', carrera=carrera, universidades=universidades)
 
 
 @bp.route('/carrera/<int:carrera_id>/buscar-universidades')
