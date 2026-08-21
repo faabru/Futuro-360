@@ -31,7 +31,7 @@
                    class="btn btn-sm btn-outline-secondary rounded-pill d-inline-flex align-items-center gap-1">
                     <i class="bi bi-globe"></i> Sitio oficial
                 </a>
-                <a href="https://www.google.com/search?q={{ ('site:' ~ u.sitio_web ~ ' "' ~ carrera.nombre ~ '" Tucumán')|urlencode }}"
+                <a href="https://duckduckgo.com/?q={{ ('site:' ~ u.sitio_web ~ ' "' ~ carrera.nombre ~ '" Tucumán')|urlencode }}"
                    target="_blank" rel="noopener noreferrer"
                    class="btn btn-sm btn-outline-primary rounded-pill d-inline-flex align-items-center gap-1">
                     <i class="bi bi-search"></i> Más info
@@ -59,7 +59,7 @@
         const btn = this;
         const contenedor = document.getElementById('resultados-busqueda');
 
-        const googleUrl = 'https://www.google.com/search?q=' +
+        const duckUrl = 'https://duckduckgo.com/?q=' +
             encodeURIComponent(nombreCarrera + ' universidad Tucumán inscripción');
 
         btn.disabled = true;
@@ -84,9 +84,9 @@
                             <i class="bi bi-exclamation-triangle me-1"></i>
                             No pudimos cargar resultados automáticos en este momento.
                         </div>
-                        <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
+                        <a href="${duckUrl}" target="_blank" rel="noopener noreferrer"
                            class="btn btn-outline-primary rounded-pill shadow-sm d-inline-flex align-items-center gap-1">
-                            <i class="bi bi-google"></i> Buscar en Google
+                            <i class="bi bi-search"></i> Buscar en DuckDuckGo
                         </a>`;
                     return;
                 }
@@ -103,8 +103,8 @@
                     </div>`;
                 });
                 html += `<div class="pt-2">
-                    <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
-                       class="small text-muted">Ver más en Google →</a>
+                    <a href="${duckUrl}" target="_blank" rel="noopener noreferrer"
+                       class="small text-muted">Ver más en DuckDuckGo →</a>
                 </div>`;
                 html += '</div>';
                 contenedor.innerHTML = html;
@@ -124,7 +124,7 @@
                         <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
                             <i class="bi bi-wifi-off me-1"></i>
                             Sin conexión al servidor.
-                            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer"
+                            <a href="${duckUrl}" target="_blank" rel="noopener noreferrer"
                                class="alert-link ms-1">Buscar en Google →</a>
                         </div>`;
                 }
