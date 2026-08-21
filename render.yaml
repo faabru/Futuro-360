@@ -5,7 +5,7 @@
 #
 # En el dashboard de Render hay que definir ademas (secrets, sync: false):
 #   SECRET_KEY, DB_* (Aiven), RESEND_API_KEY, MAIL_FROM, ADMIN_PASSWORD,
-#   y las de Cloudinary si se usan.
+#   BREVO_API_KEY, SENDER_EMAIL, y las de Cloudinary si se usan.
 services:
   - type: web
     name: futuro360
@@ -34,9 +34,9 @@ services:
         sync: false
       - key: MAIL_FROM
         sync: false
-      - key: GMAIL_USER
+      - key: BREVO_API_KEY
         sync: false
-      - key: GMAIL_APP_PASSWORD
+      - key: SENDER_EMAIL
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
         sync: false

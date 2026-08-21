@@ -199,14 +199,17 @@ class Config:
     RESEND_API_KEY = os.getenv('RESEND_API_KEY')
     MAIL_FROM = os.getenv('MAIL_FROM', 'Futuro 360 <onboarding@resend.dev>')
 
-    # --- Gmail SMTP (recuperación de contraseña) ---------------------------
-    # Cuenta Gmail que envía los PIN de recuperación. Requiere verificación
-    # en dos pasos activada y una "contraseña de aplicación" de 16 caracteres
-    # (NO la contraseña normal de la cuenta). Si faltan estas variables,
-    # solicitar_pin() falla con un error claro y el flujo lo muestra como
-    # "No se pudo enviar el correo" (try/except ya existente en los callers).
-    GMAIL_USER = os.getenv('GMAIL_USER')
-    GMAIL_APP_PASSWORD = os.getenv('GMAIL_APP_PASSWORD')
+    # --- Brevo (recuperación de contraseña) ---------------------------------
+    # El PIN de recuperación viaja por la API HTTPS de Brevo y NO por SMTP:
+    # Render bloquea el tráfico SMTP saliente (puertos 25/465/587) en todos
+    # sus planes, así que el correo sale por api.brevo.com (puerto 443).
+    #   - BREVO_API_KEY: clave de API de la cuenta de Brevo (SMTP & API → API Keys).
+    #   - SENDER_EMAIL: dirección remitente, debe estar VERIFICADA en Brevo
+    #     (Senders → verify). Puede ser un Gmail propio; no hace falta dominio.
+    # Si faltan, solicitar_pin() falla con un error claro y el flujo lo muestra
+    # como "No se pudo enviar el correo" (try/except ya existente en callers).
+    BREVO_API_KEY = os.getenv('BREVO_API_KEY')
+    SENDER_EMAIL = os.getenv('SENDER_EMAIL')
 
     # --- Cloudinary (imágenes y videos) --------------------------------------
     # Si las tres claves están definidas, las subidas van a Cloudinary y se

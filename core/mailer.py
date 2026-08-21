@@ -3,21 +3,20 @@ Servicio de envío de correos electrónicos.
 
 Centraliza TODO el envío de emails del sistema:
 - ``enviar_mensaje_soporte`` → notificación de soporte al dueño (Resend).
-- ``solicitar_pin``          → PIN de recuperación de contraseña (Gmail SMTP).
+- ``solicitar_pin``          → PIN de recuperación de contraseña (API de Brevo).
 
 El soporte va por Resend: llega únicamente al ADMIN_EMAIL, así que el modo
-testing de Resend no lo afecta. El PIN va por Gmail SMTP para poder llegar
-a CUALQUIER usuario sin depender de verificar un dominio externo.
+testing de Resend no lo afecta. El PIN va por la API HTTPS de Brevo porque
+Render bloquea el SMTP saliente (puertos 25/465/587) en todos sus planes;
+la API llega a CUALQUIER usuario y solo exige verificar la dirección
+remitente en Brevo (sin comprar dominio).
 (Historia: esto antes vivía en un prototipo Node; ver
 docs/prototipo-node-recuperacion/README.md.)
 """
 
 import secrets
-import smtplib
-import socket
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
+import requests
 import resend
 
 from config import Config
@@ -32,10 +31,11 @@ resend.api_key = Config.RESEND_API_KEY
 # los blueprints de auth (sitio y admin), de modo que no pueden desincronizarse.
 PIN_EXPIRA_MINUTOS = 15
 
-# Timeout (segundos) para conectar/autenticar/enviar contra smtp.gmail.com.
-# Si Gmail no responde en ese lapso se lanza un timeout y el caller muestra
+# Endpoint y timeout (segundos) de la API de Brevo que envía los PIN.
+# Si Brevo no responde en ese lapso se lanza un timeout y el caller muestra
 # "No se pudo enviar el correo" en vez de colgar el request del usuario.
-GMAIL_SMTP_TIMEOUT = 15
+BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
+BREVO_TIMEOUT = 15
 
 
 def _html_pin(pin: str) -> str:
@@ -96,55 +96,59 @@ def _html_pin(pin: str) -> str:
 
 def solicitar_pin(email: str) -> str:
     """
-    Genera un PIN de 6 dígitos y lo envía por Gmail SMTP a `email`.
+    Genera un PIN de 6 dígitos y lo envía por la API de Brevo a `email`.
 
     - Generación con `secrets` (CSPRNG).
-    - Envío por SMTP_SSL al puerto 465 (TLS implícito desde el primer byte).
-    - Autenticación con la contraseña de APLICACIÓN (GMAIL_APP_PASSWORD),
-      nunca con la contraseña normal de la cuenta.
+    - Envío por HTTPS a api.brevo.com (puerto 443): Render bloquea el SMTP
+      saliente, así que el correo viaja por la API. El remitente debe estar
+      verificado en Brevo (SENDER_EMAIL); no hace falta dominio propio.
     - Devuelve el PIN (str) para que el blueprint lo guarde HASHEADO en
       password_resets con generate_password_hash.
     - Lanza RuntimeError con un mensaje que distingue el tipo de fallo
-      (credenciales / timeout / conexión) para que sea rápido de diagnosticar
-      en los logs. Ningún mensaje incluye la contraseña de aplicación.
+      (configuración faltante / rechazo de la API / timeout / conexión)
+      para diagnosticar rápido en los logs. Ningún mensaje incluye la API key.
     """
-    if not Config.GMAIL_USER or not Config.GMAIL_APP_PASSWORD:
+    if not Config.BREVO_API_KEY or not Config.SENDER_EMAIL:
         raise RuntimeError(
-            'GMAIL_USER / GMAIL_APP_PASSWORD no están definidas en el '
+            'BREVO_API_KEY / SENDER_EMAIL no están definidas en el '
             'entorno (.env local o variables de Render).')
 
     pin = str(secrets.randbelow(900000) + 100000)  # 100000..999999
 
-    # Arma el mensaje MIME: cabeceras + cuerpo HTML (utf-8 maneja los acentos).
-    mensaje = MIMEMultipart('alternative')
-    mensaje['Subject'] = 'Recuperación de contraseña'
-    # Nombre visible personalizado; la dirección real es la cuenta autenticada.
-    mensaje['From'] = f'Futuro 360 <{Config.GMAIL_USER}>'
-    mensaje['To'] = email
-    mensaje.attach(MIMEText(_html_pin(pin), 'html', 'utf-8'))
-
     try:
-        # SMTP_SSL (465): el canal ya nace cifrado, sin negociación STARTTLS.
-        # El timeout aplica a conexión + login + envío: si Gmail no responde,
-        # explota a los ~15 s como máximo y nunca cuelga el request.
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465,
-                              timeout=GMAIL_SMTP_TIMEOUT) as smtp:
-            smtp.login(Config.GMAIL_USER, Config.GMAIL_APP_PASSWORD)
-            smtp.send_message(mensaje)
-    except smtplib.SMTPAuthenticationError as e:
-        # Credenciales inválidas: app password mal copiado, revocado, o 2FA
-        # desactivada. La respuesta de Gmail NO incluye la contraseña.
+        # La llamada es un POST HTTPS común (puerto 443, siempre permitido
+        # en Render). El timeout aplica a conexión + respuesta: si Brevo no
+        # contesta, explota a los ~15 s como máximo y nunca cuelga el request.
+        respuesta = requests.post(
+            BREVO_API_URL,
+            headers={
+                'api-key': Config.BREVO_API_KEY,
+                'accept': 'application/json',
+                'content-type': 'application/json',
+            },
+            json={
+                # Nombre visible personalizado; la dirección debe coincidir
+                # con un remitente verificado en la cuenta de Brevo.
+                'sender': {'name': 'Futuro 360', 'email': Config.SENDER_EMAIL},
+                'to': [{'email': email}],
+                'subject': 'Recuperación de contraseña',
+                'htmlContent': _html_pin(pin),
+            },
+            timeout=BREVO_TIMEOUT,
+        )
+    except requests.exceptions.Timeout as e:
         raise RuntimeError(
-            'Gmail rechazo las credenciales SMTP (revisa GMAIL_USER y '
-            f'GMAIL_APP_PASSWORD): {e}') from e
-    except (socket.timeout, TimeoutError) as e:
+            f'Timeout ({BREVO_TIMEOUT}s): la API de Brevo no respondio '
+            '(problema de red o de Brevo).') from e
+    except requests.exceptions.ConnectionError as e:
+        raise RuntimeError(f'No se pudo conectar a api.brevo.com: {e}') from e
+
+    # Brevo responde 201 Created cuando acepta el mensaje; cualquier otra
+    # cosa (401 key inválida, 400 remitente no verificado, etc.) es un fallo.
+    if respuesta.status_code >= 400:
         raise RuntimeError(
-            f'Timeout ({GMAIL_SMTP_TIMEOUT}s): smtp.gmail.com no respondio '
-            '(problema de red o de Gmail).') from e
-    except OSError as e:
-        # Resto de errores de red: DNS, conexion rechazada, reset, etc.
-        raise RuntimeError(
-            f'No se pudo conectar a smtp.gmail.com: {e}') from e
+            f'Brevo rechazo el envio (HTTP {respuesta.status_code}): '
+            f'{respuesta.text[:200]}')
 
     return pin
 
