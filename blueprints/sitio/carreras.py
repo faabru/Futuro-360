@@ -109,7 +109,13 @@ def detalle_carrera(carrera_id):
 
 @bp.route('/carrera/<int:carrera_id>/buscar-universidades')
 def buscar_universidades(carrera_id):
-    """Busca universidades de Tucumán que dicten esta carrera (DuckDuckGo API)."""
+    """Busca enlaces sobre esta carrera (API de DuckDuckGo).
+
+    Sin parámetros: búsqueda general de universidades que la dictan.
+    Con ``?universidad_id=N``: búsqueda enfocada en el sitio oficial de esa
+    universidad (valida que esté relacionada con la carrera), para mostrar
+    los enlaces de la facultad dentro de la página.
+    """
     # Verificar sesión manualmente para poder responder JSON si no está logueado.
     if g.user is None:
         return {"error": "Sesión expirada. Por favor iniciá sesión nuevamente.", "resultados": [], "status": "unauthorized"}, 401
@@ -122,8 +128,23 @@ def buscar_universidades(carrera_id):
     if not carrera:
         return {"error": "Carrera no encontrada", "resultados": []}, 404
 
-    # Construir una consulta enfocada en la carrera y la ubicación.
-    query_base = f"{carrera['nombre']} universidad facultad Tucumán site:edu.ar OR site:gov.ar"
+    universidad_id = request.args.get('universidad_id', type=int)
+    universidad = None
+    if universidad_id:
+        # Solo se aceptan universidades relacionadas con esta carrera.
+        cursor.execute("""
+            SELECT u.id, u.nombre, u.sitio_web
+            FROM carrera_universidad cu
+            JOIN universidades u ON u.id = cu.universidad_id
+            WHERE cu.carrera_id = %s AND u.id = %s AND u.activo = 1
+        """, (carrera_id, universidad_id))
+        universidad = cursor.fetchone()
+        if not universidad:
+            return {"error": "Esa universidad no está asociada a la carrera", "resultados": []}, 400
+        query_base = f'site:{universidad["sitio_web"]} "{carrera["nombre"]}"'
+    else:
+        # Construir una consulta enfocada en la carrera y la ubicación.
+        query_base = f"{carrera['nombre']} universidad facultad Tucumán site:edu.ar OR site:gov.ar"
 
     if not query_base:
         return {"error": "Consulta vacía", "resultados": []}, 400
@@ -144,7 +165,12 @@ def buscar_universidades(carrera_id):
                 "descripcion": item.get("body", "")
             })
 
-        return {"resultados": resultados, "total": len(resultados), "status": "success"}, 200
+        return {
+            "resultados": resultados,
+            "total": len(resultados),
+            "universidad": universidad["nombre"] if universidad else None,
+            "status": "success"
+        }, 200
 
     except Exception as e:
         return {
