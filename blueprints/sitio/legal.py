@@ -2,7 +2,7 @@
 Rutas legales y de soporte: soporte/contacto, términos y privacidad.
 """
 
-from flask import Blueprint, g, redirect, render_template, request, url_for
+from flask import Blueprint, render_template, request
 
 from core.mailer import enviar_mensaje_soporte
 from database_handler import obtener_db
@@ -12,10 +12,7 @@ bp = Blueprint('legal', __name__)
 
 @bp.route('/soporte', methods=['GET', 'POST'])
 def soporte():
-    """Página de soporte y contacto de Futuro 360.
-    Si el usuario está logueado, redirige al dashboard."""
-    if g.user:
-        return redirect(url_for('principal.dashboard'))
+    """Página de soporte y contacto de Futuro 360."""
     enviado = False
     if request.method == 'POST':
         nombre = request.form.get('nombre', '').strip()
