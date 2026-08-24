@@ -20,11 +20,12 @@ Uso:
 
 import io
 import os
+import sys
 
-import mysql.connector
-from dotenv import load_dotenv
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-load_dotenv()
+from app import app
+from database_handler import obtener_db
 
 # Tablas cuyo esquema Y datos se exportan (contenido compartido).
 # NOTA: `usuarios` NO se exporta a propósito: las cuentas son por máquina
@@ -56,52 +57,48 @@ def escapar(valor):
 
 
 def main():
-    db = mysql.connector.connect(
-        host=os.getenv('DB_HOST', 'localhost'),
-        user=os.getenv('DB_USER', 'root'),
-        password=os.getenv('DB_PASSWORD', ''),
-        database=os.getenv('DB_NAME', 'futuro360'),
-    )
-    cur = db.cursor()
+    with app.app_context():
+        db = obtener_db()
+        cur = db.cursor()
 
-    salida = io.StringIO()
+        salida = io.StringIO()
 
-    salida.write("-- Futuro 360 - dump completo de contenido\n")
-    salida.write("-- Generado con scripts/exportar_base.py (no editar a mano).\n")
-    salida.write("-- Importar UNA VEZ desde MySQL Workbench (Open SQL Script).\n\n")
-    salida.write("CREATE DATABASE IF NOT EXISTS `futuro360` "
-                 "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\n")
-    salida.write("USE `futuro360`;\n\n")
-    salida.write("SET NAMES utf8mb4;\n")
-    salida.write("SET FOREIGN_KEY_CHECKS=0;\n\n")
+        salida.write("-- Futuro 360 - dump completo de contenido\n")
+        salida.write("-- Generado con scripts/exportar_base.py (no editar a mano).\n")
+        salida.write("-- Importar UNA VEZ desde MySQL Workbench (Open SQL Script).\n\n")
+        salida.write("CREATE DATABASE IF NOT EXISTS `futuro360` "
+                     "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\n")
+        salida.write("USE `futuro360`;\n\n")
+        salida.write("SET NAMES utf8mb4;\n")
+        salida.write("SET FOREIGN_KEY_CHECKS=0;\n\n")
 
-    def volcar(tabla, incluir_datos):
-        cur.execute("SHOW CREATE TABLE `%s`" % tabla)
-        create = cur.fetchone()[1]
-        salida.write("DROP TABLE IF EXISTS `%s`;\n" % tabla)
-        salida.write(create + ";\n\n")
-        if not incluir_datos:
-            return
-        cur.execute("SELECT * FROM `%s`" % tabla)
-        columnas = [desc[0] for desc in cur.description]
-        nombres = ", ".join("`%s`" % c for c in columnas)
-        for fila in cur.fetchall():
-            valores = ", ".join(escapar(v) for v in fila)
-            salida.write("INSERT INTO `%s` (%s) VALUES (%s);\n" % (tabla, nombres, valores))
-        salida.write("\n")
+        def volcar(tabla, incluir_datos):
+            cur.execute("SHOW CREATE TABLE `%s`" % tabla)
+            create = cur.fetchone()[1]
+            salida.write("DROP TABLE IF EXISTS `%s`;\n" % tabla)
+            salida.write(create + ";\n\n")
+            if not incluir_datos:
+                return
+            cur.execute("SELECT * FROM `%s`" % tabla)
+            columnas = [desc[0] for desc in cur.description]
+            nombres = ", ".join("`%s`" % c for c in columnas)
+            for fila in cur.fetchall():
+                valores = ", ".join(escapar(v) for v in fila)
+                salida.write("INSERT INTO `%s` (%s) VALUES (%s);\n" % (tabla, nombres, valores))
+            salida.write("\n")
 
-    for t in TABLAS_CONTENIDO:
-        volcar(t, incluir_datos=True)
-    for t in TABLAS_VACIAS:
-        volcar(t, incluir_datos=False)
+        for t in TABLAS_CONTENIDO:
+            volcar(t, incluir_datos=True)
+        for t in TABLAS_VACIAS:
+            volcar(t, incluir_datos=False)
 
-    salida.write("SET FOREIGN_KEY_CHECKS=1;\n")
-    salida.write("\n-- Fin del dump\n")
+        salida.write("SET FOREIGN_KEY_CHECKS=1;\n")
+        salida.write("\n-- Fin del dump\n")
 
-    with io.open(RUTA_SALIDA, 'w', encoding='utf-8') as f:
-        f.write(salida.getvalue())
+        with io.open(RUTA_SALIDA, 'w', encoding='utf-8') as f:
+            f.write(salida.getvalue())
 
-    print('Dump generado en:', os.path.abspath(RUTA_SALIDA))
+        print('Dump generado en:', os.path.abspath(RUTA_SALIDA))
 
 
 if __name__ == '__main__':

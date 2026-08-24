@@ -9,20 +9,20 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS `carreras`;
-CREATE TABLE `carreras` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la carrera',
-  `nombre` varchar(150) NOT NULL COMMENT 'Nombre de la carrera',
-  `descripcion` text DEFAULT NULL COMMENT 'Descripción de la carrera',
-  `area_profesional` varchar(100) NOT NULL COMMENT 'Área principal',
-  `instituciones` text DEFAULT NULL COMMENT 'Instituciones donde se dicta',
-  `popular` tinyint(1) DEFAULT 0 COMMENT '1 = carrera destacada',
-  `imagen` varchar(500) DEFAULT '' COMMENT 'Imagen principal (ruta local o URL de Cloudinary)',
-  `imagen_portada` varchar(500) DEFAULT NULL COMMENT 'Imagen de portada',
-  `imagen_principal` varchar(500) DEFAULT NULL COMMENT 'Imagen de detalle',
-  `a_que_se_dedica` text DEFAULT NULL COMMENT 'Descripción del campo laboral',
-  `video` varchar(500) DEFAULT NULL COMMENT 'Video de la carrera (URL, local o de Cloudinary)',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Catálogo de carreras de la plataforma';
+CREATE TABLE "carreras" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "nombre" varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "descripcion" text COLLATE utf8mb4_unicode_ci,
+  "area_profesional" varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "instituciones" text COLLATE utf8mb4_unicode_ci,
+  "popular" tinyint(1) DEFAULT '0',
+  "imagen" varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  "imagen_portada" varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  "imagen_principal" varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  "a_que_se_dedica" text COLLATE utf8mb4_unicode_ci,
+  "video" varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY ("id")
+);
 
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (1, 'Ingeniería en Sistemas de Información', 'Diseño y desarrollo de software, bases de datos, redes y sistemas informáticos.', 'Tecnología', 'UTN - FR Tucumán, UNT - FACET', 1, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648779/tecnologia-Ingenier%C3%ADa%20en%20Sistemas%20de%20Informaci%C3%B3n-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648780/tecnologia-Ingenier%C3%ADa%20en%20Sistemas%20de%20Informaci%C3%B3n-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (2, 'Licenciatura en Sistemas de Información', 'Análisis, diseño e implementación de sistemas de información empresariales.', 'Tecnología', 'UNT - FACET, UNSTA', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648781/tecnologia-Licenciatura%20en%20Sistemas%20de%20Informaci%C3%B3n-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648782/tecnologia-Licenciatura%20en%20Sistemas%20de%20Informaci%C3%B3n-principal.jpg', NULL, NULL);
@@ -53,253 +53,295 @@ INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `inst
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (27, 'Licenciatura en Administración', 'Gestión de empresas, recursos humanos, marketing y estrategia organizacional.', 'Negocios', 'UNT - FCE, UNSTA, UTN', 1, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648816/negocios-licenciatura%20en%20administracion-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648817/negocios-licenciatura%20en%20administracion-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (28, 'Licenciatura en Economía', 'Análisis de mercados, política económica y desarrollo regional.', 'Negocios', 'UNT - FCE', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648818/negocios-licenciatura%20en%20economia-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648819/negocios-licenciatura%20en%20economia-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (29, 'Marketing Digital', 'Estrategias de comunicación digital, publicidad online y posicionamiento de marcas.', 'Negocios', 'UNSTA, Institutos Superiores de Tucumán', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648819/negocios-marketing%20digital-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648820/negocios-marketing%20digital-principal.jpg', NULL, NULL);
-INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (30, 'Abogacía', 'Representación legal, litigios y asesoramiento jurídico en todas las ramas del derecho.', 'Derecho', 'UNT - Facultad de Derecho, UNSTA', 1, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648820/derecho-abogacia-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648821/derecho-abogacia-principal.jpg', NULL, NULL);
+INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (30, 'Abogacía', 'Representación legal, litigios y asesoramiento jurídico en todas las ramas del derecho.', 'Derecho', 'UNT - Facultad de Derecho, UNSTA', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648820/derecho-abogacia-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648821/derecho-abogacia-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (31, 'Notariado', 'Escrituras, contratos y documentos legales con fe pública.', 'Derecho', 'UNT - Facultad de Derecho', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648822/derecho-notariado-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648822/derecho-notariado-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (32, 'Ciencias Políticas', 'Análisis del poder, instituciones del Estado y gestión pública.', 'Derecho', 'UNT - Facultad de Derecho', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648823/derecho-ciencias%20politicas-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648824/derecho-ciencias%20politicas-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (33, 'Licenciatura en Historia', 'Investigación y enseñanza del pasado humano. Archivos, museos y docencia.', 'Humanidades', 'UNT - Facultad de Filosofía y Letras', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648825/humanidades-licenciatura%20en%20historia-portada.png', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648826/humanidades-licenciatura%20en%20historia-principal.png', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (34, 'Licenciatura en Filosofía', 'Pensamiento crítico, ética, lógica y epistemología.', 'Humanidades', 'UNT - Facultad de Filosofía y Letras', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648826/humanidades-licenciatura%20en%20filosofia-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648827/humanidades-licenciatura%20en%20filosofia-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (35, 'Licenciatura en Letras', 'Literatura, lingüística, escritura creativa y docencia de lengua.', 'Humanidades', 'UNT - Facultad de Filosofía y Letras', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648828/humanidades-licenciatura%20en%20letras-portada.png', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648829/humanidades-licenciatura%20en%20letras-principal.png', NULL, NULL);
-INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (36, 'Diseño Gráfico', 'Creación visual de marcas, publicidad, packaging e interfaces digitales.', 'Arte y Diseño', 'UNT - Facultad de Artes, UNSTA, Institutos Superiores', 1, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648829/arte%20y%20dise%C3%B1o-dise%C3%B1o%20grafico-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648830/arte%20y%20dise%C3%B1o-dise%C3%B1o%20grafico-principal.jpg', NULL, NULL);
+INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (36, 'Diseño Gráfico', 'Creación visual de marcas, publicidad, packaging e interfaces digitales.', 'Arte y Diseño', 'UNT - Facultad de Artes, UNSTA, Institutos Superiores', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648829/arte%20y%20dise%C3%B1o-dise%C3%B1o%20grafico-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648830/arte%20y%20dise%C3%B1o-dise%C3%B1o%20grafico-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (37, 'Licenciatura en Artes Visuales', 'Pintura, escultura, instalación y gestión cultural.', 'Arte y Diseño', 'UNT - Facultad de Artes', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648831/arte%20y%20dise%C3%B1o-Licenciatura%20en%20Artes%20Visuales-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648832/arte%20y%20dise%C3%B1o-Licenciatura%20en%20Artes%20Visuales-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (38, 'Música', 'Interpretación, composición y dirección musical.', 'Arte y Diseño', 'UNT - Facultad de Artes', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648832/arte%20y%20dise%C3%B1o-musica-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648833/arte%20y%20dise%C3%B1o-musica-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (39, 'Arquitectura', 'Diseño y planificación de edificios y espacios. Combina arte, técnica y funcionalidad.', 'Arte y Diseño', 'UNT - FAU', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648834/arte%20y%20dise%C3%B1o-arquitectura-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648835/arte%20y%20dise%C3%B1o-arquitectura-principal.jpg', NULL, NULL);
 INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (40, 'Licenciatura en Comunicación Social', 'Periodismo, relaciones públicas, comunicación institucional y medios digitales.', 'Comunicación', 'UNT - Facultad de Filosofía y Letras', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648836/comunicaci%C3%B3n-Licenciatura%20en%20Comunicaci%C3%B3n%20Social-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648836/comunicaci%C3%B3n-Licenciatura%20en%20Comunicaci%C3%B3n%20Social-principal.jpg', NULL, NULL);
-INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (41, 'Periodismo', 'Reportaje, redacción, conducción y producción periodística en todos los medios.', 'Comunicación', 'Institutos Superiores de Tucumán, UNT', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648837/comunicaci%C3%B3n-periodismo-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648838/comunicaci%C3%B3n-periodismo-principal.jpg', NULL, NULL);
-INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (42, 'Publicidad', 'Creación de campañas publicitarias, estrategia de marca y comunicación persuasiva.', 'Comunicación', 'UNSTA, Institutos Superiores', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648838/comunicaci%C3%B3n-publicidad-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648839/comunicaci%C3%B3n-publicidad-principal.jpg', NULL, NULL);
+INSERT INTO `carreras` (`id`, `nombre`, `descripcion`, `area_profesional`, `instituciones`, `popular`, `imagen`, `imagen_portada`, `imagen_principal`, `a_que_se_dedica`, `video`) VALUES (42, 'Publicidad', 'Creación de campañas publicitarias, estrategia de marca y comunicación persuasiva.', 'Comunicación', 'UNSTA, Institutos Superiores', 0, '', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648838/comunicaci%C3%B3n-publicidad-portada.jpg', 'https://res.cloudinary.com/eaybmmjr/image/upload/v1786648839/comunicaci%C3%B3n-publicidad-principal.jpg', '', '');
 
 DROP TABLE IF EXISTS `areas`;
-CREATE TABLE `areas` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador del área',
-  `nombre` varchar(100) NOT NULL COMMENT 'Nombre del área profesional',
-  `descripcion` text DEFAULT NULL COMMENT 'Descripción del área',
-  `icono` varchar(50) DEFAULT NULL COMMENT 'Ícono asociado',
-  `color` varchar(20) DEFAULT NULL COMMENT 'Color representativo',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Áreas profesionales del test y de las carreras';
+CREATE TABLE "areas" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "nombre" varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "descripcion" text COLLATE utf8mb4_unicode_ci,
+  "icono" varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  "color" varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY ("id")
+);
 
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (1, 'Ciencias Exactas', 'Matemática, Física, Ingeniería, Informática', '🔬', '#4F8EF7');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (2, 'Ciencias de la Salud', 'Medicina, Enfermería, Bioquímica, Farmacia', '🩺', '#2DC87A');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (3, 'Ciencias Sociales', 'Derecho, Psicología, Sociología, Trabajo Social', '⚖️', '#F7A94F');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (4, 'Arte y Diseño', 'Arquitectura, Bellas Artes, Diseño, Música', '🎨', '#E05CDB');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (5, 'Humanidades', 'Historia, Filosofía, Letras, Comunicación', '📚', '#F7574F');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (6, 'Ciencias Naturales', 'Biología, Geología, Ecología, Veterinaria', '🌿', '#4FC9F7');
-INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (7, 'Economía y Negocios', 'Administración, Economía, Comercio, Marketing', '💼', '#F7D94F');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (1, 'Ciencias Exactas', 'Matem??tica, F??sica, Ingenier??a, Inform??tica', '????', '#4F8EF7');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (2, 'Ciencias de la Salud', 'Medicina, Enfermer??a, Bioqu??mica, Farmacia', '??????', '#2DC87A');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (3, 'Ciencias Sociales', 'Derecho, Psicolog??a, Sociolog??a, Trabajo Social', '????', '#F7A94F');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (4, 'Arte y Dise??o', 'Arquitectura, Bellas Artes, Dise??o, M??sica', '????', '#E05CDB');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (5, 'Humanidades', 'Historia, Filosof??a, Letras, Comunicaci??n', '????', '#F7574F');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (6, 'Ciencias Naturales', 'Biolog??a, Geolog??a, Ecolog??a, Veterinaria', '????', '#4FC9F7');
+INSERT INTO `areas` (`id`, `nombre`, `descripcion`, `icono`, `color`) VALUES (7, 'Econom??a y Negocios', 'Administraci??n, Econom??a, Comercio, Marketing', '????', '#F7D94F');
 
 DROP TABLE IF EXISTS `preguntas`;
-CREATE TABLE `preguntas` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la pregunta',
-  `texto_pregunta` varchar(255) NOT NULL COMMENT 'Enunciado de la pregunta',
-  `area_profesional` varchar(100) NOT NULL COMMENT 'Área asociada a la pregunta',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Preguntas del test vocacional';
+CREATE TABLE "preguntas" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "texto_pregunta" varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "area_profesional" varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY ("id")
+);
 
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (1, '¿Qué tipo de problemas te sentís más motivado/a a resolver hoy?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (2, 'Si pudieras elegir un entorno para trabajar diariamente, ¿cuál sería?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (3, '¿Qué capacidad destacás más en tu personalidad?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (4, '¿Qué área genera mayor curiosidad intelectual en vos?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (5, '¿Cuál sería tu aporte ideal a la sociedad de Tucumán?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (6, 'Ante un objeto tecnológico nuevo, ¿qué despierta tu interés?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (7, '¿Qué área de la salud te parece más gratificante?', 'Salud');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (8, '¿Qué actividad disfrutás realizar de manera independiente?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (9, '¿Cómo preferís abordar la naturaleza?', 'Ciencias Naturales');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (10, '¿Cuál es tu relación con los números?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (11, '¿Qué tipo de lectura preferís en tu tiempo libre?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (12, 'En un equipo de trabajo, ¿qué rol solés ocupar?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (13, '¿Qué te motiva de una carrera profesional?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (14, '¿Qué importancia le das a la investigación?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (15, '¿Qué te gusta construir o dirigir?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (16, '¿Qué desafío científico te parece más urgente?', 'Ciencias');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (17, 'Si tuvieras que enseñar algo, ¿qué elegirías?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (18, '¿Qué área de la comunicación te interesa más?', 'Comunicación');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (19, '¿Cómo te ves en 10 años?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (20, '¿Qué preferís diseñar o crear?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (21, '¿Qué valor considerás fundamental en tu trabajo?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (22, '¿Con qué herramientas te sentís más cómodo/a?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (23, '¿Qué tipo de leyes te interesan más?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (24, '¿Qué te gusta transformar en el mundo del trabajo?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (25, '¿Qué área del campo te atrae más?', 'Agronomía');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (26, '¿Qué preferís analizar?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (27, '¿Qué tipo de asistencia preferís brindar?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (28, '¿Qué importancia le das a la expresión corporal?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (29, '¿Qué temas elegirías para un documental?', 'General');
-INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (30, '¿Cuál es tu principal motivo para estudiar hoy?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (31, 'Cuando tenés un problema, ¿qué hacés primero?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (32, '¿En cuál de estos lugares te sentirías más cómodo/a trabajando?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (33, '¿Qué te gustaría que la gente recuerde de vos?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (34, 'Si te regalan un kit de herramientas, ¿qué hacés?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (35, '¿Qué tipo de películas o series te enganchan más?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (36, '¿Qué materia del secundario más te gustó?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (37, 'Si tuvieras que elegir HOY una carrera, ¿a cuál irías?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (38, '¿Qué te gusta más: los números o las personas?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (39, 'Cuando hay un conflicto en tu grupo de amigos, ¿qué hacés?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (40, '¿Qué te genera más satisfacción?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (41, '¿Dónde te ves viviendo en el futuro?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (42, '¿Qué te gusta más de las redes sociales?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (43, 'Si pudieras elegir un superpoder, ¿cuál sería?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (44, '¿Qué tipo de noticias te llaman la atención?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (45, '¿Cómo te describirían tus amigos?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (46, 'Si tuvieras que dar una charla TED, ¿de qué hablarías?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (47, '¿Qué te motiva más para estudiar?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (48, '¿Cuál de estas frases te representa más?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (49, '¿Qué harías con un millón de pesos?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (50, '¿Qué tipo de trabajo te parece más importante?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (51, 'Cuando estás aburrido/a, ¿qué hacés?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (52, '¿Qué te parece más interesante?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (53, '¿Qué tipo de trabajador/a creés que sos?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (54, '¿Qué te haría sentir más orgulloso/a?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (55, 'Si tuvieras que elegir UNA cosa para aprender ahora, ¿cuál sería?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (56, '¿Qué te preocupa más del futuro?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (57, '¿En qué actividad del secundario te sentías más vivo/a?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (58, 'Si pudieras elegir tu estilo de vida a los 30 años, ¿cuál sería?', 'General');
+INSERT INTO `preguntas` (`id`, `texto_pregunta`, `area_profesional`) VALUES (59, '¿Qué consejo le darías a alguien que no sabe qué estudiar?', 'General');
 
 DROP TABLE IF EXISTS `opciones_pregunta`;
-CREATE TABLE `opciones_pregunta` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la opción',
-  `pregunta_id` int(11) NOT NULL COMMENT 'Pregunta asociada (FK → preguntas.id, borrado en cascada)',
-  `texto_opcion` varchar(300) NOT NULL COMMENT 'Texto de la opción',
-  `area_profesional` varchar(100) NOT NULL COMMENT 'Área que suma la opción',
-  PRIMARY KEY (`id`),
-  KEY `pregunta_id` (`pregunta_id`),
-  CONSTRAINT `opciones_pregunta_ibfk_1` FOREIGN KEY (`pregunta_id`) REFERENCES `preguntas` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7659 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Opciones de respuesta del test (esquema original, legacy)';
+CREATE TABLE "opciones_pregunta" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "pregunta_id" int NOT NULL,
+  "texto_opcion" varchar(300) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "area_profesional" varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  PRIMARY KEY ("id"),
+  KEY "pregunta_id" ("pregunta_id"),
+  CONSTRAINT "opciones_pregunta_ibfk_1" FOREIGN KEY ("pregunta_id") REFERENCES "preguntas" ("id") ON DELETE CASCADE
+);
 
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7501, 1, 'Desafíos lógicos, numéricos o estadísticos', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7502, 1, 'Problemas de salud física o bienestar de las personas', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7503, 1, 'Conflictos sociales, legales o de justicia', 'Derecho');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7504, 1, 'Fallas técnicas en máquinas o sistemas electrónicos', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7505, 1, 'Necesidades de expresión artística o comunicación visual', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7506, 1, 'Retos de producción de alimentos o cuidado ambiental', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7507, 2, 'Un laboratorio de investigación química o biológica', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7508, 2, 'El aire libre, trabajando con la tierra, rocas o bosques', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7509, 2, 'Una oficina gestionando procesos, finanzas o marketing', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7510, 2, 'Un centro de salud, hospital o clínica dental', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7511, 2, 'Un estudio creativo, set de filmación o teatro', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7512, 2, 'Una obra en construcción o planta industrial', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7513, 3, 'Tu pensamiento crítico y análisis filosófico', 'Humanidades');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7514, 3, 'Tu habilidad para cuidar y acompañar a otros en crisis', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7515, 3, 'Tu destreza manual y precisión técnica', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7516, 3, 'Tu facilidad para comunicar ideas y persuadir', 'Comunicación');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7517, 3, 'Tu rapidez para entender lenguajes lógicos y de programación', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7518, 4, 'El origen del universo y las leyes de la energía', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7519, 4, 'La historia de las civilizaciones y sus transformaciones', 'Humanidades');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7520, 4, 'El comportamiento de la mente humana y las emociones', 'Salud Mental');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7521, 4, 'La composición química de los materiales y medicamentos', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7522, 4, 'El funcionamiento de la economía y los mercados', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7523, 5, 'Diseñar infraestructuras seguras (puentes, caminos)', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7524, 5, 'Mejorar la productividad agrícola de forma sustentable', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7525, 5, 'Garantizar el cumplimiento de las leyes y derechos', 'Derecho');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7526, 5, 'Crear software y soluciones digitales innovadoras', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7527, 5, 'Educar en el campo de las artes y la cultura', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7528, 6, 'Cómo están diseñados sus circuitos electrónicos internos', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7529, 6, 'El mecanismo físico y motor que lo hace moverse', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7530, 6, 'Cómo se puede vender y posicionar en el mercado', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7531, 6, 'El impacto ambiental que genera su producción', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7532, 7, 'Diagnóstico médico y tratamiento de enfermedades', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7533, 7, 'Rehabilitación física y recuperación del movimiento', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7534, 7, 'Cuidado directo y acompañamiento del paciente', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7535, 7, 'Prevención a través de la nutrición saludable', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7536, 7, 'Salud y estética bucodental', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7537, 8, 'Analizar datos y crear hojas de cálculo precisas', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7538, 8, 'Escribir ensayos, reflexiones o crónicas sociales', 'Humanidades');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7539, 8, 'Dibujar, diseñar logotipos o editar videos', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7540, 8, 'Realizar experimentos o pequeñas investigaciones', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7541, 9, 'Estudiando la vida de los microorganismos y la genética', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7542, 9, 'Analizando la estructura de la tierra, volcanes y sismos', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7543, 9, 'Gestionando la salud y producción de animales', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7544, 9, 'Conservando los recursos forestales y el clima', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7545, 10, 'Me apasiona la teoría matemática pura y abstracta', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7546, 10, 'Los uso para el cálculo financiero, impuestos y costos', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7547, 10, 'Los aplico para el análisis de estructuras y fuerzas físicas', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7548, 10, 'Los utilizo para analizar estadísticas sociales o demográficas', 'Humanidades');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7549, 11, 'Noticias sobre tecnología, IA y sistemas', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7550, 11, 'Libros de historia, biografía o política', 'Humanidades');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7551, 11, 'Revistas sobre salud, bienestar y medicina', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7552, 11, 'Manuales técnicos de mecánica o electrónica', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7553, 12, 'El que organiza los recursos y optimiza los procesos', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7554, 12, 'El que propone la visión creativa y estética', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7555, 12, 'El que analiza las normas y media en los conflictos', 'Derecho');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7556, 12, 'El que se enfoca en los detalles técnicos y operativos', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7557, 13, 'La posibilidad de innovar tecnológicamente', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7558, 13, 'El servicio directo a la comunidad y la ayuda humanitaria', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7559, 13, 'La estabilidad que brinda la gestión empresarial y contable', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7560, 13, 'La libertad de creación artística y cultural', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7561, 14, 'Mucha, me gusta descubrir nuevas curas o vacunas', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7562, 14, 'Bastante, me interesa entender el pasado de mi región', 'Humanidades');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7563, 14, 'Me interesa la investigación aplicada a la industria', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7564, 14, 'Prefiero la investigación sobre el comportamiento humano', 'Salud Mental');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7565, 15, 'Una gran empresa o un emprendimiento propio', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7566, 15, 'Una obra de teatro, una película o una banda musical', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7567, 15, 'Una campaña de concientización ambiental', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7568, 15, 'Un sistema de redes informáticas seguro', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7569, 16, 'El cambio climático y la gestión del agua', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7570, 16, 'La creación de energías limpias y eficientes', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7571, 16, 'El tratamiento de enfermedades mentales en la sociedad', 'Salud Mental');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7572, 16, 'La digitalización y automatización de la vida cotidiana', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7573, 17, 'Ciencias exactas (Física, Química, Matemática)', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7574, 17, 'Artes visuales o música', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7575, 17, 'Filosofía, Historia o Ética', 'Humanidades');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7576, 17, 'Educación para la salud y prevención', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7577, 18, 'El periodismo y los medios masivos', 'Comunicación');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7578, 18, 'El marketing digital y la publicidad', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7579, 18, 'La comunicación institucional en empresas', 'Comunicación');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7580, 18, 'La divulgación científica o cultural', 'Humanidades');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7581, 19, 'Supervisando procesos en una fábrica o industria', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7582, 19, 'Atendiendo pacientes en un consultorio o centro médico', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7583, 19, 'Litigando en tribunales o asesorando legalmente', 'Derecho');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7584, 19, 'Investigando y publicando hallazgos académicos', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7585, 20, 'Un edificio moderno y funcional', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7586, 20, 'Un sistema de riego eficiente para el campo', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7587, 20, 'Una estrategia de ventas internacional', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7588, 20, 'Una plataforma interactiva o aplicación móvil', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7589, 21, 'La precisión y el rigor lógico', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7590, 21, 'La justicia y la equidad', 'Derecho');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7591, 21, 'La empatía y la compasión', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7592, 21, 'La eficiencia y la productividad', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7593, 22, 'Computadoras y software especializado', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7594, 22, 'Instrumental quirúrgico o de diagnóstico', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7595, 22, 'Herramientas de corte, soldadura y maquinaria', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7596, 22, 'Instrumentos musicales, pinceles o cámaras', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7597, 23, 'Las leyes que regulan el comportamiento social y civil', 'Derecho');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7598, 23, 'Las leyes de la física que gobiernan el movimiento', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7599, 23, 'Las normas contables y leyes del mercado', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7600, 23, 'Las normas ambientales y de protección de recursos', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7601, 24, 'Hacer las industrias más seguras y eficientes', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7602, 24, 'Incorporar más arte y creatividad en la vida diaria', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7603, 24, 'Mejorar la salud mental de los trabajadores', 'Salud Mental');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7604, 24, 'Facilitar el acceso a la tecnología para todos', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7605, 25, 'El manejo de cultivos extensivos', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7606, 25, 'El cuidado y sanidad de los animales', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7607, 25, 'El estudio de los suelos y las rocas', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7608, 25, 'El manejo de bosques y parques naturales', 'Agronomía');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7609, 26, 'Un saldo contable y la rentabilidad de una empresa', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7610, 26, 'Una obra de arte o una pieza teatral', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7611, 26, 'Un mapa meteorológico o astronómico', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7612, 26, 'La estructura de una molécula o ADN', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7613, 27, 'Asistencia técnica en reparaciones complejas', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7614, 27, 'Asistencia social en comunidades vulnerables', 'Humanidades');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7615, 27, 'Asistencia nutricional y planes de salud', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7616, 27, 'Asesoramiento financiero y económico', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7617, 28, 'Mucha, me interesa la danza y el teatro', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7618, 28, 'Intermedia, la veo clave para kinesiología y rehabilitación', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7619, 28, 'Poca, prefiero el trabajo intelectual o administrativo', 'Negocios');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7620, 29, 'La vida secreta de los volcanes y terremotos', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7621, 29, 'El impacto de la inteligencia artificial en el empleo', 'Tecnología');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7622, 29, 'La historia olvidada de los pueblos de Tucumán', 'Humanidades');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7623, 29, 'Avances en la medicina para alargar la vida', 'Salud');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7624, 30, 'Cumplir un sueño de vocación postergado', 'Humanidades');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7625, 30, 'Adquirir habilidades técnicas para una salida laboral rápida', 'Ingeniería');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7626, 30, 'Profundizar en el conocimiento científico y académico', 'Ciencias Naturales');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7627, 30, 'Desarrollar mi potencial creativo y expresivo', 'Arte y Diseño');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7628, 1, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7629, 2, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7630, 3, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7631, 4, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7632, 5, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7633, 6, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7634, 7, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7635, 8, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7636, 9, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7637, 10, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7638, 11, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7639, 12, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7640, 13, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7641, 14, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7642, 15, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7643, 16, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7644, 17, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7645, 18, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7646, 19, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7647, 20, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7648, 21, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7649, 22, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7650, 23, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7651, 24, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7652, 25, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7653, 26, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7654, 27, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7655, 28, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7656, 29, 'Ninguna de las anteriores', 'Neutral');
-INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7657, 30, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7659, 31, 'Busco una solución lógica y paso a paso', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7660, 31, 'Me pongo a investigar qué lo causó', 'Ciencias Naturales');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7661, 31, 'Hablo con las personas involucradas para entenderlas', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7662, 31, 'Busco soluciones creativas o distintas a las típicas', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7663, 31, 'Analizo si hay alguna ley o regla que aplique', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7664, 31, 'Lo postergo, prefiero dejarlo para después', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7665, 31, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7666, 32, 'En un hospital o clínica atendiendo personas', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7667, 32, 'En un estudio o despacho arreglando asuntos legales', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7668, 32, 'En un taller, fábrica o construyendo algo', 'Ingeniería');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7669, 32, 'En un estudio de arte o diseño trabajando con colores y formas', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7670, 32, 'En un campo o laboratorio cuidando el medio ambiente', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7671, 32, 'Me da igual, siempre y cuando me guste lo que haga', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7672, 32, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7673, 33, 'Que fui justo/a y ayudé a los demás', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7674, 33, 'Que dejé algo lindo, una obra o un diseño', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7675, 33, 'Que descubrí algo importante o inventé algo', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7676, 33, 'Que curé personas o las hice sentir mejor', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7677, 33, 'Que cuidé la tierra y las plantas', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7678, 33, 'Ni idea, apenas estoy empezando a pensarlo', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7679, 33, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7680, 34, 'Lo uso para arreglar algo roto en casa', 'Ingeniería');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7681, 34, 'Lo guardo, no sé para qué sirve', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7682, 34, 'Lo desarmo para ver cómo funciona por dentro', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7683, 34, 'Lo uso para crear algo artístico o decorativo', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7684, 34, 'Lo presto a un vecino que lo necesita', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7685, 34, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7686, 35, 'De misterio o crimen donde hay que resolver algo', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7687, 35, 'De ciencia ficción o tecnología', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7688, 35, 'Documentales sobre la naturaleza o el espacio', 'Ciencias Naturales');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7689, 35, 'Dramas o historias que te hacen sentir algo fuerte', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7690, 35, 'De gente que supera obstáculos o ayuda a otros', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7691, 35, 'No veo mucho, me aburro rápido', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7692, 35, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7693, 36, 'Matemática o física', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7694, 36, 'Biología o química', 'Ciencias Naturales');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7695, 36, 'Historia o literatura', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7696, 36, 'Dibujo técnico o artística', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7697, 36, 'Economía o administración', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7698, 36, 'Ninguna en particular', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7699, 36, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7700, 37, 'Ingeniería en Sistemas o algo de computación', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7701, 37, 'Medicina o enfermería', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7702, 37, 'Abogacía o ciencias políticas', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7703, 37, 'Diseño gráfico o arquitectura', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7704, 37, 'Psicología o trabajo social', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7705, 37, 'Agronomía o biología', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7706, 37, 'Contador o administración de empresas', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7707, 37, 'Todavía no sé, por eso estoy acá', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7708, 37, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7709, 38, 'Los números, me gusta que todo cuente', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7710, 38, 'Las personas, me gusta escucharlas y ayudarlas', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7711, 38, 'Depende del día', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7712, 38, 'Los animales y las plantas', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7713, 38, 'Los colores y las formas', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7714, 38, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7715, 39, 'Intento mediar y que todos queden contentos', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7716, 39, 'Analizo quién tiene razón y se lo digo', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7717, 39, 'Me quedo al margen, no es mi problema', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7718, 39, 'Propongo una solución creativa que no habían pensado', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7719, 39, 'Investigo las causas del conflicto', 'Ciencias Naturales');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7720, 39, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7721, 40, 'Ayudar a alguien que lo necesita', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7722, 40, 'Resolver un problema difícil o un acertijo', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7723, 40, 'Crear algo nuevo: una obra, un diseño, una idea', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7724, 40, 'Ganar dinero o tener estabilidad económica', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7725, 40, 'Aprender algo nuevo cada día', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7726, 40, 'No lo sé, todavía estoy buscando', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7727, 40, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7728, 41, 'En una ciudad grande y con mucha actividad', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7729, 41, 'En un lugar tranquilo, cerca de la naturaleza', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7730, 41, 'En cualquier lado, lo importante es el laburo', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7731, 41, 'En el extranjero, conociendo otras culturas', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7732, 41, 'En Tucumán, aportando a la provincia', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7733, 41, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7734, 42, 'Ver noticias y enterarme de lo que pasa', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7735, 42, 'Crear contenido: fotos, videos, diseños', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7736, 42, 'Aprender cosas nuevas de cuentas educativas', 'Ciencias Naturales');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7737, 42, 'Me gustan pero me sacan mucho tiempo', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7738, 42, 'Conectar con gente y armar comunidades', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7739, 42, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7740, 43, 'Leer la mente de las personas', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7741, 43, 'Curar cualquier enfermedad', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7742, 43, 'Hacer que las máquinas me obedezcan', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7743, 43, 'Volar sobre los campos y ver la naturaleza', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7744, 43, 'Parar el tiempo para pensar con calma', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7745, 43, 'No necesito superpoderes, me gusta la realidad', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7746, 43, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7747, 44, 'De tecnología e innovación', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7748, 44, 'De salud y bienestar', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7749, 44, 'De política y derechos humanos', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7750, 44, 'De arte, cultura y entretenimiento', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7751, 44, 'De medio ambiente y cambio climático', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7752, 44, 'No suelo leer noticias', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7753, 44, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7754, 45, 'El/la que siempre ayuda a los demás', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7755, 45, 'El/la que siempre tiene ideas raras pero buenas', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7756, 45, 'El/la que sabe de todo un poco', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7757, 45, 'El/la tranqui, que va con el ritmo', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7758, 45, 'El/la que siempre pregunta ''¿por qué?''', 'Ciencias Naturales');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7759, 45, 'El/la que organiza todo el grupo', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7760, 45, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7761, 46, 'De cómo la tecnología cambia nuestras vidas', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7762, 46, 'De salud mental y emociones', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7763, 46, 'De un caso injusto que te marcó', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7764, 46, 'De un proyecto artístico o creativo', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7765, 46, 'De conservar el medio ambiente', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7766, 46, 'No daría una charla, me da cosa hablar en público', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7767, 46, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7768, 47, 'Saber que voy a poder ayudar a otros', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7769, 47, 'Ganar bien y tener buena vida', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7770, 47, 'Aprender cosas que me sirvan para crear', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7771, 47, 'Entender cómo funciona el mundo', 'Ciencias Naturales');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7772, 47, 'Porque me lo piden mis viejos', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7773, 47, 'Nada en particular, estudio porque toca', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7774, 47, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7775, 48, 'El que no arriesga, no gana', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7776, 48, 'Nadie entiende lo que siento', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7777, 48, 'Hay que ser justos con todos', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7778, 48, 'La naturaleza nos da todo, hay que cuidarla', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7779, 48, 'Si no funciona, hay que inventar algo nuevo', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7780, 48, 'Ninguna, soy más de acciones que de frases', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7781, 48, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7782, 49, 'Lo invertiría en un negocio propio', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7783, 49, 'Viajaría para conocer otras culturas', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7784, 49, 'Lo donaría a una cause social', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7785, 49, 'Compraría equipamiento para un taller', 'Ingeniería');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7786, 49, 'Ahorrarlo para estar tranquilo/a', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7787, 49, 'Lo usaría para crear una obra o proyecto artístico', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7788, 49, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7789, 50, 'Salvar vidas en un hospital', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7790, 50, 'Defender a alguien que no puede defenderse', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7791, 50, 'Crear tecnología que facilite la vida', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7792, 50, 'Producir alimentos para la gente', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7793, 50, 'Hacer que los espacios se vean lindos', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7794, 50, 'Todos son importantes, no podría elegir', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7795, 50, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7796, 51, 'Busco algo nuevo para aprender', 'Ciencias Naturales');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7797, 51, 'Me pongo a dibujar, escribir o crear algo', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7798, 51, 'Juego a videojuegos o programmes algo', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7799, 51, 'Salgo a caminar o estoy en la naturaleza', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7800, 51, 'Charlo con amigos o veo series', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7801, 51, 'Duermo, la verdad', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7802, 51, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7803, 52, 'La inteligencia artificial y los robots', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7804, 52, 'Las enfermedades y cómo se curan', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7805, 52, 'Las leyes y cómo se hacen las normas', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7806, 52, 'El comportamiento de las personas', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7807, 52, 'Las plantas, los animales y el clima', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7808, 52, 'La economía y los mercados', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7809, 52, 'Me cuesta decidir, todo me parece interesante', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7810, 52, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7811, 53, 'Metódico/a, me gusta tener todo ordenado', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7812, 53, 'Empático/a, me importa cómo se sienten los demás', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7813, 53, 'Creativo/a, me gustan los desafíos distintos', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7814, 53, 'Práctico/a, quiero ver resultados concretos', 'Ingeniería');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7815, 53, 'Perseverante, no me rindo fácil', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7816, 53, 'Todavía no sé, estoy descubriendo', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7817, 53, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7818, 54, 'Curar a alguien o mejorar su calidad de vida', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7819, 54, 'Diseñar un edificio o una obra que todos vean', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7820, 54, 'Crear una app que usen millones de personas', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7821, 54, 'Ganar un caso importante o cambiar una ley', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7822, 54, 'Tener mi propio negocio y que le vaya bien', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7823, 54, 'Cuidar un bosque o una reserva natural', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7824, 54, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7825, 55, 'Programación o robótica', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7826, 55, 'Primeros auxilios o algo de salud', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7827, 55, 'Pintura, fotografía o edición de video', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7828, 55, 'Un idioma nuevo', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7829, 55, 'Contabilidad o marketing', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7830, 55, 'Nada, ya sé demasiado', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7831, 55, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7832, 56, 'No encontrar trabajo estable', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7833, 56, 'Que la tecnología reemplace a las personas', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7834, 56, 'El cambio climático y la contaminación', 'Agronomía');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7835, 56, 'Que no se respeten los derechos humanos', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7836, 56, 'La salud mental de la gente', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7837, 56, 'No me preocupo tanto, ya se verá', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7838, 56, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7839, 57, 'En el laboratorio haciendo experimentos', 'Ciencias Naturales');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7840, 57, 'En la clase de arte o música', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7841, 57, 'En debates o Model ONU', 'Derecho');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7842, 57, 'En el pompis o actividades deportivas', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7843, 57, 'En proyectos sociales o voluntariado', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7844, 57, 'En nada en particular, solo quería que termine', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7845, 57, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7846, 58, 'Tranquilo, con tiempo para mi familia y mis hobbies', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7847, 58, 'Exitoso, con mi propio negocio o empresa', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7848, 58, 'Viajero, conociendo el mundo y otras culturas', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7849, 58, 'De servicio, ayudando a quien más lo necesite', 'Salud');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7850, 58, 'Creativo, viviendo de mi arte o diseño', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7851, 58, 'No lo sé, todavía soy joven', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7852, 58, 'Ninguna de las anteriores', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7853, 59, 'Que piense en qué le gusta hacer, no en qué paga bien', 'Humanidades');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7854, 59, 'Que pruebe varias cosas antes de decidir', 'Neutral');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7855, 59, 'Que piense en cómo quiere ayudar al mundo', 'Salud Mental');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7856, 59, 'Que busque algo con futuro y estabilidad', 'Negocios');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7857, 59, 'Que siga su instinto, el corazón no falla', 'Arte y Diseño');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7858, 59, 'Que estudie algo de tecnología, siempre hay laburo', 'Tecnología');
+INSERT INTO `opciones_pregunta` (`id`, `pregunta_id`, `texto_opcion`, `area_profesional`) VALUES (7859, 59, 'Ninguna de las anteriores', 'Neutral');
 
 DROP TABLE IF EXISTS `orientaciones`;
-CREATE TABLE `orientaciones` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la orientación',
-  `nombre` varchar(100) NOT NULL COMMENT 'Nombre del área/orientación profesional',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `nombre` (`nombre`)
-) ENGINE=InnoDB AUTO_INCREMENT=1075 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Áreas/orientaciones de agrupación de carreras gestionables desde el panel';
+CREATE TABLE "orientaciones" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "nombre" varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY ("id"),
+  UNIQUE KEY "nombre" ("nombre")
+);
 
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (6, 'Agronomía');
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (10, 'Arte y Diseño');
@@ -307,8 +349,6 @@ INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (391, 'Ciencias');
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (5, 'Ciencias Naturales');
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (11, 'Comunicación');
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (8, 'Derecho');
-INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (409, 'Educacion');
-INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (374, 'fisica');
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (9, 'Humanidades');
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (2, 'Ingeniería');
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (37, 'matematica');
@@ -319,34 +359,35 @@ INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (1, 'Tecnología');
 INSERT INTO `orientaciones` (`id`, `nombre`) VALUES (405, 'Tecnologia y Computacion');
 
 DROP TABLE IF EXISTS `carrera_areas`;
-CREATE TABLE `carrera_areas` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la relación',
-  `carrera_id` int(11) NOT NULL COMMENT 'Carrera asociada (FK → carreras.id)',
-  `area` varchar(100) NOT NULL COMMENT 'Área/orientación asignada a la carrera',
-  PRIMARY KEY (`id`),
-  KEY `idx_carrera` (`carrera_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Tabla puente entre carreras y áreas';
+CREATE TABLE "carrera_areas" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "carrera_id" int NOT NULL,
+  "area" varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY ("id"),
+  KEY "idx_carrera" ("carrera_id")
+);
 
 INSERT INTO `carrera_areas` (`id`, `carrera_id`, `area`) VALUES (62, 43, 'Agronomía');
 INSERT INTO `carrera_areas` (`id`, `carrera_id`, `area`) VALUES (63, 43, 'Arte y Diseño');
 INSERT INTO `carrera_areas` (`id`, `carrera_id`, `area`) VALUES (64, 43, 'Ciencias');
+INSERT INTO `carrera_areas` (`id`, `carrera_id`, `area`) VALUES (65, 42, 'Comunicación');
 
 DROP TABLE IF EXISTS `noticias`;
-CREATE TABLE `noticias` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la noticia',
-  `titulo` varchar(300) NOT NULL COMMENT 'Título de la noticia',
-  `descripcion` text DEFAULT NULL COMMENT 'Resumen o cuerpo de la noticia',
-  `imagen` varchar(500) DEFAULT NULL COMMENT 'Imagen (ruta local o URL de Cloudinary)',
-  `fuente` varchar(100) NOT NULL COMMENT 'Fuente (nombre del medio)',
-  `fecha` date NOT NULL COMMENT 'Fecha de la noticia',
-  `link` varchar(500) DEFAULT '#' COMMENT 'Enlace de origen (único)',
-  `categoria` varchar(100) DEFAULT 'General' COMMENT 'Categoría de la noticia',
-  `es_externa` tinyint(1) DEFAULT 0 COMMENT '1 = redirige al link externo',
-  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Fecha de alta',
-  `video` varchar(500) DEFAULT NULL COMMENT 'Video de la noticia (URL, local o de Cloudinary)',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_link` (`link`(255))
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Noticias educativas mostradas en la sección de noticias';
+CREATE TABLE "noticias" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "titulo" varchar(300) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "descripcion" text COLLATE utf8mb4_unicode_ci,
+  "imagen" varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  "fuente" varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "fecha" date NOT NULL,
+  "link" varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT '#',
+  "categoria" varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT 'General',
+  "es_externa" tinyint(1) DEFAULT '0',
+  "fecha_creacion" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "video" varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY ("id"),
+  UNIQUE KEY "unique_link" ("link"(255))
+);
 
 INSERT INTO `noticias` (`id`, `titulo`, `descripcion`, `imagen`, `fuente`, `fecha`, `link`, `categoria`, `es_externa`, `fecha_creacion`, `video`) VALUES (1, 'Nuevas becas estratégicas para ingeniería', 'La Universidad Nacional de Tucumán abre 50 nuevas becas completas para carreras de ingeniería con énfasis en tecnología e innovación para el ciclo 2026.', 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&q=80', 'La Gaceta', '2026-05-07', '#1', 'Ingeniería', 0, '2026-05-09 16:55:02', NULL);
 INSERT INTO `noticias` (`id`, `titulo`, `descripcion`, `imagen`, `fuente`, `fecha`, `link`, `categoria`, `es_externa`, `fecha_creacion`, `video`) VALUES (2, 'Tendencias: IA y programación dominan las inscripciones 2026', 'Según datos estadísticos, las carreras tecnológicas crecen un 34% en inscriptos. Python, inteligencia artificial y ciberseguridad lideran las preferencias.', 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=600&q=80', 'Universia', '2026-05-06', '#2', 'Tecnología', 0, '2026-05-09 16:55:02', NULL);
@@ -365,13 +406,13 @@ INSERT INTO `noticias` (`id`, `titulo`, `descripcion`, `imagen`, `fuente`, `fech
 INSERT INTO `noticias` (`id`, `titulo`, `descripcion`, `imagen`, `fuente`, `fecha`, `link`, `categoria`, `es_externa`, `fecha_creacion`, `video`) VALUES (16, 'Capacitación en Electroneumática', 'la utn invita a alumnos y profesionales a participar de los nuevos cursos capacitacion', 'https://frt.utn.edu.ar/wp-content/uploads/2026/05/Captura-de-pantalla-2026-05-14-221610.png', 'UTN', '2026-08-05', 'https://frt.utn.edu.ar/capacitacion-en-electroneumatica/', 'General', 0, '2026-08-05 04:19:40', NULL);
 
 DROP TABLE IF EXISTS `fuentes`;
-CREATE TABLE `fuentes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la fuente',
-  `nombre` varchar(100) NOT NULL COMMENT 'Nombre de la fuente (único)',
-  `activo` tinyint(1) DEFAULT 1 COMMENT '1 = habilitada',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `nombre` (`nombre`)
-) ENGINE=InnoDB AUTO_INCREMENT=634 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Fuentes de noticias disponibles';
+CREATE TABLE "fuentes" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "nombre" varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  "activo" tinyint(1) DEFAULT '1',
+  PRIMARY KEY ("id"),
+  UNIQUE KEY "nombre" ("nombre")
+);
 
 INSERT INTO `fuentes` (`id`, `nombre`, `activo`) VALUES (8, 'La Gaceta', 1);
 INSERT INTO `fuentes` (`id`, `nombre`, `activo`) VALUES (10, 'UTN', 1);
@@ -381,26 +422,26 @@ INSERT INTO `fuentes` (`id`, `nombre`, `activo`) VALUES (255, 'clarín', 1);
 INSERT INTO `fuentes` (`id`, `nombre`, `activo`) VALUES (418, 'Prueba', 1);
 
 DROP TABLE IF EXISTS `fuentes_eliminadas`;
-CREATE TABLE `fuentes_eliminadas` (
-  `nombre` varchar(100) NOT NULL COMMENT 'Nombre de la fuente eliminada (evita que reingrese)',
-  PRIMARY KEY (`nombre`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Registro de fuentes dadas de baja a propósito';
+CREATE TABLE "fuentes_eliminadas" (
+  "nombre" varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY ("nombre")
+);
 
 INSERT INTO `fuentes_eliminadas` (`nombre`) VALUES ('El País Tecnología');
 INSERT INTO `fuentes_eliminadas` (`nombre`) VALUES ('Universia');
 
 DROP TABLE IF EXISTS `filtros_fecha`;
-CREATE TABLE `filtros_fecha` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador del filtro',
-  `valor` varchar(20) NOT NULL COMMENT 'Valor interno del filtro',
-  `etiqueta` varchar(50) NOT NULL COMMENT 'Texto visible del filtro',
-  `activo` tinyint(1) DEFAULT 1 COMMENT '1 = habilitado',
-  `orden` int(11) DEFAULT 0 COMMENT 'Orden de aparición',
-  `condicion` varchar(250) NOT NULL DEFAULT '' COMMENT 'Condición SQL de filtrado sobre la fecha',
-  `es_fijo` tinyint(1) DEFAULT 0 COMMENT '1 = no editable desde el panel',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `valor` (`valor`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Filtros de tiempo del buscador de noticias';
+CREATE TABLE "filtros_fecha" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "valor" varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  "etiqueta" varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  "activo" tinyint(1) DEFAULT '1',
+  "orden" int DEFAULT '0',
+  "condicion" varchar(250) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  "es_fijo" tinyint(1) DEFAULT '0',
+  PRIMARY KEY ("id"),
+  UNIQUE KEY "valor" ("valor")
+);
 
 INSERT INTO `filtros_fecha` (`id`, `valor`, `etiqueta`, `activo`, `orden`, `condicion`, `es_fijo`) VALUES (1, 'todas', 'Todas', 1, 0, '', 1);
 INSERT INTO `filtros_fecha` (`id`, `valor`, `etiqueta`, `activo`, `orden`, `condicion`, `es_fijo`) VALUES (2, 'hoy', 'Hoy', 1, 1, 'fecha = CURDATE()', 1);
@@ -412,37 +453,37 @@ INSERT INTO `filtros_fecha` (`id`, `valor`, `etiqueta`, `activo`, `orden`, `cond
 INSERT INTO `filtros_fecha` (`id`, `valor`, `etiqueta`, `activo`, `orden`, `condicion`, `es_fijo`) VALUES (13, 'mejores_carreras_202', 'mejores carreras 2027', 1, 7, 'fecha >= ''2026-08-06'' AND fecha <= ''2026-08-07''', 0);
 
 DROP TABLE IF EXISTS `game_carreras`;
-CREATE TABLE `game_carreras` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la tarjeta',
-  `carrera_id` int(11) NOT NULL COMMENT 'Carrera asociada (FK → carreras.id, borrado en cascada)',
-  `texto_boton` varchar(100) DEFAULT 'Ver carrera' COMMENT 'Texto del botón de la tarjeta',
-  `titulo_card` varchar(150) DEFAULT NULL COMMENT 'Título que se muestra en la tarjeta',
-  `descripcion_card` text DEFAULT NULL COMMENT 'Descripción de la tarjeta',
-  `activo` tinyint(1) DEFAULT 1 COMMENT '1 = visible en el juego',
-  `orden` int(11) DEFAULT 0 COMMENT 'Orden de aparición',
-  `boton_no` varchar(100) NOT NULL DEFAULT 'No es lo mío' COMMENT 'Texto del botón "No"',
-  `boton_info` varchar(100) NOT NULL DEFAULT 'Info' COMMENT 'Texto del botón "Info"',
-  `boton_yes` varchar(100) NOT NULL DEFAULT 'Me interesa' COMMENT 'Texto del botón "Me interesa"',
-  PRIMARY KEY (`id`),
-  KEY `carrera_id` (`carrera_id`),
-  CONSTRAINT `game_carreras_ibfk_1` FOREIGN KEY (`carrera_id`) REFERENCES `carreras` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=500 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Carreras que participan en el juego de descubrimiento';
+CREATE TABLE "game_carreras" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "carrera_id" int NOT NULL,
+  "texto_boton" varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT 'Ver carrera',
+  "titulo_card" varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  "descripcion_card" text COLLATE utf8mb4_unicode_ci,
+  "activo" tinyint(1) DEFAULT '1',
+  "orden" int DEFAULT '0',
+  "boton_no" varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'No es lo mío',
+  "boton_info" varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Info',
+  "boton_yes" varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Me interesa',
+  PRIMARY KEY ("id"),
+  KEY "carrera_id" ("carrera_id"),
+  CONSTRAINT "game_carreras_ibfk_1" FOREIGN KEY ("carrera_id") REFERENCES "carreras" ("id") ON DELETE CASCADE
+);
 
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (437, 1, 'Ver carrera', 'Ingeniería en Sistemas de Información', 'Diseño y desarrollo de software, bases de datos, redes y sistemas informáticos.', 0, 1, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (438, 2, 'Ver carrera', 'Licenciatura en Sistemas de Información', 'Análisis, diseño e implementación de sistemas de información empresariales.', 0, 2, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (439, 3, 'Ver carrera', 'Tecnicatura en Programación', 'Desarrollo de aplicaciones web, móviles y de escritorio. Salida laboral rápida.', 0, 3, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (440, 4, 'Ver carrera', 'Ingeniería Civil', 'Diseño y construcción de infraestructuras: edificios, puentes, caminos y obras hidráulicas.', 0, 4, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (441, 5, 'Ver carrera', 'Ingeniería Mecánica', 'Diseño, análisis y mantenimiento de sistemas mecánicos y procesos industriales.', 0, 5, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (442, 6, 'Ver carrera', 'Ingeniería Eléctrica', 'Generación, transmisión y distribución de energía eléctrica. Automatización industrial.', 0, 6, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (443, 7, 'Ver carrera', 'Ingeniería Industrial', 'Optimización de procesos productivos, gestión de calidad y logística industrial.', 0, 7, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (444, 8, 'Ver carrera', 'Ingeniería Química', 'Transformación de materias primas en productos industriales mediante procesos químicos.', 0, 8, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (445, 9, 'Ver carrera', 'Medicina', 'Diagnóstico, tratamiento y prevención de enfermedades.', 0, 9, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (446, 10, 'Ver carrera', 'Enfermería', 'Cuidado integral del paciente en hospitales, clínicas y atención domiciliaria.', 0, 10, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (447, 11, 'Ver carrera', 'Odontología', 'Diagnóstico y tratamiento de enfermedades bucodentales.', 0, 11, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (448, 12, 'Ver carrera', 'Kinesiología y Fisioterapia', 'Rehabilitación física y recuperación del movimiento.', 0, 12, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (449, 13, 'Ver carrera', 'Nutrición', 'Planificación de dietas y planes alimentarios para individuos y comunidades.', 0, 13, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (450, 14, 'Ver carrera', 'Bioquímica', 'Análisis clínicos, investigación farmacéutica y control de calidad alimentaria.', 0, 14, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (451, 15, 'Ver carrera', 'Farmacia', 'Dispensación de medicamentos, control de calidad y farmacología clínica.', 0, 15, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (437, 1, 'Ver carrera', 'Ingeniería en Sistemas de Información', 'Diseño y desarrollo de software, bases de datos, redes y sistemas informáticos.', 1, 1, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (438, 2, 'Ver carrera', 'Licenciatura en Sistemas de Información', 'Análisis, diseño e implementación de sistemas de información empresariales.', 1, 2, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (439, 3, 'Ver carrera', 'Tecnicatura en Programación', 'Desarrollo de aplicaciones web, móviles y de escritorio. Salida laboral rápida.', 1, 3, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (440, 4, 'Ver carrera', 'Ingeniería Civil', 'Diseño y construcción de infraestructuras: edificios, puentes, caminos y obras hidráulicas.', 1, 4, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (441, 5, 'Ver carrera', 'Ingeniería Mecánica', 'Diseño, análisis y mantenimiento de sistemas mecánicos y procesos industriales.', 1, 5, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (442, 6, 'Ver carrera', 'Ingeniería Eléctrica', 'Generación, transmisión y distribución de energía eléctrica. Automatización industrial.', 1, 6, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (443, 7, 'Ver carrera', 'Ingeniería Industrial', 'Optimización de procesos productivos, gestión de calidad y logística industrial.', 1, 7, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (444, 8, 'Ver carrera', 'Ingeniería Química', 'Transformación de materias primas en productos industriales mediante procesos químicos.', 1, 8, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (445, 9, 'Ver carrera', 'Medicina', 'Diagnóstico, tratamiento y prevención de enfermedades.', 1, 9, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (446, 10, 'Ver carrera', 'Enfermería', 'Cuidado integral del paciente en hospitales, clínicas y atención domiciliaria.', 1, 10, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (447, 11, 'Ver carrera', 'Odontología', 'Diagnóstico y tratamiento de enfermedades bucodentales.', 1, 11, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (448, 12, 'Ver carrera', 'Kinesiología y Fisioterapia', 'Rehabilitación física y recuperación del movimiento.', 1, 12, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (449, 13, 'Ver carrera', 'Nutrición', 'Planificación de dietas y planes alimentarios para individuos y comunidades.', 1, 13, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (450, 14, 'Ver carrera', 'Bioquímica', 'Análisis clínicos, investigación farmacéutica y control de calidad alimentaria.', 1, 14, 'No es lo mío', 'Info', 'Me interesa');
+INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (451, 15, 'Ver carrera', 'Farmacia', 'Dispensación de medicamentos, control de calidad y farmacología clínica.', 1, 15, 'No es lo mío', 'Info', 'Me interesa');
 INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (452, 16, 'Ver carrera', 'Psicología', 'Estudio del comportamiento humano, terapia individual y grupal.', 0, 16, 'No es lo mío', 'Info', 'Me interesa');
 INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (453, 17, 'Ver carrera', 'Trabajo Social', 'Intervención en problemáticas sociales y acompañamiento a comunidades vulnerables.', 0, 17, 'No es lo mío', 'Info', 'Me interesa');
 INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (454, 18, 'Ver carrera', 'Psicopedagogía', 'Diagnóstico y tratamiento de dificultades de aprendizaje.', 0, 18, 'No es lo mío', 'Info', 'Me interesa');
@@ -468,56 +509,72 @@ INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `
 INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (474, 38, 'Ver carrera', 'Música', 'Interpretación, composición y dirección musical.', 0, 38, 'No es lo mío', 'Info', 'Me interesa');
 INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (475, 39, 'Ver carrera', 'Arquitectura', 'Diseño y planificación de edificios y espacios. Combina arte, técnica y funcionalidad.', 0, 39, 'No es lo mío', 'Info', 'Me interesa');
 INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (476, 40, 'Ver carrera', 'Licenciatura en Comunicación Social', 'Periodismo, relaciones públicas, comunicación institucional y medios digitales.', 0, 40, 'No es lo mío', 'Info', 'Me interesa');
-INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (477, 41, 'Ver carrera', 'Periodismo', 'Reportaje, redacción, conducción y producción periodística en todos los medios.', 0, 41, 'No es lo mío', 'Info', 'Me interesa');
 INSERT INTO `game_carreras` (`id`, `carrera_id`, `texto_boton`, `titulo_card`, `descripcion_card`, `activo`, `orden`, `boton_no`, `boton_info`, `boton_yes`) VALUES (478, 42, 'Ver carrera', 'Publicidad', 'Creación de campañas publicitarias, estrategia de marca y comunicación persuasiva.', 0, 42, 'No es lo mío', 'Info', 'Me interesa');
 
 DROP TABLE IF EXISTS `game_preguntas`;
-CREATE TABLE `game_preguntas` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador de la pregunta',
-  `texto_pregunta` varchar(300) NOT NULL COMMENT 'Enunciado de la pregunta',
-  `opcion_a_texto` varchar(200) NOT NULL COMMENT 'Texto de la opción A',
-  `opcion_a_area` varchar(100) NOT NULL COMMENT 'Área que suma la opción A',
-  `opcion_b_texto` varchar(200) NOT NULL COMMENT 'Texto de la opción B',
-  `opcion_b_area` varchar(100) NOT NULL COMMENT 'Área que suma la opción B',
-  `activo` tinyint(1) DEFAULT 1 COMMENT '1 = visible en el juego',
-  `orden` int(11) DEFAULT 0 COMMENT 'Orden de aparición',
-  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Fecha de alta',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Preguntas del juego "Descubre tu Carrera"';
+CREATE TABLE "game_preguntas" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "texto_pregunta" varchar(300) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "opcion_a_texto" varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "opcion_a_area" varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "opcion_b_texto" varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "opcion_b_area" varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "activo" tinyint(1) DEFAULT '1',
+  "orden" int DEFAULT '0',
+  "fecha_creacion" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY ("id")
+);
 
-INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (1, 'Te regalan un kit de herramientas. Que haces primero?', 'Desarmo la radio para ver como funciona por dentro', 'Tecnologia', 'Ayudo a un vecino a arreglar su silla rota', 'Servicio Social', 0, 0, '2026-07-16 17:52:16');
-INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (2, 'Estas en un museo. A que sala vas?', 'Sala de innovaciones cientificas y robots', 'Tecnologia', 'Sala de cuadros clasicos y esculturas', 'Arte y Diseno', 0, 0, '2026-07-16 17:52:16');
-INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (3, 'Hay un problema en el curso. Como actuas?', 'Organizo a todos para encontrar una solucion justa', 'Liderazgo', 'Analizo los datos y busco una explicacion logica', 'Investigacion', 1, 0, '2026-07-16 17:52:16');
-INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (6, 'te gusta leeer', 'si', 'Ciencias', 'no', 'Arte y Diseño', 1, 0, '2026-08-06 19:22:11');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (8, 'Te regalan un día libre. ¿Qué hacés?', 'Salgo a explorar la naturaleza', 'Agronomía', 'Me quedo jugando o viendo series', 'Humanidades', 1, 1, '2026-08-24 10:26:42');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (9, 'En un examen, ¿qué te sale mejor?', 'Las preguntas de números y cálculos', 'Tecnología', 'Los ensayos y textos largos', 'Humanidades', 1, 2, '2026-08-24 10:26:42');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (10, 'Si pudieras, ¿qué harías los fines de semana?', 'Ir al cine o a un recital', 'Arte y Diseño', 'Salir con amigos o familia', 'Salud Mental', 1, 3, '2026-08-24 10:26:42');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (11, '¿Qué te gustaría hacer de grande?', 'Tener mi propio consultorio o clínica', 'Salud', 'Tener mi propia empresa o negocio', 'Negocios', 1, 4, '2026-08-24 10:26:42');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (12, 'Cuando ves una noticia triste, ¿qué sentís?', 'Quiero hacer algo para ayudar', 'Salud Mental', 'Me informo más para entender qué pasó', 'Ciencias Naturales', 1, 5, '2026-08-24 10:26:43');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (13, '¿Qué tipo de lectura preferís?', 'Novelas o poesía que me hacen sentir algo', 'Humanidades', 'Revistas de tecnología o ciencia', 'Tecnología', 1, 6, '2026-08-24 10:26:43');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (14, 'Si tuvieras que elegir entre dos trabajos...', 'Uno que pague bien pero sea aburrido', 'Negocios', 'Uno que me apasione pero pague poco', 'Arte y Diseño', 1, 7, '2026-08-24 10:26:43');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (15, '¿Qué harías si encontrás un animal herido?', 'Lo llevaría a un veterinario o lo cuidaría', 'Salud', 'Buscaría información de qué hacer', 'Ciencias Naturales', 1, 8, '2026-08-24 10:26:43');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (16, 'En una prueba grupal, ¿qué rol tomás?', 'El que organiza y reparte tareas', 'Negocios', 'El que tiene las ideas locas', 'Arte y Diseño', 1, 9, '2026-08-24 10:26:43');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (17, '¿Qué te gusta más de un videojuego?', 'Resolver puzzles y desafíos lógicos', 'Tecnología', 'La historia y los personajes', 'Humanidades', 1, 10, '2026-08-24 10:26:44');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (18, 'Si pudieras vivir en cualquier época...', 'En el futuro, con toda la tecnología', 'Tecnología', 'En la naturaleza, lejos de la ciudad', 'Agronomía', 1, 11, '2026-08-24 10:26:44');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (19, '¿Qué te gustaría saber hacer?', 'Programar una app o un videojuego', 'Tecnología', 'Tocar un instrumento o pintar', 'Arte y Diseño', 1, 12, '2026-08-24 10:26:44');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (20, 'Cuando hay un problema en tu casa...', 'Lo arreglás vos mismo/a con YouTube', 'Ingeniería', 'Llamás a un profesional', 'Salud', 1, 13, '2026-08-24 10:26:44');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (21, '¿Qué te motivaría más para ir a la facu?', 'Que me enseñen cosas que me sirvan para laburar', 'Negocios', 'Que me guste lo que estoy aprendiendo', 'Humanidades', 1, 14, '2026-08-24 10:26:45');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (22, 'Si pudieras cambiar UNA cosa del mundo...', 'La desigualdad y la injusticia', 'Derecho', 'El daño que le hacemos al planeta', 'Agronomía', 1, 15, '2026-08-24 10:26:45');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (23, '¿Qué harías con un laboratorio bien equipado?', 'Haría experimentos de química o biología', 'Ciencias Naturales', 'Inventaría algo nuevo o mejoraría una máquina', 'Tecnología', 1, 16, '2026-08-24 10:26:45');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (24, '¿Qué tipo de proyectos te gustaría liderar?', 'Uno que ayude a la comunidad', 'Salud Mental', 'Uno que sea innovador y rompa esquemas', 'Tecnología', 1, 17, '2026-08-24 10:26:45');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (25, 'Si te ofrecen dos pasantías...', 'En una ONG que trabaja con jóvenes', 'Salud Mental', 'En una startup de tecnología', 'Tecnología', 1, 18, '2026-08-24 10:26:45');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (26, '¿Qué te gustaría que digan de tu trabajo?', 'Que ayudó a mucha gente', 'Salud', 'Que fue creativo y diferente', 'Arte y Diseño', 1, 19, '2026-08-24 10:26:46');
+INSERT INTO `game_preguntas` (`id`, `texto_pregunta`, `opcion_a_texto`, `opcion_a_area`, `opcion_b_texto`, `opcion_b_area`, `activo`, `orden`, `fecha_creacion`) VALUES (27, 'Cuando pensás en tu futuro laboral...', 'Quiero estabilidad y buen sueldo', 'Negocios', 'Quiero disfrutar de lo que hago', 'Humanidades', 1, 20, '2026-08-24 10:26:46');
 
 DROP TABLE IF EXISTS `tests`;
-CREATE TABLE `tests` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador del test',
-  `usuario_id` int(11) NOT NULL COMMENT 'Usuario que realizó el test (FK → usuarios.id, borrado en cascada)',
-  `fecha` datetime DEFAULT current_timestamp() COMMENT 'Fecha del intento',
-  `completado` tinyint(1) DEFAULT 0 COMMENT '1 = test finalizado',
-  `fecha_realizacion` timestamp NOT NULL DEFAULT current_timestamp() COMMENT 'Fecha de realización',
-  PRIMARY KEY (`id`),
-  KEY `usuario_id` (`usuario_id`),
-  CONSTRAINT `tests_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Intentos de test vocacional realizados por los usuarios';
+CREATE TABLE "tests" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "usuario_id" int NOT NULL,
+  "fecha" datetime DEFAULT CURRENT_TIMESTAMP,
+  "completado" tinyint(1) DEFAULT '0',
+  "fecha_realizacion" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY ("id"),
+  KEY "usuario_id" ("usuario_id"),
+  CONSTRAINT "tests_ibfk_1" FOREIGN KEY ("usuario_id") REFERENCES "usuarios" ("id") ON DELETE CASCADE
+);
 
 DROP TABLE IF EXISTS `resultados`;
-CREATE TABLE `resultados` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador del resultado',
-  `test_id` int(11) NOT NULL COMMENT 'Test asociado (FK → tests.id, único: 1 resultado por test)',
-  `area_profesional_sugerida` varchar(100) NOT NULL COMMENT 'Área recomendada',
-  `area_id` int(11) NOT NULL COMMENT 'Área recomendada (FK → areas.id)',
-  `puntaje` int(11) DEFAULT 0 COMMENT 'Puntaje obtenido',
-  `detalle` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL COMMENT 'Detalle del resultado (JSON)',
-  `created_at` datetime DEFAULT current_timestamp() COMMENT 'Fecha de creación',
-  `notas_personales` text DEFAULT NULL COMMENT 'Notas editables por el usuario',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `test_id` (`test_id`),
-  KEY `area_id` (`area_id`),
-  CONSTRAINT `resultados_ibfk_1` FOREIGN KEY (`test_id`) REFERENCES `tests` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `resultados_ibfk_2` FOREIGN KEY (`area_id`) REFERENCES `areas` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Resultado del test: área vocacional sugerida y detalle';
+CREATE TABLE "resultados" (
+  "id" int NOT NULL AUTO_INCREMENT,
+  "test_id" int NOT NULL,
+  "area_profesional_sugerida" varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  "area_id" int NOT NULL,
+  "puntaje" int DEFAULT '0',
+  "detalle" longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
+  "created_at" datetime DEFAULT CURRENT_TIMESTAMP,
+  "notas_personales" text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY ("id"),
+  UNIQUE KEY "test_id" ("test_id"),
+  KEY "area_id" ("area_id"),
+  CONSTRAINT "resultados_ibfk_1" FOREIGN KEY ("test_id") REFERENCES "tests" ("id") ON DELETE CASCADE,
+  CONSTRAINT "resultados_ibfk_2" FOREIGN KEY ("area_id") REFERENCES "areas" ("id") ON DELETE CASCADE,
+  CONSTRAINT "resultados_chk_1" CHECK (json_valid(`detalle`))
+);
 
 SET FOREIGN_KEY_CHECKS=1;
 
