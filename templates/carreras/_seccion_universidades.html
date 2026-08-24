@@ -1,23 +1,8 @@
-{# ============================================================
-   Sección "¿Dónde estudiarla en Tucumán?" — compartida por la
-   plantilla genérica (carrera_detalle.html) y las individuales
-   (carreras/carrera_39.html y futuras).
-
-   Contexto requerido (lo provee detalle_carrera en carreras.py):
-     - carrera: fila de la tabla carreras
-     - universidades: lista de universidades relacionadas con la carrera
-       (id, nombre, siglas, tipo, sitio_web) — puede venir vacía.
-
-   Flujo: todo queda detrás del botón "Buscar carrera" (a su lado hay un
-   acceso directo a Google, "Búsqueda personalizada").
-   - Con universidades: al tocarlo se muestra la lista con badge
-     pública/privada y tres acciones por universidad: Sitio oficial,
-     "Ver en su facultad" (enlaces de la carrera dentro del sitio) e
-     "Info y noticias" (enlaces informativos, sin restringir dominio).
-   - En ambos casos se lanza además el DESCUBRIMIENTO: busca la carrera
-     en el resto del catálogo de universidades (Siglo 21, San Pablo-T,
-     etc.) y muestra solo las que tienen resultados reales.
-   ============================================================ #}
+{# Sección "¿Dónde estudiarla en Tucumán?" — compartida por carrera_detalle.html y carreras/*.html
+   Contexto: carrera (dict) + universidades (lista, puede venir vacía).
+   Botón "Buscar carrera" abre el panel; a su lado "Búsqueda personalizada" va a Google.
+   Con unis: 3 botones por universidad (Sitio oficial / Ver en su facultad / Info y noticias).
+   Sin unis: búsqueda automática DDG. Siempre lanza descubrimiento en el resto del catálogo. #}
 <div class="mb-5" id="seccion-instituciones">
     <h5 class="fw-bold mb-3"><i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla en Tucumán?</h5>
 
@@ -71,12 +56,10 @@
             {% endfor %}
         </div>
 
-        <!-- Los enlaces por universidad se cargan acá, sin salir de la página -->
         <div id="resultados-universidad" class="mt-3"></div>
         {% else %}
         <p class="text-muted small mb-2">Todavía no cargamos qué universidades dictan esta carrera.</p>
 
-        <!-- Botón oculto: el "Buscar carrera" principal dispara su búsqueda -->
         <button id="btn-buscar-web"
                 data-carrera-id="{{ carrera.id }}"
                 style="display:none;"
@@ -88,7 +71,6 @@
         <div id="resultados-busqueda" class="mt-3"></div>
         {% endif %}
 
-        <!-- Descubrimiento: otras universidades del catálogo con esta carrera -->
         <div id="descubrimiento" class="mt-4"></div>
     </div>
 
@@ -108,7 +90,6 @@
                 '<span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>' +
                 '<span class="text-muted small">Buscando esta carrera en otras universidades...</span>';
 
-            // Escape de HTML: los textos vienen de sitios externos.
             const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
             fetch(`/carrera/${carreraId}/buscar-universidades?descubrir=1`)
@@ -147,9 +128,7 @@
         btnPrincipal.addEventListener('click', function () {
             btnPrincipal.style.display = 'none';
             panel.style.display = 'block';
-
             if (!hayUniversidades) {
-                // Sin universidades cargadas: correr la búsqueda automática.
                 document.getElementById('btn-buscar-web').click();
             }
             iniciarDescubrimiento();
@@ -161,7 +140,6 @@
     <script>
     (function () {
         const contenedor = document.getElementById('resultados-universidad');
-        // Escape de HTML: los textos vienen de sitios externos.
         const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         const ICONOS = {
             carrera: '<i class="bi bi-search"></i> Ver en su facultad',
@@ -187,7 +165,6 @@
 
                 fetch(`/carrera/${carreraId}/buscar-universidades?universidad_id=${universidadId}&modo=${modo}`)
                     .then(response => {
-                        // Si la sesión expiró, el servidor devuelve 401 con JSON
                         if (response.status === 401) {
                             return response.json().then(d => { throw {tipo: 'sesion', msg: d.error}; });
                         }
@@ -255,7 +232,6 @@
 
         fetch(`/carrera/${carreraId}/buscar-universidades`)
             .then(response => {
-                // Si la sesión expiró, el servidor devuelve 401 con JSON
                 if (response.status === 401) {
                     return response.json().then(d => { throw {tipo: 'sesion', msg: d.error}; });
                 }
@@ -278,10 +254,8 @@
                     return;
                 }
 
-                let html = '<div class="mt-2">';
-                // Escape de HTML: los textos vienen de sitios externos
-                // y no deben inyectarse tal cual en la página.
                 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+                let html = '<div class="mt-2">';
                 data.resultados.forEach(item => {
                     html += `<div class="py-2 border-bottom border-light">
                         <a href="${esc(item.url)}" target="_blank" rel="noopener noreferrer"
