@@ -4,6 +4,23 @@
 
 Plataforma web de orientación vocacional para estudiantes de la provincia de Tucumán, Argentina. Permite descubrir carreras según los intereses de cada persona mediante un **test vocacional**, explorar **carreras y universidades**, consultar **noticias educativas**, jugar a un **juego de descubrimiento** y gestionar todo el contenido desde un **panel de administración**.
 
+## Índice
+
+- [Características principales](#características-principales)
+- [Stack tecnológico](#stack-tecnológico)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Requisitos previos](#requisitos-previos)
+- [Instalación](#instalación)
+- [Configuración (archivo `.env`)](#configuración-archivo-env)
+- [Envío de emails](#envío-de-emails)
+- [Base de datos](#base-de-datos)
+- [Imágenes y videos (Cloudinary)](#imágenes-y-videos-cloudinary)
+- [Panel de administración](#panel-de-administración)
+- [Exportación de reportes](#exportación-de-reportes)
+- [Documentación](#documentación)
+- [Notas de despliegue (producción)](#notas-de-despliegue-producción)
+- [Autor](#autor)
+
 ## Características principales
 
 ### Sitio público
@@ -14,7 +31,7 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 - **Juego interactivo** de descubrimiento de carreras.
 - **Noticias educativas** con fuentes, categorías y filtros por fecha.
 - **Registro / Login / Perfil** de usuarios.
-- **Recuperación de contraseña** por código PIN enviado por email (Resend).
+- **Recuperación de contraseña** por código PIN enviado por email (Brevo).
 - **Historial de resultados** del test para cada usuario.
 - **Sección de comentarios / contacto**.
 
@@ -35,7 +52,7 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 | Servidor WSGI | gunicorn (despliegue vía `Procfile`) |
 | Base de datos | MySQL (conector `mysql-connector-python`) |
 | Frontend | HTML + CSS + JavaScript (plantillas Jinja2, Bootstrap 5) |
-| Envío de emails | Resend |
+| Envío de emails | Brevo (transaccionales) + Resend (soporte) |
 | Exportación Excel | openpyxl |
 | Informe PDF | reportlab |
 | Media (imágenes y videos) | Cloudinary (con fallback local) |
@@ -56,7 +73,7 @@ futuro 360/
 │   ├── decoradores.py           # requiere_login, requiere_admin, ajax_o_redirect, es_usuario_dueño
 │   ├── imagenes.py              # Subida de imágenes/videos (Cloudinary con fallback local)
 │   ├── migraciones.py           # Auto-migraciones idempotentes (tablas, columnas, datos iniciales)
-│   ├── mailer.py                # Envío de emails con Resend (códigos de recuperación)
+│   ├── mailer.py                # Envío de emails (Brevo: transaccionales · Resend: soporte)
 │   └── startup.py               # Sincronización de imágenes al arrancar
 ├── blueprints/
 │   ├── sitio/                   # Rutas del sitio público
@@ -90,14 +107,12 @@ futuro 360/
 │   ├── imagenes/                # Imágenes del contenido
 │   └── carreras/                # Imágenes de carreras
 ├── templates/                   # Plantillas Jinja2 del sitio y del panel
-|   |
 │   ├── index.html, login.html, registro.html, perfil.html
 │   ├── test.html, resultado_detalle.html, mis_resultados.html
 │   ├── carreras.html, carrera_detalle.html, juego.html, noticias.html
 │   ├── recuperar_password.html, verificar_codigo.html, nueva_password.html
 │   ├── dashboard.html, 404.html, 500.html, base.html
 │   └── admin/                   # Vistas del panel de administración
-|
 ├── recuperacion/                # Versión anterior en Node del envío de PIN (referencia de tesis)
 ├── README.md
 └── docs/
@@ -126,6 +141,7 @@ python -m venv .venv
 .venv\Scripts\Activate.ps1        # Windows (PowerShell)
 .venv\Scripts\activate            # Windows (cmd)
 source .venv/bin/activate         # Linux / macOS
+```
 
 > **Importante (Windows)**: el comando `python` puede apuntar al alias de la
 > **Microsoft Store** (`WindowsApps\python.exe`) y no a la venv. Si al ejecutar
@@ -133,10 +149,11 @@ source .venv/bin/activate         # Linux / macOS
 > activá primero la venv con `.venv\Scripts\Activate.ps1` y volvé a intentar,
 > o arrancá directo con `.venv\Scripts\python.exe app.py`.
 
+```bash
 # 3. Instalar dependencias
 pip install -r requirements.txt
 
-# 4. Crear el archivo de configuración .env (ver sección siguiente)
+# 4. Crear el archivo de configuración .env (ver sección "Configuración")
 
 # 5. Ejecutar la aplicación (¡no hace falta importar nada!)
 python app.py
@@ -245,7 +262,7 @@ La base se prepara **sola al primer arranque** (no hace falta importar nada):
 - **Las cuentas de usuario NO viajan en el contenido**: cada máquina crea la
   suya. La cuenta del dueño/admin se crea al primer arranque con tu
   `ADMIN_EMAIL` y `ADMIN_PASSWORD` del `.env`, y las demás se registran desde
-  el sitio. Así vos entras con tu correo/contraseña y tu compañera con los suyos.
+  el sitio. Así vos entrás con tu correo/contraseña y tu compañera con los suyos.
 - El dump `base de datos/futuro 360.sql` también puede importarse a mano
   (MySQL Workbench → Open SQL Script), pero es opcional con el auto-arranque.
 - El dump se regenera con `python scripts/exportar_base.py` cada vez que quieras
@@ -293,7 +310,7 @@ CLOUDINARY_API_KEY=tu_api_key
 CLOUDINARY_API_SECRET=tu_api_secret
 ```
 
-3. Reiniciar la app. La **primera subida** en el panel carrea el resto.
+3. Reiniciar la app. La **primera subida** en el panel carga el resto.
 
 > **Importante — rol de la API key:** la key debe tener rol **Master Admin**.
 > Si se crea con el rol "Media Library User", la app firma bien pero Cloudinary
@@ -383,7 +400,7 @@ web: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
 1. Crear un proyecto nuevo en [Railway](https://railway.app) apuntando al repo.
 2. Railway detecta el `Procfile` y arranca `web: gunicorn ...` automáticamente.
 3. Definir las variables de entorno en **Variables** (ver tabla de la sección
-   Configuración): `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `SECRET_KEY`,
+   [Configuración](#configuración-archivo-env)): `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `SECRET_KEY`,
    `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `BREVO_API_KEY`, `SENDER_EMAIL`, `RESEND_API_KEY`, `CLOUDINARY_*` (opcional).
    `PORT` lo asigna Railway y gunicorn lo usa solo.
 4. Si la BD es remota con TLS (p. ej. Aiven), configurar también `DB_PORT` y
@@ -401,13 +418,9 @@ web: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
    La app lo materializa a un archivo temporal en el arranque y se conecta
    con SSL REQUIRED y verificación real del certificado. No hace falta
    definir `DB_SSL_CA` en producción.
-4. La app sincroniza el esquema y el contenido en el primer arranque.
+5. La app sincroniza el esquema y el contenido en el primer arranque.
 
 > **Importante — una sola conexión por request:** la app abre UNA conexión a
 > MySQL por request (`database_handler.py`). En bases con límite de conexiones
 > simultáneas (Aiven free) no conviene lanzar más de 2 workers ni ejecutar
 > `create_app()` más de una vez por proceso.
-
-## Autor
-
-Fabricio Villagra — Tecnicatura Universitaria en Programación · UTN-FRT · Plan 2024
