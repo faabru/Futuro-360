@@ -1,21 +1,6 @@
 """
-Protección contra fuerza bruta: límite de intentos por email.
-
-Persistido en MySQL (no en memoria) para que funcione correctamente con
-gunicorn multi-worker y sobreviva reinicios.
-
-Uso típico:
-    if not permite_intento('login', email):
-        flash('Demasiados intentos. Esperá 15 minutos.', 'danger')
-        return ...
-    # ... validar credenciales ...
-    if ok:
-        registrar_exito('login', email)
-    else:
-        registrar_fallo('login', email)
-
-La política es: 5 intentos fallidos por email y se bloquea el email durante
-15 minutos. Cada intento fallido renueva el bloqueo de 15 min.
+Protección contra fuerza bruta: 5 intentos fallidos por email,
+bloqueo de 15 min. Persistido en MySQL (sobrevive reinicios).
 """
 
 from database_handler import obtener_db

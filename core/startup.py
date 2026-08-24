@@ -1,9 +1,6 @@
 """
-Tareas de inicialización de la aplicación.
-
-Funciones que se ejecutan UNA VEZ al arrancar Flask para preparar el entorno
-sin intervención manual (por ejemplo, asociar las imágenes de las carreras
-que todavía no tienen imagen asignada en la base de datos).
+Tareas de inicialización de la aplicación (arranque de Flask).
+Sincronizan tablas, imágenes y juego de forma idempotente.
 """
 
 import os
@@ -32,7 +29,7 @@ from database_handler import obtener_db
 
 
 def _normalizar(texto: str) -> str:
-    """Normaliza un texto a minúsculas sin tildes ni ñ, para comparaciones."""
+    """Minúsculas sin tildes ni ñ, para comparaciones de nombres."""
     return (texto
             .replace('á', 'a').replace('é', 'e').replace('í', 'i')
             .replace('ó', 'o').replace('ú', 'u').replace('ñ', 'n')
@@ -40,16 +37,8 @@ def _normalizar(texto: str) -> str:
 
 
 def sincronizar_imagenes():
-    """
-    Escanea `static/imagenes/` y actualiza los campos `imagen_portada` /
-    `imagen_principal` de cada carrera que tenga esos campos en NULL o vacíos.
-
-    No toca registros que ya tienen imagen asignada, por lo que ejecutarlo
-    repetidamente no tiene costo apreciable.
-
-    Formato de archivo esperado: `<área>-<nombre>-<portada|principal>.<ext>`
-    (por ejemplo: `tecnologia-ingenieria-sistemas-portada.jpg`).
-    """
+    """Asocia imágenes de static/imagenes/ a carreras que no tengan imagen.
+    No toca registros existentes. Formato: `<área>-<nombre>-<portada|principal>.<ext>`."""
     imagenes_dir = os.path.join(current_app.static_folder, 'imagenes')
     if not os.path.isdir(imagenes_dir):
         print("[imagenes] Directorio de imágenes no encontrado")
@@ -57,7 +46,7 @@ def sincronizar_imagenes():
 
     print(f"[imagenes] Escaneando directorio: {imagenes_dir}")
 
-    # Índice: nombre_archivo_sin_ext_lower → ruta_relativa_a_static.
+    # Índice: nombre_sin_ext_lower → ruta_relativa.
     index = {}
     for fname in os.listdir(imagenes_dir):
         ruta_relativa = 'imagenes/' + fname
@@ -66,7 +55,7 @@ def sincronizar_imagenes():
 
     print(f"[imagenes] Índice construido con {len(index)} archivos")
 
-    # Índice por nombre de carrera (el nombre es el penúltimo segmento).
+    # Índice por nombre de carrera (penúltimo segmento del nombre de archivo).
     imagenes_por_carrera = {}
     for clave, ruta in index.items():
         partes = [p.strip() for p in clave.split('-')]
@@ -84,7 +73,7 @@ def sincronizar_imagenes():
         conn = obtener_db()
         cursor = conn.cursor(dictionary=True)
 
-        # Solo carreras sin imágenes (optimización: evita tocar las completas).
+        # Solo carreras sin imágenes.
         cursor.execute("""
             SELECT id, nombre, area_profesional, imagen_portada, imagen_principal
             FROM carreras
@@ -108,13 +97,13 @@ def sincronizar_imagenes():
             portada = None
             principal = None
 
-            # Prioridad 1: coincidencia exacta por nombre de la carrera.
+            # Prioridad 1: coincidencia exacta por nombre.
             coincidencia = imagenes_por_carrera.get(nombre_normalized)
             if coincidencia:
                 portada = coincidencia['portada']
                 principal = coincidencia['principal']
 
-            # Prioridad 2: si no hubo coincidencia por nombre, buscar por área.
+            # Prioridad 2: buscar por área si no hubo coincidencia por nombre.
             if not (portada and principal):
                 for clave, ruta in index.items():
                     clave_normalized = _normalizar(clave)
@@ -150,11 +139,7 @@ def sincronizar_imagenes():
 
 
 def sincronizar_juego():
-    """
-    Asegura que todas las carreras del catálogo tengan su tarjeta en el juego
-    "Descubre tu Carrera". Se ejecuta al arrancar para que las carreras nunca
-    queden fuera del juego aunque la tabla haya quedado vacía.
-    """
+    """Asegura que todas las carreras tengan tarjeta en el juego."""
     try:
         asegurar_tabla_game_carreras()
         print('[juego] Tarjetas de carreras del juego sincronizadas.')
@@ -163,13 +148,7 @@ def sincronizar_juego():
 
 
 def sincronizar_tablas():
-    """
-    Asegura que todas las tablas que la aplicación usa existan (idempotente).
-
-    Se ejecuta al arrancar para que una base recién importada quede lista sin
-    pasos manuales: `noticias`, `fuentes`, `filtros_fecha`, `orientaciones`,
-    preguntas del juego, códigos de recuperación, comentarios y áreas.
-    """
+    """Asegura todas las tablas necesarias (idempotente, al arrancar)."""
     funciones = [
         asegurar_tabla_usuarios,
         asegurar_contenido_referencia,

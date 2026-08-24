@@ -1,12 +1,6 @@
 """
 Configuración central de Futuro 360.
-
-Este módulo concentra TODA la configuración de la aplicación en un solo lugar:
-credenciales, variables de entorno, constantes de dominio y opciones de Flask.
-
-De esta manera, un nuevo desarrollador sabe dónde mirar para ajustar el
-comportamiento del sistema sin tener que recorrer el código buscando valores
-"hardcodeados".
+Credenciales, variables de entorno, constantes de dominio y opciones de Flask.
 """
 
 import atexit
@@ -23,21 +17,8 @@ load_dotenv()
 
 def _materializar_ca(contenido_pem):
     """Escribe un certificado CA (PEM) a un archivo temporal del sistema.
-
-    Útil para plataformas (Render/Railway) donde el certificado llega por la
-    variable ``DB_SSL_CA_CONTENT`` y no puede subirse al repositorio.
-
-    - Valida que el PEM contenga ``BEGIN CERTIFICATE`` y ``END CERTIFICATE``.
-    - Conserva los saltos de línea tal como vienen (normaliza a LF) para que
-      el archivo sea un PEM válido.
-    - Usa ``tempfile.NamedTemporaryFile`` en el directorio temporal del SISTEMA
-      (nunca dentro del proyecto), con permisos restrictivos.
-    - Registra el borrado seguro del archivo con ``atexit`` para que se elimine
-      cuando el proceso termine.
-
-    Devuelve la ruta (str) del archivo temporal, o ``None`` si el contenido no
-    es un PEM válido (en cuyo caso se conecta sin SSL y se informa en consola).
-    """
+    Útil para Render/Railway donde el certificado llega por variable de entorno.
+    Devuelve la ruta del archivo, o None si no es PEM válido."""
     if not contenido_pem:
         return None
     # Normaliza saltos de línea y elimina espacios/fin de línea sobrantes.
@@ -76,13 +57,8 @@ def _materializar_ca(contenido_pem):
 class Config:
     """Configuración base de la aplicación Flask."""
 
-    # --- Entorno de ejecución ---------------------------------------------
-    # Cómo saber si estamos en producción:
-    #   - FLASK_ENV=production (convención estándar de Flask) o APP_ENV=production
-    #   - Variable RENDER="true" que Render define automáticamente en sus
-    #     servidores (ver https://render.com/docs/env-vars).
-    #   - Variable RAILWAY_RUNTIME que Railway define automáticamente.
-    # En cualquier otro caso se asume desarrollo.
+    # --- Entorno de ejecución ---
+    # Producción si FLASK_ENV/APP_ENV=production, o variables de Render/Railway.
     FLASK_ENV = os.getenv('FLASK_ENV') or os.getenv('APP_ENV') or 'development'
     ES_PRODUCCION = (
         FLASK_ENV == 'production'
@@ -90,41 +66,19 @@ class Config:
         or bool(os.getenv('RAILWAY_RUNTIME'))
     )
 
-    # --- Seguridad -------------------------------------------------------
-    # Cookies de sesión seguras:
-    #   - SESSION_COOKIE_SAMESITE='Lax': mitiga CSRF (el navegador no envía la
-    #     cookie en requests cross-site de tipo POST, solo en navegación
-    #     top-level GET).
-    #   - SESSION_COOKIE_HTTPONLY=True: la cookie no se puede leer desde JS
-    #     (mitiga robo de sesión por XSS).
-    #   - SESSION_COOKIE_SECURE: la cookie solo viaja por HTTPS. En producción
-    #     se fuerza True; en desarrollo local (http://localhost) queda False
-    #     para que la sesión funcione.
-    # Flask-WTF (CSRFProtect, ver app.py) protege todos los POST/PUT/PATCH/DELETE
-    # con un token por sesión. SESSION_COOKIE_SAMESITE='Lax' es una capa
-    # adicional de defensa en profundidad, no un sustituto del token CSRF.
+    # --- Seguridad ---
+    # SESSION_COOKIE_SAMESITE='Lax' mitiga CSRF; HTTPONLY=true mitiga XSS;
+    # SECURE=true en producción (HTTPS). WTF_CSRF_TIME_LIMIT=None para que
+    # el token no venza con la sesión (la cookie ya expira con la sesión).
     SESSION_COOKIE_SAMESITE = 'Lax'
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SECURE = ES_PRODUCCION
 
-    # Flask-WTF / CSRF: el token se regenera por sesión. Sin límite de tiempo
-    # (None) para que un usuario con la pestaña abierta no reciba 400/CSRF
-    # inválido al enviar un formulario después de 1 hora (default es 3600s).
-    # La cookie de sesión (que firma el token) ya expira con la sesión misma.
+    # Flask-WTF CSRF: token sin límite de tiempo (None) para pestañas abiertas.
     WTF_CSRF_TIME_LIMIT = None
-    # Si un request POST falla la validación CSRF, Flask-WTF devuelve 400.
     WTF_CSRF_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE']
 
-    # Clave usada por Flask para firmar las cookies de sesión. En producción
-    # DEBE definirse en el archivo .env con un valor largo y aleatorio.
-    #
-    # Si no está definida:
-    #   - En PRODUCCIÓN se detiene el arranque con un error claro (igual que
-    #     ADMIN_PASSWORD). Generar una aleatoria en memoria aquí invalidaría
-    #     todas las sesiones en cada reinicio/deploy (los usuarios quedarían
-    #     deslogueados) y es inseguro: la clave cambiaría en cada worker.
-    #   - En DESARROLLO se usa una clave temporal, pero con un warning muy
-    #     visible para que no llegue a producción sin configurar.
+    # SECRET_KEY: en producción DEBE estar en .env; en desarrollo usa una temporal.
     SECRET_KEY = os.getenv('SECRET_KEY')
     if not SECRET_KEY:
         if ES_PRODUCCION:
@@ -144,29 +98,16 @@ class Config:
               "cada reinicio. En producción el arranque fallará hasta que "
               "definas SECRET_KEY en el .env.\n")
 
-    # --- Base de datos (MySQL) -------------------------------------------
+    # --- Base de datos (MySQL) ---
     DB_HOST = os.getenv('DB_HOST', 'localhost')
     DB_USER = os.getenv('DB_USER', 'root')
     DB_PASSWORD = os.getenv('DB_PASSWORD', '')
     DB_NAME = os.getenv('DB_NAME', 'futuro360')
-    # Puerto de MySQL (Aiven usa uno propio). Default 3306 si no está definido.
     DB_PORT = os.getenv('DB_PORT', '3306')
-    # Certificado CA para conexión TLS/SSL (Aiven). Se resuelve de una de dos
-    # formas según el entorno:
-    #
-    #   1) DB_SSL_CA_CONTENT  → el contenido del certificado PEM. Pensado para
-    #      plataformas como Render/Railway donde el certificado no se sube al
-    #      repositorio: se define esta variable con el texto completo del PEM y
-    #      la app lo escribe a un archivo temporal del SISTEMA (nunca dentro
-    #      del proyecto) para que mysql-connector-python (que requiere una
-    #      ruta física) lo use.
-    #
-    #   2) DB_SSL_CA  → ruta al archivo PEM local (desarrollo). Se resuelve a
-    #      una ruta absoluta relativa a la raíz del proyecto para que funcione
-    #      sin importar desde qué directorio se ejecute Flask.
-    #
-    # Si no se define ninguna, la conexión sigue usando el comportamiento local
-    # sin SSL. Nunca se desactiva la verificación del certificado.
+    # DB_SSL_CA: certificado CA para TLS/SSL (Aiven).
+    #   1) DB_SSL_CA_CONTENT → contenido PEM (se escribe a archivo temporal).
+    #   2) DB_SSL_CA → ruta al archivo PEM local.
+    # Sin ninguna se conecta sin SSL.
     DB_SSL_CA = None
     _db_ssl_ca_content = os.getenv('DB_SSL_CA_CONTENT')
     if _db_ssl_ca_content:
@@ -180,14 +121,10 @@ class Config:
                 _ruta_ca = Path(__file__).resolve().parent / _ruta_ca
             DB_SSL_CA = str(_ruta_ca)
 
-    # --- Cuenta del panel (dueño del sistema) -----------------------------
-    # El acceso al panel es solo por email. La cuenta con este correo se crea
-    # automáticamente al iniciar (ver core/migraciones.py) con rol admin y la
-    # marca es_dueño, que le otorga permisos exclusivos sobre otros admins.
+    # --- Cuenta del panel (dueño del sistema) ---
+    # La cuenta se crea automáticamente al iniciar (ver core/migraciones.py).
     ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'fabriciovillagra05@gmail.com')
-    # Contraseña SOLO usada la primera vez que se crea la cuenta del dueño
-    # (su propio .env, aparte del de tu compañera). Una vez creada, se puede
-    # cambiar desde el flujo de recuperación.
+    # Contraseña solo para la primera vez; después se cambia por recuperación.
     ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
     if not ADMIN_PASSWORD:
         raise ValueError(
@@ -195,32 +132,21 @@ class Config:
             "Agregá ADMIN_PASSWORD=TuContraseña en el archivo .env antes de iniciar."
         )
 
-    # --- URL pública del sitio ----------------------------------------------
-    # Render define RENDER_EXTERNAL_URL automáticamente con la URL primaria
-    # del servicio; se usa para armar enlaces dentro de los correos (ej. el
-    # botón "Volver a registrarme" del aviso de cuenta eliminada).
+    # --- URL pública del sitio ---
     URL_PUBLICA = os.getenv('RENDER_EXTERNAL_URL') or 'https://futuro-360.onrender.com'
 
     # --- Email (Resend) ----------------------------------------------------
     RESEND_API_KEY = os.getenv('RESEND_API_KEY')
     MAIL_FROM = os.getenv('MAIL_FROM', 'Futuro 360 <onboarding@resend.dev>')
 
-    # --- Brevo (recuperación de contraseña) ---------------------------------
-    # El PIN de recuperación viaja por la API HTTPS de Brevo y NO por SMTP:
-    # Render bloquea el tráfico SMTP saliente (puertos 25/465/587) en todos
-    # sus planes, así que el correo sale por api.brevo.com (puerto 443).
-    #   - BREVO_API_KEY: clave de API de la cuenta de Brevo (SMTP & API → API Keys).
-    #   - SENDER_EMAIL: dirección remitente, debe estar VERIFICADA en Brevo
-    #     (Senders → verify). Puede ser un Gmail propio; no hace falta dominio.
-    # Si faltan, solicitar_pin() falla con un error claro y el flujo lo muestra
-    # como "No se pudo enviar el correo" (try/except ya existente en callers).
+    # --- Brevo (recuperación de contraseña) ---
+    # PIN vía API HTTPS (Render bloquea SMTP). SENDER_EMAIL debe estar
+    # verificada en Brevo.
     BREVO_API_KEY = os.getenv('BREVO_API_KEY')
     SENDER_EMAIL = os.getenv('SENDER_EMAIL')
 
-    # --- Cloudinary (imágenes y videos) --------------------------------------
-    # Si las tres claves están definidas, las subidas van a Cloudinary y se
-    # guardan como URL (compartida entre máquinas). Sin claves, se sigue
-    # guardando en static/imagenes/ (fallback local).
+    # --- Cloudinary (imágenes y videos) ---
+    # Si las 3 claves están definidas, sube a Cloudinary; si no, fallback local.
     CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME') or None
     CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY') or None
     CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET') or None

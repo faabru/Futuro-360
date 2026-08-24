@@ -1,8 +1,5 @@
 """
-Dashboard del panel de administración.
-
-Pantalla principal con tablas resumen y estadísticas para gráficos (mejora TFI:
-visualización de información con Chart.js).
+Dashboard del panel de administración: tablas resumen y estadísticas.
 """
 
 from datetime import datetime
@@ -47,8 +44,8 @@ def admin_dashboard():
     cursor.execute("SELECT * FROM orientaciones ORDER BY nombre")
     orientaciones = cursor.fetchall()
 
-    # --- ESTADÍSTICAS PARA GRÁFICOS (mejora TFI: visualización de información) ---
-    # Usuarios conectados en los últimos 3 minutos (presencia "en línea").
+    # --- ESTADÍSTICAS PARA GRÁFICOS ---
+    # Usuarios conectados en los últimos 3 minutos.
     try:
         cursor.execute(
             "SELECT COUNT(*) AS total FROM sesiones_activas "
@@ -60,13 +57,12 @@ def admin_dashboard():
     cursor.execute("SELECT COUNT(*) AS total FROM tests")
     total_tests = cursor.fetchone()['total']
 
-    # Usuarios distintos que realizaron al menos un test (para mostrar
-    # "N tests realizados por M estudiantes").
+    # Usuarios distintos con al menos un test.
     cursor.execute(
         "SELECT COUNT(DISTINCT usuario_id) AS total FROM tests")
     usuarios_con_tests = cursor.fetchone()['total']
 
-    # Tests por mes (últimos 6 meses, completando los meses sin actividad).
+    # Tests por mes (últimos 6 meses).
     cursor.execute(
         """SELECT DATE_FORMAT(fecha_realizacion, '%Y-%m') AS mes, COUNT(*) AS total
            FROM tests
@@ -79,7 +75,7 @@ def admin_dashboard():
     series_tests = []
     now = datetime.now()
     for i in range(5, -1, -1):
-        # Retroceder i meses desde el mes actual sin librerías externas.
+        # Retroceder i meses desde el actual sin librerías externas.
         anio, mes = now.year, now.month
         for _ in range(i):
             mes -= 1
@@ -92,7 +88,7 @@ def admin_dashboard():
             'total': meses_map.get(clave, 0)
         })
 
-    # Usuarios por área profesional sugerida.
+    # Usuarios por área profesional.
     cursor.execute(
         """SELECT COALESCE(a.nombre, r.area_profesional_sugerida, 'Sin área') AS area, COUNT(*) AS total
            FROM resultados r
@@ -100,7 +96,7 @@ def admin_dashboard():
            GROUP BY area ORDER BY total DESC LIMIT 8""")
     usuarios_por_area = cursor.fetchall()
 
-    # Noticias por fuente y por categoría.
+    # Noticias por fuente y categoría.
     cursor.execute(
         """SELECT fuente, COUNT(*) AS total FROM noticias
            GROUP BY fuente ORDER BY total DESC LIMIT 8""")
@@ -128,8 +124,7 @@ def admin_dashboard():
 @bp.route('/admin/usuarios-en-linea')
 @requiere_admin
 def admin_usuarios_en_linea():
-    """Devuelve (JSON) la cantidad de usuarios conectados en los últimos 3 min,
-    para que el dashboard la refresque en tiempo real sin recargar la página."""
+    """Devuelve (JSON) la cantidad de usuarios conectados en los últimos 3 min."""
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
     try:

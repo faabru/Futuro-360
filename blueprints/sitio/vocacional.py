@@ -1,11 +1,5 @@
 """
-Rutas del test vocacional y sus resultados (R del CRUD de Resultados).
-
-- ``test``                  → pantalla del test y POST que calcula y guarda.
-- ``ver_resultado``         → detalle de un resultado específico.
-- ``descargar_resultado_pdf``→ informe PDF profesional (mejora TFI).
-- ``mis_resultados``        → histórico de todos los tests del usuario.
-- ``actualizar_resultado``  → guarda las notas personales de un resultado.
+Test vocacional y resultados: test, ver resultado, PDF, historial, notas.
 """
 
 import io
@@ -43,8 +37,7 @@ def test():
                 areas = request.form.getlist(key)
                 for area in areas:
                     area_limpia = area.strip() if area else ''
-                    # Ignorar valores nulos, vacíos, 'Neutral' o 'Ninguna de las
-                    # anteriores' — no suman puntos.
+                    # Ignorar valores nulos, vacíos o 'Neutral'.
                     if area_limpia and area_limpia != 'Neutral' and area_limpia.lower() not in ('ninguna de las anteriores', 'valor nulo'):
                         puntuacion[area_limpia] = puntuacion.get(area_limpia, 0) + 1
 
@@ -72,8 +65,7 @@ def test():
                     "area": area_sel
                 })
 
-        # Construir detalle descriptivo como JSON válido (requerido por la BD,
-        # la columna tiene CHECK(json_valid)).
+        # Construir detalle como JSON (columna tiene CHECK(json_valid)).
         resumen = [
             {"area": a, "puntos": p}
             for a, p in sorted(puntuacion.items(), key=lambda x: x[1], reverse=True)
@@ -235,10 +227,7 @@ def ver_resultado(resultado_id):
 
 # --- INFORME PDF DEL RESULTADO VOCACIONAL (mejora TFI: reportes en PDF) ---
 def generar_pdf_resultado(resultado, usuario):
-    """
-    Genera un informe PDF profesional del resultado del test vocacional.
-    Diseño moderno con cabecera de color, secciones bien definidas y tipografía limpia.
-    """
+    """Genera un informe PDF profesional del resultado vocacional."""
     buffer = io.BytesIO()
 
     # ── Configuración del documento ──

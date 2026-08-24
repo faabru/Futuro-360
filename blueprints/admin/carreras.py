@@ -112,9 +112,7 @@ def nueva_carrera():
         )
         carrera_id_nueva = cursor.lastrowid
         db.commit()
-        # Registra la carrera nueva en el juego "Descubre tu carrera" (inactiva
-        # por defecto, el admin la activa desde el panel). También crea la tabla
-        # si no existe y agrega cualquier carrera que falte.
+        # Registrar en el juego (inactiva por defecto, admin la activa).
         asegurar_tabla_game_carreras()
         guardar_areas_carrera(carrera_id_nueva, areas)
         flash('Carrera creada. Las instituciones se completarán con el buscador web en el detalle de la carrera.', 'success')
@@ -182,8 +180,7 @@ def editar_carrera(id):
     cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
     orientaciones = [r['nombre'] for r in cursor.fetchall()]
     areas_carrera = obtener_areas_carrera(id)
-    # Si la carrera solo tiene el área en el campo clásico (sin filas en
-    # carrera_areas), la mostramos igual en el dropdown.
+        # Si la carrera solo tiene área en el campo clásico (sin carrera_areas).
     if not areas_carrera and carrera.get('area_profesional'):
         areas_carrera = [carrera['area_profesional']]
     return render_template('admin/carrera_form.html', carrera=carrera,
@@ -196,8 +193,7 @@ def editar_carrera(id):
 def eliminar_carrera(id):
     db = obtener_db()
     cursor = db.cursor()
-    # Limpiar las áreas vinculadas: carrera_areas no tiene FK a carreras, así
-    # que se borran manualmente para no dejar filas huérfanas en el filtro.
+    # Limpiar áreas vinculadas (carrera_areas no tiene FK a carreras).
     cursor.execute("DELETE FROM carrera_areas WHERE carrera_id = %s", (id,))
     cursor.execute("DELETE FROM carreras WHERE id = %s", (id,))
     db.commit()

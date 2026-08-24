@@ -24,13 +24,8 @@ RUTA_DUMP = os.path.join(
 
 
 def asegurar_tabla_usuarios():
-    """
-    Crea la tabla `usuarios` si no existe.
-
-    Cada máquina tiene sus propias cuentas (el contenido compartido no incluye
-    usuarios): la del dueño/admin se crea con asegurar_cuenta_dueño y las
-    demás, por el registro del sitio.
-    """
+    """Crea `usuarios` si no existe. Las cuentas se crean por registro
+    (el admin, con asegurar_cuenta_dueño)."""
     db = obtener_db()
     cursor = db.cursor()
     cursor.execute("""
@@ -54,16 +49,7 @@ def asegurar_tabla_usuarios():
 
 
 def asegurar_cuenta_dueño():
-    """
-    Asegura que el email definido en ADMIN_EMAIL exista como administrador
-    dueño en la tabla `usuarios`.
-
-    - Agrega la columna `es_dueño` si no existe.
-    - Si ya existe una tabla legacy `admin_config` (login anterior del panel),
-      migra su contraseña a la cuenta del dueño para no perder la que el
-      dueño ya conoce, y luego elimina la tabla legacy.
-    - Si la cuenta no existe, la crea con la contraseña ADMIN_PASSWORD.
-    """
+    """Asegura que ADMIN_EMAIL sea admin dueño. Migra hash de admin_config si existía."""
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
 
@@ -75,12 +61,9 @@ def asegurar_cuenta_dueño():
     if not cursor.fetchone():
         cursor.execute("ALTER TABLE usuarios ADD COLUMN es_dueño TINYINT(1) DEFAULT 0")
 
-    # Credenciales legacy del panel (por si ya existían de versiones anteriores).
-    # SEGURIDAD: las contraseñas SIEMPRE se guardan hasheadas con
-    # generate_password_hash (Werkzeug). Nunca se escribe texto plano en la BD.
-    # El hash_legacy de admin_config ya es un hash; si por cualquier motivo ese
-    # valor no tiene formato de hash (p. ej. quedó texto plano de una versión
-    # muy vieja), se regenera con generate_password_hash en vez de migrarlo.
+    # Migrar hash de admin_config si existe y tiene formato válido.
+    # SEGURIDAD: contraseñas siempre hasheadas (Werkzeug). Si el hash no tiene
+    # formato conocido (texto plano de versión vieja), se regenera.
     hash_legacy = None
     try:
         cursor.execute("SELECT email, password_hash FROM admin_config")
@@ -207,8 +190,7 @@ def asegurar_datos_iniciales():
         # Si no se puede consultar, no sobreescribir lo que eligió el admin.
         hay_populares = True
 
-    # El seed de carreras destacadas solo corre la primera vez (cuando todavía
-    # no hay ninguna), para no pisar las selecciones del panel de administración.
+    # Solo sembrar populares si ninguno está marcado (respeta selección del admin).
     if not hay_populares:
         try:
             cursor.execute("""
@@ -430,15 +412,8 @@ def guardar_areas_carrera(carrera_id: int, areas: list) -> None:
 
 
 def asegurar_tabla_universidades():
-    """
-    Crea las tablas de universidades y la puente carrera_universidad si no
-    existen, y carga las universidades de Tucumán con oferta en el catálogo
-    (INSERT IGNORE: idempotente, seguro en cada arranque).
-
-    Las RELACIONES carrera-universidad NO se cargan automáticamente: el
-    dueño del sistema las define a mano revisando los sitios oficiales,
-    porque no hay forma confiable de deducirlas sin verificación humana.
-    """
+    """Crea tablas `universidades` + `carrera_universidad` (FKs CASCADE) y
+    carga el catálogo de universidades."""
     db = obtener_db()
     cursor = db.cursor()
     cursor.execute("""
@@ -477,19 +452,10 @@ def asegurar_tabla_universidades():
         ('Universidad San Pablo-T', 'USP-T', 'privada', 'usp-t.edu.ar'),
         ('Universidad Empresarial Siglo 21', 'SIGLO 21', 'privada', 'siglo21.edu.ar'),
     ])
-    # Universidades SIN relaciones manuales (USP-T y SIGLO 21): el buscador
-    # las descubre automaticamente buscando site:dominio con el nombre de la
-    # carrera; si no hay resultados, no se muestran.
-    # Relaciones iniciales carrera-universidad APROBADAS a mano: se revisó el
-    # texto historico de carreras.instituciones contra los sitios oficiales,
-    # y se completo con verificacion manual del dueño contra cada web.
-    # INSERT IGNORE -> idempotente. La unica carrera sin relacion es la 25
-    # (Tec. Produccion Agropecuaria, dictada por institutos fuera del
-    # catalogo). USP-T sin relaciones hasta revisar su oferta academica.
-    # La carrera 41 (Periodismo) fue ELIMINADA del catalogo: era orientacion
-    # de Comunicacion Social (40), no carrera de grado independiente.
-    # NOTA: si en el futuro se agrega gestion de relaciones desde el panel,
-    # evaluar si este seed debe dejar de reinsertar (hoy no hay UI que borre).
+    # Relaciones manuales: revisión del dueño contra sitios oficiales.
+    # INSERT IGNORE → idempotente. Solo la 25 (Tec. Prod. Agropecuaria) no
+    # tiene unival. USP-T y SIGLO 21 sin relaciones (descubrimiento automático).
+    # La 41 fue eliminada del catálogo.
     relaciones_aprobadas = [
         (1, 'UNT'), (1, 'UTN FRT'),
         (2, 'UNT'), (2, 'UNSTA'),
@@ -593,7 +559,7 @@ def asegurar_tabla_fuentes():
     """)
     cursor.execute("SELECT nombre FROM fuentes_eliminadas")
     eliminadas = {r[0] for r in cursor.fetchall()}
-    # Registra las fuentes de las noticias que todavía no están eliminadas.
+    # Sincronizar fuentes de noticias existentes.
     cursor.execute("SELECT DISTINCT fuente FROM noticias WHERE fuente IS NOT NULL AND fuente <> ''")
     for (nombre,) in cursor.fetchall():
         if nombre not in eliminadas:
@@ -632,7 +598,7 @@ def asegurar_tabla_filtros_fecha():
         if not cursor.fetchone():
             cursor.execute(f"ALTER TABLE filtros_fecha {ddl}")
 
-    # Si la tabla está vacía, inserta los filtros predefinidos.
+    # Insertar presets si la tabla está vacía.
     cursor.execute("SELECT COUNT(*) AS n FROM filtros_fecha")
     if cursor.fetchone()['n'] == 0:
         presets = [
@@ -648,8 +614,7 @@ def asegurar_tabla_filtros_fecha():
             presets
         )
 
-    # Backfill: asegura que los filtros predefinidos tengan su condición y no
-    # puedan borrarse desde el panel.
+    # Asegurar condición y orden de filtros fijos.
     backfill = {
         'todas': '',
         'hoy': 'fecha = CURDATE()',

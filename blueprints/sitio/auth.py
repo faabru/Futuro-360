@@ -1,11 +1,6 @@
 """
-Rutas de autenticación y perfil del sitio público.
-
-Cubre todo el ciclo de vida de la cuenta del usuario:
-- Registro (alta).
-- Inicio y cierre de sesión.
-- Recuperación de contraseña en 3 pasos (email → código → nueva contraseña).
-- Perfil (modificación) y baja de la cuenta (eliminar).
+Autenticación del sitio público: registro, login, logout,
+recuperación de contraseña (3 pasos), perfil y baja de cuenta.
 """
 
 from flask import (Blueprint, current_app, flash, g, redirect, render_template,
@@ -161,9 +156,7 @@ def recuperar_password():
         usuario = cursor.fetchone()
 
         if usuario:
-            # El PIN y el envío del correo los genera el servidor Node de
-            # recuperación ("recuperacion de contraseña/server.js"), que usa
-            # Resend. Si el servidor no está activo, la app lo levanta solo.
+        # El PIN y envío los genera solicitar_pin() (Brevo API).
             try:
                 codigo = solicitar_pin(email)
             except Exception as e:
@@ -172,9 +165,7 @@ def recuperar_password():
                 return render_template('recuperar_password.html')
 
             # Eliminar códigos anteriores y guardar el nuevo (expira en 15 min).
-            # El PIN se guarda HASHEADO (werkzeug): la BD nunca contiene el
-            # código en claro, solo su hash. La verificación usa
-            # check_password_hash en el paso 2.
+            # El PIN se guarda hasheado (werkzeug), nunca en claro.
             cursor2 = db.cursor()
             cursor2.execute("DELETE FROM password_resets WHERE email = %s", (email,))
             cursor2.execute(f"""

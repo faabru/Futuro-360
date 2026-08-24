@@ -1,18 +1,7 @@
 """
 Servicio de envío de correos electrónicos.
-
-Centraliza TODO el envío de emails del sistema:
-- ``enviar_mensaje_soporte``      → notificación de soporte al dueño (Resend).
-- ``solicitar_pin``               → PIN de recuperación de contraseña (Brevo).
-- ``notificar_cuenta_eliminada``  → aviso cuando se elimina una cuenta (Brevo).
-
-El soporte va por Resend: llega únicamente al ADMIN_EMAIL, así que el modo
-testing de Resend no lo afecta. El PIN va por la API HTTPS de Brevo porque
-Render bloquea el SMTP saliente (puertos 25/465/587) en todos sus planes;
-la API llega a CUALQUIER usuario y solo exige verificar la dirección
-remitente en Brevo (sin comprar dominio).
-(Historia: esto antes vivía en un servicio Node separado; ver
-recuperacion/README.md.)
+PIN de recuperación y aviso de cuenta eliminada → Brevo API.
+Soporte/consulta → Resend.
 """
 
 import secrets
@@ -23,33 +12,19 @@ from markupsafe import escape
 
 from config import Config
 
-# Se configura la API key al importar el módulo.
-# Es segura: si RESEND_API_KEY no está definida, el envío fallará con un
-# mensaje claro en pantalla (el flujo lo maneja con try/except).
+# API key de Resend al importar el módulo.
 resend.api_key = Config.RESEND_API_KEY
 
-# Validez del PIN de recuperación (en minutos). Única fuente de verdad: la
-# usan el texto del correo (_html_pin) y los INSERT de password_resets en
-# los blueprints de auth (sitio y admin), de modo que no pueden desincronizarse.
+# Validez del PIN (fuente de verdad compartida por mailer + auth).
 PIN_EXPIRA_MINUTOS = 15
 
-# Endpoint y timeout (segundos) de la API de Brevo que envía los PIN.
-# Si Brevo no responde en ese lapso se lanza un timeout y el caller muestra
-# "No se pudo enviar el correo" en vez de colgar el request del usuario.
+# Endpoint y timeout de Brevo.
 BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
 BREVO_TIMEOUT = 15
 
 
 def _html_pin(pin: str) -> str:
-    """
-    Plantilla HTML del correo del PIN.
-
-    Todo el CSS va INLINE (style="...") porque Gmail, Outlook y otros
-    clientes recortan las etiquetas <style> del head. El layout usa tablas
-    anidadas: es lo unico que Outlook renderiza de forma confiable.
-    Paleta: identidad de Futuro 360 (static/style.css :root).
-    Los acentos y emojis van como entidades HTML para maxima compatibilidad.
-    """
+    """Plantilla HTML del correo del PIN (CSS inline, tablas anidadas para Outlook)."""
     return f"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -97,15 +72,7 @@ def _html_pin(pin: str) -> str:
 
 
 def _html_cuenta_eliminada(nombre: str, es_admin: bool) -> str:
-    """
-    Plantilla HTML del aviso de cuenta eliminada.
-
-    Mismo criterio que _html_pin: CSS inline, tablas anidadas y paleta de
-    Futuro 360 para máxima compatibilidad con los clientes de correo.
-    El texto cambia según el rol de la cuenta eliminada:
-    - admin   → indica que fue eliminada "por medidas de seguridad".
-    - usuario → lo invita a volver a registrarse (botón a /registro).
-    """
+    """Plantilla del aviso de cuenta eliminada. Texto según rol (admin/usuario)."""
     # El nombre lo escribió el propio usuario al registrarse: se escapa para
     # que no pueda inyectar HTML dentro del correo.
     nombre_seguro = escape(nombre)
@@ -170,23 +137,15 @@ def _html_cuenta_eliminada(nombre: str, es_admin: bool) -> str:
 
 
 def _enviar_por_brevo(destinatario: str, asunto: str, html: str) -> None:
-    """
-    Envía un correo HTML por la API de Brevo (transporte común del sistema).
-
-    - El remitente visible es "Futuro 360 <SENDER_EMAIL>" (verificado en Brevo).
-    - Lanza RuntimeError con mensajes que distinguen el tipo de fallo
-      (configuración faltante / rechazo de la API / timeout / conexión)
-      para diagnosticar rápido en los logs. Ningún mensaje incluye la API key.
-    """
+    """Envía correo HTML por la API de Brevo (HTTPS, puerto 443).
+    Lanza RuntimeError si falla (configuración, API, timeout, conexión)."""
     if not Config.BREVO_API_KEY or not Config.SENDER_EMAIL:
         raise RuntimeError(
             'BREVO_API_KEY / SENDER_EMAIL no están definidas en el '
             'entorno (.env local o variables de Render).')
 
     try:
-        # La llamada es un POST HTTPS común (puerto 443, siempre permitido
-        # en Render). El timeout aplica a conexión + respuesta: si Brevo no
-        # contesta, explota a los ~15 s como máximo y nunca cuelga el request.
+        # POST HTTPS a api.brevo.com (siempre permitido en Render).
         respuesta = requests.post(
             BREVO_API_URL,
             headers={
@@ -211,8 +170,7 @@ def _enviar_por_brevo(destinatario: str, asunto: str, html: str) -> None:
     except requests.exceptions.ConnectionError as e:
         raise RuntimeError(f'No se pudo conectar a api.brevo.com: {e}') from e
 
-    # Brevo responde 201 Created cuando acepta el mensaje; cualquier otra
-    # cosa (401 key inválida, 400 remitente no verificado, etc.) es un fallo.
+    # Brevo responde 201 Created; cualquier otro código es fallo.
     if respuesta.status_code >= 400:
         raise RuntimeError(
             f'Brevo rechazo el envio (HTTP {respuesta.status_code}): '
@@ -220,33 +178,15 @@ def _enviar_por_brevo(destinatario: str, asunto: str, html: str) -> None:
 
 
 def solicitar_pin(email: str) -> str:
-    """
-    Genera un PIN de 6 dígitos y lo envía por la API de Brevo a `email`.
-
-    - Generación con `secrets` (CSPRNG).
-    - Envío por HTTPS a api.brevo.com (puerto 443): Render bloquea el SMTP
-      saliente, así que el correo viaja por la API. El remitente debe estar
-      verificado en Brevo (SENDER_EMAIL); no hace falta dominio propio.
-    - Devuelve el PIN (str) para que el blueprint lo guarde HASHEADO en
-      password_resets con generate_password_hash.
-    - Lanza RuntimeError (ver _enviar_por_brevo) si el envío falla.
-    """
+    """Genera PIN de 6 dígitos, lo envía por Brevo y lo devuelve (str).
+    El blueprint lo guarda hasheado en password_resets."""
     pin = str(secrets.randbelow(900000) + 100000)  # 100000..999999
     _enviar_por_brevo(email, 'Recuperación de contraseña', _html_pin(pin))
     return pin
 
 
 def notificar_cuenta_eliminada(email: str, nombre: str, es_admin: bool) -> None:
-    """
-    Avisa a `email` que su cuenta fue eliminada del sistema.
-
-    - es_admin=True  → el texto indica que fue eliminada "por medidas de
-      seguridad" (caso de cuentas de administrador borradas desde el panel).
-    - es_admin=False → invita a volver a registrarse con enlace a /registro
-      (caso de usuarios comunes, tanto por panel como por auto-baja).
-    - Lanza RuntimeError si el envío falla (ver _enviar_por_brevo): quien
-      llama decide si el fallo afecta al flujo o solo se registra en logs.
-    """
+    """Avisa por correo que la cuenta fue eliminada. Texto según rol."""
     _enviar_por_brevo(
         email,
         'Tu cuenta fue eliminada - Futuro 360',
@@ -255,12 +195,7 @@ def notificar_cuenta_eliminada(email: str, nombre: str, es_admin: bool) -> None:
 
 
 def enviar_mensaje_soporte(nombre: str, email: str, asunto: str, mensaje: str) -> None:
-    """
-    Envía al dueño (ADMIN_EMAIL) un correo de notificación con el mensaje
-    recibido desde el centro de soporte.
-
-    Lanza una excepción si el envío falla (quien llama la decide manejar).
-    """
+    """Envía al dueño (ADMIN_EMAIL) un correo de notificación de soporte."""
     resend.Emails.send({
         "from": Config.MAIL_FROM,
         "to": [Config.ADMIN_EMAIL],

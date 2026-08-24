@@ -1,9 +1,6 @@
 """
-Autenticación del panel de administración.
-
-Login exclusivo (acceso por email de una cuenta con rol admin y activa),
-logout y recuperación de contraseña del panel en 3 pasos (igual que el sitio,
-pero con correo y plantillas propios).
+Autenticación del panel admin: login exclusivo, logout y
+recuperación de contraseña (3 pasos, independiente del sitio).
 """
 
 from flask import (Blueprint, current_app, flash, redirect, render_template,
@@ -75,7 +72,7 @@ def admin_logout():
 
 @bp.route('/admin/recuperar-password', methods=['GET', 'POST'])
 def admin_recuperar_password():
-    """PASO 1: El admin ingresa su correo y recibe el código PIN por Resend."""
+    """PASO 1: El admin ingresa su correo y recibe el PIN por Brevo."""
     if session.get('admin_autenticado'):
         return redirect(url_for('admin.admin_dashboard'))
 
@@ -90,9 +87,7 @@ def admin_recuperar_password():
             (email,)
         )
         if cursor.fetchone():
-            # El PIN y el envío del correo los genera el servidor Node de
-            # recuperación ("recuperacion de contraseña/server.js"), que usa
-            # Resend. Si el servidor no está activo, la app lo levanta solo.
+            # El PIN y envío los genera solicitar_pin() (Brevo API).
             try:
                 codigo = solicitar_pin(email)
             except Exception as e:

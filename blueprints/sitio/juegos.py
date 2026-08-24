@@ -1,8 +1,5 @@
 """
 Rutas del mini-juego "Descubre tu Carrera" e "Intereses en Juego".
-
-- ``juego`` → pantalla del juego interactivo con las carreras y preguntas
-              activas, serializadas en JSON para el frontend.
 """
 
 import json

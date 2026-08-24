@@ -1,9 +1,5 @@
 """
-Rutas legales y de soporte del sitio público.
-
-- ``soporte``  → centro de soporte y contacto (guarda mensajes en `comentarios`).
-- ``terminos`` → términos y condiciones de uso.
-- ``privacidad`` → política de privacidad.
+Rutas legales y de soporte: soporte/contacto, términos y privacidad.
 """
 
 from flask import Blueprint, render_template, request
@@ -25,7 +21,7 @@ def soporte():
         asunto = request.form.get('asunto', 'Consulta general')
 
         if nombre and email and mensaje:
-            # Guardar el mensaje en la tabla comentarios (ya existe en la BD)
+            # Guardar en BD.
             db = obtener_db()
             cursor = db.cursor()
             cursor.execute(
@@ -33,8 +29,7 @@ def soporte():
                 (f"[{asunto}] {nombre}", email, mensaje)
             )
             db.commit()
-            # Notificar al dueño (ADMIN_EMAIL) por correo. Si el envío falla,
-            # el mensaje igual quedó guardado en la BD.
+            # Notificar al dueño. Si el envío falla, el mensaje queda guardado.
             try:
                 enviar_mensaje_soporte(nombre, email, asunto, mensaje)
             except Exception:

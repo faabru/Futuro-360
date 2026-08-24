@@ -1,24 +1,8 @@
 """
 Manejador de la base de datos MySQL.
 
-Provee la conexión a MySQL y su ciclo de vida dentro de Flask:
-- ``obtener_db()``   → devuelve una conexión por request (cacheada en ``g``).
-- ``cerrar_db(e)``   → cierra la conexión al terminar el request.
-- ``inicializar_app``→ registra el cierre automático de conexiones.
-
-Patrón utilizado: una única conexión por petición, que evita abrir/cerrar
-conexiones en cada consulta y previene errores de "connection lost".
-
-LIMITACIÓN DE CONEXIONES (Aiven free tier):
-El plan gratuito de Aiven MySQL permite un máximo de ~10 conexiones
-simultáneas. El Procfile arranca gunicorn con 2 workers; cada worker abarca
-varias requests y cada request abre UNA conexión a la BD (guardada en ``g``
-y cerrada al final del request). Con ese diseño la app nunca abre más de
-unas pocas conexiones a la vez y no supera el límite.
-
-Si en el futuro se aumenta el número de workers (más tráfico), habrá que
-subir el límite de conexiones de Aiven o migrar a un pool de conexiones
-(ver el ejemplo comentado abajo en ``obtener_db``).
+Una conexión por request (cacheada en ``g``), cerrada automáticamente.
+Aiven free tier: ~10 conexiones max; gunicorn 2 workers → no se supera.
 """
 
 import mysql.connector
@@ -26,18 +10,8 @@ from flask import g
 
 from config import Config
 
-
 def _config_conexion(database=None):
-    """Construye los parámetros de conexión a MySQL desde la configuración.
-
-    - ``DB_PORT``: puerto de conexión; si no está definido usa 3306.
-    - ``DB_SSL_CA``: si apunta a un certificado CA, habilita TLS/SSL con
-      verificación REAL del certificado del servidor (Aiven). Se exige SSL
-      (``ssl_disabled=False``) y verificación de la identidad del host contra
-      el certificado (``ssl_verify_identity=True``), nunca ``ssl_disabled``
-      ni verificación desactivada. Sin certificado se mantiene el
-      comportamiento local actual (sin SSL).
-    """
+    """Parámetros de conexión a MySQL. DB_SSL_CA habilita TLS con verificación."""
     config = {
         'host': Config.DB_HOST,
         'user': Config.DB_USER,
@@ -52,67 +26,14 @@ def _config_conexion(database=None):
         config['ssl_verify_identity'] = True
     return config
 
-
 def obtener_db():
-    """
-    Devuelve la conexión activa a la base de datos.
-
-    La primera llamada dentro de un request crea la conexión y la guarda en
-    el objeto ``g`` de Flask. Las siguientes llamadas reutilizan la misma
-    conexión, mejorando el rendimiento.
-    """
+    """Devuelve la conexión activa (creada en la 1ra llamada del request)."""
     if 'db' not in g:
         g.db = mysql.connector.connect(**_config_conexion(Config.DB_NAME))
     return g.db
 
-
-# ══════════════════════════════════════════════════════════════════════
-# ESCALAR A UN POOL DE CONEXIONES (cuando se necesite)
-# ══════════════════════════════════════════════════════════════════════
-# Actualmente hay una conexión por request (simple y suficiente para el
-# tráfico actual con Aiven free tier). Si el tráfico crece y hay que
-# escalar, se puede migrar a un pool reutilizando conexiones. Ejemplo
-# (descomentar y reemplazar la lógica de obtener_db):
-#
-#   from mysql.connector import pooling
-#
-#   _pool = None
-#
-#   def _crear_pool():
-#       global _pool
-#       if _pool is None:
-#           _pool = pooling.MySQLConnectionPool(
-#               pool_name='futuro360',
-#               pool_size=5,          # acompasar al límite de Aiven
-#               ** _config_conexion(Config.DB_NAME),
-#           )
-#       return _pool
-#
-#   def obtener_db():
-#       if 'db' not in g:
-#           g.db = _crear_pool().get_connection()
-#       return g.db
-#
-# IMPORTANTE: con pool, las conexiones se devuelven al cerrarlas (db.close()
-# la libera al pool en vez de cerrarla), así que cerrar_db() sigue valiendo.
-# Además, aumentar workers de gunicorn requiere subir pool_size y el límite
-# de conexiones en Aiven (plan pagado) para no agotar conexiones.
-# ══════════════════════════════════════════════════════════════════════
-
-
 def asegurar_base_datos():
-    """
-    Crea la base de datos si no existe (con el nombre/configuración de
-    `Config.DB_NAME`), conectando sin seleccionar base primero.
-
-    Idempotente. Si MySQL no está disponible, lanza el error y el llamador
-    decide si continuar (el arranque de la app es tolerante a fallos).
-
-    Si el usuario no tiene permiso para crear la base (p. ej. un usuario
-    administrado como en Aiven), el intento se registra en consola y NO
-    detiene el arranque: si la base ya existe, el paso siguiente
-    (``sincronizar_tablas``) asegura tablas y columnas dentro de ella.
-    """
+    """Crea la BD si no existe. Idempotente. Si no hay permiso, solo avisa."""
     conn = mysql.connector.connect(**_config_conexion())
     try:
         cur = conn.cursor()
@@ -138,10 +59,5 @@ def cerrar_db(e=None):
 
 
 def inicializar_app(app):
-    """
-    Configura el cierre automático de conexiones.
-
-    Se llama desde la fábrica de la aplicación (``create_app``) para que Flask
-    ejecute ``cerrar_db`` cuando termina el contexto de cada petición.
-    """
+    """Registra el cierre automático de conexiones al finalizar cada request."""
     app.teardown_appcontext(cerrar_db)

@@ -1,8 +1,6 @@
 """
-Rutas de la sección de noticias del sitio público.
-
-- ``noticias`` → listado con filtros de fecha, fuente y categoría (búsqueda
-                 en el cliente por JS).
+Rutas de noticias del sitio público: listado con filtros de fecha,
+fuente y categoría (búsqueda en cliente por JS).
 """
 
 from flask import Blueprint, render_template, request
@@ -33,11 +31,8 @@ def noticias():
     query = "SELECT * FROM noticias WHERE 1=1"
     params = []
 
-    # Filtro por fecha: usa la condición guardada en la tabla filtros_fecha.
-    # Se valida con la whitelist estricta condicion_fecha_segura (la misma que
-    # usa el panel admin), que permite tanto los presets fijos como los rangos
-    # personalizados que el admin crea desde el panel. Así un filtro
-    # personalizado funciona igual en la página pública y en el panel.
+    # Filtro por fecha: usa condición guardada en filtros_fecha (validada
+    # con whitelist condicion_fecha_segura — la misma del panel admin).
     if filtro_fecha != 'todas':
         cursor.execute("SELECT condicion FROM filtros_fecha WHERE valor = %s", (filtro_fecha,))
         fila_fecha = cursor.fetchone()
@@ -49,16 +44,13 @@ def noticias():
         query += " AND fuente = %s"
         params.append(filtro_fuente)
 
-    # La búsqueda por texto y la categoría se filtran en el cliente (JS) para
-    # no recargar la página. La fecha y la fuente se mantienen del lado servidor.
+    # La búsqueda y categoría se filtran en cliente (JS); fecha/fuente en servidor.
     query += " ORDER BY fecha DESC, id DESC"
 
     cursor.execute(query, params)
     items_noticias = cursor.fetchall()
 
-    # Obtener fuentes y categorías únicas para los filtros.
-    # Las fuentes visibles son las registradas (activas) en la tabla fuentes,
-    # más las fuentes de noticias que todavía no están registradas en la tabla.
+    # Fuentes visibles: activas + las de noticias no registradas (no eliminadas).
     asegurar_tabla_fuentes()
     cursor.execute("SELECT nombre FROM fuentes WHERE activo = 1 ORDER BY nombre")
     fuentes_activas = [row['nombre'] for row in cursor.fetchall()]
