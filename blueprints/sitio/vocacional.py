@@ -7,6 +7,7 @@ import json
 import re
 import traceback
 from datetime import datetime
+from xml.sax.saxutils import escape as escapar_xml
 
 from flask import (Blueprint, Response, current_app, flash, g, redirect,
                    render_template, request, send_file, url_for)
@@ -22,6 +23,10 @@ from core.decoradores import requiere_login
 from database_handler import obtener_db
 
 bp = Blueprint('vocacional', __name__)
+
+# Nombres de meses en español para fechas del informe PDF.
+MESES_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+            'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 
 
 @bp.route('/test', methods=['GET', 'POST'])
@@ -226,7 +231,7 @@ def ver_resultado(resultado_id):
 
 
 # --- INFORME PDF DEL RESULTADO VOCACIONAL (mejora TFI: reportes en PDF) ---
-def generar_pdf_resultado(resultado, usuario):
+def generar_pdf_resultado(resultado, usuario, carreras=None):
     """Genera un informe PDF profesional del resultado vocacional."""
     buffer = io.BytesIO()
 
@@ -285,24 +290,30 @@ def generar_pdf_resultado(resultado, usuario):
         textColor=GRIS_SUAVE, alignment=TA_CENTER, leading=12
     )
 
-    # ── Parsear el desglose de puntajes ──
+    # ── Parsear el detalle JSON: puntajes, respuestas y texto ──
     puntajes = {}
+    respuestas_detalle = []
     try:
-        import json as _json
-        detalle_data = _json.loads(resultado.get('detalle', '{}'))
-        detalle_texto = detalle_data.get('texto', '')
-        # Extraer puntajes del texto "Área: N pts"
-        import re
+        detalle_data = json.loads(resultado.get('detalle') or '{}')
+    except Exception:
+        detalle_data = {}
+
+    resumen = detalle_data.get('resumen') or []
+    if resumen:
+        puntajes = {r['area']: r['puntos'] for r in resumen if r.get('area')}
+    else:
+        # Fallback para resultados viejos: extraer del texto "Área: N pts".
+        detalle_texto = detalle_data.get('texto') or resultado.get('detalle') or ''
         matches = re.findall(r'([^:,]+):\s*(\d+)\s*pts', detalle_texto)
         puntajes = {m[0].strip(): int(m[1]) for m in matches}
-    except Exception:
-        pass
+
+    respuestas_detalle = detalle_data.get('respuestas') or []
 
     area_principal = resultado.get('area_profesional_sugerida', 'Sin determinar')
     notas = resultado.get('notas_personales', '')
     fecha_test = resultado.get('fecha_realizacion', datetime.now())
     if hasattr(fecha_test, 'strftime'):
-        fecha_str = fecha_test.strftime('%d de %B de %Y')
+        fecha_str = f"{fecha_test.day} de {MESES_ES[fecha_test.month - 1]} de {fecha_test.year}"
     else:
         fecha_str = str(fecha_test)
 
@@ -331,6 +342,13 @@ def generar_pdf_resultado(resultado, usuario):
             )),
             ''
         ],
+        [
+            Paragraph(f"Correo: {usuario.get('email') or '-'}", ParagraphStyle(
+                'est_mail', fontSize=10, fontName='Helvetica',
+                textColor=colors.HexColor('#bfdbfe'), alignment=TA_LEFT
+            )),
+            ''
+        ],
     ]
     tabla_header = Table(datos_header, colWidths=[13*cm, 4*cm])
     tabla_header.setStyle(TableStyle([
@@ -343,6 +361,7 @@ def generar_pdf_resultado(resultado, usuario):
         ('ROUNDEDCORNERS', [8]),
         ('SPAN', (0,1), (-1,1)),
         ('SPAN', (0,2), (-1,2)),
+        ('SPAN', (0,3), (-1,3)),
     ]))
     elementos.append(tabla_header)
     elementos.append(Spacer(1, 0.5*cm))
@@ -436,6 +455,166 @@ def generar_pdf_resultado(resultado, usuario):
         elementos.append(Spacer(1, 0.4*cm))
 
     # ╔══════════════════════════════╗
+    # ║  CÓMO SE LLEGA AL RESULTADO  ║
+    # ╚══════════════════════════════╝
+    elementos.append(Paragraph("¿Cómo llegamos a este resultado?", estilo_seccion))
+    elementos.append(HRFlowable(width="100%", thickness=1,
+                                 color=AZUL_CLARO, spaceAfter=8))
+
+    explicacion = [
+        ("1", "Respondés preguntas de la vida real.",
+         "Cada pregunta te enfrenta a una situación cotidiana. Tu elección refleja "
+         "qué tipo de tareas y ambientes te atraen de forma natural."),
+        ("2", "Cada respuesta suma a un área profesional.",
+         "Al elegir una opción, sumás un punto a su área (Tecnología, Salud, Arte y "
+         "Diseño, etc.). La opción \"Ninguna de las anteriores\" no suma puntos."),
+        ("3", "Se comparan los puntajes.",
+         "Al final contamos cuántos puntos reunió cada área. La que más juntó se "
+         "convierte en tu área dominante, y con ella buscamos tus carreras recomendadas."),
+    ]
+    for num, titulo, texto in explicacion:
+        fila = Table([[
+            Paragraph(num, ParagraphStyle('num_expl', fontSize=11,
+                      fontName='Helvetica-Bold', textColor=BLANCO,
+                      alignment=TA_CENTER)),
+            Paragraph(f"<b>{titulo}</b> {texto}", estilo_cuerpo)
+        ]], colWidths=[0.8*cm, 16.2*cm])
+        fila.setStyle(TableStyle([
+            ('BACKGROUND',    (0,0), (0,0), AZUL_PRIMARIO),
+            ('TOPPADDING',    (0,0), (-1,-1), 7),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 7),
+            ('LEFTPADDING',   (0,0), (-1,-1), 8),
+            ('RIGHTPADDING',  (0,0), (-1,-1), 8),
+            ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+            ('ROUNDEDCORNERS', [4]),
+        ]))
+        elementos.append(fila)
+        elementos.append(Spacer(1, 0.2*cm))
+    elementos.append(Spacer(1, 0.2*cm))
+
+    # ╔══════════════════════════════╗
+    # ║  TODAS LAS RESPUESTAS        ║
+    # ╚══════════════════════════════╝
+    if respuestas_detalle:
+        elementos.append(Paragraph("Tus respuestas", estilo_seccion))
+        elementos.append(HRFlowable(width="100%", thickness=1,
+                                     color=AZUL_CLARO, spaceAfter=8))
+        elementos.append(Paragraph(
+            f"Respondiste {len(respuestas_detalle)} preguntas. Este es el detalle completo "
+            "de lo que elegiste:", estilo_nota))
+        elementos.append(Spacer(1, 0.15*cm))
+
+        estilo_th = ParagraphStyle('th_resp', fontSize=9, fontName='Helvetica-Bold',
+                                   textColor=BLANCO, alignment=TA_LEFT, leading=12)
+        estilo_td = ParagraphStyle('td_resp', fontSize=8.5, fontName='Helvetica',
+                                   textColor=GRIS_TEXTO, alignment=TA_LEFT, leading=12)
+        estilo_td_num = ParagraphStyle('td_num', fontSize=8.5, fontName='Helvetica-Bold',
+                                       textColor=GRIS_SUAVE, alignment=TA_CENTER, leading=12)
+        estilo_td_area = ParagraphStyle('td_area', fontSize=8.5, fontName='Helvetica-Bold',
+                                        textColor=AZUL_PRIMARIO, alignment=TA_LEFT, leading=12)
+        estilo_td_neutral = ParagraphStyle('td_neutral', fontSize=8.5,
+                                           fontName='Helvetica-Oblique',
+                                           textColor=GRIS_SUAVE, alignment=TA_LEFT,
+                                           leading=12)
+
+        filas_resp = [[
+            Paragraph("N°", estilo_th),
+            Paragraph("Pregunta", estilo_th),
+            Paragraph("Tu elección", estilo_th),
+            Paragraph("Área", estilo_th),
+        ]]
+        for i, r in enumerate(respuestas_detalle, 1):
+            area_r = r.get('area')
+            filas_resp.append([
+                Paragraph(str(i), estilo_td_num),
+                Paragraph(escapar_xml(r.get('pregunta') or ''), estilo_td),
+                Paragraph(escapar_xml(r.get('opcion') or ''), estilo_td),
+                Paragraph(escapar_xml(area_r), estilo_td_area) if area_r
+                    else Paragraph("Neutral", estilo_td_neutral),
+            ])
+
+        tabla_resp = Table(filas_resp,
+                           colWidths=[0.9*cm, 6.9*cm, 5.7*cm, 3.5*cm],
+                           repeatRows=1)
+        tabla_resp.setStyle(TableStyle([
+            ('BACKGROUND',    (0,0), (-1,0), AZUL_OSCURO),
+            ('ROWBACKGROUNDS',(0,1), (-1,-1), [BLANCO, colors.HexColor('#f9fafb')]),
+            ('GRID',          (0,0), (-1,-1), 0.5, colors.HexColor('#e5e7eb')),
+            ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+            ('TOPPADDING',    (0,0), (-1,-1), 5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('LEFTPADDING',   (0,0), (-1,-1), 6),
+            ('RIGHTPADDING',  (0,0), (-1,-1), 6),
+        ]))
+        elementos.append(tabla_resp)
+        elementos.append(Spacer(1, 0.4*cm))
+    else:
+        elementos.append(Paragraph("Tus respuestas", estilo_seccion))
+        elementos.append(HRFlowable(width="100%", thickness=1,
+                                     color=AZUL_CLARO, spaceAfter=8))
+        elementos.append(Paragraph(
+            "Este informe corresponde a un test realizado con una versión anterior; "
+            "el detalle de respuestas individuales no está disponible.", estilo_nota))
+        elementos.append(Spacer(1, 0.4*cm))
+
+    # ╔══════════════════════════════╗
+    # ║  CARRERAS RECOMENDADAS       ║
+    # ╚══════════════════════════════╝
+    if carreras:
+        elementos.append(Paragraph("Carreras recomendadas para vos", estilo_seccion))
+        elementos.append(HRFlowable(width="100%", thickness=1,
+                                     color=AZUL_CLARO, spaceAfter=8))
+        elementos.append(Paragraph(
+            f"Seleccionamos {len(carreras)} carreras alineadas con tu perfil. "
+            "Encontrás cada una en el catálogo de Futuro 360:", estilo_nota))
+        elementos.append(Spacer(1, 0.15*cm))
+
+        estilo_car_nombre = ParagraphStyle('car_nombre', fontSize=11,
+                                           fontName='Helvetica-Bold',
+                                           textColor=AZUL_OSCURO, leading=14)
+        estilo_car_area = ParagraphStyle('car_area', fontSize=8.5,
+                                         fontName='Helvetica-Bold',
+                                         textColor=AZUL_PRIMARIO, leading=11)
+        estilo_car_desc = ParagraphStyle('car_desc', fontSize=9,
+                                         fontName='Helvetica',
+                                         textColor=GRIS_TEXTO, leading=13)
+
+        for i, c in enumerate(carreras, 1):
+            nombre_c = escapar_xml(c.get('nombre') or '')
+            area_c = escapar_xml(c.get('area_profesional') or '')
+            desc_c = (c.get('descripcion') or '').strip()
+            if len(desc_c) > 150:
+                desc_c = desc_c[:150].rsplit(' ', 1)[0] + '…'
+            desc_c = escapar_xml(desc_c)
+
+            contenido = [
+                Paragraph(nombre_c, estilo_car_nombre),
+                Spacer(1, 0.08*cm),
+                Paragraph(area_c.upper(), estilo_car_area),
+                Spacer(1, 0.08*cm),
+                Paragraph(desc_c, estilo_car_desc),
+            ]
+            fila = Table([[
+                Paragraph(str(i), ParagraphStyle('num_car', fontSize=12,
+                          fontName='Helvetica-Bold', textColor=BLANCO,
+                          alignment=TA_CENTER)),
+                contenido
+            ]], colWidths=[0.9*cm, 16.1*cm])
+            fila.setStyle(TableStyle([
+                ('BACKGROUND',    (0,0), (0,0), AZUL_PRIMARIO),
+                ('BACKGROUND',    (1,0), (1,0), colors.HexColor('#f8fafc')),
+                ('TOPPADDING',    (0,0), (-1,-1), 8),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+                ('LEFTPADDING',   (0,0), (-1,-1), 10),
+                ('RIGHTPADDING',  (0,0), (-1,-1), 10),
+                ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+                ('LINEBELOW',     (0,0), (-1,-1), 0.75, AZUL_CLARO),
+            ]))
+            elementos.append(fila)
+            elementos.append(Spacer(1, 0.25*cm))
+        elementos.append(Spacer(1, 0.15*cm))
+
+    # ╔══════════════════════════════╗
     # ║  NOTAS PERSONALES            ║
     # ╚══════════════════════════════╝
     if notas and notas.strip():
@@ -527,7 +706,27 @@ def descargar_resultado_pdf(resultado_id):
         flash('Resultado no encontrado.', 'danger')
         return redirect(url_for('vocacional.mis_resultados'))
 
-    buffer = generar_pdf_resultado(resultado, g.user)
+    # Carreras recomendadas (misma búsqueda flexible en 3 niveles que ver_resultado).
+    area = resultado['area_profesional_sugerida']
+    cursor.execute(
+        """SELECT c.* FROM carreras c
+           LEFT JOIN carrera_areas ca ON ca.carrera_id = c.id
+           WHERE c.area_profesional = %s OR ca.area = %s
+           GROUP BY c.id LIMIT 6""",
+        (area, area)
+    )
+    carreras_sugeridas = cursor.fetchall()
+    if not carreras_sugeridas:
+        cursor.execute(
+            "SELECT * FROM carreras WHERE area_profesional LIKE %s LIMIT 6",
+            (f"%{area}%",)
+        )
+        carreras_sugeridas = cursor.fetchall()
+    if not carreras_sugeridas:
+        cursor.execute("SELECT * FROM carreras LIMIT 6")
+        carreras_sugeridas = cursor.fetchall()
+
+    buffer = generar_pdf_resultado(resultado, g.user, carreras_sugeridas)
 
     return send_file(
         buffer,
