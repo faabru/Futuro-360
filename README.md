@@ -364,12 +364,11 @@ Si Cloudinary no está configurado, avisa y no hace nada.
 Desde el panel, los botones **"Exportar Excel"** generan archivos `.xlsx` con:
 - Lista de **usuarios**
 - Lista de **carreras**
-- Preguntas y opciones del **test**
-- **Noticias**
+- Lista de Preguntas y opciones del **test**
+- lista de **Noticias**
 
 Los archivos incluyen encabezados con estilo, filas alternadas, autofiltro, panel congelado y una
-hoja de resumen. Este cumplimiento de **exportación de datos** (PDF, Excel o CSV) es requisito
-excluyente del TFI.
+hoja de resumen. Es necesario para generar comprobantes la **exportación de datos** (PDF, Excel o CSV) 
 
 ## Documentación
 
@@ -393,20 +392,7 @@ web: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
 - `debug=False` está fijado en `app.py` para no exponer el debugger de
   Werkzeug en producción.
 
-### Desplegar en Railway
-
-1. Crear un proyecto nuevo en [Railway](https://railway.app) apuntando al repo.
-2. Railway detecta el `Procfile` y arranca `web: gunicorn ...` automáticamente.
-3. Definir las variables de entorno en **Variables** (ver tabla de la sección
-   [Configuración](#configuración-archivo-env)): `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `SECRET_KEY`,
-   `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `BREVO_API_KEY`, `SENDER_EMAIL`, `RESEND_API_KEY`, `CLOUDINARY_*` (opcional).
-   `PORT` lo asigna Railway y gunicorn lo usa solo.
-4. Si la BD es remota con TLS (p. ej. Aiven), configurar también `DB_PORT` y
-   el certificado CA. La forma recomendada (sin subir el cert al repo) es
-   definir `DB_SSL_CA_CONTENT` con el **contenido PEM completo** del
-   certificado; la app lo escribe a un archivo temporal al arrancar.
-
-### Desplegar en Render
+### Desplegación en Render
 
 1. Crear un Web Service apuntando al repo (build: `pip install -r requirements.txt`).
 2. Start Command: `gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120`.
@@ -420,5 +406,5 @@ web: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
 
 > **Importante — una sola conexión por request:** la app abre UNA conexión a
 > MySQL por request (`database_handler.py`). En bases con límite de conexiones
-> simultáneas (Aiven free) no conviene lanzar más de 2 workers ni ejecutar
+> simultáneas (Aiven free) no conviene lanzar más de 2 workers (procesos) ni ejecutar
 > `create_app()` más de una vez por proceso.
