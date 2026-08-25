@@ -19,7 +19,6 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 - [Exportación de reportes](#exportación-de-reportes)
 - [Documentación](#documentación)
 - [Notas de despliegue (producción)](#notas-de-despliegue-producción)
-- [Autor](#autor)
 
 ## Características principales
 
@@ -113,7 +112,6 @@ futuro 360/
 │   ├── recuperar_password.html, verificar_codigo.html, nueva_password.html
 │   ├── dashboard.html, 404.html, 500.html, base.html
 │   └── admin/                   # Vistas del panel de administración
-├── recuperacion/                # Versión anterior en Node del envío de PIN (referencia de tesis)
 ├── README.md
 └── docs/
     ├── manual_usuario.md        # Manual de usuario
