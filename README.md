@@ -323,19 +323,6 @@ CLOUDINARY_API_SECRET=tu_api_secret
 > más o de menos produce `Invalid Signature`. La API key y su secret deben ser
 > **del mismo par** (mezclarlos con otra key da exactamente ese error).
 
-### Migrar imágenes existentes
-
-Para mover a la nube las imágenes que ya están guardadas localmente
-(`static/imagenes/`) — migración única:
-
-```bash
-python scripts/migrar_imagenes_cloudinary.py
-```
-
-Sube `imagen`, `imagen_portada` e `imagen_principal` de carreras y `imagen` de
-noticias (solo las que empiezan con `imagenes/`) y actualiza la base de datos.
-Si Cloudinary no está configurado, avisa y no hace nada.
-
 ### Solución de problemas
 
 | Error de Cloudinary | Causa | Solución |
