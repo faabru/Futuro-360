@@ -325,26 +325,25 @@ CLOUDINARY_API_SECRET=tu_api_secret
 
 ### Solución de problemas
 
-| Error de Cloudinary | Causa | Solución |
+| Error | Causa | Solución |
 |---|---|---|
-| `Invalid Signature` | API key y API secret no son del mismo par, o el secret quedó incompleto al escribirse a mano | Revisar que la key use el secret correcto (copiar con el botón de copiar) en Settings → API Keys |
-| `Request forbidden due to missing permissions (actions=["create"])` | La API key tiene rol "Media Library User" que no permite subir | Cambiar el rol de la key a **Master Admin** |
-| `Invalid image file` | El archivo no es una imagen/video válido | El panel valida extensiones; verificar que el archivo no esté corrupto |
+| `Invalid Signature` | API key y API secret no son del mismo par, o el secret quedó incompleto al escribirse a mano | Copiar el secret con el botón de copiar en Settings → API Keys (no escribirlo a mano) |
+| `Request forbidden` | La API key tiene rol "Media Library User" que no permite subir | Cambiar el rol de la key a **Master Admin** |
+| `Invalid image file` | El archivo no es una imagen/video válido | Verificar que el archivo no esté corrupto |
 
 ## Panel de administración
 
-- URL: `http://localhost:5000/admin`
-- El acceso al panel se realiza **solo por email** contra la tabla `usuarios` (rol `admin` y `activo = 1`).
-- La cuenta definida en `ADMIN_EMAIL` se crea automáticamente al primer inicio con rol **administrador dueño**
-  (columna `es_dueño`). Si ya existía con otra contraseña, se conserva la contraseña conocida.
-- **Dueño** vs. **Administrador**:
+- **URL:** `http://localhost:5000/admin`
+- El acceso es **solo por email** contra la tabla `usuarios` (rol `admin` y `activo = 1`).
+- La cuenta de `ADMIN_EMAIL` se crea automáticamente al primer inicio con rol **administrador dueño**
+  (columna `es_dueño`). Si ya existía con otra contraseña, se conserva la conocida.
 
-| Capacidad | Administrador | Dueño |
+| Capacidad | Dueño | Administrador |
 |---|---|---|
-| ABM de usuarios | Sí | Sí |
-| Editar/eliminar otros administradores | No | Sí |
-| Editar/eliminar la propia cuenta del dueño | No | No (protegida) |
-| Resto del panel (carreras, noticias, juego, exportación) | Sí | Sí |
+| ABM de usuarios | ✅ | ✅ |
+| Editar/eliminar otros administradores | ✅ | ❌ |
+| Editar/eliminar la cuenta del dueño | ❌ protegida | ❌ |
+| Carreras, noticias, juego, exportación | ✅ | ✅ |
 
 ## Exportación de reportes
 
