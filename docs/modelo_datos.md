@@ -24,7 +24,7 @@ El modelo de datos es el **plano de la base de datos**. Define:
 erDiagram
 
     %% =============================================
-    %% RELACIONES PRINCIPALES
+    %% RELACIONES
     %% =============================================
     USUARIOS ||--o{ TESTS : "realiza"
     USUARIOS ||--o| SESIONES_ACTIVAS : "presencia en línea"
@@ -33,21 +33,19 @@ erDiagram
     TESTS ||--o| RESULTADOS : "genera"
     TESTS ||--o{ RESPUESTAS : "contiene"
 
-    RESPUESTAS }o--|| PREGUNTAS : "refiere a"
-    RESPUESTAS }o--|| OPCIONES : "selecciona"
-
     PREGUNTAS ||--o{ OPCIONES : "tiene"
     PREGUNTAS ||--o{ OPCIONES_PREGUNTA : "tiene (legacy)"
-
     AREAS ||--o{ OPCIONES : "categoriza"
     AREAS ||--o{ RESULTADOS : "sugiere"
 
     CARRERAS ||--o{ GAME_CARRERAS : "participa en"
     CARRERAS ||--o{ CARRERA_AREAS : "se clasifica"
-    CARRERAS ||--o{ CARRERA_UNIVERSIDAD : "se dicta en"
-
     AREAS ||--o{ CARRERA_AREAS : "agrupa"
+    CARRERAS ||--o{ CARRERA_UNIVERSIDAD : "se dicta en"
     UNIVERSIDADES ||--o{ CARRERA_UNIVERSIDAD : "dicta"
+
+    RESPUESTAS }o--|| PREGUNTAS : "refiere a"
+    RESPUESTAS }o--|| OPCIONES : "selecciona"
 
     %% =============================================
     %% DEFINICIÓN DE TABLAS
