@@ -1,3 +1,4 @@
+
 # Manual de Usuario — Futuro 360
 
 Plataforma de orientación vocacional para estudiantes de Tucumán. Este manual explica el uso del
@@ -6,7 +7,7 @@ Plataforma de orientación vocacional para estudiantes de Tucumán. Este manual 
 
 ---
 
-## SITIO PÚBLICO (para todos los usuarios)
+## SITIO PÚBLICO - (para todos los usuarios)
 
 ### 1. Acceso a tu cuenta
 
@@ -44,7 +45,7 @@ Desde **Mi perfil**, el usuario puede:
 - Cambiar su contraseña.
 - Eliminar su cuenta (baja de usuario).
 
-### 2. Herramientas de orientación vocacional
+### 2. Herramientas de orientación vocacional---(DASHBOARD)
 
 #### 2.1 Test vocacional
 
@@ -104,7 +105,7 @@ Es la funcionalidad principal de la plataforma:
 
 ---
 
-## PANEL DE ADMINISTRACIÓN (para administradores)
+## PANEL DE ADMINISTRACIÓn - (para administradores)
 
 El panel se accede desde **`/admin`** en el navegador. Se ingresa **solo con email y contraseña**
 de una cuenta con rol `admin` activa.
@@ -113,11 +114,11 @@ de una cuenta con rol `admin` activa.
 
 #### 1.1 Roles
 
-| Rol | Descripción |
-|---|---|
-| **Usuario** | Acceso solo al sitio público. |
-| **Administrador** | Acceso completo al panel. |
-| **Dueño** | Administrador con permisos exclusivos (gestión de otros administradores). |
+|            Rol             |                                Descripción                                |
+|----------------------------|---------------------------------------------------------------------------|
+| **Usuario**                | Acceso solo al sitio público.                                             |
+| **Administrador**          | Acceso completo al panel.                                                 |
+| **Dueño**                  | Administrador con permisos exclusivos (gestión de otros administradores). |
 
 El **dueño** puede:
 - Editar o eliminar a **otros administradores**.

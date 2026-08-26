@@ -15,7 +15,9 @@ personales o transitorios: tests, resultados, códigos de recuperación,
 comentarios ni sesiones (esas tablas se crean solas al arrancar).
 
 Uso:
-    python scripts/exportar_base.py
+    python scripts/exportar_base.py     (Toma el contenido actual de tu BD (MySQL/Aiven) y
+                                        genera un archivo SQL completo , reimportable y exportar todo el contenido a un
+                                        archivo" para que la app arranque con datos listos.)
 """
 
 import io

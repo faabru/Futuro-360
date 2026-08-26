@@ -52,13 +52,14 @@ La mejora agrega dos funcionalidades nuevas al sistema existente:
   y nuevas vistas del panel.
 
 ### Enfoque técnico
-| Componente | Tecnología propuesta |
-|---|---|
-| Gráficos del dashboard | Chart.js (CDN) + datos JSON servidos desde Flask |
-| Informe PDF | ReportLab (generación server-side en Python) |
-| Consultas de estadísticas | SQL agregado sobre las tablas existentes (`usuarios`, `tests`, `resultados`, `noticias`, `carreras`) |
-| Autorización | Decoradores existentes `requiere_admin` |
-| Datos | Sin cambios de esquema: se reutilizan tablas actuales |
+
+|            Componente        |                                 Tecnología propuesta                                                 |  
+|------------------------------|------------------------------------------------------------------------------------------------------|
+| Gráficos del dashboard       | Chart.js (CDN) + datos JSON servidos desde Flask                                                     |
+| Informe PDF                  | ReportLab (generación server-side en Python)                                                         |
+| Consultas de estadísticas    | SQL agregado sobre las tablas existentes (`usuarios`, `tests`, `resultados`, `noticias`, `carreras`) |
+| Autorización                 | Decoradores existentes `requiere_admin`                                                              |
+| Datos                        | Sin cambios de esquema: se reutilizan tablas actuales                                                |
 
 ---
 
@@ -66,31 +67,33 @@ La mejora agrega dos funcionalidades nuevas al sistema existente:
 
 ### 2.1 Estimación del sistema original (sin la mejora)
 
-| # | Tarea | Horas |
-|---|---|---|
-| 1 | Relevamiento de requisitos y diseño del modelo de datos | 12 |
-| 2 | Configuración de la arquitectura (Flask + MySQL + entorno) | 8 |
-| 3 | Registro, login, roles y recuperación de contraseña | 20 |
-| 4 | Test vocacional (preguntas, opciones, puntaje, resultados) | 25 |
-| 5 | Catálogo de carreras, detalle y búsqueda de universidades | 18 |
-| 6 | Juego interactivo de descubrimiento | 15 |
-| 7 | Módulo de noticias (fuentes, filtros de fecha) | 12 |
-| 8 | Panel de administración (ABM usuarios, carreras, preguntas, noticias, juego) | 35 |
-| 9 | Exportación de datos a Excel | 10 |
-| 10 | Diseño de interfaz, responsive y temas (claro/oscuro) | 15 |
-| 11 | Pruebas y correcciones | 15 |
-| 12 | Documentación técnica y despliegue | 10 |
-| | **TOTAL SISTEMA ORIGINAL** | **195 hs** |
+|   #  |                                   Tarea                                          |  Horas  |
+|------|----------------------------------------------------------------------------------|---------|
+|   1  | Relevamiento de requisitos y diseño del modelo de datos                          |   12    |
+|   2  | Configuración de la arquitectura (Flask + MySQL + entorno)                       |    8    |
+|   3  | Registro, login, roles y recuperación de contraseña                              |   20    |
+|   4  | Test vocacional (preguntas, opciones, puntaje, resultados)                       |   25    |
+|   5  | Catálogo de carreras, detalle y búsqueda de universidades                        |   18    |
+|   6  | Juego interactivo de descubrimiento                                              |   15    |
+|   7  | Módulo de noticias (fuentes, filtros de fecha)                                   |   12    |
+|   8  | Panel de administración (ABM usuarios, carreras, preguntas, noticias, juego)     |   35    |
+|   9  | Exportación de datos a Excel                                                     |   10    |
+|  10  | Diseño de interfaz, responsive y temas (claro/oscuro)                            |   15    |
+|  11  | Pruebas y correcciones                                                           |   15    |
+|  12  | Documentación técnica y despliegue                                               |   10    |
+|      |----------------------------------------------------------------------------------|---------|
+|      | **TOTAL SISTEMA ORIGINAL**                                                       | 195 hs  |
 
 ### 2.2 Estimación de la ampliación (la mejora)
 
-| # | Tarea | Horas |
-|---|---|---|
-| 1 | Análisis y diseño de la mejora | 4 |
-| 2 | Dashboard de estadísticas con gráficos (Chart.js + consultas SQL) | 18 |
-| 3 | Generación del informe PDF del resultado (ReportLab) | 12 |
-| 4 | Ajustes de interfaz, pruebas y correcciones | 6 |
-| | **TOTAL AMPLIACIÓN** | **40 hs** |
+| # |                        Tarea                                      |            Horas           |
+|---|-------------------------------------------------------------------|----------------------------|
+| 1 | Análisis y diseño de la mejora                                    |              4             |
+| 2 | Dashboard de estadísticas con gráficos (Chart.js + consultas SQL) |             18             |
+| 3 | Generación del informe PDF del resultado (ReportLab)              |             12             |
+| 4 | Ajustes de interfaz, pruebas y correcciones                       |              6             |
+| # |-------------------------------------------------------------------|----------------------------|
+| | **TOTAL AMPLIACIÓN**                                                |            40 hs           |
 
 ---
 
@@ -104,11 +107,11 @@ ajustable por el estudiante según su contexto).
 
 ## 4. Cálculo de costos
 
-| Concepto | Horas | Valor hora | Costo |
-|---|---|---|---|
-| Costo del sistema original | 195 | $ 15.000 | **$ 2.925.000** |
-| Costo de la ampliación (mejora) | 40 | $ 15.000 | **$ 600.000** |
-| **Presupuesto total (sistema + mejora)** | 235 | $ 15.000 | **$ 3.525.000** |
+|           Concepto                       | Horas |   Valor hora    |        Costo          |
+|------------------------------------------|-------|-----------------|-----------------------|
+| Costo del sistema original               | 195   |    $ 15.000     |     $ 2.925.000       |
+| Costo de la ampliación (mejora)          | 40    |    $ 15.000     |     $ 600.000         |
+| **Presupuesto total (sistema + mejora)** | 235   |    $ 15.000     |     $ 3.525.000       |
 
 ### Fórmulas utilizadas
 

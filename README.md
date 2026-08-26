@@ -45,17 +45,17 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 
 ## Stack tecnológico
 
-| Capa | Tecnología |
-|---|---|
-| Backend | Python 3 + Flask 3 |
-| Servidor WSGI | gunicorn (despliegue vía `Procfile`) |
-| Base de datos | MySQL (conector `mysql-connector-python`) |
-| Frontend | HTML + CSS + JavaScript (plantillas Jinja2, Bootstrap 5) |
-| Envío de emails | Brevo (transaccionales) + Resend (soporte) |
-| Exportación Excel | openpyxl |
-| Informe PDF | reportlab |
-| Media (imágenes y videos) | Cloudinary (con fallback local) |
-| Variables de entorno | python-dotenv |
+|             Capa            |                       Tecnología                         |
+|-----------------------------|----------------------------------------------------------|
+| Backend                     | Python 3 + Flask 3                                       |
+| Servidor WSGI               | gunicorn (despliegue vía `Procfile`)                     |
+| Base de datos               | MySQL (conector `mysql-connector-python`)                |
+| Frontend                    | HTML + CSS + JavaScript (plantillas Jinja2, Bootstrap 5) |
+| Envío de emails             | Brevo (transaccionales) + Resend (soporte)               |
+| Exportación Excel           | openpyxl                                                 |
+| Informe PDF                 | reportlab                                                |
+| Media (imágenes y videos)   | Cloudinary (con fallback local)                          |
+| Variables de entorno        | python-dotenv                                            |
 
 ## Estructura del proyecto
 
@@ -68,12 +68,14 @@ futuro 360/
 ├── app.py                       # Punto de entrada: fábrica create_app() + arranque del servidor
 ├── config.py                    # Configuración central (BD, seguridad, email, constantes)
 ├── database_handler.py          # Conexión y ciclo de vida de la BD (una conexión por request)
+|
 ├── core/                        # Lógica transversal reutilizable
 │   ├── decoradores.py           # requiere_login, requiere_admin, ajax_o_redirect, es_usuario_dueño
 │   ├── imagenes.py              # Subida de imágenes/videos (Cloudinary con fallback local)
 │   ├── migraciones.py           # Auto-migraciones idempotentes (tablas, columnas, datos iniciales)
 │   ├── mailer.py                # Envío de emails (Brevo: transaccionales · Resend: soporte)
 │   └── startup.py               # Sincronización de imágenes al arrancar
+|
 ├── blueprints/
 │   ├── sitio/                   # Rutas del sitio público
 │   │   ├── auth.py              # Registro, login, logout, recuperación de contraseña, perfil
@@ -82,6 +84,7 @@ futuro 360/
 │   │   ├── carreras.py          # Catálogo de carreras y búsqueda de universidades
 │   │   ├── juegos.py            # Mini-juego de descubrimiento de carreras
 │   │   └── noticias.py          # Sección de noticias
+|   |
 │   └── admin/                   # Rutas del panel de administración
 │       ├── auth.py              # Login, logout y recuperación de contraseña del panel
 │       ├── dashboard.py         # Pantalla principal (estadísticas y gráficos)
@@ -92,6 +95,7 @@ futuro 360/
 │       ├── juego.py             # ABM de carreras y preguntas del juego
 │       ├── reportes.py          # Exportación de datos a Excel
 │       └── noticias.py          # ABM de noticias, fuentes y filtros de fecha
+|
 ├── scripts/                     # Utilidades de desarrollo (sync de imágenes, checks, etc.)
 ├── requirements.txt             # Dependencias de Python
 ├── Procfile                     # Comando WSGI para producción (gunicorn)
@@ -99,19 +103,24 @@ futuro 360/
 ├── .gitignore
 ├── base de datos/
 │   └── futuro 360.sql           # Esquema base + datos iniciales (carreras, preguntas, opciones)
+|
 ├── static/
 │   ├── style.css                # Estilos del sitio público
 │   ├── admin.css                # Estilos del panel admin
 │   ├── img/                     # Fondos por tema y recursos gráficos
 │   ├── imagenes/                # Imágenes del contenido
 │   └── carreras/                # Imágenes de carreras
+|
 ├── templates/                   # Plantillas Jinja2 del sitio y del panel
+|   |
 │   ├── index.html, login.html, registro.html, perfil.html
 │   ├── test.html, resultado_detalle.html, mis_resultados.html
 │   ├── carreras.html, carrera_detalle.html, juego.html, noticias.html
 │   ├── recuperar_password.html, verificar_codigo.html, nueva_password.html
 │   ├── dashboard.html, 404.html, 500.html, base.html
+|   |
 │   └── admin/                   # Vistas del panel de administración
+|
 ├── README.md
 └── docs/
     ├── manual_usuario.md        # Manual de usuario
@@ -338,12 +347,12 @@ CLOUDINARY_API_SECRET=tu_api_secret
 - La cuenta de `ADMIN_EMAIL` se crea automáticamente al primer inicio con rol **administrador dueño**
   (columna `es_dueño`). Si ya existía con otra contraseña, se conserva la conocida.
 
-| Capacidad | Dueño | Administrador |
-|---|---|---|
-| ABM de usuarios | ✅ | ✅ |
-| Editar/eliminar otros administradores | ✅ | ❌ |
-| Editar/eliminar la cuenta del dueño | ❌ protegida | ❌ |
-| Carreras, noticias, juego, exportación | ✅ | ✅ |
+|           Capacidad                    |     Dueño         | Administrador |
+|----------------------------------------|------------------ |---------------|
+| ABM de usuarios                        |   ✅             |      ✅       |
+| Editar/eliminar otros administradores  |   ✅             |      ❌       |
+| Editar/eliminar la cuenta del dueño    |   ❌ protegida   |      ❌       |
+| Carreras, noticias, juego, exportación |   ✅             |      ✅       |
 
 ## Exportación de reportes
 

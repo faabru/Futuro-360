@@ -21,6 +21,7 @@ def _materializar_ca(contenido_pem):
     Devuelve la ruta del archivo, o None si no es PEM válido."""
     if not contenido_pem:
         return None
+    
     # Normaliza saltos de línea y elimina espacios/fin de línea sobrantes.
     pem = contenido_pem.strip().replace('\r\n', '\n').replace('\r', '\n') + '\n'
     if '-----BEGIN CERTIFICATE-----' not in pem or '-----END CERTIFICATE-----' not in pem:

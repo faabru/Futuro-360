@@ -46,18 +46,18 @@ ORDER BY id;
 
 ## IDs más comunes
 
-| ID | Carrera                              | Área               |
-|----|--------------------------------------|--------------------|
-| 1  | Ingeniería en Sistemas de Información | Tecnología        |
-| 4  | Ingeniería Civil                     | Ingeniería         |
-| 9  | Medicina                             | Salud              |
-| 11 | Odontología                          | Salud              |
-| 16 | Psicología                           | Salud Mental       |
-| 22 | Ingeniería Agronómica                | Agronomía          |
-| 26 | Contador Público Nacional            | Negocios           |
-| 30 | Abogacía                             | Derecho            |
-| 36 | Diseño Gráfico                       | Arte y Diseño      |
-| 39 | Arquitectura ✅ *(ya personalizada)* | Arte y Diseño      |
+| ID | Carrera                               |         Área       |
+|----|---------------------------------------|--------------------|
+| 1  | Ingeniería en Sistemas de Información | Tecnología         |
+| 4  | Ingeniería Civil                      | Ingeniería         |
+| 9  | Medicina                              | Salud              |
+| 11 | Odontología                           | Salud              |
+| 16 | Psicología                            | Salud Mental       |
+| 22 | Ingeniería Agronómica                 | Agronomía          |
+| 26 | Contador Público Nacional             | Negocios           |
+| 30 | Abogacía                              | Derecho            |
+| 36 | Diseño Gráfico                        | Arte y Diseño      |
+| 39 | Arquitectura ✅ *(ya personalizada)* | Arte y Diseño       |
 
 ---
 
