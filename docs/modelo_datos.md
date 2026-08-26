@@ -127,14 +127,14 @@ USUARIOS          1 ────< 1 SESIONES_ACTIVAS    (una fila por usuario lo
 
 ### Cómo leer el diagrama
 
-| Símbolo | Significado |
-|---------|-------------|
-| `\|\|--o{` | Uno a muchos (un registro en la tabla izquierda, varios en la derecha) |
-| `\|\|--o\|` | Uno a uno opcional |
-| `}o--o{` | Muchos a muchos |
-| `PK` | Clave primaria (identificador único) |
-| `FK` | Clave foránea (referencia a otra tabla) |
-| `UK` | Clave única (no se puede repetir) |
+|    Símbolo   |                         Significado                                    |
+|--------------|------------------------------------------------------------------------|
+| `\|\|--o{`   | Uno a muchos (un registro en la tabla izquierda, varios en la derecha) |
+| `\|\|--o\|`  | Uno a uno opcional                                                     |
+| `}o--o{`     | Muchos a muchos                                                        |
+| `PK`         | Clave primaria (identificador único)                                   |
+| `FK`         | Clave foránea (referencia a otra tabla)                                |
+| `UK`         | Clave única (no se puede repetir)                                      |
 
 ---
 
