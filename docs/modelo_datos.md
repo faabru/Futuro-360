@@ -22,22 +22,22 @@ El modelo de datos es el **plano de la base de datos**. Define:
 
 ```mermaid
 erDiagram
-    USUARIOS     ||--o{ TESTS              : "realiza"
-    TESTS        ||--o| RESULTADOS         : "genera"
-    TESTS        ||--o{ RESPUESTAS         : "contiene"
-    PREGUNTAS    ||--o{ OPCIONES           : "tiene"
-    AREAS        ||--o{ OPCIONES           : "categoriza"
-    PREGUNTAS    ||--o{ OPCIONES_PREGUNTA  : "tiene (legacy)"
-    AREAS        ||--o{ RESULTADOS         : "sugiere"
-    CARRERAS     ||--o{ GAME_CARRERAS      : "participa en"
-    RESPUESTAS   }o--|| PREGUNTAS          : "refiere a"
-    RESPUESTAS   }o--|| OPCIONES           : "selecciona"
-    PASSWORD_RESETS }o--|| USUARIOS        : "recupera"
-    USUARIOS     ||--o| SESIONES_ACTIVAS   : "presencia en línea"
-    CARRERAS     ||--o{ CARRERA_AREAS      : "se clasifica"
-    AREAS        ||--o{ CARRERA_AREAS      : "agrupa"
-    CARRERAS     ||--o{ CARRERA_UNIVERSIDAD: "se dicta en"
-    UNIVERSIDADES ||--o{ CARRERA_UNIVERSIDAD: "dicta"
+    USUARIOS       ||--o{ TESTS              : "(1,N) realiza"
+    TESTS          ||--o| RESULTADOS         : "(1,1) genera"
+    TESTS          ||--o{ RESPUESTAS         : "(1,N) contiene"
+    PREGUNTAS      ||--o{ OPCIONES           : "(1,N) tiene"
+    AREAS          ||--o{ OPCIONES           : "(1,N) categoriza"
+    PREGUNTAS      ||--o{ OPCIONES_PREGUNTA  : "(1,N) tiene (legacy)"
+    AREAS          ||--o{ RESULTADOS         : "(1,N) sugiere"
+    CARRERAS       ||--o{ GAME_CARRERAS      : "(1,N) participa en"
+    RESPUESTAS     }o--|| PREGUNTAS          : "(N,1) refiere a"
+    RESPUESTAS     }o--|| OPCIONES           : "(N,1) selecciona"
+    PASSWORD_RESETS }o--|| USUARIOS          : "(N,1) recupera"
+    USUARIOS       ||--o| SESIONES_ACTIVAS   : "(1,1) presencia en línea"
+    CARRERAS       ||--o{ CARRERA_AREAS      : "(1,N) se clasifica"
+    AREAS          ||--o{ CARRERA_AREAS      : "(1,N) agrupa"
+    CARRERAS       ||--o{ CARRERA_UNIVERSIDAD: "(1,N) se dicta en"
+    UNIVERSIDADES  ||--o{ CARRERA_UNIVERSIDAD: "(1,N) dicta"
 
     USUARIOS {
         int id PK
