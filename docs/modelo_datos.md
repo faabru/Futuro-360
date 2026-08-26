@@ -22,42 +22,10 @@ El modelo de datos es el **plano de la base de datos**. Define:
 
 ```mermaid
 erDiagram
-    USUARIOS     ||--o{ TESTS : "realiza"
-    TESTS        ||--o| RESULTADOS : "genera"
-    TESTS        ||--o{ RESPUESTAS : "contiene"
-    PREGUNTAS    ||--o{ OPCIONES : "tiene"
-    AREAS        ||--o{ OPCIONES : "categoriza"
-    PREGUNTAS    ||--o{ OPCIONES_PREGUNTA : "tiene (legacy)"
-    AREAS        ||--o{ RESULTADOS : "sugiere"
-    CARRERAS     ||--o{ GAME_CARRERAS : "participa en"
-    RESPUESTAS}o--|| PREGUNTAS : "refiere a"
-    RESPUESTAS }o--|| OPCIONES : "selecciona"
-    PASSWORD_RESETS }o--|| USUARIOS : "recupera"
-    USUARIOS ||--o| SESIONES_ACTIVAS : "presencia en línea"
-    CARRERAS ||--o{ CARRERA_AREAS : "se clasifica"
-    AREAS ||--o{ CARRERA_AREAS : "agrupa"
-    CARRERAS ||--o{ CARRERA_UNIVERSIDAD : "se dicta en"
-    UNIVERSIDADES ||--o{ CARRERA_UNIVERSIDAD : "dicta"
 
-    UNIVERSIDADES {
-        int id PK
-        varchar nombre UK
-        varchar siglas
-        enum tipo
-        varchar sitio_web
-        tinyint activo
-    }
-
-    CARRERA_UNIVERSIDAD {
-        int carrera_id PK, FK
-        int universidad_id PK, FK
-    }
-
-    SESIONES_ACTIVAS {
-        int user_id PK, FK
-        datetime last_seen
-    }
-
+    %% =============================================
+    %% DOMINIO DE USUARIOS
+    %% =============================================
     USUARIOS {
         int id PK
         varchar nombre
@@ -70,6 +38,26 @@ erDiagram
         datetime updated_at
         tinyint es_dueño
     }
+    SESIONES_ACTIVAS {
+        int user_id PK FK
+        datetime last_seen
+    }
+    PASSWORD_RESETS {
+        int id PK
+        varchar email FK
+        varchar codigo
+        tinyint usado
+        datetime expira_en
+        timestamp fecha_creacion
+    }
+
+    USUARIOS ||--o{ TESTS : "realiza"
+    USUARIOS ||--o| SESIONES_ACTIVAS : "presencia en línea"
+    USUARIOS ||--o{ PASSWORD_RESETS : "recupera contraseña"
+
+    %% =============================================
+    %% DOMINIO DEL TEST (PREGUNTAS Y OPCIONES)
+    %% =============================================
     TESTS {
         int id PK
         int usuario_id FK
@@ -79,7 +67,7 @@ erDiagram
     }
     RESULTADOS {
         int id PK
-        int test_id FK,UK
+        int test_id FK UK
         int area_id FK
         varchar area_profesional_sugerida
         int puntaje
@@ -118,6 +106,19 @@ erDiagram
         varchar icono
         varchar color
     }
+
+    TESTS ||--o| RESULTADOS : "genera"
+    TESTS ||--o{ RESPUESTAS : "contiene"
+    RESPUESTAS }o--|| PREGUNTAS : "refiere a"
+    RESPUESTAS }o--|| OPCIONES : "selecciona"
+    PREGUNTAS ||--o{ OPCIONES : "tiene"
+    PREGUNTAS ||--o{ OPCIONES_PREGUNTA : "tiene (legacy)"
+    AREAS ||--o{ OPCIONES : "categoriza"
+    AREAS ||--o{ RESULTADOS : "sugiere"
+
+    %% =============================================
+    %% DOMINIO DE CARRERAS
+    %% =============================================
     CARRERAS {
         int id PK
         varchar nombre
@@ -128,6 +129,7 @@ erDiagram
         varchar imagen
         varchar imagen_portada
         varchar imagen_principal
+        varchar video
         text a_que_se_dedica
     }
     CARRERA_AREAS {
@@ -135,6 +137,27 @@ erDiagram
         int carrera_id FK
         varchar area
     }
+    UNIVERSIDADES {
+        int id PK
+        varchar nombre UK
+        varchar siglas
+        enum tipo
+        varchar sitio_web
+        tinyint activo
+    }
+    CARRERA_UNIVERSIDAD {
+        int carrera_id PK FK
+        int universidad_id PK FK
+    }
+
+    CARRERAS ||--o{ CARRERA_AREAS : "se clasifica"
+    AREAS ||--o{ CARRERA_AREAS : "agrupa"
+    CARRERAS ||--o{ CARRERA_UNIVERSIDAD : "se dicta en"
+    UNIVERSIDADES ||--o{ CARRERA_UNIVERSIDAD : "dicta"
+
+    %% =============================================
+    %% DOMINIO DEL JUEGO
+    %% =============================================
     GAME_CARRERAS {
         int id PK
         int carrera_id FK
@@ -155,11 +178,18 @@ erDiagram
         int orden
         timestamp fecha_creacion
     }
+
+    CARRERAS ||--o{ GAME_CARRERAS : "participa en"
+
+    %% =============================================
+    %% DOMINIO DE NOTICIAS
+    %% =============================================
     NOTICIAS {
         int id PK
         varchar titulo
         text descripcion
         varchar imagen
+        varchar video
         varchar fuente
         date fecha
         varchar link UK
@@ -172,6 +202,9 @@ erDiagram
         varchar nombre UK
         tinyint activo
     }
+    FUENTES_ELIMINADAS {
+        varchar nombre PK
+    }
     FILTROS_FECHA {
         int id PK
         varchar valor UK
@@ -181,6 +214,12 @@ erDiagram
         varchar condicion
         tinyint es_fijo
     }
+
+    NOTICIAS }o--|| FUENTES : "proviene de"
+
+    %% =============================================
+    %% TABLAS DE SOPORTE
+    %% =============================================
     ORIENTACIONES {
         int id PK
         varchar nombre UK
@@ -191,17 +230,6 @@ erDiagram
         varchar email
         text mensaje
         timestamp fecha
-    }
-    PASSWORD_RESETS {
-        int id PK
-        varchar email FK
-        varchar codigo FK
-        tinyint usado
-        datetime expira_en
-        timestamp fecha_creacion
-    }
-    FUENTES_ELIMINADAS {
-        varchar nombre PK
     }
 ```
 
