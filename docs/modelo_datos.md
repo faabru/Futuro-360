@@ -22,68 +22,54 @@ El modelo de datos es el **plano de la base de datos**. Define:
 
 ```mermaid
 erDiagram
-    USUARIOS       ||--o{ TESTS              : "(1,N) realiza"
-    TESTS          ||--o| RESULTADOS         : "(1,1) genera"
-    TESTS          ||--o{ RESPUESTAS         : "(1,N) contiene"
-    PREGUNTAS      ||--o{ OPCIONES           : "(1,N) tiene"
-    AREAS          ||--o{ OPCIONES           : "(1,N) categoriza"
-    PREGUNTAS      ||--o{ OPCIONES_PREGUNTA  : "(1,N) tiene (legacy)"
-    AREAS          ||--o{ RESULTADOS         : "(1,N) sugiere"
-    CARRERAS       ||--o{ GAME_CARRERAS      : "(1,N) participa en"
-    RESPUESTAS     }o--|| PREGUNTAS          : "(N,1) refiere a"
-    RESPUESTAS     }o--|| OPCIONES           : "(N,1) selecciona"
-    PASSWORD_RESETS }o--|| USUARIOS          : "(N,1) recupera"
-    USUARIOS       ||--o| SESIONES_ACTIVAS   : "(1,1) presencia en línea"
-    CARRERAS       ||--o{ CARRERA_AREAS      : "(1,N) se clasifica"
-    AREAS          ||--o{ CARRERA_AREAS      : "(1,N) agrupa"
-    CARRERAS       ||--o{ CARRERA_UNIVERSIDAD: "(1,N) se dicta en"
-    UNIVERSIDADES  ||--o{ CARRERA_UNIVERSIDAD: "(1,N) dicta"
+    USUARIOS ||--o{ TESTS : "1:N realiza"
+    TESTS ||--o| RESULTADOS : "1:1 genera"
+    TESTS ||--o{ RESPUESTAS : "1:N contiene"
+    PREGUNTAS ||--o{ OPCIONES : "1:N tiene"
+    AREAS ||--o{ OPCIONES : "1:N categoriza"
+    PREGUNTAS ||--o{ OPCIONES_PREGUNTA : "1:N tiene (legacy)"
+    AREAS ||--o{ RESULTADOS : "1:N sugiere"
+    CARRERAS ||--o{ GAME_CARRERAS : "1:N participa en"
+    RESPUESTAS }o--|| PREGUNTAS : "N:1 refiere a"
+    RESPUESTAS }o--|| OPCIONES : "N:1 selecciona"
+    PASSWORD_RESETS }o--|| USUARIOS : "N:1 recupera"
+    USUARIOS ||--o| SESIONES_ACTIVAS : "1:1 presencia en linea"
+    CARRERAS ||--o{ CARRERA_AREAS : "1:N se clasifica"
+    AREAS ||--o{ CARRERA_AREAS : "1:N agrupa"
+    CARRERAS ||--o{ CARRERA_UNIVERSIDAD : "1:N se dicta en"
+    UNIVERSIDADES ||--o{ CARRERA_UNIVERSIDAD : "1:N dicta"
 
     USUARIOS {
         int id PK
         varchar nombre
-        varchar apellido
         varchar email UK
-        varchar password
         enum rol
         tinyint activo
-        datetime created_at
-        datetime updated_at
-        tinyint es_dueño
     }
-
     TESTS {
         int id PK
         int usuario_id FK
         datetime fecha
         tinyint completado
-        timestamp fecha_realizacion
     }
-
     RESULTADOS {
         int id PK
         int test_id FK UK
         int area_id FK
-        varchar area_profesional_sugerida
         int puntaje
-        longtext detalle
-        datetime created_at
         text notas_personales
     }
-
     RESPUESTAS {
         int id PK
         int test_id FK
         int pregunta_id FK
         int opcion_id FK
     }
-
     PREGUNTAS {
         int id PK
         varchar texto_pregunta
         varchar area_profesional
     }
-
     OPCIONES {
         int id PK
         int pregunta_id FK
@@ -91,135 +77,84 @@ erDiagram
         varchar texto
         int puntaje
     }
-
-    OPCIONES_PREGUNTA {
-        int id PK
-        int pregunta_id FK
-        varchar texto_opcion
-        varchar area_profesional
-    }
-
     AREAS {
         int id PK
         varchar nombre
-        text descripcion
-        varchar icono
         varchar color
     }
-
     CARRERAS {
         int id PK
         varchar nombre
-        text descripcion
         varchar area_profesional
-        text instituciones
-        tinyint popular
         varchar imagen
-        varchar imagen_portada
-        varchar imagen_principal
         varchar video
-        text a_que_se_dedica
     }
-
+    UNIVERSIDADES {
+        int id PK
+        varchar nombre UK
+        enum tipo
+        varchar sitio_web
+    }
+    CARRERA_UNIVERSIDAD {
+        int carrera_id PK FK
+        int universidad_id PK FK
+    }
     CARRERA_AREAS {
         int id PK
         int carrera_id FK
         varchar area
     }
-
-    UNIVERSIDADES {
-        int id PK
-        varchar nombre UK
-        varchar siglas
-        enum tipo
-        varchar sitio_web
-        tinyint activo
-    }
-
-    CARRERA_UNIVERSIDAD {
-        int carrera_id PK FK
-        int universidad_id PK FK
-    }
-
     GAME_CARRERAS {
         int id PK
         int carrera_id FK
-        varchar texto_boton
-        varchar titulo_card
-        text descripcion_card
         tinyint activo
         int orden
     }
-
     GAME_PREGUNTAS {
         int id PK
         varchar texto_pregunta
-        varchar opcion_a_texto
-        varchar opcion_a_area
-        varchar opcion_b_texto
-        varchar opcion_b_area
         tinyint activo
-        int orden
-        timestamp fecha_creacion
     }
-
     NOTICIAS {
         int id PK
         varchar titulo
-        text descripcion
-        varchar imagen
-        varchar video
-        varchar fuente
-        date fecha
         varchar link UK
         varchar categoria
-        tinyint es_externa
-        timestamp fecha_creacion
     }
-
     FUENTES {
         int id PK
         varchar nombre UK
         tinyint activo
     }
-
     FILTROS_FECHA {
         int id PK
         varchar valor UK
-        varchar etiqueta
         tinyint activo
-        int orden
-        varchar condicion
-        tinyint es_fijo
     }
-
     ORIENTACIONES {
         int id PK
         varchar nombre UK
     }
-
     COMENTARIOS {
         int id PK
         varchar nombre
         varchar email
-        text mensaje
-        timestamp fecha
     }
-
     PASSWORD_RESETS {
         int id PK
         varchar email FK
         varchar codigo
         tinyint usado
-        datetime expira_en
-        timestamp fecha_creacion
     }
-
     SESIONES_ACTIVAS {
         int user_id PK FK
         datetime last_seen
     }
-
+    OPCIONES_PREGUNTA {
+        int id PK
+        int pregunta_id FK
+        varchar texto_opcion
+    }
     FUENTES_ELIMINADAS {
         varchar nombre PK
     }
