@@ -22,34 +22,22 @@ El modelo de datos es el **plano de la base de datos**. Define:
 
 ```mermaid
 erDiagram
-
-    %% =============================================
-    %% RELACIONES
-    %% =============================================
-    USUARIOS ||--o{ TESTS : "realiza"
-    USUARIOS ||--o| SESIONES_ACTIVAS : "presencia en línea"
-    USUARIOS ||--o{ PASSWORD_RESETS : "recupera contraseña"
-
-    TESTS ||--o| RESULTADOS : "genera"
-    TESTS ||--o{ RESPUESTAS : "contiene"
-
-    PREGUNTAS ||--o{ OPCIONES : "tiene"
-    PREGUNTAS ||--o{ OPCIONES_PREGUNTA : "tiene (legacy)"
-    AREAS ||--o{ OPCIONES : "categoriza"
-    AREAS ||--o{ RESULTADOS : "sugiere"
-
-    CARRERAS ||--o{ GAME_CARRERAS : "participa en"
-    CARRERAS ||--o{ CARRERA_AREAS : "se clasifica"
-    AREAS ||--o{ CARRERA_AREAS : "agrupa"
-    CARRERAS ||--o{ CARRERA_UNIVERSIDAD : "se dicta en"
-    UNIVERSIDADES ||--o{ CARRERA_UNIVERSIDAD : "dicta"
-
-    RESPUESTAS }o--|| PREGUNTAS : "refiere a"
-    RESPUESTAS }o--|| OPCIONES : "selecciona"
-
-    %% =============================================
-    %% DEFINICIÓN DE TABLAS
-    %% =============================================
+    USUARIOS     ||--o{ TESTS              : "realiza"
+    TESTS        ||--o| RESULTADOS         : "genera"
+    TESTS        ||--o{ RESPUESTAS         : "contiene"
+    PREGUNTAS    ||--o{ OPCIONES           : "tiene"
+    AREAS        ||--o{ OPCIONES           : "categoriza"
+    PREGUNTAS    ||--o{ OPCIONES_PREGUNTA  : "tiene (legacy)"
+    AREAS        ||--o{ RESULTADOS         : "sugiere"
+    CARRERAS     ||--o{ GAME_CARRERAS      : "participa en"
+    RESPUESTAS   }o--|| PREGUNTAS          : "refiere a"
+    RESPUESTAS   }o--|| OPCIONES           : "selecciona"
+    PASSWORD_RESETS }o--|| USUARIOS        : "recupera"
+    USUARIOS     ||--o| SESIONES_ACTIVAS   : "presencia en línea"
+    CARRERAS     ||--o{ CARRERA_AREAS      : "se clasifica"
+    AREAS        ||--o{ CARRERA_AREAS      : "agrupa"
+    CARRERAS     ||--o{ CARRERA_UNIVERSIDAD: "se dicta en"
+    UNIVERSIDADES ||--o{ CARRERA_UNIVERSIDAD: "dicta"
 
     USUARIOS {
         int id PK
@@ -195,10 +183,6 @@ erDiagram
         tinyint activo
     }
 
-    FUENTES_ELIMINADAS {
-        varchar nombre PK
-    }
-
     FILTROS_FECHA {
         int id PK
         varchar valor UK
@@ -234,6 +218,10 @@ erDiagram
     SESIONES_ACTIVAS {
         int user_id PK FK
         datetime last_seen
+    }
+
+    FUENTES_ELIMINADAS {
+        varchar nombre PK
     }
 ```
 
