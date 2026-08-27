@@ -280,3 +280,56 @@ def admin_usuario_toggle(id):
     db.commit()
     flash('Usuario actualizado correctamente.', 'success')
     return redirect(url_for('admin_usuarios.admin_usuarios'))
+
+
+@bp.route('/admin/usuarios/rol/<int:id>', methods=['POST'])
+@requiere_admin
+@ajax_o_redirect
+def admin_usuario_rol(id):
+    """Asigna o quita el rol de administrador a un usuario existente.
+
+    Solo la cuenta principal (dueño) puede cambiar roles. El dueño del panel
+    siempre es admin y no se puede modificar. Al promover, se activa la cuenta
+    para que pueda ingresar al panel (admin_login exige rol='admin' AND activo=1).
+    """
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
+    usuario = cursor.fetchone()
+    if not usuario:
+        flash('El usuario no existe.', 'warning')
+        return redirect(url_for('admin_usuarios.admin_usuarios'))
+
+    # Solo la cuenta principal (dueño) puede asignar/quitar administradores.
+    if not es_usuario_dueño():
+        flash('Solo la cuenta principal puede asignar o quitar administradores.', 'danger')
+        return redirect(url_for('admin_usuarios.admin_usuarios'))
+
+    # El dueño del panel siempre es administrador; no se puede modificar su rol.
+    if usuario.get('es_dueño') or usuario['email'] == Config.ADMIN_EMAIL:
+        flash('No podés modificar el rol del dueño del panel.', 'danger')
+        return redirect(url_for('admin_usuarios.admin_usuarios'))
+
+    # Protección: un admin no debería poder quitarse a sí mismo el rol.
+    if usuario['id'] == session.get('admin_id'):
+        flash('No podés cambiar tu propio rol.', 'danger')
+        return redirect(url_for('admin_usuarios.admin_usuarios'))
+
+    nuevo_rol = 'usuario' if usuario.get('rol') == 'admin' else 'admin'
+    try:
+        if nuevo_rol == 'admin':
+            # Al promover, se activa para que pueda ingresar al panel.
+            cursor.execute(
+                "UPDATE usuarios SET rol = 'admin', activo = 1 WHERE id = %s", (id,))
+            flash(f"{usuario['nombre']} ahora es administrador.", 'success')
+        else:
+            cursor.execute(
+                "UPDATE usuarios SET rol = 'usuario' WHERE id = %s", (id,))
+            flash(f"Se quitaron los permisos de administrador a {usuario['nombre']}.", 'info')
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        current_app.logger.error('Error al cambiar el rol: %s', e)
+        flash('No se pudo cambiar el rol. Intentá de nuevo.', 'danger')
+    return redirect(url_for('admin_usuarios.admin_usuarios'))

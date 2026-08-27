@@ -36,38 +36,51 @@
         <span class="admin-date-time">{{ usuario.created_at.strftime('%H:%M') }}</span>
     </td>
     <td class="text-end">
-        {% if usuario.email != email_dueño %}
-            {% if es_dueño %}
-            <div class="d-flex gap-1 justify-content-end">
-                {% if usuario.rol == 'admin' %}
-                <button type="button" class="icon-btn" title="Editar administrador"
-                        onclick='editarUsuario({{ usuario|tojson }})'>
-                    <i class="bi bi-pencil"></i>
-                </button>
-                <form action="{{ url_for('admin_usuarios.admin_usuario_toggle', id=usuario.id) }}" method="POST" style="display:inline;">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="icon-btn {{ 'success' if usuario.activo == 0 }}" title="{{ 'Activar administrador' if usuario.activo == 0 else 'Pausar/Suspender administrador' }}">
-                        <i class="bi {{ 'bi-play-fill' if usuario.activo == 0 else 'bi-pause-fill' }}"></i>
-                    </button>
-                </form>
-                {% endif %}
-                <form action="{{ url_for('admin_usuarios.admin_usuario_eliminar', id=usuario.id) }}" method="POST" style="display:inline;"
-                      data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar a {{ usuario.nombre }}?">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="icon-btn danger" title="Eliminar usuario">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </form>
-            </div>
-            {% else %}
-            <span class="text-muted small" title="Solo la cuenta principal puede administrar usuarios">
-                <i class="bi bi-lock-fill me-1"></i>
-            </span>
-            {% endif %}
-        {% else %}
+        {% if usuario.email == email_dueño %}
         <span class="text-muted small fw-bold" title="El dueño no se puede editar ni eliminar">
             <i class="bi bi-lock-fill me-1"></i>Protegido
         </span>
+        {% elif not es_dueño %}
+        <span class="text-muted small" title="Solo la cuenta principal puede administrar usuarios">
+            <i class="bi bi-lock-fill me-1"></i>
+        </span>
+        {% else %}
+        <div class="d-flex gap-1 justify-content-end">
+            {% if usuario.rol == 'usuario' %}
+            <form action="{{ url_for('admin_usuarios.admin_usuario_rol', id=usuario.id) }}" method="POST" data-rol-form style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="icon-btn" title="Hacer administrador"
+                        data-confirm="¿Convertir a {{ usuario.nombre }} en administrador? Esto le dará acceso al panel.">
+                    <i class="bi bi-person-up"></i>
+                </button>
+            </form>
+            {% else %}
+            <button type="button" class="icon-btn" title="Editar administrador"
+                    onclick='editarUsuario({{ usuario|tojson }})'>
+                <i class="bi bi-pencil"></i>
+            </button>
+            <form action="{{ url_for('admin_usuarios.admin_usuario_toggle', id=usuario.id) }}" method="POST" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="icon-btn {{ 'success' if usuario.activo == 0 }}" title="{{ 'Activar administrador' if usuario.activo == 0 else 'Pausar/Suspender administrador' }}">
+                    <i class="bi {{ 'bi-play-fill' if usuario.activo == 0 else 'bi-pause-fill' }}"></i>
+                </button>
+            </form>
+            <form action="{{ url_for('admin_usuarios.admin_usuario_rol', id=usuario.id) }}" method="POST" data-rol-form style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="icon-btn" title="Quitar administrador"
+                        data-confirm="¿Quitar los permisos de administrador a {{ usuario.nombre }}?">
+                    <i class="bi bi-person-down"></i>
+                </button>
+            </form>
+            {% endif %}
+            <form action="{{ url_for('admin_usuarios.admin_usuario_eliminar', id=usuario.id) }}" method="POST" style="display:inline;"
+                  data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar a {{ usuario.nombre }}?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="icon-btn danger" title="Eliminar usuario">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </form>
+        </div>
         {% endif %}
     </td>
 </tr>

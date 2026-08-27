@@ -319,6 +319,30 @@
         document.getElementById('f-email').addEventListener('keydown', function (e) {
             if (e.key === 'Enter') { e.preventDefault(); filtrarUsuarios(); }
         });
+
+        // Cambiar rol (promover/quitar administrador) sin perder los filtros.
+        document.querySelectorAll('form[data-rol-form]').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (form.dataset.confirm && !window.confirm(form.dataset.confirm)) return;
+                const btn = form.querySelector('button[type="submit"]');
+                if (btn) btn.disabled = true;
+                const formData = new FormData(form);
+                fetch(form.action, {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    body: formData
+                })
+                .then(function (res) { if (!res.ok) throw new Error('Error del servidor'); return res.json(); })
+                .then(function (data) {
+                    if (!data.ok) throw new Error('No se pudo cambiar el rol');
+                    filtrarUsuarios();
+                    mostrarToast('Rol actualizado correctamente', 'success');
+                })
+                .catch(function (err) { mostrarToast(err.message, 'danger'); })
+                .finally(function () { if (btn) btn.disabled = false; });
+            });
+        });
     });
 
     // Auto-refresco: actualiza la tabla, el contador "En línea ahora" y el
