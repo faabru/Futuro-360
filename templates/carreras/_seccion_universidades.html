@@ -5,11 +5,11 @@
    Contexto que recibe del backend:
      - carrera : dict con al menos {id, nombre}
 
-   Dos buscadores (sin listado previo de universidades):
-     1) "Buscar universidades"  : DuckDuckGo trae los links de todas las
-                                  universidades donde se estudia la carrera
-                                  en San Miguel de Tucumán.
-     2) "Búsqueda personalizada": Google con la carrera ya escrita.
+    Dos buscadores (sin listado previo de universidades), uno al lado del otro:
+      1) "Buscar universidades"  : DuckDuckGo trae los links de todas las
+                                   universidades donde se estudia la carrera
+                                   en Tucumán.
+      2) "Búsqueda personalizada": Google con la carrera ya escrita.
    ============================================================================ #}
 
 <div class="mb-5" id="seccion-instituciones">
@@ -17,13 +17,13 @@
         <i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla en Tucumán?
     </h5>
 
-    {# Botones de búsqueda: DuckDuckGo (links de universidades) y Google #}
-    <div class="d-flex gap-2 flex-wrap">
+    {# Botones de búsqueda: DuckDuckGo (links de universidades) y Google, a la par #}
+    <div class="d-flex gap-2 flex-wrap align-items-center mb-3">
 
         {# Buscador web: DuckDuckGo devuelve los links de las universidades #}
         <button id="btn-buscar-web"
                 data-carrera-id="{{ carrera.id }}"
-                class="btn btn-outline-primary rounded-pill mt-2 shadow-sm d-inline-flex align-items-center gap-2">
+                class="btn btn-outline-primary rounded-pill shadow-sm d-inline-flex align-items-center gap-2">
             <i class="bi bi-search"></i>
             Buscar universidades
         </button>
@@ -31,7 +31,7 @@
         {# Buscador personalizado: Google con la carrera ya escrita #}
         <a href="https://www.google.com/search?q={{ (carrera.nombre ~ ' universidad Tucumán inscripción')|urlencode }}"
            target="_blank" rel="noopener noreferrer"
-           class="btn btn-outline-secondary rounded-pill mt-2 shadow-sm d-inline-flex align-items-center gap-2">
+           class="btn btn-outline-secondary rounded-pill shadow-sm d-inline-flex align-items-center gap-2">
             <i class="bi bi-google"></i>
             Búsqueda personalizada
         </a>
