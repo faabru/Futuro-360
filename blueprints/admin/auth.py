@@ -65,7 +65,17 @@ def admin_login():
 @bp.route('/admin/logout')
 def admin_logout():
     """Cierra la sesión exclusiva de administración."""
+    admin_id = session.get('admin_id')
     session.pop('admin_autenticado', None)
+    # Quita la presencia "en línea" del administrador de inmediato.
+    if admin_id:
+        try:
+            db = obtener_db()
+            cursor = db.cursor()
+            cursor.execute("DELETE FROM sesiones_activas WHERE user_id = %s", (admin_id,))
+            db.commit()
+        except Exception:
+            pass
     flash('Sesión de administrador cerrada.', 'info')
     return redirect(url_for('admin_auth.admin_login'))
 

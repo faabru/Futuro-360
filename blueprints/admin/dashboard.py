@@ -54,6 +54,16 @@ def admin_dashboard():
     except Exception:
         usuarios_activos = 0
 
+    # Administradores conectados en los últimos 3 minutos (sesión de panel).
+    try:
+        cursor.execute(
+            "SELECT COUNT(DISTINCT s.user_id) AS total FROM sesiones_activas s "
+            "JOIN usuarios u ON u.id = s.user_id "
+            "WHERE s.last_seen >= NOW() - INTERVAL 3 MINUTE AND u.rol = 'admin'")
+        admins_activos = cursor.fetchone()['total']
+    except Exception:
+        admins_activos = 0
+
     cursor.execute("SELECT COUNT(*) AS total FROM tests")
     total_tests = cursor.fetchone()['total']
 
@@ -114,7 +124,8 @@ def admin_dashboard():
         carreras_juego_activas=carreras_juego_activas,
         preguntas_juego_activas=preguntas_juego_activas,
         orientaciones=orientaciones,
-        usuarios_activos=usuarios_activos, total_tests=total_tests,
+        usuarios_activos=usuarios_activos, admins_activos=admins_activos,
+        total_tests=total_tests,
         usuarios_con_tests=usuarios_con_tests,
         tests_por_mes=series_tests, usuarios_por_area=usuarios_por_area,
         noticias_por_fuente=noticias_por_fuente,

@@ -54,52 +54,71 @@ def create_app():
 
     @app.before_request
     def cargar_usuario_logueado():
-        """Carga en 'g.user' los datos del usuario con sesión activa."""
+        """Carga en 'g.user' al usuario del sitio (si hay sesión) y registra la
+        presencia 'en línea' tanto de usuarios del sitio como de administradores
+        logueados en el panel."""
         id_usuario = session.get('user_id')
         if id_usuario is None:
             g.user = None
+        else:
+            db = obtener_db()
+            cursor = db.cursor(dictionary=True)
+            # SOLO columnas que la sesión necesita; sin password por seguridad.
+            cursor.execute(
+                "SELECT id, nombre, apellido, email, es_dueño FROM usuarios "
+                "WHERE id = %s",
+                (id_usuario,))
+            g.user = cursor.fetchone()
+            if g.user is None:
+                return
+            _registrar_presencia(id_usuario)
             return
-        db = obtener_db()
-        cursor = db.cursor(dictionary=True)
-        # SOLO columnas que la sesión necesita; sin password por seguridad.
-        cursor.execute(
-            "SELECT id, nombre, apellido, email, es_dueño FROM usuarios "
-            "WHERE id = %s",
-            (id_usuario,))
-        g.user = cursor.fetchone()
-        if g.user is None:
+
+        # Sin sesión de sitio: si hay sesión de administrador, registrar su
+        # presencia para que también aparezca como "en línea" en el panel.
+        if session.get('admin_autenticado'):
+            _registrar_presencia(session.get('admin_id'))
+
+
+    def _registrar_presencia(user_id):
+        """Actualiza la presencia 'en línea' en sesiones_activas (máx 1 escritura/60s).
+        Se usa para usuarios del sitio y para administradores del panel; así el
+        indicador de "en línea" del panel refleja también a los admins conectados."""
+        if not user_id:
             return
-        # Actualizar presencia "en línea" (máx 1 escritura/60s por usuario).
         ahora = time.time()
-        if ahora - session.get('_online_ts', 0) > 60:
-            session['_online_ts'] = ahora
+        if ahora - session.get('_online_ts', 0) <= 60:
+            return
+        session['_online_ts'] = ahora
+        try:
+            db = obtener_db()
+            cursor = db.cursor()
+            cursor.execute(
+                "INSERT INTO sesiones_activas (user_id, last_seen) "
+                "VALUES (%s, NOW()) ON DUPLICATE KEY UPDATE last_seen = NOW()",
+                (user_id,))
+            # TRADE-OFF: DELETE de sesiones viejas en cada request activo.
+            # Simple y suficiente para el tráfico actual. Si crece, mover
+            # a job periódico (APScheduler/CRON).
+            cursor.execute(
+                "DELETE FROM sesiones_activas WHERE last_seen < NOW() - INTERVAL 5 MINUTE")
+            db.commit()
+        except Exception:
+            # Si la tabla no existe, crearla y reintentar una vez.
             try:
+                from core.migraciones import asegurar_tabla_sesiones_activas
+                asegurar_tabla_sesiones_activas()
+                db = obtener_db()
+                cursor = db.cursor()
                 cursor.execute(
                     "INSERT INTO sesiones_activas (user_id, last_seen) "
                     "VALUES (%s, NOW()) ON DUPLICATE KEY UPDATE last_seen = NOW()",
-                    (id_usuario,))
-                # TRADE-OFF: DELETE de sesiones viejas en cada request activo.
-                # Simple y suficiente para el tráfico actual. Si crece, mover
-                # a job periódico (APScheduler/CRON).
+                    (user_id,))
                 cursor.execute(
-                    "DELETE FROM sesiones_activas "
-                    "WHERE last_seen < NOW() - INTERVAL 5 MINUTE")
+                    "DELETE FROM sesiones_activas WHERE last_seen < NOW() - INTERVAL 5 MINUTE")
                 db.commit()
             except Exception:
-                # Si la tabla no existe, crearla y reintentar una vez.
-                try:
-                    from core.migraciones import asegurar_tabla_sesiones_activas
-                    asegurar_tabla_sesiones_activas()
-                    cursor.execute(
-                        "INSERT INTO sesiones_activas (user_id, last_seen) "
-                        "VALUES (%s, NOW()) ON DUPLICATE KEY UPDATE last_seen = NOW()",
-                        (id_usuario,))
-                    cursor.execute(
-                        "DELETE FROM sesiones_activas "
-                        "WHERE last_seen < NOW() - INTERVAL 5 MINUTE")
-                    db.commit()
-                except Exception:
-                    pass
+                pass
 
     @app.errorhandler(404)
     def pagina_no_encontrada(e):
