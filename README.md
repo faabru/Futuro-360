@@ -26,7 +26,7 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 - **Test vocacional** de 30 preguntas con puntaje por área profesional y recomendación de carreras.
 - **Informe PDF** descargable del resultado vocacional (área dominante, afinidad por área y carreras recomendadas).
 - **Exploración de carreras** (40+ carreras) por área profesional, con detalle, descripción e instituciones.
-- **Búsqueda de universidades** por carrera (DuckDuckGo para San Miguel de Tucumán + búsqueda personalizada en Google).
+- **Búsqueda de universidades** por carrera (DuckDuckGo sobre universidades verificadas en Tucumán + búsqueda personalizada en Google).
 - **Juego interactivo** de descubrimiento de carreras.
 - **Noticias educativas** con fuentes, categorías y filtros por fecha.
 - **Registro / Login / Perfil** de usuarios.

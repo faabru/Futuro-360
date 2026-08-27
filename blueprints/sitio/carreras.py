@@ -182,17 +182,49 @@ def buscar_universidades(carrera_id):
                 query_base = f'universidad {universidad["nombre"]} noticias'
             else:
                 query_base = f'site:{universidad["sitio_web"]} "{carrera["nombre"]}"'
+            resultados = _buscar(query_base, max_results=5)
         else:
-            # Fallback: busca dónde se estudia la carrera en San Miguel de Tucumán.
-            query_base = (
-                f"universidades en San Miguel de Tucumán para estudiar "
-                f"{carrera['nombre']}"
-            )
+            # Búsqueda general: usa las universidades VERIFICADAS que dictan la
+            # carrera en Tucumán (tabla carrera_universidad) y trae los links de
+            # sus sitios oficiales. Así solo aparecen universidades donde sí se
+            # dicta la carrera. Si no hay relaciones cargadas, cae a DDG genérico.
+            cursor.execute("""
+                SELECT u.id, u.nombre, u.siglas, u.tipo, u.sitio_web
+                FROM carrera_universidad cu
+                JOIN universidades u ON u.id = cu.universidad_id
+                WHERE cu.carrera_id = %s AND u.activo = 1
+                ORDER BY FIELD(u.tipo, 'publica', 'privada'), u.nombre
+            """, (carrera_id,))
+            verificadas = cursor.fetchall()
 
-        if not query_base:
-            return {"error": "Consulta vacía", "resultados": []}, 400
-
-        resultados = _buscar(query_base, max_results=8)
+            resultados = []
+            if verificadas:
+                for u in verificadas:
+                    try:
+                        res = _buscar(
+                            f'site:{u["sitio_web"]} "{carrera["nombre"]}"',
+                            max_results=3)
+                    except Exception:
+                        res = []
+                    # Solo enlaces dentro del dominio oficial de la universidad.
+                    res = [r for r in res if u["sitio_web"] in (r["url"] or "")]
+                    if not res:
+                        # Fallback: link directo al sitio oficial (sabemos que la dicta).
+                        res = [{
+                            "titulo": f'Carrera de {carrera["nombre"]} - {u["nombre"]}',
+                            "url": f'https://{u["sitio_web"]}',
+                            "descripcion": (
+                                f'Sitio oficial de {u["nombre"]} '
+                                f'(Universidad {"Pública" if u["tipo"] == "publica" else "Privada"})'
+                            ),
+                        }]
+                    for r in res[:3]:
+                        r.setdefault("titulo", u["nombre"])
+                        resultados.append(r)
+            else:
+                # Sin relaciones cargadas: búsqueda genérica en DDG acotada a Tucumán.
+                query_base = f'"{carrera["nombre"]}" carrera universidad Tucumán'
+                resultados = _buscar(query_base, max_results=8)
 
         return {
             "resultados": resultados,

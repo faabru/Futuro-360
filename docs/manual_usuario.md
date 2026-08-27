@@ -68,8 +68,8 @@ Es la funcionalidad principal de la plataforma:
 - Cada carrera tiene: **nombre**, **descripción** y **área**; dónde se dicta se consulta con los buscadores de universidades.
 - Se pueden filtrar o buscar por área de interés.
 - En el detalle de cada carrera, la sección **"¿Dónde estudiarla en Tucumán?"** ofrece dos buscadores:
-  - **"Buscar universidades"**: realiza una búsqueda en **DuckDuckGo** y trae los links de todas las
-    universidades donde se puede estudiar la carrera en **San Miguel de Tucumán**.
+  - **"Buscar universidades"**: realiza una búsqueda en **DuckDuckGo** sobre las universidades
+    **verificadas que dictan la carrera en Tucumán** y trae los links de sus sitios oficiales.
   - **"Búsqueda personalizada"**: abre **Google** con la carrera ya escrita para afinar la búsqueda.
 - Los resultados de DuckDuckGo se muestran dentro de la página (título, enlace y descripción);
   si la búsqueda automática falla, se ofrece un enlace directo a DuckDuckGo.

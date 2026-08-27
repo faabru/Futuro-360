@@ -64,7 +64,7 @@ ORDER BY id;
 ## ⚠ IMPORTANTE: el buscador DuckDuckGo
 
 La ruta `/carrera/<id>/buscar-universidades` devuelve JSON con campo **`url`** (no `link`).
-Por defecto busca dónde se estudia la carrera en **San Miguel de Tucumán** (DuckDuckGo).
+Por defecto usa las **universidades verificadas que dictan la carrera en Tucumán** y busca sus sitios en DuckDuckGo.
 
 Siempre que copies el template base, verificá que el `fetch` use `r.url`:
 
