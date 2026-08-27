@@ -183,13 +183,16 @@ def buscar_universidades(carrera_id):
             else:
                 query_base = f'site:{universidad["sitio_web"]} "{carrera["nombre"]}"'
         else:
-            # Fallback: búsqueda general enfocada en la carrera y Tucumán.
-            query_base = f"{carrera['nombre']} universidad facultad Tucumán site:edu.ar OR site:gov.ar"
+            # Fallback: busca dónde se estudia la carrera en San Miguel de Tucumán.
+            query_base = (
+                f"universidades en San Miguel de Tucumán para estudiar "
+                f"{carrera['nombre']}"
+            )
 
         if not query_base:
             return {"error": "Consulta vacía", "resultados": []}, 400
 
-        resultados = _buscar(query_base)
+        resultados = _buscar(query_base, max_results=8)
 
         return {
             "resultados": resultados,

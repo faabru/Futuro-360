@@ -65,20 +65,14 @@ Es la funcionalidad principal de la plataforma:
 #### 2.3 Explorar carreras
 
 - La sección **Carreras** muestra todas las carreras ordenadas por área profesional.
-- Cada carrera tiene: **nombre**, **descripción**, **área** e **instituciones** donde se dicta.
+- Cada carrera tiene: **nombre**, **descripción** y **área**; dónde se dicta se consulta con los buscadores de universidades.
 - Se pueden filtrar o buscar por área de interés.
-- En el detalle de cada carrera, la sección **"¿Dónde estudiarla en Tucumán?"** arranca con dos
-  botones: **"Buscar carrera"** despliega toda la información dentro de la página, y
-  **"Búsqueda personalizada"** abre Google con la carrera ya escrita.
-- Al tocar **"Buscar carrera"** se muestra la lista de universidades cargadas con su badge
-  **Pública/Privada** y tres acciones por universidad: **Sitio oficial**, **"Ver en su facultad"**
-  (enlaces de esa carrera dentro del sitio universitario) e **"Info y noticias"** (enlaces
-  informativos y noticias sobre la universidad).
-- Debajo se buscan automáticamente **otras universidades del catálogo** que ofrecen la carrera
-  (por ejemplo Siglo 21 o San Pablo-T): solo se muestran si la búsqueda encuentra resultados reales
-  en su sitio oficial.
-- Si todavía no hay universidades cargadas para esa carrera, "Buscar carrera" realiza la búsqueda
-  automática y también muestra los resultados dentro de la página.
+- En el detalle de cada carrera, la sección **"¿Dónde estudiarla en Tucumán?"** ofrece dos buscadores:
+  - **"Buscar universidades"**: realiza una búsqueda en **DuckDuckGo** y trae los links de todas las
+    universidades donde se puede estudiar la carrera en **San Miguel de Tucumán**.
+  - **"Búsqueda personalizada"**: abre **Google** con la carrera ya escrita para afinar la búsqueda.
+- Los resultados de DuckDuckGo se muestran dentro de la página (título, enlace y descripción);
+  si la búsqueda automática falla, se ofrece un enlace directo a DuckDuckGo.
 
 #### 2.4 Juego de descubrimiento
 

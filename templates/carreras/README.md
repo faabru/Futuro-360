@@ -64,6 +64,7 @@ ORDER BY id;
 ## ⚠ IMPORTANTE: el buscador DuckDuckGo
 
 La ruta `/carrera/<id>/buscar-universidades` devuelve JSON con campo **`url`** (no `link`).
+Por defecto busca dónde se estudia la carrera en **San Miguel de Tucumán** (DuckDuckGo).
 
 Siempre que copies el template base, verificá que el `fetch` use `r.url`:
 
@@ -91,7 +92,7 @@ data.resultados.forEach(r => {
       "descripcion": "Facultad de Arquitectura de la Universidad Nacional de Tucumán..."
     }
   ],
-  "total": 5,
+  "total": 8,
   "status": "success"
 }
 ```

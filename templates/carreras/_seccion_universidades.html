@@ -3,36 +3,32 @@
    Partial compartido por: carrera_detalle.html y carreras/*.html
 
    Contexto que recibe del backend:
-     - carrera       : dict con al menos {id, nombre}
-     - universidades : lista (puede venir vacía)
+     - carrera : dict con al menos {id, nombre}
 
-   Tres modos de uso:
-     1) "Buscar carrera"        : abre el panel con las universidades cargadas
-                                  y dispara el descubrimiento automático.
-     2) "Búsqueda personalizada": abre Google con la carrera ya escrita.
-     3) Sin universidades       : botón "Buscar en internet" (DuckDuckGo)
-                                  + siempre lanza el descubrimiento.
+   Dos buscadores (sin listado previo de universidades):
+     1) "Buscar universidades"  : DuckDuckGo trae los links de todas las
+                                  universidades donde se estudia la carrera
+                                  en San Miguel de Tucumán.
+     2) "Búsqueda personalizada": Google con la carrera ya escrita.
    ============================================================================ #}
 
-{# Contenedor principal de la sección de instituciones #}
 <div class="mb-5" id="seccion-instituciones">
-
-    {# Título de la sección #}
     <h5 class="fw-bold mb-3">
         <i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla en Tucumán?
     </h5>
 
-    {# Botones de acción principal: despliegan el panel o abren Google #}
+    {# Botones de búsqueda: DuckDuckGo (links de universidades) y Google #}
     <div class="d-flex gap-2 flex-wrap">
 
-        {# Botón 1: despliega el panel de universidades y el descubrimiento #}
-        <button id="btn-buscar-carrera"
+        {# Buscador web: DuckDuckGo devuelve los links de las universidades #}
+        <button id="btn-buscar-web"
+                data-carrera-id="{{ carrera.id }}"
                 class="btn btn-outline-primary rounded-pill mt-2 shadow-sm d-inline-flex align-items-center gap-2">
             <i class="bi bi-search"></i>
-            Buscar carrera
+            Buscar universidades
         </button>
 
-        {# Botón 2: búsqueda personalizada en Google con la carrera ya escrita #}
+        {# Buscador personalizado: Google con la carrera ya escrita #}
         <a href="https://www.google.com/search?q={{ (carrera.nombre ~ ' universidad Tucumán inscripción')|urlencode }}"
            target="_blank" rel="noopener noreferrer"
            class="btn btn-outline-secondary rounded-pill mt-2 shadow-sm d-inline-flex align-items-center gap-2">
@@ -41,360 +37,101 @@
         </a>
     </div>
 
-    {# Panel que se muestra al pulsar "Buscar carrera" (oculto hasta entonces) #}
-    <div id="panel-instituciones" class="mt-3" style="display:none;">
-
-        {% if universidades %}
-
-            {# Hay universidades cargadas: se listan con 3 acciones por cada una #}
-            <div class="list-group list-group-flush">
-                {% for u in universidades %}
-                <div class="list-group-item bg-transparent px-0 border-bottom border-light d-flex justify-content-between align-items-center flex-wrap gap-2">
-
-                    {# Columna izquierda: nombre, siglas y badge de gestión #}
-                    <div>
-                        <span class="fw-semibold">{{ u.nombre }}</span>
-                        {% if u.siglas %}<span class="text-muted small ms-1">({{ u.siglas }})</span>{% endif %}
-                        <span class="badge rounded-pill {{ 'bg-success' if u.tipo == 'publica' else 'bg-warning text-dark' }} ms-2">
-                            {{ 'Pública' if u.tipo == 'publica' else 'Privada' }}
-                        </span>
-                    </div>
-
-                    {# Columna derecha: las 3 acciones de la universidad #}
-                    <div class="d-flex gap-2 flex-wrap">
-
-                        {# Acción 1: sitio oficial de la universidad #}
-                        <a href="https://{{ u.sitio_web }}" target="_blank" rel="noopener noreferrer"
-                           class="btn btn-sm btn-outline-secondary rounded-pill d-inline-flex align-items-center gap-1">
-                            <i class="bi bi-globe"></i> Sitio oficial
-                        </a>
-
-                        {# Acción 2: enlaces de la carrera dentro del sitio de la universidad #}
-                        <button type="button"
-                                class="btn-uni-buscar btn btn-sm btn-outline-primary rounded-pill d-inline-flex align-items-center gap-1"
-                                data-carrera-id="{{ carrera.id }}"
-                                data-universidad-id="{{ u.id }}"
-                                data-modo="carrera">
-                            <i class="bi bi-search"></i> Ver en su facultad
-                        </button>
-
-                        {# Acción 3: información y noticias de la universidad #}
-                        <button type="button"
-                                class="btn-uni-buscar btn btn-sm btn-outline-info rounded-pill d-inline-flex align-items-center gap-1"
-                                data-carrera-id="{{ carrera.id }}"
-                                data-universidad-id="{{ u.id }}"
-                                data-modo="info">
-                            <i class="bi bi-newspaper"></i> Info y noticias
-                        </button>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            {# Resultados de "Ver en su facultad" / "Info y noticias" #}
-            <div id="resultados-universidad" class="mt-3"></div>
-
-        {% else %}
-
-            {# Sin universidades: se ofrece una búsqueda en internet #}
-            <p class="text-muted small mb-2">Todavía no cargamos qué universidades dictan esta carrera.</p>
-
-            <button id="btn-buscar-web"
-                    data-carrera-id="{{ carrera.id }}"
-                    style="display:none;"
-                    class="btn btn-outline-primary rounded-pill shadow-sm d-inline-flex align-items-center gap-2">
-                <i class="bi bi-search"></i>
-                Buscar en internet
-            </button>
-
-            {# Resultados de la búsqueda en internet #}
-            <div id="resultados-busqueda" class="mt-3"></div>
-
-        {% endif %}
-
-        {# Resultados del descubrimiento automático en otras universidades #}
-        <div id="descubrimiento" class="mt-4"></div>
-    </div>
-
-    {# ====================================================================
-       JavaScript
-
-       Script principal  : siempre se renderiza (despliega panel + descubrimiento)
-       Script uni-buscar : solo si hay universidades (acciones por facultad)
-       Script web        : solo si NO hay universidades (búsqueda DDG)
-       ==================================================================== #}
-
-    <script>
-    /* Helper global: escapa HTML para insertar texto dinámico de forma segura.
-       Se define una sola vez y se reutiliza en los scripts siguientes. */
-    function escHtml(s) {
-        return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
-            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-        }[c]));
-    }
-
-    /* Script principal: botón "Buscar carrera" + descubrimiento automático */
-    (function () {
-        // Referencias a los elementos del DOM que este script manipula.
-        const btnPrincipal = document.getElementById('btn-buscar-carrera');
-        const panel = document.getElementById('panel-instituciones');
-        const descubrimiento = document.getElementById('descubrimiento');
-        const carreraId = {{ carrera.id }};
-        const hayUniversidades = {% if universidades %}true{% else %}false{% endif %};
-        let descubrimientoIniciado = false;
-
-
-
-
-        // Busca la carrera en otras universidades del catálogo y muestra lo encontrado.
-        function iniciarDescubrimiento() {
-            if (descubrimientoIniciado) return;
-            descubrimientoIniciado = true;
-            descubrimiento.innerHTML =
-                '<span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>' +
-                '<span class="text-muted small">Buscando esta carrera en otras universidades...</span>';
-
-            fetch(`/carrera/${carreraId}/buscar-universidades?descubrir=1`)
-                .then(r => r.json())
-                .then(data => {
-                    const encontradas = data.encontradas || [];
-                    if (!encontradas.length) {
-                        descubrimiento.innerHTML =
-                            '<p class="text-muted small mb-0"><i class="bi bi-check2 me-1"></i>' +
-                            'No encontramos esta carrera en otras universidades del catálogo.</p>';
-                        return;
-                    }
-
-
-
-
-                    // Arma la lista de universidades donde también aparece la carrera.
-                    let html = '<h6 class="text-muted small mt-2 mb-1">También aparece en:</h6>';
-                    encontradas.forEach(u => {
-                        html += `<div class="py-2 border-bottom border-light">
-                            <span class="fw-semibold">${escHtml(u.nombre)}</span>
-                            ${u.siglas ? `<span class="text-muted small ms-1">(${escHtml(u.siglas)})</span>` : ''}
-                            <span class="badge rounded-pill ${u.tipo === 'publica' ? 'bg-success' : 'bg-warning text-dark'} ms-2">
-                                ${u.tipo === 'publica' ? 'Pública' : 'Privada'}</span>
-                            <a href="https://${escHtml(u.sitio_web)}" target="_blank" rel="noopener noreferrer"
-                               class="small text-decoration-none ms-2">sitio oficial ↗</a>`;
-                        u.resultados.forEach(item => {
-                            html += `<a href="${escHtml(item.url)}" target="_blank" rel="noopener noreferrer"
-                                       class="d-block small text-primary text-decoration-none mt-1">${escHtml(item.titulo)}</a>`;
-                        });
-                        html += '</div>';
-                    });
-                    descubrimiento.innerHTML = html;
-                })
-                .catch(() => {
-                    descubrimiento.innerHTML =
-                        '<p class="text-muted small mb-0"><i class="bi bi-wifi-off me-1"></i>No pudimos buscar en otras universidades.</p>';
-                });
-        }
-
-
-
-
-        // Al pulsar "Buscar carrera": oculta el botón, muestra el panel y arranca el descubrimiento.
-        btnPrincipal.addEventListener('click', function () {
-            btnPrincipal.style.display = 'none';
-            panel.style.display = 'block';
-            if (!hayUniversidades) {
-                document.getElementById('btn-buscar-web').click();
-            }
-            iniciarDescubrimiento();
-        });
-    })();
-    </script>
-
-    {% if universidades %}
-    <script>
-    /* Acciones por universidad: "Ver en su facultad" y "Info y noticias" */
-    (function () {
-        const contenedor = document.getElementById('resultados-universidad');
-        const ICONOS = {
-            carrera: '<i class="bi bi-search"></i> Ver en su facultad',
-            info: '<i class="bi bi-newspaper"></i> Info y noticias'
-        };
-
-
-
-
-        // Devuelve todos los botones a su estado original (habilitados + ícono).
-        function restaurarBotones() {
-            document.querySelectorAll('.btn-uni-buscar').forEach(b => {
-                b.disabled = false;
-                b.innerHTML = ICONOS[b.getAttribute('data-modo')] || ICONOS.carrera;
-            });
-        }
-
-
-
-
-        // Asocia el click a cada botón de universidad.
-        document.querySelectorAll('.btn-uni-buscar').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const carreraId = this.getAttribute('data-carrera-id');
-                const universidadId = this.getAttribute('data-universidad-id');
-                const modo = this.getAttribute('data-modo');
-
-
-
-
-                // Estado de carga: deshabilita todo y muestra spinner en este botón.
-                document.querySelectorAll('.btn-uni-buscar').forEach(b => { b.disabled = true; });
-                this.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Buscando...';
-                contenedor.innerHTML = '';
-
-                fetch(`/carrera/${carreraId}/buscar-universidades?universidad_id=${universidadId}&modo=${modo}`)
-                    .then(response => {
-                        if (response.status === 401) {
-                            return response.json().then(d => { throw {tipo: 'sesion', msg: d.error}; });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        restaurarBotones();
-
-                        // Sin resultados: avisa con una alerta.
-                        if (data.error || !data.resultados || data.resultados.length === 0) {
-                            contenedor.innerHTML = `
-                                <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small mb-0">
-                                    <i class="bi bi-exclamation-triangle me-1"></i>
-                                    No encontramos enlaces para esta búsqueda.
-                                </div>`;
-                            return;
-                        }
-
-
-
-                        // Arma el título según el modo y la lista de resultados.
-                        const titulo = modo === 'info'
-                            ? `Información y noticias sobre ${escHtml(data.universidad || 'la universidad')}:`
-                            : `Enlaces en ${escHtml(data.universidad || 'el sitio de la universidad')}:`;
-                        let html = `<h6 class="text-muted small mt-3 mb-1">${titulo}</h6><div class="mt-1">`;
-                        data.resultados.forEach(item => {
-                            html += `<div class="py-2 border-bottom border-light">
-                                <a href="${escHtml(item.url)}" target="_blank" rel="noopener noreferrer"
-                                   class="fw-semibold text-primary text-decoration-none d-block">${escHtml(item.titulo)}</a>
-                                ${item.descripcion ? `<span class="text-muted small d-block mt-1">${escHtml(item.descripcion)}</span>` : ''}
-                            </div>`;
-                        });
-                        html += '</div>';
-                        contenedor.innerHTML = html;
-                    })
-                    .catch(err => {
-                        restaurarBotones();
-
-
-
-                        // Sesión expirada o sin conexión: mensaje acorde.
-                        if (err && err.tipo === 'sesion') {
-                            contenedor.innerHTML = `
-                                <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small mb-0">
-                                    <i class="bi bi-lock me-1"></i> Sesión expirada.
-                                    <a href="/login" class="alert-link ms-1">Iniciá sesión nuevamente →</a>
-                                </div>`;
-                        } else {
-                            contenedor.innerHTML = `
-                                <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small mb-0">
-                                    <i class="bi bi-wifi-off me-1"></i> Sin conexión al servidor.
-                                </div>`;
-                        }
-                    });
-            });
-        });
-    })();
-    </script>
-    {% else %}
-    <script>
-    /* Sin universidades: botón "Buscar en internet" (DuckDuckGo vía backend) */
-    document.getElementById('btn-buscar-web').addEventListener('click', function () {
-        const carreraId = this.getAttribute('data-carrera-id');
-        const nombreCarrera = "{{ carrera.nombre }}";
-        const btn = this;
-        const contenedor = document.getElementById('resultados-busqueda');
-
-
-
-        // URL de respaldo a DuckDuckGo (se muestra si falla la búsqueda automática).
-        const duckUrl = 'https://duckduckgo.com/?q=' +
-            encodeURIComponent(nombreCarrera + ' universidad Tucumán inscripción');
-
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Buscando...';
-        contenedor.innerHTML = '<span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span><span class="text-muted small">Buscando información...</span>';
-
-        fetch(`/carrera/${carreraId}/buscar-universidades`)
-            .then(response => {
-                if (response.status === 401) {
-                    return response.json().then(d => { throw {tipo: 'sesion', msg: d.error}; });
-                }
-                return response.json();
-            })
-            .then(data => {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-search"></i> Buscar en internet';
-
-
-
-                // Sin resultados automáticos: ofrece el enlace directo a DuckDuckGo.
-                if (data.error || !data.resultados || data.resultados.length === 0) {
-                    contenedor.innerHTML = `
-                        <div class="alert alert-warning alert-sm py-3 px-3 mt-2 small mb-2">
-                            <i class="bi bi-exclamation-triangle me-1"></i>
-                            No pudimos cargar resultados automáticos en este momento.
-                        </div>
-                        <a href="${duckUrl}" target="_blank" rel="noopener noreferrer"
-                           class="btn btn-outline-primary rounded-pill shadow-sm d-inline-flex align-items-center gap-1">
-                            <i class="bi bi-search"></i> Buscar en DuckDuckGo
-                        </a>`;
-                    return;
-                }
-
-
-
-                // Arma la lista de resultados y el enlace "Ver más".
-                let html = '<div class="mt-2">';
-                data.resultados.forEach(item => {
-                    html += `<div class="py-2 border-bottom border-light">
-                        <a href="${escHtml(item.url)}" target="_blank" rel="noopener noreferrer"
-                           class="fw-semibold text-primary text-decoration-none d-block">${escHtml(item.titulo)}</a>
-                        ${item.descripcion ? `<span class="text-muted small d-block mt-1">${escHtml(item.descripcion)}</span>` : ''}
-                    </div>`;
-                });
-                html += `<div class="pt-2">
-                    <a href="${duckUrl}" target="_blank" rel="noopener noreferrer"
-                       class="small text-muted">Ver más en DuckDuckGo →</a>
-                </div>`;
-                html += '</div>';
-                contenedor.innerHTML = html;
-            })
-            .catch(err => {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-search"></i> Buscar en internet';
-
-
-
-                // Sesión expirada o sin conexión: mensaje acorde.
-                if (err && err.tipo === 'sesion') {
-                    contenedor.innerHTML = `
-                        <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
-                            <i class="bi bi-lock me-1"></i>
-                            Sesión expirada.
-                            <a href="/login" class="alert-link ms-1">Iniciá sesión nuevamente →</a>
-                        </div>`;
-                } else {
-                    contenedor.innerHTML = `
-                        <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
-                            <i class="bi bi-wifi-off me-1"></i>
-                            Sin conexión al servidor.
-                            <a href="${duckUrl}" target="_blank" rel="noopener noreferrer"
-                               class="alert-link ms-1">Buscar en DuckDuckGo →</a>
-                        </div>`;
-                }
-            });
-    });
-    </script>
-    {% endif %}
+    {# Resultados de la búsqueda en DuckDuckGo #}
+    <div id="resultados-busqueda" class="mt-3"></div>
 </div>
+
+{# ====================================================================
+   JavaScript
+   ==================================================================== #}
+
+<script>
+/* Helper global: escapa HTML para insertar texto dinámico de forma segura.
+   Se define una sola vez y se reutiliza en los scripts siguientes. */
+function escHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+}
+
+/* Buscador web: DuckDuckGo trae los links de las universidades donde
+   se puede estudiar la carrera en San Miguel de Tucumán. */
+document.getElementById('btn-buscar-web').addEventListener('click', function () {
+    const carreraId = this.getAttribute('data-carrera-id');
+    const nombreCarrera = "{{ carrera.nombre }}";
+    const btn = this;
+    const contenedor = document.getElementById('resultados-busqueda');
+
+    // URL de respaldo a DuckDuckGo (se muestra si falla la búsqueda automática).
+    const duckUrl = 'https://duckduckgo.com/?q=' +
+        encodeURIComponent(nombreCarrera + ' universidad San Miguel de Tucumán');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Buscando...';
+    contenedor.innerHTML = '<span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span><span class="text-muted small">Buscando universidades...</span>';
+
+    fetch(`/carrera/${carreraId}/buscar-universidades`)
+        .then(response => {
+            if (response.status === 401) {
+                return response.json().then(d => { throw {tipo: 'sesion', msg: d.error}; });
+            }
+            return response.json();
+        })
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search"></i> Buscar universidades';
+
+            // Sin resultados automáticos: ofrece el enlace directo a DuckDuckGo.
+            if (data.error || !data.resultados || data.resultados.length === 0) {
+                contenedor.innerHTML = `
+                    <div class="alert alert-warning alert-sm py-3 px-3 mt-2 small mb-2">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        No pudimos cargar resultados automáticos en este momento.
+                    </div>
+                    <a href="${duckUrl}" target="_blank" rel="noopener noreferrer"
+                       class="btn btn-outline-primary rounded-pill shadow-sm d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-search"></i> Buscar en DuckDuckGo
+                    </a>`;
+                return;
+            }
+
+            // Arma la lista de resultados y el enlace "Ver más".
+            let html = '<div class="mt-2">';
+            data.resultados.forEach(item => {
+                html += `<div class="py-2 border-bottom border-light">
+                    <a href="${escHtml(item.url)}" target="_blank" rel="noopener noreferrer"
+                       class="fw-semibold text-primary text-decoration-none d-block">${escHtml(item.titulo)}</a>
+                    ${item.descripcion ? `<span class="text-muted small d-block mt-1">${escHtml(item.descripcion)}</span>` : ''}
+                </div>`;
+            });
+            html += `<div class="pt-2">
+                <a href="${duckUrl}" target="_blank" rel="noopener noreferrer"
+                   class="small text-muted">Ver más en DuckDuckGo →</a>
+            </div>`;
+            html += '</div>';
+            contenedor.innerHTML = html;
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search"></i> Buscar universidades';
+
+            // Sesión expirada o sin conexión: mensaje acorde.
+            if (err && err.tipo === 'sesion') {
+                contenedor.innerHTML = `
+                    <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
+                        <i class="bi bi-lock me-1"></i>
+                        Sesión expirada.
+                        <a href="/login" class="alert-link ms-1">Iniciá sesión nuevamente →</a>
+                    </div>`;
+            } else {
+                contenedor.innerHTML = `
+                    <div class="alert alert-warning alert-sm py-2 px-3 mt-2 small">
+                        <i class="bi bi-wifi-off me-1"></i>
+                        Sin conexión al servidor.
+                        <a href="${duckUrl}" target="_blank" rel="noopener noreferrer"
+                           class="alert-link ms-1">Buscar en DuckDuckGo →</a>
+                    </div>`;
+            }
+        });
+});
+</script>
