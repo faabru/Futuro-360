@@ -22,8 +22,8 @@
                     </div>
 
                     <!-- Contenedor de Pregunta -->
+                    <h2 class="fw-bold mb-4" id="question-text">Cargando pregunta...</h2>
                     <div id="test-content">
-                        <h2 class="fw-bold mb-4" id="question-text">Cargando pregunta...</h2>
                         <div id="options-container" class="d-grid gap-3">
                             <!-- Las opciones se cargarán aquí -->
                         </div>
@@ -88,6 +88,16 @@
     #question-text {
         color: var(--text-main);
         line-height: 1.4;
+        /* La pregunta queda fija al hacer scroll por las opciones. */
+        position: sticky;
+        top: 76px;
+        z-index: 15;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 24px -18px rgba(16, 24, 40, 0.5);
     }
 </style>
 
@@ -164,6 +174,7 @@
 
     function submitTest() {
         // Mostrar estado de carga final
+        questionText.style.display = 'none';
         document.getElementById('test-content').innerHTML = `
             <div class="text-center py-5">
                 <div class="spinner-border text-primary mb-3" role="status"></div>

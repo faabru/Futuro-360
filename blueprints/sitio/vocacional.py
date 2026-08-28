@@ -10,7 +10,7 @@ from datetime import datetime
 from xml.sax.saxutils import escape as escapar_xml
 
 from flask import (Blueprint, Response, current_app, flash, g, redirect,
-                   render_template, request, send_file, url_for)
+                   render_template, request, send_file, session, url_for)
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import A4
@@ -32,6 +32,11 @@ MESES_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
 @bp.route('/test', methods=['GET', 'POST'])
 @requiere_login
 def test():
+    # Asegurar que el usuario pasó por la pantalla de información previa antes
+    # de entrar al test (evita saltearse las instrucciones escribiendo /test).
+    if request.method == 'GET' and not session.get('test_iniciado'):
+        return redirect(url_for('vocacional.test_iniciar'))
+
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
 
@@ -133,6 +138,9 @@ def test():
                 resultado_id = cursor.lastrowid
 
             db.commit()
+            # Se completa el test: la próxima vez se mostrará de nuevo la
+            # pantalla de información antes de comenzar.
+            session.pop('test_iniciado', None)
             flash(f'¡Test completado! Tu área principal es: {area_ganadora}.', 'success')
             return redirect(url_for('vocacional.ver_resultado', resultado_id=resultado_id))
 
@@ -163,6 +171,25 @@ def test():
 
     preguntas_json = json.dumps(preguntas_con_opciones, ensure_ascii=False)
     return render_template('test.html', preguntas=preguntas_raw, preguntas_json=preguntas_json)
+
+
+@bp.route('/test/iniciar', methods=['GET', 'POST'])
+@requiere_login
+def test_iniciar():
+    """Pantalla previa con la información de cómo funciona el test.
+
+    GET muestra la información y el botón para comenzar. El POST del botón
+    marca la sesión como iniciada y redirige al test real.
+    """
+    if request.method == 'POST':
+        session['test_iniciado'] = True
+        return redirect(url_for('vocacional.test'))
+
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT COUNT(*) AS total FROM preguntas")
+    total_preguntas = cursor.fetchone()['total']
+    return render_template('test_inicio.html', total_preguntas=total_preguntas)
 
 
 @bp.route('/resultado/<int:resultado_id>')
