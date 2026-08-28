@@ -91,6 +91,35 @@
         transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .game-select-card:hover .game-emoji { transform: scale(1.12) rotate(-6deg); }
+    /* Loader animado de barras (reemplaza al emoji de cada tarjeta) */
+    .game-loader {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        background: var(--hover-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        box-shadow: inset 0 2px 10px -6px rgba(16, 24, 40, 0.25);
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .game-select-card:hover .game-loader { transform: scale(1.1) rotate(-4deg); }
+    .game-loader .gl-bar {
+        width: 13px;
+        height: 50px;
+        border-radius: 7px;
+        animation: glLoading 1s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+    @keyframes glLoading {
+        0% { height: 0; }
+        25% { height: 50px; }
+        50% { height: 50px; transform: rotate(-10deg); }
+        75% { height: 50px; transform: rotate(10deg); }
+        100% { height: 0; transform: rotate(0deg); }
+    }
     .game-select-card .play-chip {
         display: inline-flex;
         align-items: center;
@@ -668,7 +697,12 @@
         <div class="col-md-6">
             <div class="game-select-card" onclick="selectGame('interests')" role="button">
                 <span class="game-tag" style="background:rgba(124,58,237,0.12);color:#7c3aed;">Escenarios</span>
-                <div class="game-emoji" style="background:rgba(124,58,237,0.12);">🎯</div>
+                <div class="game-loader">
+                    <span class="gl-bar" style="background:#7c3aed;"></span>
+                    <span class="gl-bar" style="background:#a855f7;animation-delay:.12s;"></span>
+                    <span class="gl-bar" style="background:#7c3aed;animation-delay:.24s;"></span>
+                    <span class="gl-bar" style="background:#a855f7;animation-delay:.36s;"></span>
+                </div>
                 <h4 class="fw-bold mb-2">Intereses en Juego</h4>
                 <p class="text-muted small mb-0" style="max-width:300px;">Elegí entre escenarios cotidianos y descubrí hacia dónde tira tu intuición.</p>
                 <span class="play-chip" style="background:rgba(124,58,237,0.12);color:#7c3aed;">
@@ -679,7 +713,12 @@
         <div class="col-md-6">
             <div class="game-select-card" onclick="selectGame('discovery')" role="button">
                 <span class="game-tag" style="background:rgba(47,142,171,0.12);color:#2F8EAB;">Swipe</span>
-                <div class="game-emoji" style="background:rgba(47,142,171,0.12);">✨</div>
+                <div class="game-loader">
+                    <span class="gl-bar" style="background:#2F8EAB;"></span>
+                    <span class="gl-bar" style="background:#42A6C2;animation-delay:.12s;"></span>
+                    <span class="gl-bar" style="background:#2F8EAB;animation-delay:.24s;"></span>
+                    <span class="gl-bar" style="background:#42A6C2;animation-delay:.36s;"></span>
+                </div>
                 <h4 class="fw-bold mb-2">Descubrí Tu Carrera</h4>
                 <p class="text-muted small mb-0" style="max-width:300px;">Deslizá por profesiones y marcá las que te encienden. Tu match te espera.</p>
                 <span class="play-chip" style="background:rgba(47,142,171,0.12);color:#2F8EAB;">
