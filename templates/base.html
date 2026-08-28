@@ -153,6 +153,7 @@
     </main>
 
     {# --- COMPONENTE: PIE DE PÁGINA (FOOTER) --- #}
+    {% block footer %}
     {% if request.endpoint != 'admin_login' %}
     <footer class="footer-modern py-5 mt-5">
         <div class="container">
@@ -254,6 +255,7 @@
         </div>
     </footer>
     {% endif %}
+    {% endblock %}
 
     {# --- SECCIÓN: SCRIPTS (JAVASCRIPT) --- #}
     <!-- Bootstrap Bundle JS -->

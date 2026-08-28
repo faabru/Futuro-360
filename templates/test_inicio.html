@@ -1,253 +1,243 @@
 {% extends 'base.html' %}
 {% from 'macros.html' import boton_volver %}
 
+{# Pantalla de una sola vista: se oculta el footer para que todo entre sin scroll. #}
+{% block footer %}{% endblock %}
+
 {% block content %}
 <style>
-    .test-hero {
+    .test-launch {
         position: relative;
-        border-radius: 24px;
+        min-height: calc(100vh - 72px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 30px 0 44px;
         overflow: hidden;
-        background: linear-gradient(135deg, #142B38 0%, #2F8EAB 60%, #42A6C2 100%);
-        color: #fff;
-        padding: 40px 34px;
-        box-shadow: 0 24px 48px -20px rgba(20, 43, 56, 0.55);
-        margin-bottom: 28px;
     }
-    .test-hero::before,
-    .test-hero::after {
+    .test-launch::before,
+    .test-launch::after {
         content: '';
         position: absolute;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.06);
+        filter: blur(60px);
+        pointer-events: none;
+        z-index: 0;
     }
-    .test-hero::before { width: 240px; height: 240px; top: -100px; right: -50px; }
-    .test-hero::after { width: 160px; height: 160px; bottom: -80px; left: 20px; }
-    .test-hero .th-inner { position: relative; z-index: 1; }
-    .test-hero .th-badge {
+    .test-launch::before {
+        width: 460px;
+        height: 460px;
+        top: -160px;
+        right: -120px;
+        background: radial-gradient(circle, rgba(47, 142, 171, 0.18), transparent 70%);
+    }
+    .test-launch::after {
+        width: 420px;
+        height: 420px;
+        bottom: -160px;
+        left: -120px;
+        background: radial-gradient(circle, rgba(124, 58, 237, 0.14), transparent 70%);
+    }
+    .test-launch-inner {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 1020px;
+        margin: 0 auto;
+    }
+
+    .tl-back {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgba(255, 255, 255, 0.16);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        padding: 6px 16px;
-        border-radius: 999px;
-        font-size: 0.75rem;
         font-weight: 600;
-        letter-spacing: 0.08em;
+        font-size: 0.86rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        margin-bottom: 18px;
+        transition: color 0.2s ease;
+    }
+    .tl-back:hover { color: var(--primary); }
+
+    .tl-hero { text-align: center; margin-bottom: 26px; }
+    .tl-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(47, 142, 171, 0.12);
+        border: 1px solid rgba(47, 142, 171, 0.3);
+        color: var(--primary);
+        padding: 6px 18px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
         margin-bottom: 16px;
     }
-    .test-hero h1 {
+    .tl-title {
         font-weight: 800;
         letter-spacing: -0.03em;
-        font-size: clamp(1.7rem, 4vw, 2.4rem);
-        margin-bottom: 8px;
+        color: var(--text-main);
+        font-size: clamp(1.9rem, 4.5vw, 2.9rem);
+        margin: 0 0 10px;
+        line-height: 1.1;
     }
-    .test-hero .th-sub {
-        font-size: 1.02rem;
-        color: rgba(255, 255, 255, 0.92);
+    .tl-title span { background: linear-gradient(90deg, var(--primary), #7c3aed); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .tl-sub {
+        font-size: 1rem;
+        color: var(--text-muted);
         max-width: 640px;
-        margin: 0;
+        margin: 0 auto;
         line-height: 1.6;
     }
-    .test-hero .th-stats {
+
+    .tl-stats {
         display: flex;
+        justify-content: center;
         flex-wrap: wrap;
         gap: 10px;
-        margin-top: 22px;
+        margin: 20px 0 30px;
     }
-    .test-hero .th-stat {
+    .tl-stat {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: rgba(255, 255, 255, 0.14);
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        padding: 8px 16px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        color: var(--text-main);
+        padding: 9px 18px;
         border-radius: 999px;
         font-size: 0.82rem;
         font-weight: 700;
+        box-shadow: 0 6px 18px -10px rgba(16, 24, 40, 0.25);
     }
+    .tl-stat i { color: var(--primary); }
 
-    .info-card {
+    .tl-cols {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 30px;
+    }
+    .tl-card {
         background: var(--card-bg);
         border: 1px solid var(--card-border);
-        border-radius: 20px;
-        padding: 26px 24px;
-        box-shadow: 0 8px 28px -16px rgba(16, 24, 40, 0.25);
-        margin-bottom: 24px;
+        border-radius: 18px;
+        padding: 22px 20px;
+        text-align: center;
+        box-shadow: 0 12px 28px -18px rgba(16, 24, 40, 0.3);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
     }
-    .info-card .ic-title {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-weight: 800;
-        font-size: 1.08rem;
-        margin-bottom: 18px;
-        color: var(--text-main);
+    .tl-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary);
+        box-shadow: 0 22px 38px -18px rgba(47, 142, 171, 0.4);
     }
-    .info-card .ic-title .ic-ico {
-        width: 38px;
-        height: 38px;
-        border-radius: 11px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        flex-shrink: 0;
-    }
-    .info-card p {
-        color: var(--text-muted);
-        line-height: 1.6;
-        font-size: 0.92rem;
-    }
-
-    .step-item {
-        display: flex;
-        gap: 14px;
-        padding: 13px 0;
-        border-bottom: 1px solid var(--card-border);
-    }
-    .step-item:last-child { border-bottom: none; }
-    .step-item .si-num {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1rem;
-        font-weight: 800;
+    .tl-card .tc-num {
+        width: 42px;
+        height: 42px;
+        margin: 0 auto 14px;
+        border-radius: 13px;
         color: #fff;
+        font-weight: 800;
+        font-size: 1.05rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    .step-item .si-title {
-        font-weight: 700;
-        font-size: 0.94rem;
-        margin-bottom: 3px;
+    .tl-card h3 {
+        font-weight: 800;
+        font-size: 0.98rem;
         color: var(--text-main);
+        margin: 0 0 8px;
     }
-    .step-item .si-desc {
-        font-size: 0.86rem;
+    .tl-card p {
+        font-size: 0.85rem;
         color: var(--text-muted);
         line-height: 1.55;
         margin: 0;
     }
 
-    .tip-list { list-style: none; padding: 0; margin: 0; }
-    .tip-list li {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 9px 0;
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        line-height: 1.55;
-    }
-    .tip-list li i { color: var(--primary); margin-top: 3px; }
-
-    .btn-custom {
+    .tl-cta-wrap { text-align: center; }
+    .tl-cta {
         display: inline-flex;
         align-items: center;
-        gap: 9px;
-        border: 1px solid var(--card-border);
-        background: var(--card-bg);
-        color: var(--text-main);
-        font-weight: 700;
-        font-size: 0.95rem;
-        padding: 13px 28px;
-        border-radius: 999px;
-        text-decoration: none;
-        min-height: 46px;
-        transition: all 0.2s ease;
-    }
-    .btn-custom:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
-    .btn-custom-primary {
-        background: var(--primary);
-        border-color: var(--primary);
+        gap: 12px;
+        border: none;
+        cursor: pointer;
+        font-weight: 800;
+        font-size: 1.02rem;
         color: #fff;
-        box-shadow: 0 12px 24px -10px rgba(47, 142, 171, 0.6);
+        padding: 16px 44px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--primary), #7c3aed);
+        box-shadow: 0 16px 32px -12px rgba(47, 142, 171, 0.65);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .btn-custom-primary:hover { color: #fff; }
+    .tl-cta:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 22px 40px -12px rgba(47, 142, 171, 0.75);
+    }
+    .tl-nota {
+        text-align: center;
+        margin-top: 16px;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+    }
+    .tl-nota i { color: var(--primary); }
+
+    @media (max-width: 768px) {
+        .tl-cols { grid-template-columns: 1fr; }
+        .test-launch { min-height: auto; }
+    }
 </style>
 
-<div class="container py-4 py-lg-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-9">
+<div class="test-launch">
+    <div class="test-launch-inner">
+        <a class="tl-back" href="{{ url_for('principal.dashboard') }}">
+            <i class="bi bi-arrow-left"></i> Volver al inicio
+        </a>
 
-            <div class="mb-3">
-                {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
+        <div class="tl-hero">
+            <span class="tl-badge"><i class="bi bi-clipboard2-pulse me-1"></i> Test vocacional</span>
+            <h1 class="tl-title">Descubrí tu <span>vocación</span></h1>
+            <p class="tl-sub">
+                Respondé situaciones cotidianas y encontrá el área profesional que mejor
+                se alinea con vos. Sin respuestas correctas: solo tu forma de pensar.
+            </p>
+            <div class="tl-stats">
+                <span class="tl-stat"><i class="bi bi-question-circle"></i> {{ total_preguntas }} preguntas</span>
+                <span class="tl-stat"><i class="bi bi-clock"></i> ≈ 5-8 minutos</span>
+                <span class="tl-stat"><i class="bi bi-emoji-smile"></i> Sin respuestas incorrectas</span>
             </div>
-
-            <!-- ===== HERO ===== -->
-            <div class="test-hero">
-                <div class="th-inner">
-                    <span class="th-badge"><i class="bi bi-clipboard2-pulse me-1"></i> Test vocacional</span>
-                    <h1><i class="bi bi-rocket-takeoff me-2"></i>Antes de empezar</h1>
-                    <p class="th-sub">
-                        El Test Pro te ayuda a descubrir qué área profesional se alinea mejor
-                        con tu forma de pensar y tus intereses. Tomate unos minutos y respondé
-                        con sinceridad: no hay respuestas correctas ni incorrectas.
-                    </p>
-                    <div class="th-stats">
-                        <span class="th-stat"><i class="bi bi-question-circle"></i> {{ total_preguntas }} preguntas</span>
-                        <span class="th-stat"><i class="bi bi-clock"></i> ≈ 5-8 minutos</span>
-                        <span class="th-stat"><i class="bi bi-emoji-smile"></i> Sin respuestas correctas</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== CÓMO FUNCIONA ===== -->
-            <div class="info-card">
-                <div class="ic-title">
-                    <span class="ic-ico" style="background:rgba(47,142,171,0.12);color:#2F8EAB;"><i class="bi bi-lightbulb"></i></span>
-                    ¿Cómo funciona el test?
-                </div>
-                <div class="step-item">
-                    <div class="si-num" style="background:linear-gradient(135deg,#2F8EAB,#42A6C2);">1</div>
-                    <div>
-                        <div class="si-title">Leé la pregunta y elegí una opción</div>
-                        <p class="si-desc">Cada pregunta te presenta una situación cotidiana. Elegí la opción que mejor represente lo que harías o cómo te sentirías de forma natural.</p>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="si-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">2</div>
-                    <div>
-                        <div class="si-title">Avanzá con "Confirmar"</div>
-                        <p class="si-desc">Una vez que elegiste tu respuesta, tocá el botón Confirmar para pasar a la siguiente pregunta. Tu selección va sumando puntos a un área profesional.</p>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="si-num" style="background:linear-gradient(135deg,#10b981,#047857);">3</div>
-                    <div>
-                        <div class="si-title">Descubrí tu área dominante</div>
-                        <p class="si-desc">Al finalizar, verás tu perfil vocacional con el área de mayor afinidad y las carreras recomendadas para vos. También podés descargarlo como PDF.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===== CONSEJOS ===== -->
-            <div class="info-card">
-                <div class="ic-title">
-                    <span class="ic-ico" style="background:rgba(245,158,11,0.12);color:#d97706;"><i class="bi bi-lightning-charge"></i></span>
-                    Consejos antes de empezar
-                </div>
-                <ul class="tip-list">
-                    <li><i class="bi bi-check-circle-fill"></i> Respondé lo primero que pienses, sin sobre-analizar cada opción.</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Si ninguna opción encaja, usá "Ninguna de las anteriores" (no suma puntos).</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Concentrate y evitá distracciones: el resultado es más preciso si lo hacés tranquilo.</li>
-                    <li><i class="bi bi-check-circle-fill"></i> Podés repetir el test más adelante si querés comparar resultados.</li>
-                </ul>
-            </div>
-
-            <!-- ===== BOTÓN COMENZAR ===== -->
-            <form method="POST" action="{{ url_for('vocacional.test_iniciar') }}" class="text-center my-4">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn-custom btn-custom-primary">
-                    <i class="bi bi-play-fill"></i> Comenzar el test
-                </button>
-            </form>
-
         </div>
+
+        <div class="tl-cols">
+            <div class="tl-card">
+                <div class="tc-num" style="background:linear-gradient(135deg,#2F8EAB,#42A6C2);">1</div>
+                <h3>Elegí una opción</h3>
+                <p>Leé la situación cotidiana y elegí la alternativa que más vaya con vos.</p>
+            </div>
+            <div class="tl-card">
+                <div class="tc-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">2</div>
+                <h3>Confirmá y avanzá</h3>
+                <p>Cada elección suma puntos a un área profesional. Tocá Confirmar para seguir.</p>
+            </div>
+            <div class="tl-card">
+                <div class="tc-num" style="background:linear-gradient(135deg,#10b981,#047857);">3</div>
+                <h3>Descubrí tu área</h3>
+                <p>Al finalizar verás tu perfil vocacional y las carreras recomendadas.</p>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('vocacional.test_iniciar') }}" class="tl-cta-wrap">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="tl-cta">
+                <i class="bi bi-play-fill fs-5"></i> Comenzar el test
+            </button>
+        </form>
+        <p class="tl-nota"><i class="bi bi-shield-check me-1"></i> Tus respuestas son privadas y solo se usan para calcular tu perfil.</p>
     </div>
 </div>
 {% endblock %}
