@@ -91,34 +91,213 @@
         transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .game-select-card:hover .game-emoji { transform: scale(1.12) rotate(-6deg); }
-    /* Loader animado de barras (reemplaza al emoji de cada tarjeta) */
-    .game-loader {
+
+    /* ============================================================
+       ICON 1 — "Intuition Compass" (Intereses en Juego)
+       Brújula en CSS puro: aguja con clip-path, ticks con
+       conic-gradient; al pasar el mouse la aguja apunta al norte.
+    ============================================================ */
+    .compass-wrap {
         width: 100px;
         height: 100px;
         display: flex;
-        justify-content: center;
         align-items: center;
-        gap: 8px;
+        justify-content: center;
         margin-bottom: 20px;
-        background: var(--hover-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 24px;
-        box-shadow: inset 0 2px 10px -6px rgba(16, 24, 40, 0.25);
+        cursor: pointer;
         transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .game-select-card:hover .game-loader { transform: scale(1.1) rotate(-4deg); }
-    .game-loader .gl-bar {
-        width: 13px;
-        height: 50px;
-        border-radius: 7px;
-        animation: glLoading 1s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    .game-select-card:hover .compass-wrap { transform: scale(1.08) rotate(-4deg); }
+    .compass-btn {
+        position: relative;
+        width: 92px;
+        height: 92px;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 32% 24%, rgba(133, 102, 255, 0.20), transparent 55%),
+            linear-gradient(155deg, #2b2150 0%, #241b42 60%, #1b1434 100%);
+        box-shadow: inset 0 0 0 1px rgba(179, 161, 255, 0.14), 0 10px 24px -10px rgba(0, 0, 0, 0.5);
+        transition: box-shadow 0.5s ease;
     }
-    @keyframes glLoading {
-        0% { height: 0; }
-        25% { height: 50px; }
-        50% { height: 50px; transform: rotate(-10deg); }
-        75% { height: 50px; transform: rotate(10deg); }
-        100% { height: 0; transform: rotate(0deg); }
+    .compass-ticks {
+        position: absolute;
+        inset: 11px;
+        border-radius: 50%;
+        background: repeating-conic-gradient(
+            rgba(179, 161, 255, 0.34) 0deg 1deg,
+            transparent 1deg 15deg
+        );
+        -webkit-mask: radial-gradient(circle, transparent 60%, black 61%, black 67%, transparent 68%);
+        mask: radial-gradient(circle, transparent 60%, black 61%, black 67%, transparent 68%);
+        transition: background 0.5s ease;
+    }
+    .compass-needle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 7px;
+        height: 52px;
+        transform: translate(-50%, -50%) rotate(-58deg);
+        transform-origin: 50% 50%;
+        clip-path: polygon(50% 0%, 100% 58%, 50% 48%, 0% 58%);
+        background: linear-gradient(180deg,
+            #e3dcff 0%, #8566ff 48%, #362c58 49%, #362c58 100%);
+        filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.55));
+        transition: transform 0.7s cubic-bezier(.16, 1, .3, 1), filter 0.5s ease;
+    }
+    .compass-hub {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: #150f2b;
+        box-shadow: inset 0 0 0 1.25px rgba(179, 161, 255, 0.55);
+    }
+    .compass-hub::after {
+        content: "";
+        position: absolute;
+        inset: 3.5px;
+        border-radius: 50%;
+        background: #b3a1ff;
+    }
+    .game-select-card:hover .compass-btn {
+        box-shadow:
+            inset 0 0 0 1px rgba(179, 161, 255, 0.3),
+            0 0 26px -2px rgba(133, 102, 255, 0.55),
+            0 10px 24px -10px rgba(0, 0, 0, 0.5);
+    }
+    .game-select-card:hover .compass-needle {
+        transform: translate(-50%, -50%) rotate(0deg);
+        filter: drop-shadow(0 0 7px rgba(133, 102, 255, 0.85));
+    }
+    .game-select-card:hover .compass-ticks {
+        background: repeating-conic-gradient(
+            rgba(179, 161, 255, 0.75) 0deg 1deg,
+            transparent 1deg 15deg
+        );
+    }
+    .game-select-card:active .compass-wrap {
+        transform: scale(0.94);
+    }
+
+    /* ============================================================
+       ICON 2 — "Swipe Match" (Descubrí Tu Carrera)
+       Tarjetas en CSS puro: al pasar el mouse la carta frontal se
+       desliza y aparece el check de match en la trasera.
+    ============================================================ */
+    .swipe-wrap {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        cursor: pointer;
+        transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .game-select-card:hover .swipe-wrap { transform: scale(1.08); }
+    .swipe-btn {
+        position: relative;
+        width: 92px;
+        height: 92px;
+        border-radius: 24px;
+        background:
+            radial-gradient(circle at 30% 22%, rgba(43, 217, 195, 0.16), transparent 55%),
+            linear-gradient(155deg, #12342f 0%, #0d2623 60%, #0a1c19 100%);
+        box-shadow: inset 0 0 0 1px rgba(127, 240, 221, 0.1), 0 10px 24px -10px rgba(0, 0, 0, 0.5);
+        transition: box-shadow 0.5s ease;
+    }
+    .card-back {
+        position: absolute;
+        width: 46px;
+        height: 58px;
+        left: 50%;
+        top: 50%;
+        margin: -29px 0 0 -23px;
+        border-radius: 8px;
+        background: linear-gradient(160deg, #15463f, #0b2825);
+        box-shadow: inset 0 0 0 1px rgba(127, 240, 221, 0.16);
+        transform: rotate(-7deg) translate(2px, 3px);
+        transition: all 0.5s cubic-bezier(.16, 1, .3, 1);
+    }
+    .card-front {
+        position: absolute;
+        width: 46px;
+        height: 58px;
+        left: 50%;
+        top: 50%;
+        margin: -29px 0 0 -23px;
+        background: linear-gradient(160deg, #1b5a54, #0e332f);
+        box-shadow:
+            inset 0 0 0 1px rgba(127, 240, 221, 0.32),
+            0 8px 16px -8px rgba(0, 0, 0, 0.6);
+        clip-path: polygon(0 0, 82% 0, 100% 16%, 100% 100%, 0 100%);
+        transition: transform 0.55s cubic-bezier(.16, 1, .3, 1), opacity 0.5s ease;
+    }
+    .card-front::before,
+    .card-front::after {
+        content: "";
+        position: absolute;
+        left: 10px;
+        height: 2px;
+        border-radius: 2px;
+        background: rgba(127, 240, 221, 0.4);
+    }
+    .card-front::before { top: 16px; right: 12px; }
+    .card-front::after { top: 24px; right: 20px; background: rgba(127, 240, 221, 0.26); }
+    .check-badge {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 30px;
+        height: 30px;
+        margin: -15px 0 0 -15px;
+        border-radius: 50%;
+        background: #2bd9c3;
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all 0.5s cubic-bezier(.16, 1, .3, 1);
+    }
+    .check-badge::after {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: 13px;
+        width: 10px;
+        height: 5px;
+        border-left: 2.5px solid #062420;
+        border-bottom: 2.5px solid #062420;
+        transform: rotate(-45deg);
+    }
+    .game-select-card:hover .swipe-btn {
+        box-shadow:
+            inset 0 0 0 1px rgba(127, 240, 221, 0.25),
+            0 0 26px -2px rgba(43, 217, 195, 0.5),
+            0 10px 24px -10px rgba(0, 0, 0, 0.5);
+    }
+    .game-select-card:hover .card-front {
+        transform: translate(26px, -10px) rotate(16deg);
+        opacity: 0;
+    }
+    .game-select-card:hover .card-back {
+        transform: rotate(0deg) translate(0, 0);
+        box-shadow: inset 0 0 0 1px rgba(127, 240, 221, 0.3);
+    }
+    .game-select-card:hover .check-badge {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 0 18px -2px rgba(43, 217, 195, 0.7);
+    }
+    .game-select-card:active .swipe-wrap {
+        transform: scale(0.94);
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .compass-needle, .card-front, .card-back, .check-badge, .compass-ticks {
+            transition: none !important;
+        }
     }
     .game-select-card .play-chip {
         display: inline-flex;
@@ -697,11 +876,12 @@
         <div class="col-md-6">
             <div class="game-select-card" onclick="selectGame('interests')" role="button">
                 <span class="game-tag" style="background:rgba(124,58,237,0.12);color:#7c3aed;">Escenarios</span>
-                <div class="game-loader">
-                    <span class="gl-bar" style="background:#7c3aed;"></span>
-                    <span class="gl-bar" style="background:#a855f7;animation-delay:.12s;"></span>
-                    <span class="gl-bar" style="background:#7c3aed;animation-delay:.24s;"></span>
-                    <span class="gl-bar" style="background:#a855f7;animation-delay:.36s;"></span>
+                <div class="compass-wrap">
+                    <div class="compass-btn">
+                        <div class="compass-ticks"></div>
+                        <div class="compass-needle"></div>
+                        <div class="compass-hub"></div>
+                    </div>
                 </div>
                 <h4 class="fw-bold mb-2">Intereses en Juego</h4>
                 <p class="text-muted small mb-0" style="max-width:300px;">Elegí entre escenarios cotidianos y descubrí hacia dónde tira tu intuición.</p>
@@ -713,11 +893,12 @@
         <div class="col-md-6">
             <div class="game-select-card" onclick="selectGame('discovery')" role="button">
                 <span class="game-tag" style="background:rgba(47,142,171,0.12);color:#2F8EAB;">Swipe</span>
-                <div class="game-loader">
-                    <span class="gl-bar" style="background:#2F8EAB;"></span>
-                    <span class="gl-bar" style="background:#42A6C2;animation-delay:.12s;"></span>
-                    <span class="gl-bar" style="background:#2F8EAB;animation-delay:.24s;"></span>
-                    <span class="gl-bar" style="background:#42A6C2;animation-delay:.36s;"></span>
+                <div class="swipe-wrap">
+                    <div class="swipe-btn">
+                        <div class="card-back"></div>
+                        <div class="card-front"></div>
+                        <div class="check-badge"></div>
+                    </div>
                 </div>
                 <h4 class="fw-bold mb-2">Descubrí Tu Carrera</h4>
                 <p class="text-muted small mb-0" style="max-width:300px;">Deslizá por profesiones y marcá las que te encienden. Tu match te espera.</p>
