@@ -23,15 +23,17 @@
     --info:           #0E4F6B;   /* Azul info oscuro */
     --info-bg:        #E0F2FE;   /* Azul info muy claro */
 
-    /* Superficies — Modo Claro (body suave, superficies blancas) */
+    /* Superficies — Modo Claro (blanco azulado suave, menos brillo)
+       Se redujo la pureza del blanco para evitar reflejos que fatigan
+       la vista, manteniendo la estética limpia y contraste AA. */
     --bg-main:        #F4F7FA;   /* Body: gris azulado extremadamente suave */
-    --bg-subtle:      #F0F7FC;   /* Superficie destacada */
-    --bg-input:       #FFFFFF;   /* Inputs: blanco */
-    --card-bg:        #FFFFFF;   /* Cards/paneles/contenedores */
-    --card-bg-alt:    #F7FAFC;   /* Superficie secundaria (items internos) */
-    --surface-soft:   #F7FAFC;   /* Tarjeta interna (panel dentro de panel) */
-    --surface-highlight: #F0F7FC;/* Superficie destacada (bis sagrado) */
-    --border-soft:    #E2E8F0;   /* Borde interno de items */
+    --bg-subtle:      #EEF3F8;   /* Superficie destacada */
+    --bg-input:       #FBFDFF;   /* Inputs: casi blanco, leve azulado */
+    --card-bg:        #F7F9FC;   /* Cards/paneles/contenedores: azulado suave */
+    --card-bg-alt:    #EEF3F8;   /* Superficie secundaria (items internos) */
+    --surface-soft:   #EFF4F9;   /* Tarjeta interna (panel dentro de panel) */
+    --surface-highlight: #E9F1F8;/* Superficie destacada */
+    --border-soft:    #DDE5ED;   /* Borde interno de items */
 
     /* Texto — Modo Claro (contraste WCAG AA/AAA) */
     --text-main:      #172033;   /* Texto principal */
@@ -73,7 +75,7 @@
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Variables de componentes */
-    --navbar-bg:     rgba(255, 255, 255, 0.8);
+    --navbar-bg:     rgba(247, 249, 252, 0.8);
     --navbar-border: var(--border);
     --navbar-menu-bg:var(--card-bg);   /* Menú móvil: panel blanco */
     --hover-bg:      var(--primary-light);  /* Hover: azul muy suave */
@@ -1109,6 +1111,18 @@ html[data-theme="dark"] #preloader { background: var(--bg-main); }
 html:not([data-theme="dark"]) .card-header {
     background-color: var(--card-bg-alt);
     color: var(--text-main);
+}
+
+/* Cards marcadas con bg-white/bg-light: pasan a la superficie azulada
+   suave para no emitir blanco puro (reduce el brillo que fatiga la vista) */
+html:not([data-theme="dark"]) .card.bg-white,
+html:not([data-theme="dark"]) .card.bg-light {
+    background-color: var(--card-bg) !important;
+}
+
+/* El input-group-text blanco junto a inputs: azulado suave coherente */
+html:not([data-theme="dark"]) .input-group-text.bg-white {
+    background-color: var(--bg-input) !important;
 }
 
 /* Dropdown: superficie blanca */

@@ -11,9 +11,9 @@
     --admin-accent:         #3BAFD0;   /* Acento cian */
     --admin-action:         #2563EB;   /* Azul de acción para botones */
     --admin-bg:             #F4F7FA;   /* Body: gris azulado extremadamente suave */
-    --admin-bg-subtle:      #F0F7FC;   /* Fondo secundario / destacado */
-    --admin-surface:        #FFFFFF;   /* Superficie card/panel */
-    --admin-surface-alt:    #F7FAFC;   /* Cabeceras de tarjetas e items internos */
+    --admin-bg-subtle:      #EEF3F8;   /* Fondo secundario / destacado */
+    --admin-surface:        #F7F9FC;   /* Superficie card/panel: azulado suave */
+    --admin-surface-alt:    #EEF3F8;   /* Cabeceras de tarjetas e items internos */
     --admin-border:         #DCE5EC;   /* Borde nítido para separar tarjetas */
     --admin-border-strong:  #C2CEDB;   /* Borde destacado (inputs, tablas) */
     --admin-text:           #172033;   /* Texto principal — máximo contraste */
@@ -239,7 +239,7 @@
     position: sticky;
     top: 0;
     z-index: 1030;
-    background: rgba(255, 255, 255, 0.86);
+    background: rgba(247, 249, 252, 0.86);
     backdrop-filter: saturate(200%) blur(16px);
     -webkit-backdrop-filter: saturate(200%) blur(16px);
     border-bottom: 1px solid var(--admin-border);
