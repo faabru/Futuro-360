@@ -981,11 +981,12 @@ main .display-5 + .lead,
 
 /* Carreras (y leads de páginas sobre gris): textos sueltos que se leen sobre
    la imagen gris del body — se marcan a tinta casi negra para no perderse.
-   Solo afecta a texto no enmarcado en tarjetas. */
+   Solo afecta a texto no enmarcado en tarjetas. El !important vence al
+   .text-muted de Bootstrap (que usa !important sobre estos elementos). */
 main h1.display-4.text-primary + .lead,
 #filterForm .form-label,
 #resultCounter {
-    color: var(--text-main);
+    color: var(--text-main) !important;
 }
 
 /* El lead del hero (texto largo) se marca más aún */
