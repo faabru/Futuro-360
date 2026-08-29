@@ -7,7 +7,7 @@ Gestión de carreras desde el panel admin (ABM completo).
 - ``eliminar_carrera`` → baja.
 """
 
-from flask import (Blueprint, flash, jsonify, redirect, render_template,
+from flask import (Blueprint, flash, redirect, render_template,
                    request, url_for)
 
 from core.decoradores import ajax_o_redirect, requiere_admin
@@ -199,19 +199,3 @@ def eliminar_carrera(id):
     db.commit()
     flash('Carrera eliminada exitosamente.', 'info')
     return redirect(url_for('admin_carreras.admin_carreras'))
-
-
-@bp.route('/admin/carreras/popular/<int:id>', methods=['POST'])
-@requiere_admin
-def toggle_carrera_popular(id):
-    """Marca o desmarca una carrera como 'popular' (destacada en el sitio)."""
-    db = obtener_db()
-    cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT popular FROM carreras WHERE id = %s", (id,))
-    carrera = cursor.fetchone()
-    if not carrera:
-        return jsonify(ok=False, error='Carrera no encontrada'), 404
-    nuevo = 0 if carrera['popular'] else 1
-    cursor.execute("UPDATE carreras SET popular = %s WHERE id = %s", (nuevo, id))
-    db.commit()
-    return jsonify(ok=True, popular=nuevo)

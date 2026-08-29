@@ -37,10 +37,9 @@ def carreras():
 
     area_actual = 'todas'
     filtro_actual = filtro
-    es_populares = filtro == 'populares'
 
     # Se traen todas las carreras; el filtrado por área y búsqueda se hace en JS.
-    query = "SELECT * FROM carreras ORDER BY popular DESC, nombre ASC"
+    query = "SELECT * FROM carreras ORDER BY nombre ASC"
     cursor.execute(query)
     lista_carreras = cursor.fetchall()
 
@@ -55,12 +54,46 @@ def carreras():
             areas = [carrera['area_profesional']]
         carrera['areas'] = areas
 
+    # --- POPULARIDAD AUTOMÁTICA (según los tests) ---
+    # Cuenta cuántas veces se eligió cada área como ganadora en los tests.
+    # Las áreas más elegidas determinan cuáles carreras son "populares".
+    cursor.execute("""
+        SELECT area_profesional_sugerida AS area, COUNT(*) AS total
+        FROM resultados
+        GROUP BY area_profesional_sugerida
+        ORDER BY total DESC, area ASC
+    """)
+    conteos = cursor.fetchall()
+    popularidad_area = {r['area']: r['total'] for r in conteos}
+
+    # Áreas populares (las que tienen al menos una elección en los tests).
+    # Si todavía no hay ningún resultado, se consideran todas las áreas para
+    # que el filtro "Populares" (que es el predeterminado) no quede vacío.
+    if conteos:
+        areas_populares = [r['area'] for r in conteos]
+    else:
+        areas_populares = list(areas_disponibles)
+
+    # Popularidad por carrera: suma de elecciones de sus áreas. Se usa para
+    # ordenar el filtro "Populares" (más elegidas primero).
+    for carrera in lista_carreras:
+        areas_populares_carrera = []
+        popularidad = 0
+        for area in carrera['areas']:
+            v = popularidad_area.get(area, 0)
+            if v > 0:
+                areas_populares_carrera.append(area)
+                popularidad += v
+        carrera['areas_populares'] = areas_populares_carrera
+        carrera['popularidad'] = popularidad
+
     return render_template('carreras.html',
         carreras=lista_carreras,
         filtro_actual=filtro,
         area_actual=area_actual,
         busqueda=busqueda,
-        areas_disponibles=areas_disponibles
+        areas_disponibles=areas_disponibles,
+        areas_populares=areas_populares
     )
 
 
