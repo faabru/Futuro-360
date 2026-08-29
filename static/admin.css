@@ -11,8 +11,8 @@
     --admin-accent:         #3BAFD0;   /* Acento cian */
 --admin-bg:             #EAF4F9;   /* Fondo general: azul claro (imagen visible) */
     --admin-bg-subtle:      #F0F6FB;   /* Fondo secundario */
-    --admin-surface:        #D8E3EE;   /* Superficie card/panel */
-    --admin-surface-alt:    #C3D5E6;   /* Encabezados de tarjetas y secciones */
+    --admin-surface:        #ACD4FB;   /* Superficie card/panel */
+    --admin-surface-alt:    #8FBEED;   /* Encabezados de tarjetas y secciones */
     --admin-border:         #BCD8EB;   /* Borde nítido para separar tarjetas */
     --admin-border-strong:  #8FBEDB;   /* Borde destacado */
     --admin-text:           #0B1B28;   /* Texto principal — máximo contraste */
@@ -1732,7 +1732,7 @@ html[data-theme="dark"] .crop-ratio-btn.active { background: #1E3A4A; color: #7F
 }
 
 /* =========================================================
-   MODO CLARO — PANEL AZUL CLARO (#D8E3EE)
+   MODO CLARO — PANEL AZUL CLARO (#ACD4FB)
    Texto oscuro sobre la superficie pastel (contraste AA).
    El modo oscuro conserva sus propios valores (este bloque
    solo aplica a html sin data-theme=dark).
