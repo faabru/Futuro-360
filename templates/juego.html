@@ -535,6 +535,68 @@
         margin: 0 auto;
     }
 
+    /* --- Loader Pacman (reemplaza al emoji de la tarjeta) --- */
+    .career-flash .career-emoji { animation: none; margin-bottom: 18px; }
+    .career-flash .loader-wrapper {
+        position: relative;
+        width: 160px;
+        height: 50px;
+        margin: 0 auto 8px;
+    }
+    .career-flash .loader-wrapper .packman {
+        position: absolute;
+        left: 25px;
+        top: 25px;
+        width: 50px;
+        height: 50px;
+    }
+    .career-flash .loader-wrapper .packman::before,
+    .career-flash .loader-wrapper .packman::after {
+        content: '';
+        position: absolute;
+        width: 50px;
+        height: 25px;
+        background-color: #eff107;
+    }
+    .career-flash .loader-wrapper .packman::before {
+        border-radius: 100px 100px 0 0;
+        transform-origin: center bottom;
+        animation: pac-top 0.5s linear infinite;
+    }
+    .career-flash .loader-wrapper .packman::after {
+        border-radius: 0 0 100px 100px;
+        transform-origin: center top;
+        animation: pac-bot 0.5s linear infinite;
+    }
+    @keyframes pac-top {
+        0%, 100% { transform: translate(-50%, -50%) rotate(0); }
+        50% { transform: translate(-50%, -50%) rotate(-30deg); }
+    }
+    @keyframes pac-bot {
+        0%, 100% { transform: translate(-50%, 50%) rotate(0); }
+        50% { transform: translate(-50%, 50%) rotate(30deg); }
+    }
+    .career-flash .loader-wrapper .dots .dot {
+        position: absolute;
+        top: 20px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #fff;
+    }
+    .career-flash .loader-wrapper .dots .dot:nth-child(1) { left: 150px; animation: dot-stage1 0.5s infinite; }
+    .career-flash .loader-wrapper .dots .dot:nth-child(2) { left: 120px; animation: dot-stage1 0.5s infinite; }
+    .career-flash .loader-wrapper .dots .dot:nth-child(3) { left: 90px; animation: dot-stage1 0.5s infinite; }
+    .career-flash .loader-wrapper .dots .dot:nth-child(4) { left: 60px; animation: dot-stage2 0.5s infinite; }
+    @keyframes dot-stage1 {
+        0% { transform: translate(0, 0); }
+        100% { transform: translate(-24px, 0); }
+    }
+    @keyframes dot-stage2 {
+        0% { transform: scale(1); }
+        5%, 100% { transform: scale(0); }
+    }
+
     /* --- Detalle de carrera (pantalla info) --- */
     .detail-hero {
         position: relative;
@@ -1099,7 +1161,17 @@
             <!-- Carrera -->
             <div id="discovery-screen" class="screen">
                 <div id="career-flash" class="career-flash mb-4" style="background:linear-gradient(135deg,#142B38,#2F8EAB);">
-                    <div class="career-emoji" id="career-icon">🎓</div>
+                    <div class="career-emoji" id="career-icon">
+                        <div class="loader-wrapper">
+                            <div class="packman"></div>
+                            <div class="dots">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="career-name" id="career-name"></div>
                     <div class="career-area" id="career-area"></div>
                     <div class="career-desc" id="career-description"></div>
