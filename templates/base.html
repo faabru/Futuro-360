@@ -63,9 +63,6 @@
                     {# Enlaces para usuarios registrados #}
                     {% if g.user %}
                         <li class="nav-item"><a class="nav-link {{ 'active' if request.endpoint == 'dashboard' }}" href="{{ url_for('principal.dashboard') }}">Home</a></li>
-                        {% if session.get('admin_autenticado') %}
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_auth.admin_logout') }}">Cerrar Panel Admin</a></li>
-                        {% endif %}
                         <li class="nav-item"><a class="nav-link {{ 'active' if request.endpoint == 'carreras' }}" href="{{ url_for('carreras.carreras') }}">Carreras</a></li>
                         <li class="nav-item"><a class="nav-link {{ 'active' if request.endpoint == 'noticias' }}" href="{{ url_for('noticias.noticias') }}">Noticias</a></li>
                         <li class="nav-item"><a class="nav-link {{ 'active' if request.endpoint in ('test', 'test_iniciar') }}" href="{{ url_for('vocacional.test') }}">Test Pro</a></li>
@@ -84,12 +81,18 @@
                                 <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right me-2"></i> Cerrar Sesión</a></li>
                             </ul>
                         </li>
-                        {# Botón de administración (solo candado) #}
+                        {# Botón de administración: candado verde con menú de acciones (usuario logueado) #}
                         {% if session.get('admin_autenticado') %}
-                            <li class="nav-item ms-lg-2">
-                                <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin.admin_dashboard') }}" title="Panel de administración" style="width:44px;height:44px;">
-                                    <i class="bi bi-lock"></i>
+                            <li class="nav-item dropdown ms-lg-2">
+                                <a class="btn btn-success rounded-circle d-inline-flex align-items-center justify-content-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Administrador" style="width:44px;height:44px;">
+                                    <i class="bi bi-lock-fill"></i>
                                 </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2 animate__animated animate__fadeIn">
+                                    <li><a class="dropdown-item py-2" href="{{ url_for('admin.admin_dashboard') }}"><i class="bi bi-speedometer2 me-2"></i> Ir al panel</a></li>
+                                    <li><a class="dropdown-item py-2" href="{{ url_for('principal.dashboard') }}" target="_blank"><i class="bi bi-globe2 me-2"></i> Ver el sitio</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('admin_auth.admin_logout') }}"><i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión de admin</a></li>
+                                </ul>
                             </li>
                         {% else %}
                             <li class="nav-item ms-lg-2">
@@ -103,12 +106,18 @@
                         <li class="nav-item"><a class="nav-link {{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('principal.index') }}">Inicio</a></li>
                         <li class="nav-item ms-lg-3"><a class="nav-link {{ 'active' if request.endpoint == 'login' }}" href="{{ url_for('auth.login') }}">Ingresar</a></li>
                         <li class="nav-item ms-lg-2"><a class="btn btn-primary" href="{{ url_for('auth.registro') }}">Comenzar Gratis</a></li>
-                        {# Botón de administración (solo candado) #}
+                        {# Botón de administración: candado verde con menú de acciones (visitante) #}
                         {% if session.get('admin_autenticado') %}
-                            <li class="nav-item ms-lg-2">
-                                <a class="btn btn-outline-danger rounded-circle d-inline-flex align-items-center justify-content-center" href="{{ url_for('admin.admin_dashboard') }}" title="Panel de administración" style="width:44px;height:44px;">
-                                    <i class="bi bi-lock"></i>
+                            <li class="nav-item dropdown ms-lg-2">
+                                <a class="btn btn-success rounded-circle d-inline-flex align-items-center justify-content-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Administrador" style="width:44px;height:44px;">
+                                    <i class="bi bi-lock-fill"></i>
                                 </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 mt-2 animate__animated animate__fadeIn">
+                                    <li><a class="dropdown-item py-2" href="{{ url_for('admin.admin_dashboard') }}"><i class="bi bi-speedometer2 me-2"></i> Ir al panel</a></li>
+                                    <li><a class="dropdown-item py-2" href="{{ url_for('principal.dashboard') }}" target="_blank"><i class="bi bi-globe2 me-2"></i> Ver el sitio</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item py-2 text-danger" href="{{ url_for('admin_auth.admin_logout') }}"><i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión de admin</a></li>
+                                </ul>
                             </li>
                         {% else %}
                             <li class="nav-item ms-lg-2">
