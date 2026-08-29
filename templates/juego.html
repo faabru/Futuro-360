@@ -658,6 +658,86 @@
     .swipe-btn:hover { transform: translateY(-4px) scale(1.02); }
     .swipe-btn:active { transform: scale(0.96); }
 
+    /* --- Botones "glitch" del juego Descubrí Tu Carrera --- */
+    .swipe-btn.glitchy {
+        position: relative;
+        z-index: 0;
+        --clip: polygon(11% 0, 95% 0, 100% 25%, 90% 90%, 95% 90%, 85% 90%, 85% 100%, 7% 100%, 0 80%);
+        --clip-one: polygon(0 2%, 100% 2%, 100% 95%, 95% 95%, 95% 90%, 85% 90%, 85% 95%, 8% 95%, 0 70%);
+        --clip-two: polygon(0 78%, 100% 78%, 100% 100%, 95% 100%, 95% 90%, 85% 90%, 85% 100%, 8% 100%, 0 78%);
+        --clip-three: polygon(0 44%, 100% 44%, 100% 54%, 95% 54%, 95% 54%, 85% 54%, 85% 54%, 8% 54%, 0 54%);
+        --clip-four: polygon(0 0, 100% 0, 100% 0, 95% 0, 95% 0, 85% 0, 85% 0, 8% 0, 0 0);
+        --clip-five: polygon(0 0, 100% 0, 100% 0, 95% 0, 95% 0, 85% 0, 85% 0, 8% 0, 0 0);
+        --clip-six: polygon(0 40%, 100% 40%, 100% 85%, 95% 85%, 95% 85%, 85% 85%, 85% 85%, 8% 85%, 0 70%);
+        --clip-seven: polygon(0 63%, 100% 63%, 100% 80%, 95% 80%, 95% 80%, 85% 80%, 85% 80%, 8% 80%, 0 70%);
+        --border: 5px;
+        --shadow-secondary: hsl(60, 90%, 60%);
+        --shimmy-distance: 5;
+        width: auto;
+        height: auto;
+        border-radius: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        color: #fff;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-align: center;
+        transition: filter 0.2s ease;
+    }
+    .swipe-btn.glitchy:before,
+    .swipe-btn.glitchy:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        clip-path: var(--clip);
+        z-index: -1;
+    }
+    .swipe-btn.glitchy:before { background: var(--shadow-primary); transform: translate(var(--border), 0); }
+    .swipe-btn.glitchy:after { background: var(--primary); }
+    .swipe-btn.glitchy:hover { filter: brightness(1.12); }
+    .swipe-btn.glitchy .btn__glitch {
+        position: absolute;
+        top: calc(var(--border) * -1);
+        left: calc(var(--border) * -1);
+        right: calc(var(--border) * -1);
+        bottom: calc(var(--border) * -1);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: var(--shadow-primary);
+        color: #1a1a1a;
+        text-shadow: 2px 2px var(--shadow-primary), -2px -2px var(--shadow-secondary);
+        clip-path: var(--clip);
+        animation: glitch 2s infinite;
+        z-index: 1;
+        line-height: 1;
+    }
+    .swipe-btn.glitchy:hover .btn__glitch { display: flex; }
+    .swipe-btn.glitchy:active { filter: brightness(0.95); }
+    @keyframes glitch {
+        0% { clip-path: var(--clip-one); }
+        2%, 8% { clip-path: var(--clip-two); transform: translate(calc(var(--shimmy-distance) * -1%), 0); }
+        6% { clip-path: var(--clip-two); transform: translate(calc(var(--shimmy-distance) * 1%), 0); }
+        9% { clip-path: var(--clip-two); transform: translate(0, 0); }
+        10% { clip-path: var(--clip-three); transform: translate(calc(var(--shimmy-distance) * 1%), 0); }
+        13% { clip-path: var(--clip-three); transform: translate(0, 0); }
+        14%, 21% { clip-path: var(--clip-four); transform: translate(calc(var(--shimmy-distance) * 1%), 0); }
+        25% { clip-path: var(--clip-five); transform: translate(calc(var(--shimmy-distance) * 1%), 0); }
+        30% { clip-path: var(--clip-five); transform: translate(calc(var(--shimmy-distance) * -1%), 0); }
+        35%, 45% { clip-path: var(--clip-six); transform: translate(calc(var(--shimmy-distance) * -1%)); }
+        40% { clip-path: var(--clip-six); transform: translate(calc(var(--shimmy-distance) * 1%)); }
+        50% { clip-path: var(--clip-six); transform: translate(0, 0); }
+        55% { clip-path: var(--clip-seven); transform: translate(calc(var(--shimmy-distance) * 1%), 0); }
+        60% { clip-path: var(--clip-seven); transform: translate(0, 0); }
+        31%, 61%, 100% { clip-path: var(--clip-four); }
+    }
+
     /* --- Resultados --- */
     .result-hero {
         text-align: center;
@@ -1026,14 +1106,17 @@
                 </div>
 
                 <div class="swipe-actions mb-2">
-                    <button onclick="discoveryChoose('no')" class="swipe-btn" style="background:rgba(220,53,69,0.12);color:#dc3545;">
-                        <i class="bi bi-x-lg"></i> <span id="btn-no">No es lo mío</span>
+                    <button onclick="discoveryChoose('no')" class="swipe-btn glitchy" style="--primary:#dc3545;--shadow-primary:#ff8590;">
+                        <span id="btn-no">No es lo mío</span>
+                        <span class="btn__glitch">_N o_ e s_ l o_ m í o_</span>
                     </button>
-                    <button onclick="discoveryChoose('info')" class="swipe-btn" style="background:rgba(13,110,253,0.12);color:#0d6efd;">
-                        <i class="bi bi-info-lg"></i> <span id="btn-info">Quiero saber más</span>
+                    <button onclick="discoveryChoose('info')" class="swipe-btn glitchy" style="--primary:#0d6efd;--shadow-primary:#8fc3ff;">
+                        <span id="btn-info">Quiero saber más</span>
+                        <span class="btn__glitch">_Q u i_ e r o_ s a b e r_ m a s_</span>
                     </button>
-                    <button onclick="discoveryChoose('yes')" class="swipe-btn" style="background:rgba(25,135,84,0.14);color:#198754;">
-                        <i class="bi bi-check-lg"></i> <span id="btn-yes">Me interesa</span>
+                    <button onclick="discoveryChoose('yes')" class="swipe-btn glitchy" style="--primary:#198754;--shadow-primary:#86e0b4;">
+                        <span id="btn-yes">Me interesa</span>
+                        <span class="btn__glitch">_M e_ i n t e_ r e s a_</span>
                     </button>
                 </div>
 
