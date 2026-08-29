@@ -9,10 +9,10 @@
     --admin-primary-hover:  #1A6E8E;   /* Azul hover */
     --admin-primary-dark:   #0B1B28;   /* Azul marino — texto oscuro */
     --admin-accent:         #3BAFD0;   /* Acento cian */
---admin-bg:             #F3F6F9;   /* Fondo general gris-azul muy sutil (NO blanco puro) */
+--admin-bg:             #EAF4F9;   /* Fondo general: azul claro (imagen visible) */
     --admin-bg-subtle:      #F0F6FB;   /* Fondo secundario */
-    --admin-surface:        #BCD5EF;   /* Superficie card: azul pastel */
-    --admin-surface-alt:    #A9C9EA;   /* Encabezados de tarjetas y secciones */
+    --admin-surface:        #D8E3EE;   /* Superficie card/panel */
+    --admin-surface-alt:    #C3D5E6;   /* Encabezados de tarjetas y secciones */
     --admin-border:         #BCD8EB;   /* Borde nítido para separar tarjetas */
     --admin-border-strong:  #8FBEDB;   /* Borde destacado */
     --admin-text:           #0B1B28;   /* Texto principal — máximo contraste */
@@ -27,9 +27,7 @@
 
 .admin-body {
     background-color: var(--admin-bg);
-    background-image:
-        linear-gradient(180deg, rgba(243, 246, 249, 0.55) 0%, rgba(243, 246, 249, 0.85) 100%),
-        url('img/body-modo-sol.png');
+    background-image: url('img/body-modo-sol.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -1734,7 +1732,7 @@ html[data-theme="dark"] .crop-ratio-btn.active { background: #1E3A4A; color: #7F
 }
 
 /* =========================================================
-   MODO CLARO — PANEL AZUL PASTEL (#BCD5EF)
+   MODO CLARO — PANEL AZUL CLARO (#D8E3EE)
    Texto oscuro sobre la superficie pastel (contraste AA).
    El modo oscuro conserva sus propios valores (este bloque
    solo aplica a html sin data-theme=dark).

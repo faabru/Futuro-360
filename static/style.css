@@ -22,12 +22,12 @@
     --info:           #0E4F6B;   /* Azul info oscuro */
     --info-bg:        #E0F2FE;   /* Azul info muy claro */
 
-    /* Superficies — Modo Claro (tarjetas azul pastel #BCD5EF sobre la imagen blanca) */
-    --bg-main:        #F3F6F9;   /* Fondo general: gris-azul muy sutil (NO blanco puro) */
+    /* Superficies — Modo Claro (tarjetas azul claro #D8E3EE sobre la imagen del body) */
+    --bg-main:        #EAF4F9;   /* Original: azul claro para que la imagen se vea bien */
     --bg-subtle:      #F0F6FB;   /* Fondo secundario para secciones/barras */
-    --bg-input:       #FFFFFF;   /* Inputs: blanco, diferenciado de la card azul */
-    --card-bg:        #BCD5EF;   /* Tarjetas/paneles: azul pastel */
-    --card-bg-alt:    #A9C9EA;   /* Encabezados: un tono más intenso */
+    --bg-input:       #FFFFFF;   /* Inputs: blanco, diferenciado de la card */
+    --card-bg:        #D8E3EE;   /* Tarjetas/paneles/contenedores */
+    --card-bg-alt:    #C3D5E6;   /* Encabezados: un tono más intenso */
 
     /* Texto — Modo Claro (contraste WCAG AAA) */
     --text-main:      #0B1B28;   /* Azul marino muy oscuro — máxima legibilidad */
@@ -57,9 +57,9 @@
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Variables de componentes */
-    --navbar-bg:     rgba(227, 240, 248, 0.94);
-    --navbar-border: #C2DBEC;
-    --hover-bg:      #DCECF6;
+    --navbar-bg:     rgba(255, 255, 255, 0.8);
+    --navbar-border: var(--border);
+    --hover-bg:      var(--primary-light);
     --card-border:   var(--border);
 }
 
@@ -121,9 +121,7 @@ html[data-theme="dark"] {
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-main);
-    background-image:
-        linear-gradient(180deg, rgba(243, 246, 249, 0.55) 0%, rgba(243, 246, 249, 0.85) 100%),
-        url('img/body-modo-sol.png');
+    background-image: url('img/body-modo-sol.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -330,7 +328,7 @@ html[data-theme="dark"] .nav-link.active {
     height: 40px;
     border-radius: 10px;
     border: 1px solid var(--card-border);
-    background: var(--bg-input);
+    background: var(--card-bg);
     color: var(--text-muted);
     display: inline-flex;
     align-items: center;
@@ -1070,7 +1068,7 @@ html[data-theme="dark"] #preloader { background: var(--bg-main); }
 }
 
 /* =========================================================
-   MODO CLARO — TARJETAS AZUL PASTEL (#BCD5EF)
+   MODO CLARO — TARJETAS AZUL CLARO (#D8E3EE)
    Texto oscuro sobre la superficie pastel (contraste AA).
    El modo oscuro conserva sus propios valores (este bloque
    solo aplica a html sin data-theme=dark).
