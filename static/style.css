@@ -22,15 +22,12 @@
     --info:           #0E4F6B;   /* Azul info oscuro */
     --info-bg:        #E0F2FE;   /* Azul info muy claro */
 
-    /* Superficies — Modo Claro (tarjetas azul intenso #0077B6 sobre la imagen blanca) */
+    /* Superficies — Modo Claro (tarjetas azul pastel #BCD5EF sobre la imagen blanca) */
     --bg-main:        #F3F6F9;   /* Fondo general: gris-azul muy sutil (NO blanco puro) */
     --bg-subtle:      #F0F6FB;   /* Fondo secundario para secciones/barras */
     --bg-input:       #FFFFFF;   /* Inputs: blanco, diferenciado de la card azul */
-    --card-bg:        #0077B6;   /* Tarjetas/paneles: azul intenso */
-    --card-bg-alt:    #0C6AA5;   /* Encabezados: un tono de azul más oscuro */
-    --card-text:      #FFFFFF;   /* Texto principal sobre cards azules */
-    --card-text-muted:#F2F9FD;   /* Texto atenuado sobre cards azules (AA) */
-    --card-link:      #F7FBFF;   /* Links sobre cards azules (AA) */
+    --card-bg:        #BCD5EF;   /* Tarjetas/paneles: azul pastel */
+    --card-bg-alt:    #A9C9EA;   /* Encabezados: un tono más intenso */
 
     /* Texto — Modo Claro (contraste WCAG AAA) */
     --text-main:      #0B1B28;   /* Azul marino muy oscuro — máxima legibilidad */
@@ -1073,149 +1070,29 @@ html[data-theme="dark"] #preloader { background: var(--bg-main); }
 }
 
 /* =========================================================
-   MODO CLARO — TARJETAS AZUL INTENSO (#0077B6)
-   Texto claro sobre las superficies azules para mantener
-   contraste WCAG AA. El modo oscuro conserva sus propios
-   valores (este bloque solo aplica a html sin data-theme=dark).
+   MODO CLARO — TARJETAS AZUL PASTEL (#BCD5EF)
+   Texto oscuro sobre la superficie pastel (contraste AA).
+   El modo oscuro conserva sus propios valores (este bloque
+   solo aplica a html sin data-theme=dark).
    ========================================================= */
 
-/* Texto base claro sobre las superficies azules */
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .navbar-collapse,
-                                   .stat-item, .tl-card) {
-    color: var(--card-text);
-}
+/* Superficie base ya oscura proviene de --card-bg; este bloque
+   solo redefine texturas que en modo claro no aplican. */
 
-/* Headings dentro de las superficies azules */
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .navbar-collapse,
-                                   .stat-item, .tl-card) h1,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .navbar-collapse,
-                                   .stat-item, .tl-card) h2,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .navbar-collapse,
-                                   .stat-item, .tl-card) h3,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .navbar-collapse,
-                                   .stat-item, .tl-card) h4,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .navbar-collapse,
-                                   .stat-item, .tl-card) h5,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .navbar-collapse,
-                                   .stat-item, .tl-card) h6 {
-    color: var(--card-text);
-}
-
-/* Utilidades de texto dentro de superficies azules */
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .text-muted,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .text-secondary,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .text-dark,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .text-body {
-    color: var(--card-text-muted) !important;
-}
-
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .text-primary,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .text-info,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .text-success,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .text-warning,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .text-danger {
-    color: var(--card-text) !important;
-}
-
-/* Links dentro de superficies azules */
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) a:not(.btn):not(.dropdown-item) {
-    color: var(--card-link);
-}
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) a:not(.btn):not(.dropdown-item):hover {
-    color: #FFFFFF;
-}
-
-/* Labels y textos de formularios sobre superficies azules */
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .form-label,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .form-text {
-    color: var(--card-text-muted);
-}
-
-/* Números de estadística dentro de superficies azules */
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu, .stat-item, .tl-card) .stat-number {
-    color: var(--card-text);
-}
-
-/* Cabeceras y pies de card: azul más oscuro con texto claro */
-html:not([data-theme="dark"]) .card-header,
-html:not([data-theme="dark"]) .card-footer {
-    background-color: var(--card-bg-alt);
-    color: var(--card-text);
-}
-
-/* Las cards escritas con bg-white/bg-light pasan a la superficie azul */
+/* Las cards escritas con bg-white/bg-light pasan a la superficie pastel */
 html:not([data-theme="dark"]) .card.bg-white,
 html:not([data-theme="dark"]) .card.bg-light {
     background-color: var(--card-bg) !important;
 }
 
-/* Tablas dentro de superficies azules: recuadro claro con texto oscuro */
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .dropdown-menu) .table {
-    background-color: #EAF4FB;
-}
-html:not([data-theme="dark"]) :is(.card, .section-card, .modal-content) .table thead th {
-    color: var(--text-secondary);
+/* Cabeceras de card: un tono de azul más intenso */
+html:not([data-theme="dark"]) .card-header {
+    background-color: var(--card-bg-alt);
+    color: var(--text-main);
 }
 
-/* Dropdown sobre superficie azul */
-html:not([data-theme="dark"]) .dropdown-menu .dropdown-item { color: var(--card-text); }
+/* Dropdown sobre superficie pastel */
 html:not([data-theme="dark"]) .dropdown-menu .dropdown-item:hover,
 html:not([data-theme="dark"]) .dropdown-menu .dropdown-item:focus {
     background: var(--hover-bg);
-    color: var(--primary);
-}
-html:not([data-theme="dark"]) .dropdown-menu .dropdown-item.text-danger { color: #FFB6B6 !important; }
-
-/* Menú colapsado de navbar sobre superficie azul */
-html:not([data-theme="dark"]) .navbar-collapse .nav-link { color: var(--card-text) !important; }
-html:not([data-theme="dark"]) .navbar-collapse .nav-link:hover,
-html:not([data-theme="dark"]) .navbar-collapse .nav-link.active {
-    background: var(--hover-bg);
-    color: var(--primary) !important;
-}
-
-/* Modal sobre superficie azul */
-html:not([data-theme="dark"]) .modal-title { color: var(--card-text); }
-
-/* Botones outline dentro de superficies azules: contorno blanco */
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .tl-card) .btn-outline-primary,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .tl-card) .btn-outline-secondary,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .tl-card) .btn-outline-danger {
-    color: #FFFFFF;
-    border-color: rgba(255, 255, 255, 0.85);
-}
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .tl-card) .btn-outline-primary:hover,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .tl-card) .btn-outline-secondary:hover,
-html:not([data-theme="dark"]) :is(.card, .glass-card, .section-card, .auth-card,
-                                   .modal-content, .tl-card) .btn-outline-danger:hover {
-    background: #FFFFFF;
-    color: #0A5D93;
-    border-color: #FFFFFF;
 }
