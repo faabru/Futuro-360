@@ -154,7 +154,7 @@ body {
     background-color: var(--bg-main);
     background-image:
         linear-gradient(180deg, rgba(244, 247, 250, 0.68) 0%, rgba(244, 247, 250, 0.90) 100%),
-        url('img/body-modo-sol.png');
+        url('img/body-modo-blanco.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
