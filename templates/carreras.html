@@ -141,7 +141,7 @@
     <div class="row g-4" id="careerList">
         {% for carrera in carreras %}
         {% set fallback_final = fallback_carreras.get(carrera.nombre, fallback_area.get(carrera.area_profesional, 'https://picsum.photos/seed/' ~ (carrera.id ~ carrera.nombre|replace(' ', '_')) ~ '/800/400')) %}
-        <div class="col-md-6 col-lg-4 career-item" data-areas="{{ carrera.areas|join(',') }}" data-popular-areas="{{ carrera.areas_populares|join(',') }}" data-pop="{{ carrera.popularidad }}">
+        <div class="col-md-6 col-lg-4 career-item" data-id="{{ carrera.id }}" data-areas="{{ carrera.areas|join(',') }}">
             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden section-card p-0 career-card">
                 <!-- IMAGEN DE LA CARRERA -->
                 {% if carrera.imagen_portada %}
@@ -214,8 +214,11 @@
     // Orden original (alfabético) para restaurarlo al cambiar de filtro.
     const originalOrder = Array.from(careerItems);
 
-    // Reordena las tarjetas visibles: en "Populares" las áreas más elegidas
-    // en los tests van primero (y dentro del mismo nivel, alfabético).
+    // Carreras populares (máximo 6, ordenadas por mayor cantidad de visitas).
+    const popularesIds = {{ carreras_populares_ids | tojson }};
+
+    // Reordena las tarjetas visibles: en "Populares" las carreras más visitadas
+    // van primero (en el orden del ranking generado en el backend).
     function reorderCareers() {
         const container = document.getElementById('careerList');
         const activeArea = areaFilter.value;
@@ -226,10 +229,7 @@
         }
         const visibles = originalOrder.filter(item => item.style.display !== 'none');
         visibles.sort((a, b) => {
-            const pa = Number(a.dataset.pop || 0);
-            const pb = Number(b.dataset.pop || 0);
-            if (pb !== pa) return pb - pa;
-            return a.querySelector('.career-name').innerText.localeCompare(b.querySelector('.career-name').innerText);
+            return popularesIds.indexOf(Number(a.dataset.id)) - popularesIds.indexOf(Number(b.dataset.id));
         });
         visibles.forEach(node => container.appendChild(node));
     }
@@ -251,8 +251,8 @@
             } else if (activeArea === 'todas') {
                 matchesArea = true;
             } else if (activeArea === 'populares') {
-                // Populares = carreras cuyas áreas fueron elegidas en los tests.
-                matchesArea = (item.dataset.popularAreas || '').length > 0;
+                // Populares = las 6 carreras más visitadas.
+                matchesArea = popularesIds.includes(Number(item.dataset.id));
             } else {
                 matchesArea = areas.includes(activeArea);
             }

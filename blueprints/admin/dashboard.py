@@ -117,6 +117,14 @@ def admin_dashboard():
            GROUP BY categoria ORDER BY total DESC LIMIT 8""")
     noticias_por_categoria = cursor.fetchall()
 
+    # Carreras más vistas (ranking de "Populares"): carrera + área + visitas.
+    cursor.execute(
+        """SELECT id, nombre, area_profesional, COALESCE(visitas, 0) AS visitas
+           FROM carreras
+           ORDER BY visitas DESC, nombre ASC
+           LIMIT 6""")
+    carreras_mas_vistas = cursor.fetchall()
+
     return render_template('admin/dashboard.html',
         total_usuarios=total_usuarios,
         carreras=carreras, preguntas=preguntas,
@@ -129,7 +137,8 @@ def admin_dashboard():
         usuarios_con_tests=usuarios_con_tests,
         tests_por_mes=series_tests, usuarios_por_area=usuarios_por_area,
         noticias_por_fuente=noticias_por_fuente,
-        noticias_por_categoria=noticias_por_categoria)
+        noticias_por_categoria=noticias_por_categoria,
+        carreras_mas_vistas=carreras_mas_vistas)
 
 
 @bp.route('/admin/usuarios-en-linea')

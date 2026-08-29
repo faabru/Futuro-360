@@ -54,38 +54,15 @@ def carreras():
             areas = [carrera['area_profesional']]
         carrera['areas'] = areas
 
-    # --- POPULARIDAD AUTOMÁTICA (según los tests) ---
-    # Cuenta cuántas veces se eligió cada área como ganadora en los tests.
-    # Las áreas más elegidas determinan cuáles carreras son "populares".
+    # --- POPULARIDAD AUTOMÁTICA (según visitas) ---
+    # Populares = las carreras más visitadas (se suma 1 cada vez que alguien
+    # abre el detalle). Se muestran como máximo 6, ordenadas por visitas.
     cursor.execute("""
-        SELECT area_profesional_sugerida AS area, COUNT(*) AS total
-        FROM resultados
-        GROUP BY area_profesional_sugerida
-        ORDER BY total DESC, area ASC
+        SELECT id FROM carreras
+        ORDER BY visitas DESC, nombre ASC
+        LIMIT 6
     """)
-    conteos = cursor.fetchall()
-    popularidad_area = {r['area']: r['total'] for r in conteos}
-
-    # Áreas populares (las que tienen al menos una elección en los tests).
-    # Si todavía no hay ningún resultado, se consideran todas las áreas para
-    # que el filtro "Populares" (que es el predeterminado) no quede vacío.
-    if conteos:
-        areas_populares = [r['area'] for r in conteos]
-    else:
-        areas_populares = list(areas_disponibles)
-
-    # Popularidad por carrera: suma de elecciones de sus áreas. Se usa para
-    # ordenar el filtro "Populares" (más elegidas primero).
-    for carrera in lista_carreras:
-        areas_populares_carrera = []
-        popularidad = 0
-        for area in carrera['areas']:
-            v = popularidad_area.get(area, 0)
-            if v > 0:
-                areas_populares_carrera.append(area)
-                popularidad += v
-        carrera['areas_populares'] = areas_populares_carrera
-        carrera['popularidad'] = popularidad
+    carreras_populares_ids = [r['id'] for r in cursor.fetchall()]
 
     return render_template('carreras.html',
         carreras=lista_carreras,
@@ -93,7 +70,7 @@ def carreras():
         area_actual=area_actual,
         busqueda=busqueda,
         areas_disponibles=areas_disponibles,
-        areas_populares=areas_populares
+        carreras_populares_ids=carreras_populares_ids
     )
 
 
@@ -107,6 +84,12 @@ def detalle_carrera(carrera_id):
     if not carrera:
         flash('No pudimos encontrar información sobre esa carrera.', 'danger')
         return redirect(url_for('carreras.carreras'))
+
+    # Suma una visita a la carrera: alimenta el ranking de "Populares".
+    cursor.execute(
+        "UPDATE carreras SET visitas = COALESCE(visitas, 0) + 1 WHERE id = %s",
+        (carrera_id,))
+    db.commit()
 
     areas = obtener_areas_carrera(carrera_id)
     if not areas and carrera.get('area_profesional'):

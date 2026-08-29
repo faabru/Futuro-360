@@ -124,6 +124,7 @@ def asegurar_columnas_esquema():
             'imagen_principal': "ADD COLUMN imagen_principal VARCHAR(500) DEFAULT NULL",
             'a_que_se_dedica': "ADD COLUMN a_que_se_dedica TEXT DEFAULT NULL",
             'video': "ADD COLUMN video VARCHAR(500) DEFAULT NULL",
+            'visitas': "ADD COLUMN visitas INT UNSIGNED DEFAULT 0",
         },
         'noticias': {
             'video': "ADD COLUMN video VARCHAR(500) DEFAULT NULL",
