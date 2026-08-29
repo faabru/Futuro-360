@@ -165,11 +165,29 @@
         const burger = document.getElementById('adminBurger');
 
         function toggleSidebar() {
+            const isDesktop = window.innerWidth > 991.98;
+            if (isDesktop) {
+                // Escritorio: la barra se oculta/despliega sola y el contenido
+                // aprovecha el espacio. Independiente del overlay.
+                sidebar.parentElement.classList.toggle('nav-collapsed');
+                overlay.style.display = 'none';
+                return;
+            }
+            // Móvil: despliegue con overlay
             sidebar.classList.toggle('open');
             overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
         }
         if (burger) burger.addEventListener('click', toggleSidebar);
         if (overlay) overlay.addEventListener('click', toggleSidebar);
+
+        // Al redimensionar se normalizan los estados para que cada vista use el suyo.
+        window.addEventListener('resize', function () {
+            const isDesktop = window.innerWidth > 991.98;
+            if (isDesktop) {
+                sidebar.classList.remove('open');
+                overlay.style.display = 'none';
+            }
+        });
     });
 </script>
 
