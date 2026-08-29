@@ -5,7 +5,6 @@ Test vocacional y resultados: test, ver resultado, PDF, historial, notas.
 import io
 import json
 import re
-import time
 import traceback
 from datetime import datetime
 from xml.sax.saxutils import escape as escapar_xml
@@ -29,21 +28,14 @@ bp = Blueprint('vocacional', __name__)
 MESES_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
             'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
 
-# Vigencia del flag "test iniciado" en segundos: pasada la media hora, la
-# pantalla de introducción se vuelve a mostrar aunque quede un flag viejo de
-# una sesión anterior sin completar.
-TEST_INICIO_VIGENCIA = 30 * 60
-
 
 @bp.route('/test', methods=['GET', 'POST'])
 @requiere_login
 def test():
-    # Asegurar que el usuario pasó por la pantalla de información previa antes
-    # de entrar al test (evita saltearse las instrucciones escribiendo /test).
-    # El flag expira: si quedó de una ocasión anterior (sesión sin completar)
-    # se vuelve a mostrar la introducción.
-    inicio = session.get('test_iniciado')
-    if request.method == 'GET' and (not inicio or time.time() - inicio > TEST_INICIO_VIGENCIA):
+    # La pantalla de introducción siempre aparece antes de empezar: el flag se
+    # consume al entrar a las preguntas, así cualquier visita a /test (navbar,
+    # footer, dashboard) vuelve a pasar primero por la introducción.
+    if request.method == 'GET' and not session.pop('test_iniciado', None):
         return redirect(url_for('vocacional.test_iniciar'))
 
     db = obtener_db()
@@ -191,7 +183,7 @@ def test_iniciar():
     marca la sesión como iniciada y redirige al test real.
     """
     if request.method == 'POST':
-        session['test_iniciado'] = time.time()
+        session['test_iniciado'] = True
         return redirect(url_for('vocacional.test'))
 
     db = obtener_db()
