@@ -1,211 +1,243 @@
 {% extends 'base.html' %}
-{% from 'macros.html' import boton_volver %}
 
 {# Pantalla de una sola vista: se oculta el footer para que todo entre sin scroll. #}
 {% block footer %}{% endblock %}
 
 {% block content %}
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
+
     .test-launch {
+        --tl-bg: #080b12;
+        --tl-nav: #0b0f18;
+        --tl-border: #1c2534;
+        --tl-cyan: #00b4d8;
+        --tl-blue: #0077b6;
+        --tl-text-1: #eef2f8;
+        --tl-text-2: #8a96ab;
+        --tl-text-3: #4d5871;
+
         min-height: calc(100vh - 72px);
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 30px 0 44px;
+        background: var(--tl-bg);
+        padding: 40px 24px;
+        overflow: hidden;
     }
-    .test-launch-inner {
+    .test-launch *, .test-launch *::before, .test-launch *::after { box-sizing: border-box; }
+
+    .tl-layout {
+        display: flex;
+        align-items: center;
+        gap: 64px;
         width: 100%;
+        max-width: 980px;
+        margin: 0 auto;
+        color: var(--tl-text-1);
+        font-family: 'Inter', system-ui, sans-serif;
     }
+
+    /* --- Columna izquierda: presentación --- */
+    .tl-left { flex: 0 0 380px; max-width: 380px; }
 
     .tl-back {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
+        font-family: 'Space Grotesk', sans-serif;
         font-weight: 600;
-        font-size: 0.85rem;
-        color: var(--text-muted);
+        font-size: 0.9rem;
+        color: var(--tl-text-2);
         text-decoration: none;
-        margin: 0 0 24px;
+        margin-bottom: 34px;
         transition: color 0.2s ease;
     }
-    .tl-back:hover { color: var(--primary); }
-    .tl-back i { font-size: 0.95rem; }
-
-    .tl-card {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 20px;
-        padding: 36px 38px 30px;
-        box-shadow: 0 12px 32px -20px rgba(16, 24, 40, 0.35);
-    }
-
-    .tl-badge {
-        display: inline-flex;
-        align-items: center;
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: var(--primary);
-        background: rgba(47, 142, 171, 0.1);
-        border: 1px solid rgba(47, 142, 171, 0.25);
-        padding: 4px 12px;
-        border-radius: 999px;
-        margin-bottom: 14px;
-    }
+    .tl-back:hover { color: var(--tl-cyan); }
+    .tl-back svg { width: 16px; height: 16px; }
 
     .tl-title {
-        font-weight: 800;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: clamp(2rem, 4vw, 2.7rem);
+        line-height: 1.08;
         letter-spacing: -0.02em;
-        color: var(--text-main);
-        font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-        margin: 0 0 10px;
-        line-height: 1.15;
+        color: var(--tl-text-1);
+        margin: 0 0 14px;
     }
-    .tl-title span { color: var(--primary); }
 
     .tl-sub {
-        font-size: 0.94rem;
-        color: var(--text-muted);
-        line-height: 1.65;
-        margin: 0 0 20px;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--tl-text-2);
+        margin: 0 0 22px;
+        max-width: 360px;
     }
 
     .tl-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px 20px;
-        font-size: 0.82rem;
-        color: var(--text-muted);
-        padding: 0 0 20px;
-        margin: 0 0 22px;
-        border-bottom: 1px solid var(--card-border);
+        font-size: 0.88rem;
+        font-weight: 500;
+        color: var(--tl-text-3);
+        margin: 0 0 30px;
     }
-    .tl-meta span { display: inline-flex; align-items: center; gap: 6px; }
-    .tl-meta i { color: var(--primary); }
+    .tl-meta .tl-dot {
+        color: var(--tl-text-3);
+        margin: 0 10px;
+    }
+
+    .tl-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        color: #051019;
+        background: var(--tl-cyan);
+        border: none;
+        border-radius: 10px;
+        padding: 14px 26px;
+        cursor: pointer;
+        transition: filter 0.2s ease;
+    }
+    .tl-cta:hover { filter: brightness(1.08); }
+    .tl-cta svg { width: 16px; height: 16px; }
+
+    .tl-nota {
+        font-size: 0.78rem;
+        color: var(--tl-text-3);
+        margin: 14px 0 0;
+    }
+
+    /* --- Divisor vertical --- */
+    .tl-divider {
+        align-self: stretch;
+        width: 1px;
+        background: var(--tl-border);
+    }
+
+    /* --- Columna derecha: cómo funciona --- */
+    .tl-right { flex: 1; min-width: 0; }
 
     .tl-steps-title {
-        font-size: 0.76rem;
+        font-family: 'Space Grotesk', sans-serif;
         font-weight: 700;
-        letter-spacing: 0.12em;
+        font-size: 12px;
+        letter-spacing: 1.5px;
         text-transform: uppercase;
-        color: var(--text-muted);
+        color: var(--tl-text-2);
         margin: 0 0 6px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--tl-border);
     }
 
     .tl-step {
         display: flex;
         gap: 14px;
-        padding: 12px 0;
+        padding: 20px 0;
+        border-bottom: 1px solid var(--tl-border);
     }
-    .tl-step + .tl-step { border-top: 1px solid var(--card-border); }
+    .tl-step:last-child { border-bottom: none; }
+
     .tl-step-num {
-        flex: 0 0 30px;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: var(--primary);
-        color: #fff;
-        font-size: 0.85rem;
-        font-weight: 800;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .tl-step h3 {
-        font-size: 0.92rem;
+        flex: 0 0 20px;
+        width: 20px;
+        font-family: 'Space Grotesk', sans-serif;
         font-weight: 700;
-        color: var(--text-main);
-        margin: 0 0 3px;
+        font-size: 0.95rem;
+        color: var(--tl-cyan);
+    }
+
+    .tl-step h3 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--tl-text-1);
+        margin: 0 0 5px;
     }
     .tl-step p {
-        font-size: 0.84rem;
-        color: var(--text-muted);
+        font-size: 0.9rem;
         line-height: 1.55;
+        color: var(--tl-text-2);
         margin: 0;
+        max-width: 460px;
     }
 
-    .tl-cta-wrap { text-align: center; margin-top: 24px; }
-    .tl-cta {
-        display: inline-flex;
-        align-items: center;
-        border: none;
-        cursor: pointer;
-        font-weight: 700;
-        font-size: 1rem;
-        color: #fff;
-        background: var(--primary);
-        padding: 14px 42px;
-        border-radius: 999px;
-        transition: background-color 0.2s ease, transform 0.15s ease;
-    }
-    .tl-cta:hover {
-        background: #1d728c;
-        transform: translateY(-2px);
-    }
-    .tl-nota {
-        text-align: center;
-        margin: 14px 0 0;
-        font-size: 0.8rem;
-        color: var(--text-muted);
-    }
-
-    @media (max-width: 576px) {
-        .tl-card { padding: 26px 22px 24px; }
-        .test-launch { min-height: auto; }
+    /* --- Responsive: una sola columna apilada --- */
+    @media (max-width: 780px) {
+        .test-launch {
+            overflow: visible;
+            align-items: flex-start;
+            padding: 32px 20px;
+        }
+        .tl-layout {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 32px;
+        }
+        .tl-left { flex: none; max-width: none; }
+        .tl-back { margin-bottom: 24px; }
+        .tl-meta { margin-bottom: 24px; }
+        .tl-divider { width: 100%; height: 1px; align-self: stretch; }
     }
 </style>
 
 <div class="test-launch">
-    <div class="test-launch-inner">
-        <a class="tl-back" href="{{ url_for('principal.dashboard') }}">
-            <i class="bi bi-arrow-left"></i> Volver al inicio
-        </a>
+    <div class="tl-layout">
+        <div class="tl-left">
+            <a class="tl-back" href="{{ url_for('principal.dashboard') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
+                Volver al inicio
+            </a>
 
-        <div class="tl-card">
-            <span class="tl-badge">Test vocacional</span>
-            <h1 class="tl-title">Descubrí tu <span>vocación</span></h1>
+            <h1 class="tl-title">Descubrí tu vocación</h1>
             <p class="tl-sub">
-                Respondé situaciones cotidianas y encontrá el área profesional que mejor
-                se alinea con vos. No hay respuestas correctas: solo tu forma de pensar.
+                Respondé situaciones cotidianas y encontrá el área profesional que
+                mejor se alinea con vos. No hay respuestas correctas: solo tu forma
+                de pensar.
             </p>
 
-            <div class="tl-meta">
-                <span><i class="bi bi-question-circle"></i> {{ total_preguntas }} preguntas</span>
-                <span><i class="bi bi-clock"></i> 5-8 minutos</span>
-                <span><i class="bi bi-check2-circle"></i> Sin respuestas incorrectas</span>
-            </div>
+            <p class="tl-meta">{{ total_preguntas }} preguntas<span class="tl-dot">·</span>5-8 minutos<span class="tl-dot">·</span>Sin respuestas incorrectas</p>
 
-            <p class="tl-steps-title">¿Cómo funciona?</p>
-            <div class="tl-steps">
-                <div class="tl-step">
-                    <div class="tl-step-num">1</div>
-                    <div class="tl-step-body">
-                        <h3>Elegí una opción</h3>
-                        <p>Leé cada situación cotidiana y elegí la alternativa que más se acerque a cómo pensás.</p>
-                    </div>
-                </div>
-                <div class="tl-step">
-                    <div class="tl-step-num">2</div>
-                    <div class="tl-step-body">
-                        <h3>Confirmá y avanzá</h3>
-                        <p>Cada elección suma puntos a un área profesional. Confirmá para pasar a la siguiente.</p>
-                    </div>
-                </div>
-                <div class="tl-step">
-                    <div class="tl-step-num">3</div>
-                    <div class="tl-step-body">
-                        <h3>Descubrí tu área</h3>
-                        <p>Al finalizar vas a ver tu perfil vocacional y las carreras recomendadas para vos.</p>
-                    </div>
-                </div>
-            </div>
-
-            <form method="POST" action="{{ url_for('vocacional.test_iniciar') }}" class="tl-cta-wrap">
+            <form method="POST" action="{{ url_for('vocacional.test_iniciar') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="tl-cta">Comenzar el test</button>
+                <button type="submit" class="tl-cta">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m8 5 11 7-11 7V5z"></path></svg>
+                    Comenzar el test
+                </button>
             </form>
+
             <p class="tl-nota">Tus respuestas se usan solo para calcular tu perfil.</p>
+        </div>
+
+        <div class="tl-divider"></div>
+
+        <div class="tl-right">
+            <h2 class="tl-steps-title">¿Cómo funciona?</h2>
+
+            <div class="tl-step">
+                <div class="tl-step-num">01</div>
+                <div>
+                    <h3>Elegí una opción</h3>
+                    <p>Leé cada situación cotidiana y elegí la alternativa que más se acerque a cómo pensás.</p>
+                </div>
+            </div>
+
+            <div class="tl-step">
+                <div class="tl-step-num">02</div>
+                <div>
+                    <h3>Confirmá y avanzá</h3>
+                    <p>Cada elección suma puntos a un área profesional. Confirmá para pasar a la siguiente.</p>
+                </div>
+            </div>
+
+            <div class="tl-step">
+                <div class="tl-step-num">03</div>
+                <div>
+                    <h3>Descubrí tu área</h3>
+                    <p>Al finalizar vas a ver tu perfil vocacional y las carreras recomendadas para vos.</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
