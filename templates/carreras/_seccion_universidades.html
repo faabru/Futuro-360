@@ -17,21 +17,22 @@
         <i class="bi bi-geo-alt text-primary me-2"></i> ¿Dónde estudiarla en Tucumán?
     </h5>
 
-    {# Botones de búsqueda: DuckDuckGo (links de universidades) y Google, a la par #}
-    <div class="d-flex gap-2 flex-wrap align-items-center mb-3">
+    {# Botones de búsqueda en una sola fila: "Buscar carrera" a la izquierda y
+       "Búsqueda personalizada" a la derecha, sin bajar uno debajo del otro #}
+    <div class="d-flex gap-2 flex-nowrap align-items-center justify-content-between mb-3">
 
         {# Buscador web: DuckDuckGo devuelve los links de las universidades #}
         <button id="btn-buscar-web"
                 data-carrera-id="{{ carrera.id }}"
-                class="btn btn-outline-primary rounded-pill shadow-sm d-inline-flex align-items-center gap-2">
+                class="btn btn-outline-primary rounded-pill shadow-sm flex-grow-1 d-inline-flex align-items-center justify-content-center gap-2">
             <i class="bi bi-search"></i>
-            Buscar universidades
+            Buscar carrera
         </button>
 
         {# Buscador personalizado: Google con la carrera ya escrita #}
         <a href="https://www.google.com/search?q={{ (carrera.nombre ~ ' universidad Tucumán inscripción')|urlencode }}"
            target="_blank" rel="noopener noreferrer"
-           class="btn btn-outline-secondary rounded-pill shadow-sm d-inline-flex align-items-center gap-2">
+           class="btn btn-outline-secondary rounded-pill shadow-sm flex-grow-1 d-inline-flex align-items-center justify-content-center gap-2">
             <i class="bi bi-google"></i>
             Búsqueda personalizada
         </a>
@@ -79,7 +80,7 @@ document.getElementById('btn-buscar-web').addEventListener('click', function () 
         })
         .then(data => {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-search"></i> Buscar universidades';
+            btn.innerHTML = '<i class="bi bi-search"></i> Buscar carrera';
 
             // Sin resultados automáticos: ofrece el enlace directo a DuckDuckGo.
             if (data.error || !data.resultados || data.resultados.length === 0) {
@@ -113,7 +114,7 @@ document.getElementById('btn-buscar-web').addEventListener('click', function () 
         })
         .catch(err => {
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-search"></i> Buscar universidades';
+            btn.innerHTML = '<i class="bi bi-search"></i> Buscar carrera';
 
             // Sesión expirada o sin conexión: mensaje acorde.
             if (err && err.tipo === 'sesion') {
