@@ -1051,7 +1051,7 @@
     <div class="mb-4">
         {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
     </div>
-    <div class="game-hero">
+    <div class="game-hero" id="game-hero">
         <div class="hero-inner">
             <span class="hero-badge"><i class="bi bi-joystick me-1"></i> Modo Laboratorio</span>
             <h1>Descubrí tu vocación jugando</h1>
@@ -1328,10 +1328,12 @@
         const selector = document.getElementById('game-selector');
         const interestsGame = document.getElementById('interests-game');
         const discoveryGame = document.getElementById('discovery-game');
+        const hero = document.getElementById('game-hero');
 
         selector.style.display = game ? 'none' : '';
         interestsGame.style.display = game === 'interests' ? '' : 'none';
         discoveryGame.style.display = game === 'discovery' ? '' : 'none';
+        hero.style.display = game ? 'none' : '';
 
         if (game === 'interests') resetInterestsGame();
         if (game === 'discovery') initDiscoveryGame();
