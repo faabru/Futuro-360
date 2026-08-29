@@ -105,9 +105,9 @@
     /* Overlay del body: velo que atenúa la imagen de fondo sin perder
        la textura. Se controla con esta única variable (claro/oscuro). */
     --body-overlay:  linear-gradient(180deg,
-                       rgba(243, 246, 250, 0.82) 0%,
-                       rgba(243, 246, 250, 0.82) 50%,
-                       rgba(243, 246, 250, 0.82) 100%);
+                       rgba(243, 246, 250, 0.78) 0%,
+                       rgba(243, 246, 250, 0.78) 50%,
+                       rgba(243, 246, 250, 0.78) 100%);
 }
 
 /* =========================================================
