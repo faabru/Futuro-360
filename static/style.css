@@ -22,9 +22,10 @@
     --info:           #0E4F6B;   /* Azul info oscuro */
     --info-bg:        #E0F2FE;   /* Azul info muy claro */
 
-    /* Superficies — Modo Claro (Diferenciación nítida de bloques) */
-    --bg-main:        #E6EFF5;   /* Fondo general: azul-gris claro distinguible */
-    --bg-subtle:      #EDF5FA;   /* Fondo secundario para secciones/barras */
+    /* Superficies — Modo Claro (tarjetas que flotan sobre fondo sutil) */
+    --bg-main:        #F3F6F9;   /* Fondo general: gris-azul muy sutil (NO blanco puro) */
+    --bg-subtle:      #E9F0F6;   /* Fondo secundario para secciones/barras */
+    --bg-input:       #F1F5F9;   /* Inputs: un tono gris diferenciado del contenedor */
     --card-bg:        #FFFFFF;   /* Tarjetas: blanco puro destacado */
     --card-bg-alt:    #DCECF6;   /* Encabezados y bloques secundarios */
 
@@ -71,6 +72,7 @@ html[data-theme="dark"] {
     /* Superficies */
     --bg-main:        #0A1520;   /* Fondo base: azul muy oscuro */
     --bg-subtle:      #0F1D2C;   /* Fondo secundario */
+    --bg-input:       #0A1520;   /* Inputs: un tono más oscuro que la card */
     --card-bg:        #152030;   /* Tarjeta: un nivel más claro que el fondo */
     --card-bg-alt:    #1C2D3E;   /* Tarjeta alternativa: más clara aún */
 
@@ -119,7 +121,9 @@ html[data-theme="dark"] {
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-main);
-    background-image: url('img/body-modo-sol.png');
+    background-image:
+        linear-gradient(180deg, rgba(243, 246, 249, 0.55) 0%, rgba(243, 246, 249, 0.85) 100%),
+        url('img/body-modo-sol.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -423,9 +427,15 @@ html[data-theme="dark"] .border-light{ border-color: var(--border)       !import
     border: 1px solid var(--border);
     color: var(--text-main);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
     transition: var(--transition);
     overflow: hidden;
+}
+
+/* Las tarjetas usadas con `border-0` siguen destacándose del fondo:
+   se les restaura un borde sutil para que "floten" sobre el body */
+.card.border-0 {
+    border: 1px solid var(--border) !important;
 }
 
 .card-header {
@@ -535,7 +545,7 @@ html[data-theme="dark"] .section-card h5 {
    ========================================================= */
 .form-control,
 .form-select {
-    background-color: var(--card-bg);
+    background-color: var(--bg-input);
     border: 1px solid var(--border-strong);
     color: var(--text-main);
     border-radius: var(--radius-sm);
@@ -574,7 +584,7 @@ html[data-theme="dark"] .section-card h5 {
 /* Modo oscuro — formularios */
 html[data-theme="dark"] .form-control,
 html[data-theme="dark"] .form-select {
-    background-color: #0A1520;
+    background-color: var(--bg-input);
     border-color: var(--border);
     color: var(--text-main);
 }
@@ -583,7 +593,7 @@ html[data-theme="dark"] .form-control::placeholder { color: var(--text-muted); o
 
 html[data-theme="dark"] .form-control:focus,
 html[data-theme="dark"] .form-select:focus {
-    background-color: #0A1520;
+    background-color: var(--bg-input);
     color: var(--text-main);
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(59, 175, 208, 0.18);

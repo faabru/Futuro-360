@@ -9,8 +9,8 @@
     --admin-primary-hover:  #1A6E8E;   /* Azul hover */
     --admin-primary-dark:   #0B1B28;   /* Azul marino — texto oscuro */
     --admin-accent:         #3BAFD0;   /* Acento cian */
-    --admin-bg:             #E2EDF5;   /* Fondo general con tinte azul-gris claro */
-    --admin-bg-subtle:      #EDF5FA;   /* Fondo secundario */
+    --admin-bg:             #F3F6F9;   /* Fondo general gris-azul muy sutil (NO blanco puro) */
+    --admin-bg-subtle:      #E9F0F6;   /* Fondo secundario */
     --admin-surface:        #FFFFFF;   /* Superficie card crisp */
     --admin-surface-alt:    #DCECF6;   /* Encabezados de tarjetas y secciones */
     --admin-border:         #A8CCE0;   /* Borde nítido para separar tarjetas */
@@ -27,7 +27,9 @@
 
 .admin-body {
     background-color: var(--admin-bg);
-    background-image: url('img/body-modo-sol.png');
+    background-image:
+        linear-gradient(180deg, rgba(243, 246, 249, 0.55) 0%, rgba(243, 246, 249, 0.85) 100%),
+        url('img/body-modo-sol.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
