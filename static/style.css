@@ -152,7 +152,9 @@ html[data-theme="dark"] {
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-main);
-    background-image: url('img/body-modo-blanco.png');
+    background-image:
+        linear-gradient(180deg, rgba(244, 247, 250, 0.35) 0%, rgba(244, 247, 250, 0.55) 100%),
+        url('img/body-modo-blanco.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
