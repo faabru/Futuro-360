@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from 'macros.html' import boton_volver %}
 
 {# Pantalla de una sola vista: se oculta el footer para que todo entre sin scroll. #}
 {% block footer %}{% endblock %}
@@ -8,20 +9,11 @@
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
 
     .test-launch {
-        --tl-bg: #080b12;
-        --tl-nav: #0b0f18;
-        --tl-border: #1c2534;
-        --tl-cyan: #00b4d8;
-        --tl-blue: #0077b6;
-        --tl-text-1: #eef2f8;
-        --tl-text-2: #8a96ab;
-        --tl-text-3: #4d5871;
-
         min-height: calc(100vh - 72px);
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--tl-bg);
+        background: var(--bg-main);
         padding: 40px 24px;
         overflow: hidden;
     }
@@ -34,27 +26,12 @@
         width: 100%;
         max-width: 980px;
         margin: 0 auto;
-        color: var(--tl-text-1);
+        color: var(--text-main);
         font-family: 'Inter', system-ui, sans-serif;
     }
 
     /* --- Columna izquierda: presentación --- */
     .tl-left { flex: 0 0 380px; max-width: 380px; }
-
-    .tl-back {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: var(--tl-text-2);
-        text-decoration: none;
-        margin-bottom: 34px;
-        transition: color 0.2s ease;
-    }
-    .tl-back:hover { color: var(--tl-cyan); }
-    .tl-back svg { width: 16px; height: 16px; }
 
     .tl-title {
         font-family: 'Space Grotesk', sans-serif;
@@ -62,14 +39,14 @@
         font-size: clamp(2rem, 4vw, 2.7rem);
         line-height: 1.08;
         letter-spacing: -0.02em;
-        color: var(--tl-text-1);
+        color: var(--text-main);
         margin: 0 0 14px;
     }
 
     .tl-sub {
         font-size: 1rem;
         line-height: 1.6;
-        color: var(--tl-text-2);
+        color: var(--text-muted);
         margin: 0 0 22px;
         max-width: 360px;
     }
@@ -77,12 +54,8 @@
     .tl-meta {
         font-size: 0.88rem;
         font-weight: 500;
-        color: var(--tl-text-3);
+        color: var(--text-muted);
         margin: 0 0 30px;
-    }
-    .tl-meta .tl-dot {
-        color: var(--tl-text-3);
-        margin: 0 10px;
     }
 
     .tl-cta {
@@ -92,20 +65,20 @@
         font-family: 'Space Grotesk', sans-serif;
         font-weight: 700;
         font-size: 1rem;
-        color: #051019;
-        background: var(--tl-cyan);
+        color: #ffffff;
+        background: var(--primary);
         border: none;
         border-radius: 10px;
         padding: 14px 26px;
         cursor: pointer;
-        transition: filter 0.2s ease;
+        transition: filter 0.2s ease, background-color 0.2s ease;
     }
-    .tl-cta:hover { filter: brightness(1.08); }
+    .tl-cta:hover { filter: brightness(1.1); }
     .tl-cta svg { width: 16px; height: 16px; }
 
     .tl-nota {
         font-size: 0.78rem;
-        color: var(--tl-text-3);
+        color: var(--text-muted);
         margin: 14px 0 0;
     }
 
@@ -113,7 +86,7 @@
     .tl-divider {
         align-self: stretch;
         width: 1px;
-        background: var(--tl-border);
+        background: var(--border);
     }
 
     /* --- Columna derecha: cómo funciona --- */
@@ -125,17 +98,17 @@
         font-size: 12px;
         letter-spacing: 1.5px;
         text-transform: uppercase;
-        color: var(--tl-text-2);
+        color: var(--text-muted);
         margin: 0 0 6px;
         padding-bottom: 16px;
-        border-bottom: 1px solid var(--tl-border);
+        border-bottom: 1px solid var(--border);
     }
 
     .tl-step {
         display: flex;
         gap: 14px;
         padding: 20px 0;
-        border-bottom: 1px solid var(--tl-border);
+        border-bottom: 1px solid var(--border);
     }
     .tl-step:last-child { border-bottom: none; }
 
@@ -145,20 +118,20 @@
         font-family: 'Space Grotesk', sans-serif;
         font-weight: 700;
         font-size: 0.95rem;
-        color: var(--tl-cyan);
+        color: var(--primary);
     }
 
     .tl-step h3 {
         font-family: 'Space Grotesk', sans-serif;
         font-weight: 600;
         font-size: 1rem;
-        color: var(--tl-text-1);
+        color: var(--text-main);
         margin: 0 0 5px;
     }
     .tl-step p {
         font-size: 0.9rem;
         line-height: 1.55;
-        color: var(--tl-text-2);
+        color: var(--text-muted);
         margin: 0;
         max-width: 460px;
     }
@@ -176,7 +149,6 @@
             gap: 32px;
         }
         .tl-left { flex: none; max-width: none; }
-        .tl-back { margin-bottom: 24px; }
         .tl-meta { margin-bottom: 24px; }
         .tl-divider { width: 100%; height: 1px; align-self: stretch; }
     }
@@ -185,10 +157,7 @@
 <div class="test-launch">
     <div class="tl-layout">
         <div class="tl-left">
-            <a class="tl-back" href="{{ url_for('principal.dashboard') }}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg>
-                Volver al inicio
-            </a>
+            {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio', clases='mb-4') }}
 
             <h1 class="tl-title">Descubrí tu vocación</h1>
             <p class="tl-sub">
@@ -197,7 +166,7 @@
                 de pensar.
             </p>
 
-            <p class="tl-meta">{{ total_preguntas }} preguntas<span class="tl-dot">·</span>5-8 minutos<span class="tl-dot">·</span>Sin respuestas incorrectas</p>
+            <p class="tl-meta">{{ total_preguntas }} preguntas · 5-8 minutos · Sin respuestas incorrectas</p>
 
             <form method="POST" action="{{ url_for('vocacional.test_iniciar') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
