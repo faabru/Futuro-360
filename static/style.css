@@ -35,10 +35,12 @@
     --surface-highlight: #E9F1F8;/* Superficie destacada */
     --border-soft:    #DDE5ED;   /* Borde interno de items */
 
-    /* Texto — Modo Claro (contraste WCAG AA/AAA) */
-    --text-main:      #172033;   /* Texto principal */
-    --text-secondary: #64748B;   /* Texto secundario */
-    --text-muted:     #5E7189;   /* Texto atenuado (AA) */
+    /* Texto — Modo Claro (contraste WCAG AA/AAA, escala de grises profesional)
+       SE SUBIÓ el contraste de text-secondary y text-muted para que ningún
+       texto descriptivo se pierda sobre fondos claros. */
+    --text-main:      #172033;   /* Títulos/texto principal — casi negro */
+    --text-secondary: #4D5F75;   /* Subtítulos/descripciones — gris medio-oscuro */
+    --text-muted:     #566A80;   /* Texto atenuado — gris medio, siempre legible */
     --text-on-dark:   #FFFFFF;   /* Texto sobre fondos oscuros */
 
     /* Bordes definidos para evitar sensación "todo blanco" */
