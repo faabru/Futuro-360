@@ -23,29 +23,41 @@
     --info:           #0E4F6B;   /* Azul info oscuro */
     --info-bg:        #E0F2FE;   /* Azul info muy claro */
 
-    /* Superficies — Modo Claro (blanco azulado suave, menos brillo)
-       Se redujo la pureza del blanco para evitar reflejos que fatigan
-       la vista, manteniendo la estética limpia y contraste AA. */
-    --bg-main:        #F4F7FA;   /* Body: gris azulado extremadamente suave */
-    --bg-subtle:      #EEF3F8;   /* Superficie destacada */
-    --bg-input:       #FBFDFF;   /* Inputs: casi blanco, leve azulado */
-    --card-bg:        #F7F9FC;   /* Cards/paneles/contenedores: azulado suave */
-    --card-bg-alt:    #EEF3F8;   /* Superficie secundaria (items internos) */
-    --surface-soft:   #EFF4F9;   /* Tarjeta interna (panel dentro de panel) */
-    --surface-highlight: #E9F1F8;/* Superficie destacada */
-    --border-soft:    #DDE5ED;   /* Borde interno de items */
+    /* Superficies — Modo Claro (jerarquía sutil de profundidad; sin blanco puro)
+       Body suave → cards → superficies internas → destacado/hover.
+       Cada nivel se diferencia por luminosidad, temperatura y borde. */
+    --bg-main:        #F3F6FA;   /* Body: gris azulado extremadamente suave */
+    --bg-subtle:      #EDF2F8;   /* Fondo secundario / bandas */
+    --bg-input:       #FFFFFF;   /* Inputs: blanco para destacarse (ver texto §16) */
+    --card-bg:        #FBFCFE;   /* Surface/card: blanco apenas azulado (menos brillo
+                                    puro, se diferencia claramente del body) */
+    --card-bg-alt:    #F2F6FA;   /* Surface interna (items, filas) */
+    --surface-soft:   #EDF2F8;   /* Superficie interna (panel dentro de panel) */
+    --surface-hover:  #EDF3FA;   /* Hover sutil de surfaces (interactivas) */
+    --surface-highlight: #E6EFF8;/* Superficie destacada */
+    --surface-active: #E1ECF6;   /* Estado activo / seleccionado */
+    --border-soft:    #E3EAF1;   /* Borde interno de items */
 
-    /* Texto — Modo Claro (contraste WCAG AA/AAA, escala de grises profesional)
-       SE SUBIÓ el contraste de text-secondary y text-muted para que ningún
-       texto descriptivo se pierda sobre fondos claros. */
-    --text-main:      #172033;   /* Títulos/texto principal — casi negro */
-    --text-secondary: #4D5F75;   /* Subtítulos/descripciones — gris medio-oscuro */
-    --text-muted:     #566A80;   /* Texto atenuado — gris medio, siempre legible */
+    /* Texto — Modo Claro (escala de grises profesional, contraste WCAG AA/AAA)
+       Títulos casi negros → descripciones gris medio-oscuro → auxiliares gris medio.
+       Nada de grises demasiado claros sobre fondos claros. */
+    --text-main:      #16203A;   /* Títulos/texto principal — casi negro */
+    --text-secondary: #42566C;   /* Subtítulos/descripciones — gris medio-oscuro */
+    --text-muted:     #5A6E82;   /* Texto auxiliar/metadata — gris medio legible */
+    --text-faint:     #6E8296;   /* Placeholder / disabled — siempre distinguible */
     --text-on-dark:   #FFFFFF;   /* Texto sobre fondos oscuros */
 
     /* Bordes definidos para evitar sensación "todo blanco" */
-    --border:         #DCE5EC;   /* Borde de paneles/cards */
-    --border-strong:  #C2CEDB;   /* Borde más definido (inputs, encabezados tabla) */
+    --border:         #D9E2EC;   /* Borde de paneles/cards */
+    --border-strong:  #C3D0DD;   /* Borde más definido (inputs, encabezados tabla) */
+
+    /* HERO (componente autónomo del dashboard) */
+    --hero-bg-1:      #12506B;   /* Color de inicio del gradiente del hero */
+    --hero-bg-2:      #197A9A;   /* Color final del gradiente del hero */
+    --hero-text:      #FFFFFF;   /* Texto principal del hero */
+    --hero-text-secondary: rgba(255, 255, 255, 0.92); /* Descripción del hero */
+    --hero-accent:    #A9E0F2;   /* Acentos dentro del hero (iconos, badges) */
+    --hero-border:    rgba(255, 255, 255, 0.16); /* Bordes internos del hero */
 
     /* Overrides de Bootstrap para identidad (text-primary, links, badges) */
     --bs-primary:              #197A9A;
@@ -82,6 +94,13 @@
     --navbar-menu-bg:var(--card-bg);   /* Menú móvil: panel blanco */
     --hover-bg:      var(--primary-light);  /* Hover: azul muy suave */
     --card-border:   var(--border);
+
+    /* Overlay del body: velo que atenúa la imagen de fondo sin perder
+       la textura. Se controla con esta única variable (claro/oscuro). */
+    --body-overlay:  linear-gradient(180deg,
+                       rgba(243, 246, 250, 0.92) 0%,
+                       rgba(243, 246, 250, 0.84) 50%,
+                       rgba(243, 246, 250, 0.90) 100%);
 }
 
 /* =========================================================
@@ -96,11 +115,25 @@ html[data-theme="dark"] {
     --bg-input:       #0A1520;   /* Inputs: un tono más oscuro que la card */
     --card-bg:        #152030;   /* Tarjeta: un nivel más claro que el fondo */
     --card-bg-alt:    #1C2D3E;   /* Tarjeta alternativa: más clara aún */
+    --surface-soft:   #1C2D3E;   /* Superficie interna (panel dentro de panel) */
+    --surface-hover:  #1B2C3C;   /* Hover sutil de surfaces en dark */
+    --surface-highlight: #1F3244;/* Superficie destacada en dark */
+    --surface-active: #22405A;   /* Estado activo / seleccionado en dark */
+    --border-soft:    #24384A;   /* Borde interno de items en dark */
 
     /* Texto — contraste alto sobre fondos oscuros (WCAG AA) */
     --text-main:      #E8F4FA;   /* Blanco azulado — muy legible */
     --text-secondary: #A8CEDF;   /* Azul claro — texto secundario */
     --text-muted:     #6A9AB0;   /* Azul grisáceo — texto atenuado */
+    --text-faint:     #55849C;   /* Placeholder / disabled en dark */
+
+    /* Hero — el hero del dashboard mantiene su gradiente azul en ambos temas */
+    --hero-bg-1:      #12506B;
+    --hero-bg-2:      #197A9A;
+    --hero-text:      #FFFFFF;
+    --hero-text-secondary: rgba(255, 255, 255, 0.92);
+    --hero-accent:    #A9E0F2;
+    --hero-border:    rgba(255, 255, 255, 0.16);
 
     /* Paleta ajustada para fondos oscuros */
     --primary:        #3BAFD0;   /* Azul más claro sobre fondos oscuros */
@@ -137,6 +170,12 @@ html[data-theme="dark"] {
     --border:         #1E3A4E;
     --border-strong:  #2A4F68;
 
+    /* Overlay del body en dark: atenúa la imagen nocturna */
+    --body-overlay:  linear-gradient(180deg,
+                       rgba(10, 21, 32, 0.88) 0%,
+                       rgba(10, 21, 32, 0.78) 50%,
+                       rgba(10, 21, 32, 0.86) 100%);
+
     /* Sombras más pronunciadas en dark */
     --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
     --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
@@ -152,11 +191,13 @@ html[data-theme="dark"] {
     --card-border:   var(--border);
 }
 
-/* --- FONDO DEL BODY CON IMAGEN --- */
+/* --- FONDO DEL BODY CON IMAGEN + OVERLAY --- */
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-main);
-    background-image: url('img/body-modo-blanco.png');
+    background-image:
+        var(--body-overlay),
+        url('img/body-modo-blanco.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -170,7 +211,9 @@ body {
 
 html[data-theme="dark"] body {
     background-color: var(--bg-main);
-    background-image: url('img/body-modo-noche.png');
+    background-image:
+        var(--body-overlay),
+        url('img/body-modo-noche.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -596,7 +639,7 @@ html[data-theme="dark"] .section-card h5 {
     outline: none;
 }
 
-.form-control::placeholder { color: var(--text-muted); opacity: 0.8; }
+.form-control::placeholder { color: var(--text-faint); opacity: 1; }
 
 .form-label {
     font-weight: 600;
@@ -1011,7 +1054,7 @@ html[data-theme="dark"] .page-hero-bg { background: transparent; }
 }
 
 .footer-links-new a {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.72);
     text-decoration: none;
     font-size: 0.95rem;
     transition: all 0.25s ease;
@@ -1064,7 +1107,7 @@ html[data-theme="dark"] .page-hero-bg { background: transparent; }
     backdrop-filter: blur(10px);
 }
 
-.footer-bottom-new .text-secondary { color: rgba(255, 255, 255, 0.4) !important; }
+.footer-bottom-new .text-secondary { color: rgba(255, 255, 255, 0.62) !important; }
 
 .contact-card { background: rgba(255, 255, 255, 0.03) !important; }
 
@@ -1103,86 +1146,38 @@ html[data-theme="dark"] #preloader { background: var(--bg-main); }
 }
 
 /* =========================================================
-   MODO CLARO — JERARQUÍA DE SUPERFICIES
-   Body suave #F4F7FA + paneles blancos + cards internas suaves.
-   El modo oscuro conserva sus propios valores (este bloque
-   solo aplica a html sin data-theme=dark).
+   ALCANCES DE BOOTSTRAP EN MODO CLARO
+   Solo se interfiere donde una utilidad de Bootstrap choca con
+   el sistema de superficies de Futuro 360. El resto del tema se
+   resuelve con tokens (el claro es :root; el oscuro redefine).
    ========================================================= */
 
-/* Cabeceras de card: superficie secundaria suave (#F7FAFC) */
-html:not([data-theme="dark"]) .card-header {
+/* Cabeceras de card: superficie interna suave */
+.card-header {
     background-color: var(--card-bg-alt);
     color: var(--text-main);
 }
 
-/* Cards marcadas con bg-white/bg-light: pasan a la superficie azulada
-   suave para no emitir blanco puro (reduce el brillo que fatiga la vista) */
+/* Cards/bandas con bg-white o bg-light de Bootstrap: pasan a la
+   superficie del sistema (evita "parches" de blanco puro aislados) */
 html:not([data-theme="dark"]) .card.bg-white,
 html:not([data-theme="dark"]) .card.bg-light {
     background-color: var(--card-bg) !important;
 }
 
-/* El input-group-text blanco junto a inputs: azulado suave coherente */
+/* Banda de secciones con bg-white en claro: usa el fondo secundario
+   del sistema en lugar de blanco puro (integra la sección al body) */
+html:not([data-theme="dark"]) section.bg-white {
+    background-color: var(--bg-subtle) !important;
+}
+
+/* Input group text blanco: coherente con los inputs del sistema */
 html:not([data-theme="dark"]) .input-group-text.bg-white {
     background-color: var(--bg-input) !important;
 }
 
-/* Dropdown: superficie blanca */
-html:not([data-theme="dark"]) .dropdown-menu .dropdown-item:hover,
-html:not([data-theme="dark"]) .dropdown-menu .dropdown-item:focus {
-    background: var(--hover-bg);
-}
-
-/* ---------------------------------------------------------
-   TEXTO EN MODO CLARO — LEGIBILIDAD SOBRE EL FONDO DEL BODY
-   Solo aplica a textos que NO viven dentro de superficies
-   (cards, paneles, glass-card, section-card, auth-card,
-   navbar, dropdown, modal, tool-card, history-card...).
-   El interior de las tarjetas blancas ya es legible por sí solo.
-   --------------------------------------------------------- */
-
-/* Párrafos y listas del body (fuera de superficies): contraste alto */
-html:not([data-theme="dark"]) p:not(.card p, .glass-card p, .section-card p,
-                                     .auth-card p, .navbar p, .dropdown-menu p,
-                                     .modal-content p, .tool-card p, .history-card p,
-                                     .news-mini p, .kpi-card p, .stat-card p,
-                                     .admin-card p, .chart-box p, .jumbotron p,
-                                     .hero-text p),
-html:not([data-theme="dark"]) li:not(.card li, .glass-card li, .section-card li,
-                                     .auth-card li, .navbar li, .dropdown-menu li,
-                                     .modal-content li, .tool-card li, .history-card li,
-                                     .news-mini li, .kpi-card li, .admin-card li) {
-    color: #2A3746;
-}
-
-/* Textos atenuados del body (fuera de superficies) — oscurecidos */
-html:not([data-theme="dark"]) .text-muted:not(.card .text-muted,
-                                              .glass-card .text-muted,
-                                              .section-card .text-muted,
-                                              .auth-card .text-muted,
-                                              .navbar .text-muted,
-                                              .dropdown-menu .text-muted,
-                                              .modal-content .text-muted,
-                                              .tool-card .text-muted,
-                                              .history-card .text-muted,
-                                              .news-mini .text-muted,
-                                              .kpi-card .text-muted,
-                                              .stat-card .text-muted,
-                                              .admin-card .text-muted,
-                                              .chart-box .text-muted),
-html:not([data-theme="dark"]) .text-secondary:not(.card .text-secondary,
-                                                  .glass-card .text-secondary,
-                                                  .section-card .text-secondary,
-                                                  .auth-card .text-secondary,
-                                                  .navbar .text-secondary,
-                                                  .dropdown-menu .text-secondary,
-                                                  .modal-content .text-secondary,
-                                                  .tool-card .text-secondary,
-                                                  .history-card .text-secondary,
-                                                  .news-mini .text-secondary,
-                                                  .kpi-card .text-secondary,
-                                                  .stat-card .text-secondary,
-                                                  .admin-card .text-secondary,
-                                                  .chart-box .text-secondary) {
-    color: #47596E;
+/* Dropdown: hover/focus con superficie interactiva del sistema */
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+    background: var(--surface-hover);
 }

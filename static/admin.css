@@ -10,15 +10,15 @@
     --admin-primary-dark:   #172033;   /* Texto principal */
     --admin-accent:         #3BAFD0;   /* Acento cian */
     --admin-action:         #2563EB;   /* Azul de acción para botones */
-    --admin-bg:             #F4F7FA;   /* Body: gris azulado extremadamente suave */
-    --admin-bg-subtle:      #EEF3F8;   /* Fondo secundario / destacado */
-    --admin-surface:        #F7F9FC;   /* Superficie card/panel: azulado suave */
-    --admin-surface-alt:    #EEF3F8;   /* Cabeceras de tarjetas e items internos */
-    --admin-border:         #DCE5EC;   /* Borde nítido para separar tarjetas */
-    --admin-border-strong:  #C2CEDB;   /* Borde destacado (inputs, tablas) */
-    --admin-text:           #172033;   /* Texto principal — máximo contraste */
-    --admin-text-secondary: #4D5F75;   /* Texto secundario — gris medio-oscuro */
-    --admin-text-muted:     #566A80;   /* Texto atenuado — siempre legible */
+    --admin-bg:             #F3F6FA;   /* Body: gris azulado extremadamente suave */
+    --admin-bg-subtle:      #EDF2F8;   /* Fondo secundario / destacado */
+    --admin-surface:        #FBFCFE;   /* Superficie card/panel: blanco apenas azulado */
+    --admin-surface-alt:    #F2F6FA;   /* Cabeceras de tarjetas e items internos */
+    --admin-border:         #D9E2EC;   /* Borde nítido para separar tarjetas */
+    --admin-border-strong:  #C3D0DD;   /* Borde destacado (inputs, tablas) */
+    --admin-text:           #16203A;   /* Texto principal — máximo contraste */
+    --admin-text-secondary: #42566C;   /* Texto secundario — gris medio-oscuro */
+    --admin-text-muted:     #5A6E82;   /* Texto atenuado — siempre legible */
     --admin-sidebar-w:      264px;
     --admin-radius:         14px;
     --admin-shadow:         0 1px 3px 0 rgba(23, 32, 51, 0.05), 0 4px 16px 0 rgba(15, 23, 42, 0.06);
@@ -28,7 +28,9 @@
 
 .admin-body {
     background-color: var(--admin-bg);
-    background-image: url('img/body-modo-blanco.png');
+    background-image:
+        var(--body-overlay, linear-gradient(180deg, rgba(243,246,250,0.9), rgba(243,246,250,0.9))),
+        url('img/body-modo-blanco.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -127,7 +129,7 @@
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: #5F8299;
+    color: #79A6BC;
     padding: 10px 12px 8px;
 }
 
@@ -277,7 +279,7 @@
 
 .admin-burger {
     display: none;
-    background: #fff;
+    background: var(--admin-surface);
     border: 1px solid var(--admin-border);
     border-radius: 10px;
     width: 40px;
@@ -974,7 +976,9 @@ html[data-theme="dark"] {
 
 html[data-theme="dark"] .admin-body {
     background-color: var(--admin-bg);
-    background-image: url('img/body-modo-noche.png');
+    background-image:
+        var(--body-overlay, linear-gradient(180deg, rgba(10,21,32,0.9), rgba(10,21,32,0.9))),
+        url('img/body-modo-noche.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
