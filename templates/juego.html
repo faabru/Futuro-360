@@ -304,60 +304,17 @@
         align-items: center;
         gap: 8px;
         margin-top: 18px;
-        padding: 10px 26px;
+        padding: 12px 30px;
         border-radius: 999px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        letter-spacing: 0.06em;
-        transition: all 0.25s ease;
-    }
-    .game-select-card:hover .play-chip { gap: 12px; }
-    .game-select-card .play-chip.holo {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 18px;
-        width: 9.5em;
-        height: 3em;
-        padding: 0;
-        border: 3px solid #149CEA;
-        border-radius: 0.3em;
-        background-color: #202429;
+        background: var(--primary);
         color: #fff;
         font-weight: 700;
-        font-size: 0.85rem;
-        letter-spacing: 0.08em;
-        line-height: 1;
-        transition: box-shadow 1s ease;
-        cursor: pointer;
+        font-size: 0.9rem;
+        letter-spacing: 0.06em;
+        box-shadow: 0 10px 22px -10px rgba(47, 142, 171, 0.55);
+        transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
     }
-    .game-select-card .play-chip.holo::after {
-        content: "";
-        position: absolute;
-        top: -8px;
-        left: 3%;
-        width: 95%;
-        height: 40%;
-        background-color: #14171b;
-        transition: transform 0.5s ease;
-        transform-origin: center;
-    }
-    .game-select-card .play-chip.holo::before {
-        content: "";
-        position: absolute;
-        top: 80%;
-        left: 3%;
-        width: 95%;
-        height: 40%;
-        background-color: #14171b;
-        transition: transform 0.5s ease;
-        transform-origin: center;
-    }
-    .game-select-card:hover .play-chip.holo::before,
-    .game-select-card:hover .play-chip.holo::after { transform: scale(0); }
-    .game-select-card:hover .play-chip.holo { box-shadow: inset 0px 0px 25px #1479EA; }
+    .game-select-card:hover .play-chip { transform: translateY(-3px); box-shadow: 0 14px 28px -12px rgba(47, 142, 171, 0.6); }
     .game-select-card .game-tag {
         position: absolute;
         top: 18px;
@@ -1010,6 +967,87 @@
     .btn-play:hover { transform: translateY(-3px); box-shadow: 0 18px 36px -12px rgba(47, 142, 171, 0.6); }
     .btn-play:active { transform: scale(0.97); }
 
+    /* --- Botón Valorant (start de los juegos) --- */
+    .ava-btn {
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        border: none;
+        background: none;
+        color: #0f1923;
+        cursor: pointer;
+        position: relative;
+        padding: 8px;
+        text-transform: uppercase;
+        font-weight: bold;
+        font-size: 14px;
+        transition: all .15s ease;
+    }
+    .ava-btn::before,
+    .ava-btn::after {
+        content: '';
+        display: block;
+        position: absolute;
+        right: 0;
+        left: 0;
+        height: calc(50% - 5px);
+        border: 1px solid #7D8082;
+        transition: all .15s ease;
+    }
+    .ava-btn::before { top: 0; border-bottom-width: 0; }
+    .ava-btn::after { bottom: 0; border-top-width: 0; }
+    .ava-btn:active,
+    .ava-btn:focus { outline: none; }
+    .ava-btn:active::before,
+    .ava-btn:active::after { right: 3px; left: 3px; }
+    .ava-btn:active::before { top: 3px; }
+    .ava-btn:active::after { bottom: 3px; }
+    .ava-btn .button_lg {
+        position: relative;
+        display: block;
+        padding: 12px 26px;
+        color: #fff;
+        background-color: #0f1923;
+        overflow: hidden;
+        box-shadow: inset 0px 0px 0px 1px transparent;
+    }
+    .ava-btn .button_lg::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 2px;
+        height: 2px;
+        background-color: #0f1923;
+    }
+    .ava-btn .button_lg::after {
+        content: '';
+        display: block;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 4px;
+        height: 4px;
+        background-color: #0f1923;
+        transition: all .2s ease;
+    }
+    .ava-btn .button_sl {
+        display: block;
+        position: absolute;
+        top: 0;
+        bottom: -1px;
+        left: -8px;
+        width: 0;
+        background-color: #ff4655;
+        transform: skew(-15deg);
+        transition: all .2s ease;
+    }
+    .ava-btn .button_text { position: relative; }
+    .ava-btn:hover { color: #0f1923; }
+    .ava-btn:hover .button_sl { width: calc(100% + 15px); }
+    .ava-btn:hover .button_lg::after { background-color: #fff; }
+
     .empty-note {
         text-align: center;
         padding: 30px 20px;
@@ -1073,7 +1111,7 @@
                 </div>
                 <h4 class="fw-bold mb-2">Descubre tu orientación</h4>
                 <p class="text-muted small mb-0" style="max-width:300px;">Elegí entre escenarios cotidianos y descubrí hacia dónde tira tu intuición.</p>
-                <span class="play-chip holo">
+                <span class="play-chip">
                     JUGAR <i class="bi bi-arrow-right"></i>
                 </span>
             </div>
@@ -1090,7 +1128,7 @@
                 </div>
                 <h4 class="fw-bold mb-2">Descubrí Tu Carrera</h4>
                 <p class="text-muted small mb-0" style="max-width:300px;">Deslizá por profesiones y marcá las que te encienden. Tu match te espera.</p>
-                <span class="play-chip holo">
+                <span class="play-chip">
                     JUGAR <i class="bi bi-arrow-right"></i>
                 </span>
             </div>
@@ -1119,7 +1157,12 @@
                     sin pensarlo demasiado. Tu intuición es la que manda.
                 </p>
                 <div class="d-flex justify-content-center gap-3">
-                    <button class="btn-play" onclick="startGame()"><i class="bi bi-play-fill me-2"></i>Empezar</button>
+                    <button class="ava-btn" onclick="startGame()">
+                                <span class="button_lg">
+                                    <span class="button_sl"></span>
+                                    <span class="button_text">Empezar</span>
+                                </span>
+                            </button>
                 </div>
             </div>
 
@@ -1201,7 +1244,12 @@
                     Te presentamos profesiones una por una. Decí si te interesa, si querés saber más,
                     o pasá a la siguiente. Cuantos más matches, mejor tu perfil.
                 </p>
-                <button class="btn-play" onclick="startDiscoveryGame()"><i class="bi bi-play-fill me-2"></i>Comenzar</button>
+                <button class="ava-btn" onclick="startDiscoveryGame()">
+                                <span class="button_lg">
+                                    <span class="button_sl"></span>
+                                    <span class="button_text">Comenzar</span>
+                                </span>
+                            </button>
             </div>
 
             <!-- Carrera -->
