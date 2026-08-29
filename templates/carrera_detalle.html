@@ -94,11 +94,21 @@
 } %}
 {% set fallback_final_detalle = fallback_carreras.get(carrera.nombre, fallback_area.get(carrera.area_profesional, 'https://picsum.photos/seed/' ~ (carrera.id ~ carrera.nombre|replace(' ', '_')) ~ '/1200/800')) %}
 
+<style>
+    /* Detalle de carrera: marcado más oscuro de los párrafos sobre la card
+       clara para que se lean bien (vence al .text-muted de Bootstrap). */
+    .carrera-detalle h1.display-5 + .lead,
+    .carrera-detalle .text-muted.small {
+        color: var(--text-main) !important;
+    }
+    .carrera-detalle .text-muted.small strong { font-weight: 600; }
+</style>
+
 <!-- SECCIÓN PRINCIPAL: DETALLE DE CARRERA ESPECÍFICA -->
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="section-card p-0 overflow-hidden shadow-lg">
+            <div class="section-card p-0 overflow-hidden shadow-lg carrera-detalle">
                 <div class="row g-0" style="align-items: flex-start;">
                     <!-- COLUMNA DE IMAGEN -->
                     <div class="col-md-6">
