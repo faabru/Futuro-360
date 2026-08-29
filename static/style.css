@@ -153,7 +153,7 @@ body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-main);
     background-image:
-        linear-gradient(180deg, rgba(244, 247, 250, 0.35) 0%, rgba(244, 247, 250, 0.55) 100%),
+        linear-gradient(180deg, rgba(244, 247, 250, 0.68) 0%, rgba(244, 247, 250, 0.90) 100%),
         url('img/body-modo-blanco.png');
     background-size: cover;
     background-position: center center;
@@ -1117,4 +1117,58 @@ html:not([data-theme="dark"]) .card-header {
 html:not([data-theme="dark"]) .dropdown-menu .dropdown-item:hover,
 html:not([data-theme="dark"]) .dropdown-menu .dropdown-item:focus {
     background: var(--hover-bg);
+}
+
+/* ---------------------------------------------------------
+   TEXTO EN MODO CLARO — LEGIBILIDAD SOBRE EL FONDO DEL BODY
+   Solo aplica a textos que NO viven dentro de superficies
+   (cards, paneles, glass-card, section-card, auth-card,
+   navbar, dropdown, modal, tool-card, history-card...).
+   El interior de las tarjetas blancas ya es legible por sí solo.
+   --------------------------------------------------------- */
+
+/* Párrafos y listas del body (fuera de superficies): contraste alto */
+html:not([data-theme="dark"]) p:not(.card p, .glass-card p, .section-card p,
+                                     .auth-card p, .navbar p, .dropdown-menu p,
+                                     .modal-content p, .tool-card p, .history-card p,
+                                     .news-mini p, .kpi-card p, .stat-card p,
+                                     .admin-card p, .chart-box p, .jumbotron p,
+                                     .hero-text p),
+html:not([data-theme="dark"]) li:not(.card li, .glass-card li, .section-card li,
+                                     .auth-card li, .navbar li, .dropdown-menu li,
+                                     .modal-content li, .tool-card li, .history-card li,
+                                     .news-mini li, .kpi-card li, .admin-card li) {
+    color: #2A3746;
+}
+
+/* Textos atenuados del body (fuera de superficies) — oscurecidos */
+html:not([data-theme="dark"]) .text-muted:not(.card .text-muted,
+                                              .glass-card .text-muted,
+                                              .section-card .text-muted,
+                                              .auth-card .text-muted,
+                                              .navbar .text-muted,
+                                              .dropdown-menu .text-muted,
+                                              .modal-content .text-muted,
+                                              .tool-card .text-muted,
+                                              .history-card .text-muted,
+                                              .news-mini .text-muted,
+                                              .kpi-card .text-muted,
+                                              .stat-card .text-muted,
+                                              .admin-card .text-muted,
+                                              .chart-box .text-muted),
+html:not([data-theme="dark"]) .text-secondary:not(.card .text-secondary,
+                                                  .glass-card .text-secondary,
+                                                  .section-card .text-secondary,
+                                                  .auth-card .text-secondary,
+                                                  .navbar .text-secondary,
+                                                  .dropdown-menu .text-secondary,
+                                                  .modal-content .text-secondary,
+                                                  .tool-card .text-secondary,
+                                                  .history-card .text-secondary,
+                                                  .news-mini .text-secondary,
+                                                  .kpi-card .text-secondary,
+                                                  .stat-card .text-secondary,
+                                                  .admin-card .text-secondary,
+                                                  .chart-box .text-secondary) {
+    color: #47596E;
 }
