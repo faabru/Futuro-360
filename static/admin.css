@@ -27,7 +27,7 @@
 
 .admin-body {
     background-color: var(--admin-bg);
-    background-image: url('img/body-modo-sol.png');
+    background-image: url('img/body-modo-noche.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
