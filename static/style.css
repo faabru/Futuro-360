@@ -953,11 +953,33 @@ main .container .section-heading > h2,
 #herramientas .text-muted,
 main h1.text-primary,
 main h2.text-primary,
-main .form-label,
-#resultCounter {
+#filterForm .form-label,
+#resultCounter,
+main .display-3 + .lead,
+main .display-4 + .lead,
+main .display-5 + .lead {
     text-shadow: var(--text-halo);
 }
 
+/* Textos que van directamente sobre la imagen de fondo del body (sin
+   contenedor/tarjeta): además del halo, se les refuerza la oscuridad para
+   que se "marquen" más y compitan menos con la geometría. Solo se refuerzan
+   los tonos secundarios/muted de esos textos sueltos; lo de dentro de cards
+   no se toca. */
+.hero-section .lead,
+main > .container > .lead,
+main .container .section-heading .text-muted,
+main .container .text-center.mb-5 > p.text-muted,
+main .display-3 + .lead,
+main .display-4 + .lead,
+main .display-5 + .lead,
+#herramientas .text-muted,
+#filterForm .form-label,
+#resultCounter {
+    color: var(--text-secondary);
+}
+
+/* El lead del hero (texto largo) se marca más aún */
 .display-3 {
     letter-spacing: -0.05em;
     line-height: 1.1;
