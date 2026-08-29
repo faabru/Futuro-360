@@ -312,6 +312,52 @@
         transition: all 0.25s ease;
     }
     .game-select-card:hover .play-chip { gap: 12px; }
+    .game-select-card .play-chip.holo {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 18px;
+        width: 9.5em;
+        height: 3em;
+        padding: 0;
+        border: 3px ridge #149CEA;
+        border-radius: 0.3em;
+        background-color: #202429;
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.85rem;
+        letter-spacing: 0.08em;
+        line-height: 1;
+        transition: box-shadow 1s ease;
+        cursor: pointer;
+    }
+    .game-select-card .play-chip.holo::after {
+        content: "";
+        position: absolute;
+        top: -8px;
+        left: 3%;
+        width: 95%;
+        height: 40%;
+        background-color: #14171b;
+        transition: transform 0.5s ease;
+        transform-origin: center;
+    }
+    .game-select-card .play-chip.holo::before {
+        content: "";
+        position: absolute;
+        top: 80%;
+        left: 3%;
+        width: 95%;
+        height: 40%;
+        background-color: #14171b;
+        transition: transform 0.5s ease;
+        transform-origin: center;
+    }
+    .game-select-card:hover .play-chip.holo::before,
+    .game-select-card:hover .play-chip.holo::after { transform: scale(0); }
+    .game-select-card:hover .play-chip.holo { box-shadow: inset 0px 0px 25px #1479EA; }
     .game-select-card .game-tag {
         position: absolute;
         top: 18px;
@@ -964,53 +1010,6 @@
     .btn-play:hover { transform: translateY(-3px); box-shadow: 0 18px 36px -12px rgba(47, 142, 171, 0.6); }
     .btn-play:active { transform: scale(0.97); }
 
-    /* --- Botón Start (borde ridge + tapas que se abren) --- */
-    .game-start {
-        position: relative;
-        width: 10em;
-        height: 3.5em;
-        border: 3px ridge #149CEA;
-        outline: none;
-        background-color: #202429;
-        color: #fff;
-        border-radius: 0.3em;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        padding: 0;
-        line-height: 1;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        transition: box-shadow 1s ease;
-    }
-    .game-start::after {
-        content: "";
-        position: absolute;
-        top: -10px;
-        left: 3%;
-        width: 95%;
-        height: 40%;
-        background-color: #14171b;
-        transition: transform 0.5s ease;
-        transform-origin: center;
-    }
-    .game-start::before {
-        content: "";
-        position: absolute;
-        top: 80%;
-        left: 3%;
-        width: 95%;
-        height: 40%;
-        background-color: #14171b;
-        transition: transform 0.5s ease;
-        transform-origin: center;
-    }
-    .game-start:hover::before,
-    .game-start:hover::after { transform: scale(0); }
-    .game-start:hover { box-shadow: inset 0px 0px 25px #1479EA; }
-
     .empty-note {
         text-align: center;
         padding: 30px 20px;
@@ -1074,7 +1073,7 @@
                 </div>
                 <h4 class="fw-bold mb-2">Descubre tu orientación</h4>
                 <p class="text-muted small mb-0" style="max-width:300px;">Elegí entre escenarios cotidianos y descubrí hacia dónde tira tu intuición.</p>
-                <span class="play-chip" style="background:rgba(124,58,237,0.12);color:#7c3aed;">
+                <span class="play-chip holo">
                     JUGAR <i class="bi bi-arrow-right"></i>
                 </span>
             </div>
@@ -1091,7 +1090,7 @@
                 </div>
                 <h4 class="fw-bold mb-2">Descubrí Tu Carrera</h4>
                 <p class="text-muted small mb-0" style="max-width:300px;">Deslizá por profesiones y marcá las que te encienden. Tu match te espera.</p>
-                <span class="play-chip" style="background:rgba(47,142,171,0.12);color:#2F8EAB;">
+                <span class="play-chip holo">
                     JUGAR <i class="bi bi-arrow-right"></i>
                 </span>
             </div>
@@ -1120,7 +1119,7 @@
                     sin pensarlo demasiado. Tu intuición es la que manda.
                 </p>
                 <div class="d-flex justify-content-center gap-3">
-                    <button class="game-start" onclick="startGame()"><i class="bi bi-play-fill"></i>Empezar</button>
+                    <button class="btn-play" onclick="startGame()"><i class="bi bi-play-fill me-2"></i>Empezar</button>
                 </div>
             </div>
 
@@ -1202,7 +1201,7 @@
                     Te presentamos profesiones una por una. Decí si te interesa, si querés saber más,
                     o pasá a la siguiente. Cuantos más matches, mejor tu perfil.
                 </p>
-                <button class="game-start" onclick="startDiscoveryGame()"><i class="bi bi-play-fill"></i>Comenzar</button>
+                <button class="btn-play" onclick="startDiscoveryGame()"><i class="bi bi-play-fill me-2"></i>Comenzar</button>
             </div>
 
             <!-- Carrera -->
