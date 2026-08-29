@@ -7,188 +7,151 @@
 {% block content %}
 <style>
     .test-launch {
-        position: relative;
         min-height: calc(100vh - 72px);
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 30px 0 44px;
-        overflow: hidden;
-    }
-    .test-launch::before,
-    .test-launch::after {
-        content: '';
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(60px);
-        pointer-events: none;
-        z-index: 0;
-    }
-    .test-launch::before {
-        width: 460px;
-        height: 460px;
-        top: -160px;
-        right: -120px;
-        background: radial-gradient(circle, rgba(47, 142, 171, 0.18), transparent 70%);
-    }
-    .test-launch::after {
-        width: 420px;
-        height: 420px;
-        bottom: -160px;
-        left: -120px;
-        background: radial-gradient(circle, rgba(124, 58, 237, 0.14), transparent 70%);
     }
     .test-launch-inner {
-        position: relative;
-        z-index: 1;
         width: 100%;
-        max-width: 1020px;
-        margin: 0 auto;
     }
 
     .tl-back {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         font-weight: 600;
-        font-size: 0.86rem;
+        font-size: 0.85rem;
         color: var(--text-muted);
         text-decoration: none;
-        margin-bottom: 18px;
+        margin: 0 0 24px;
         transition: color 0.2s ease;
     }
     .tl-back:hover { color: var(--primary); }
+    .tl-back i { font-size: 0.95rem; }
 
-    .tl-hero { text-align: center; margin-bottom: 26px; }
-    .tl-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(47, 142, 171, 0.12);
-        border: 1px solid rgba(47, 142, 171, 0.3);
-        color: var(--primary);
-        padding: 6px 18px;
-        border-radius: 999px;
-        font-size: 0.74rem;
-        font-weight: 800;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        margin-bottom: 16px;
-    }
-    .tl-title {
-        font-weight: 800;
-        letter-spacing: -0.03em;
-        color: var(--text-main);
-        font-size: clamp(1.9rem, 4.5vw, 2.9rem);
-        margin: 0 0 10px;
-        line-height: 1.1;
-    }
-    .tl-title span { background: linear-gradient(90deg, var(--primary), #7c3aed); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .tl-sub {
-        font-size: 1rem;
-        color: var(--text-muted);
-        max-width: 640px;
-        margin: 0 auto;
-        line-height: 1.6;
-    }
-
-    .tl-stats {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin: 20px 0 30px;
-    }
-    .tl-stat {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        color: var(--text-main);
-        padding: 9px 18px;
-        border-radius: 999px;
-        font-size: 0.82rem;
-        font-weight: 700;
-        box-shadow: 0 6px 18px -10px rgba(16, 24, 40, 0.25);
-    }
-    .tl-stat i { color: var(--primary); }
-
-    .tl-cols {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 16px;
-        margin-bottom: 30px;
-    }
     .tl-card {
         background: var(--card-bg);
         border: 1px solid var(--card-border);
-        border-radius: 18px;
-        padding: 22px 20px;
-        text-align: center;
-        box-shadow: 0 12px 28px -18px rgba(16, 24, 40, 0.3);
-        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        border-radius: 20px;
+        padding: 36px 38px 30px;
+        box-shadow: 0 12px 32px -20px rgba(16, 24, 40, 0.35);
     }
-    .tl-card:hover {
-        transform: translateY(-5px);
-        border-color: var(--primary);
-        box-shadow: 0 22px 38px -18px rgba(47, 142, 171, 0.4);
+
+    .tl-badge {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--primary);
+        background: rgba(47, 142, 171, 0.1);
+        border: 1px solid rgba(47, 142, 171, 0.25);
+        padding: 4px 12px;
+        border-radius: 999px;
+        margin-bottom: 14px;
     }
-    .tl-card .tc-num {
-        width: 42px;
-        height: 42px;
-        margin: 0 auto 14px;
-        border-radius: 13px;
-        color: #fff;
+
+    .tl-title {
         font-weight: 800;
-        font-size: 1.05rem;
+        letter-spacing: -0.02em;
+        color: var(--text-main);
+        font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+        margin: 0 0 10px;
+        line-height: 1.15;
+    }
+    .tl-title span { color: var(--primary); }
+
+    .tl-sub {
+        font-size: 0.94rem;
+        color: var(--text-muted);
+        line-height: 1.65;
+        margin: 0 0 20px;
+    }
+
+    .tl-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        padding: 0 0 20px;
+        margin: 0 0 22px;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .tl-meta span { display: inline-flex; align-items: center; gap: 6px; }
+    .tl-meta i { color: var(--primary); }
+
+    .tl-steps-title {
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin: 0 0 6px;
+    }
+
+    .tl-step {
+        display: flex;
+        gap: 14px;
+        padding: 12px 0;
+    }
+    .tl-step + .tl-step { border-top: 1px solid var(--card-border); }
+    .tl-step-num {
+        flex: 0 0 30px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 800;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    .tl-card h3 {
-        font-weight: 800;
-        font-size: 0.98rem;
+    .tl-step h3 {
+        font-size: 0.92rem;
+        font-weight: 700;
         color: var(--text-main);
-        margin: 0 0 8px;
+        margin: 0 0 3px;
     }
-    .tl-card p {
-        font-size: 0.85rem;
+    .tl-step p {
+        font-size: 0.84rem;
         color: var(--text-muted);
         line-height: 1.55;
         margin: 0;
     }
 
-    .tl-cta-wrap { text-align: center; }
+    .tl-cta-wrap { text-align: center; margin-top: 24px; }
     .tl-cta {
         display: inline-flex;
         align-items: center;
-        gap: 12px;
         border: none;
         cursor: pointer;
-        font-weight: 800;
-        font-size: 1.02rem;
+        font-weight: 700;
+        font-size: 1rem;
         color: #fff;
-        padding: 16px 44px;
+        background: var(--primary);
+        padding: 14px 42px;
         border-radius: 999px;
-        background: linear-gradient(135deg, var(--primary), #7c3aed);
-        box-shadow: 0 16px 32px -12px rgba(47, 142, 171, 0.65);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition: background-color 0.2s ease, transform 0.15s ease;
     }
     .tl-cta:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 22px 40px -12px rgba(47, 142, 171, 0.75);
+        background: #1d728c;
+        transform: translateY(-2px);
     }
     .tl-nota {
         text-align: center;
-        margin-top: 16px;
-        font-size: 0.82rem;
+        margin: 14px 0 0;
+        font-size: 0.8rem;
         color: var(--text-muted);
     }
-    .tl-nota i { color: var(--primary); }
 
-    @media (max-width: 768px) {
-        .tl-cols { grid-template-columns: 1fr; }
+    @media (max-width: 576px) {
+        .tl-card { padding: 26px 22px 24px; }
         .test-launch { min-height: auto; }
     }
 </style>
@@ -199,45 +162,51 @@
             <i class="bi bi-arrow-left"></i> Volver al inicio
         </a>
 
-        <div class="tl-hero">
-            <span class="tl-badge"><i class="bi bi-clipboard2-pulse me-1"></i> Test vocacional</span>
+        <div class="tl-card">
+            <span class="tl-badge">Test vocacional</span>
             <h1 class="tl-title">Descubrí tu <span>vocación</span></h1>
             <p class="tl-sub">
                 Respondé situaciones cotidianas y encontrá el área profesional que mejor
-                se alinea con vos. Sin respuestas correctas: solo tu forma de pensar.
+                se alinea con vos. No hay respuestas correctas: solo tu forma de pensar.
             </p>
-            <div class="tl-stats">
-                <span class="tl-stat"><i class="bi bi-question-circle"></i> {{ total_preguntas }} preguntas</span>
-                <span class="tl-stat"><i class="bi bi-clock"></i> ≈ 5-8 minutos</span>
-                <span class="tl-stat"><i class="bi bi-emoji-smile"></i> Sin respuestas incorrectas</span>
-            </div>
-        </div>
 
-        <div class="tl-cols">
-            <div class="tl-card">
-                <div class="tc-num" style="background:linear-gradient(135deg,#2F8EAB,#42A6C2);">1</div>
-                <h3>Elegí una opción</h3>
-                <p>Leé la situación cotidiana y elegí la alternativa que más vaya con vos.</p>
+            <div class="tl-meta">
+                <span><i class="bi bi-question-circle"></i> {{ total_preguntas }} preguntas</span>
+                <span><i class="bi bi-clock"></i> 5-8 minutos</span>
+                <span><i class="bi bi-check2-circle"></i> Sin respuestas incorrectas</span>
             </div>
-            <div class="tl-card">
-                <div class="tc-num" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">2</div>
-                <h3>Confirmá y avanzá</h3>
-                <p>Cada elección suma puntos a un área profesional. Tocá Confirmar para seguir.</p>
-            </div>
-            <div class="tl-card">
-                <div class="tc-num" style="background:linear-gradient(135deg,#10b981,#047857);">3</div>
-                <h3>Descubrí tu área</h3>
-                <p>Al finalizar verás tu perfil vocacional y las carreras recomendadas.</p>
-            </div>
-        </div>
 
-        <form method="POST" action="{{ url_for('vocacional.test_iniciar') }}" class="tl-cta-wrap">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="tl-cta">
-                <i class="bi bi-play-fill fs-5"></i> Comenzar el test
-            </button>
-        </form>
-        <p class="tl-nota"><i class="bi bi-shield-check me-1"></i> Tus respuestas son privadas y solo se usan para calcular tu perfil.</p>
+            <p class="tl-steps-title">¿Cómo funciona?</p>
+            <div class="tl-steps">
+                <div class="tl-step">
+                    <div class="tl-step-num">1</div>
+                    <div class="tl-step-body">
+                        <h3>Elegí una opción</h3>
+                        <p>Leé cada situación cotidiana y elegí la alternativa que más se acerque a cómo pensás.</p>
+                    </div>
+                </div>
+                <div class="tl-step">
+                    <div class="tl-step-num">2</div>
+                    <div class="tl-step-body">
+                        <h3>Confirmá y avanzá</h3>
+                        <p>Cada elección suma puntos a un área profesional. Confirmá para pasar a la siguiente.</p>
+                    </div>
+                </div>
+                <div class="tl-step">
+                    <div class="tl-step-num">3</div>
+                    <div class="tl-step-body">
+                        <h3>Descubrí tu área</h3>
+                        <p>Al finalizar vas a ver tu perfil vocacional y las carreras recomendadas para vos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('vocacional.test_iniciar') }}" class="tl-cta-wrap">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="tl-cta">Comenzar el test</button>
+            </form>
+            <p class="tl-nota">Tus respuestas se usan solo para calcular tu perfil.</p>
+        </div>
     </div>
 </div>
 {% endblock %}
