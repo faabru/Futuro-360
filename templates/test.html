@@ -8,7 +8,7 @@
             <div class="mb-3">
                 {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
             </div>
-            <div class="card border-0 shadow-lg animate__animated animate__fadeIn">
+            <div class="card border-0 shadow-lg animate__animated animate__fadeIn" id="test-card">
                 <div class="card-body p-4 p-md-5">
                     <!-- Progreso -->
                     <div class="mb-5">
@@ -85,6 +85,8 @@
         border-color: #0d6efd; 
         background: radial-gradient(#0d6efd 50%, var(--card-bg) 52%); 
     }
+    #test-card { overflow: visible; }  /* Evita que overflow:hidden de .card rompa el sticky de la pregunta */
+
     #question-text {
         color: var(--text-main);
         line-height: 1.4;
