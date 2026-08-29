@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% from 'macros.html' import boton_volver %}
 {% block content %}
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -9,45 +8,34 @@
             <div class="mb-3">
                 {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
             </div>
+            <div class="card border-0 shadow-lg animate__animated animate__fadeIn">
+                <div class="card-body p-4 p-md-5">
+                    <!-- Progreso -->
+                    <div class="mb-5">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted small fw-bold" id="progress-text">Pregunta 1 de ...</span>
+                            <span class="text-primary small fw-bold" id="progress-percent">0%</span>
+                        </div>
+                        <div class="progress" style="height: 8px; border-radius: 10px;">
+                            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
 
-            <!-- PANEL DE LA PREGUNTA -->
-            <section class="panel-pregunta" aria-live="polite">
-                <div class="panel-topbar"></div>
-                <div class="panel-header">
-                    <span class="panel-kicker">
-                        <svg class="kicker-icon" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
-                        </svg>
-                        Descubre tu orientación
-                    </span>
-                    <span class="panel-counter" id="panel-counter">01 / --</span>
+                    <!-- Contenedor de Pregunta -->
+                    <h2 class="fw-bold mb-4" id="question-text">Cargando pregunta...</h2>
+                    <div id="test-content">
+                        <div id="options-container" class="d-grid gap-3">
+                            <!-- Las opciones se cargarán aquí -->
+                        </div>
+                    </div>
+
+                    <!-- Botón de Confirmar -->
+                    <div class="mt-5 text-end">
+                        <button id="next-btn" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm fw-bold" disabled>
+                            Confirmar <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </div>
                 </div>
-                <p class="panel-eyebrow"><span class="eyebrow-dash"></span> ESCENARIO&nbsp;<span id="escenario-num">1</span></p>
-                <h2 class="panel-question" id="question-text">Cargando pregunta...</h2>
-            </section>
-
-            <!-- TARJETAS DE OPCION -->
-            <div id="test-content">
-                <div id="options-container" class="options-deck" role="radiogroup" aria-label="Opciones de respuesta"></div>
-            </div>
-
-            <!-- PROGRESO -->
-            <div class="test-progress">
-                <div class="progress-track">
-                    <div id="progress-bar" class="progress-fill" role="progressbar"></div>
-                </div>
-                <div class="progress-meta">
-                    <span id="progress-text">Pregunta 1 de --</span>
-                    <span id="progress-percent">0% completado</span>
-                </div>
-            </div>
-
-            <div class="mt-5 text-end">
-                <button id="next-btn" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm fw-bold" disabled>
-                    Confirmar <i class="bi bi-arrow-right ms-2"></i>
-                </button>
             </div>
         </div>
     </div>
@@ -59,269 +47,57 @@
 </form>
 
 <style>
-    /* --- Paleta del test: mapeada a las variables de tema del sitio --- */
-    :root {
-        --tf-surface: var(--card-bg);
-        --tf-surface-border: var(--card-border);
-        --tf-card-top: var(--card-bg);
-        --tf-card-bottom: var(--bg-main);
-        --tf-text-1: var(--text-main);
-        --tf-text-2: var(--text-muted);
-        --tf-text-3: var(--text-muted);
-        --tf-blue: var(--primary);
-        --tf-cyan: var(--secondary);
-        --tf-font-disp: 'Space Grotesk', 'Inter', sans-serif;
-        /* acentos por letra */
-        --tf-a: #6e56cf;
-        --tf-b: #12b3a8;
-        --tf-c: #d97757;
-        --tf-d: #c9a227;
+    .option-btn { 
+        border: 2px solid var(--card-border) !important; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        background-color: var(--card-bg);
+        color: var(--text-main);
     }
-
-    .panel-pregunta {
-        position: relative;
-        background: var(--tf-surface);
-        border: 1px solid var(--tf-surface-border);
-        border-radius: 18px;
-        padding: 30px 32px 28px;
-        overflow: hidden;
-        box-shadow: 0 14px 34px -20px rgba(16, 24, 40, 0.35);
+    .option-btn:hover { 
+        background-color: var(--hover-bg); 
+        border-color: var(--text-muted) !important;
+        transform: translateY(-2px); 
     }
-    .panel-topbar {
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, var(--tf-blue), var(--tf-cyan));
+    .option-btn.active { 
+        background-color: #eaf4ff; 
+        border-color: var(--primary) !important; 
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
     }
-    .panel-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
+    html[data-theme="dark"] .option-btn.active {
+        background-color: rgba(13, 110, 253, 0.22);
+        border-color: #6ea8fe !important;
+        color: #E6F4F8 !important;
     }
-    .panel-kicker {
-        display: inline-flex;
-        align-items: center;
-        gap: 9px;
-        font-family: var(--tf-font-disp);
-        font-weight: 600;
-        font-size: 13px;
-        letter-spacing: 0.02em;
-        color: var(--tf-text-2);
+    .option-btn.active .option-circle {
+        border-color: var(--primary);
+        background: radial-gradient(var(--primary) 50%, var(--card-bg) 52%);
     }
-    .kicker-icon { color: var(--tf-blue); flex-shrink: 0; }
-    .panel-counter {
-        font-family: var(--tf-font-disp);
-        font-weight: 700;
-        font-size: 14px;
-        color: var(--tf-text-2);
-        font-variant-numeric: tabular-nums;
-        letter-spacing: 0.04em;
+    .option-circle { 
+        width: 22px; 
+        height: 22px; 
+        border: 2px solid var(--card-border); 
+        border-radius: 50%; 
+        background: var(--card-bg); 
+        flex-shrink: 0; 
+        transition: all 0.2s ease;
     }
-    .panel-eyebrow {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin: 24px 0 0;
-        font-family: var(--tf-font-disp);
-        font-weight: 600;
-        font-size: 11.5px;
-        letter-spacing: 2.5px;
-        text-transform: uppercase;
-        color: var(--tf-text-3);
+    .option-btn.active .option-circle { 
+        border-color: #0d6efd; 
+        background: radial-gradient(#0d6efd 50%, var(--card-bg) 52%); 
     }
-    .eyebrow-dash {
-        display: inline-block;
-        width: 14px;
-        height: 2px;
-        border-radius: 2px;
-        background: var(--tf-blue);
-    }
-    .panel-question {
-        margin: 12px 0 0;
-        font-family: var(--tf-font-disp);
-        font-weight: 600;
-        font-size: 25px;
-        letter-spacing: -0.015em;
-        line-height: 1.35;
-        color: var(--tf-text-1);
-    }
-
-    /* --- MAZO DE TARJETAS --- */
-    .options-deck {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 30px;
-        margin-top: 26px;
-        padding: 10px 0 4px;
-    }
-    .slot {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
-    .card-o {
-        --fan: 0deg;
-        position: relative;
-        width: 196px;
-        height: 274px;
-        border-radius: 20px;
-        background: linear-gradient(165deg, var(--tf-card-top), var(--tf-card-bottom));
+    #question-text {
+        color: var(--text-main);
+        line-height: 1.4;
+        /* La pregunta queda fija al hacer scroll por las opciones. */
+        position: sticky;
+        top: 76px;
+        z-index: 15;
+        background: var(--card-bg);
         border: 1px solid var(--card-border);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 28px rgba(0, 0, 0, 0.45);
-        transform: rotate(var(--fan));
-        will-change: transform;
-        transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1),
-                    box-shadow 350ms cubic-bezier(0.22, 1, 0.36, 1),
-                    border-color 350ms cubic-bezier(0.22, 1, 0.36, 1);
-        cursor: pointer;
-        display: block;
-    }
-    .slot:nth-child(odd) .card-o { --fan: -3deg; }
-    .slot:nth-child(even) .card-o { --fan: 3deg; }
-    .opt-input {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-    }
-    .card-o:hover,
-    .card-o:focus-within,
-    .card-o:has(.opt-input:checked) {
-        transform: rotate(0deg) translateY(-6px);
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 26px 44px rgba(0, 0, 0, 0.55);
-        border-color: var(--opt-c);
-    }
-    .card-o:focus-within { outline: 2px solid var(--opt-c); outline-offset: 3px; }
-    .card-o:has(.opt-input:checked) { border-width: 1px; }
-
-    .corner {
-        position: absolute;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        z-index: 2;
-        font-family: var(--tf-font-disp);
-        font-weight: 700;
-        font-size: 15px;
-        line-height: 1;
-        color: var(--opt-c);
-    }
-    .corner.tl { top: 14px; left: 14px; }
-    .corner.br { bottom: 14px; right: 14px; transform: rotate(180deg); }
-    .corner-icon { color: currentColor; flex-shrink: 0; }
-
-    .veil {
-        position: absolute;
-        top: -20%;
-        left: -30%;
-        width: 160%;
-        height: 70%;
-        background: var(--opt-c);
-        opacity: 0.16;
-        filter: blur(2px);
-        transform: rotate(-14deg);
-        pointer-events: none;
-    }
-
-    .opt-texto {
-        position: absolute;
-        inset: 0;
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 58px 24px;
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        font-size: 16.5px;
-        line-height: 1.48;
-        color: var(--tf-text-1);
-    }
-
-    .check-ring {
-        position: absolute;
-        bottom: 14px;
-        left: 14px;
-        z-index: 2;
-        width: 15px;
-        height: 15px;
-        border-radius: 50%;
-        background: var(--opt-c);
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
-        opacity: 0;
-        transform: scale(0.5);
-        transition: opacity 250ms ease, transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
-        pointer-events: none;
-    }
-    .card-o:has(.opt-input:checked) .check-ring {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    .opt-label {
-        font-family: var(--tf-font-disp);
-        font-weight: 600;
-        font-size: 12px;
-        letter-spacing: 0.06em;
-        color: var(--tf-text-3);
-        opacity: 0.8;
-        transition: color 250ms ease, opacity 250ms ease;
-    }
-    .slot:nth-child(odd) .opt-label { margin-left: -8px; }
-    .slot:nth-child(even) .opt-label { margin-left: 8px; }
-    .slot:hover .opt-label,
-    .card-o:has(.opt-input:checked) + .opt-label {
-        color: var(--opt-c);
-        opacity: 1;
-    }
-
-    /* --- PROGRESO --- */
-    .test-progress { margin-top: 28px; }
-    .progress-track {
-        height: 3px;
-        border-radius: 3px;
-        background: var(--tf-surface-border);
-        overflow: hidden;
-    }
-    .progress-fill {
-        height: 100%;
-        width: 0%;
-        border-radius: 3px;
-        background: linear-gradient(90deg, var(--tf-blue), var(--tf-cyan));
-        transition: width 400ms cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .progress-meta {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 8px;
-        font-family: var(--tf-font-disp);
-        font-weight: 500;
-        font-size: 11.5px;
-        letter-spacing: 0.04em;
-        color: var(--tf-text-3);
-    }
-
-    /* --- RESPONSIVE --- */
-    @media (max-width: 520px) {
-        .options-deck { flex-direction: column; gap: 22px; }
-        .card-o,
-        .slot:nth-child(odd) .card-o,
-        .slot:nth-child(even) .card-o { --fan: 0deg; }
-        .slot:nth-child(odd) .opt-label,
-        .slot:nth-child(even) .opt-label { margin-left: 0; }
-        .panel-pregunta { padding: 26px 20px 22px; }
-        .panel-question { font-size: 21px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .card-o, .check-ring, .progress-fill {
-            transition: none;
-        }
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
+        box-shadow: 0 10px 24px -18px rgba(16, 24, 40, 0.5);
     }
 </style>
 
@@ -334,52 +110,10 @@
     const questionText = document.getElementById('question-text');
     const optionsContainer = document.getElementById('options-container');
     const nextBtn = document.getElementById('next-btn');
-    const progresoBar = document.getElementById('progress-bar');
+    const progressBar = document.getElementById('progress-bar');
     const progressText = document.getElementById('progress-text');
     const progressPercent = document.getElementById('progress-percent');
-    const panelCounter = document.getElementById('panel-counter');
-    const escenarioNum = document.getElementById('escenario-num');
     const finalForm = document.getElementById('final-form');
-
-    const TEXTO_OPCION = ['Opción A', 'Opción B', 'Opción C', 'Opción D'];
-
-    function buildOpciones(opciones) {
-        return opciones.map((opt, i) => {
-            const letra = 'ABCD'[i % 4];
-            const opcion = TEXTO_OPCION[i % TEXTO_OPCION.length];
-            const idChec = 'opt-' + currentStep + '-' + i;
-            return `
-                <div class="slot">
-                    <label class="card-o" for="${idChec}" style="--opt-c: var(--tf-${letra.toLowerCase()});">
-                        <input type="radio" class="opt-input" id="${idChec}" name="respuesta-q${currentStep}" value="${i}">
-                        <span class="corner tl">
-                            <span class="corner-letter">${letra}</span>
-                            <svg class="corner-icon" width="11" height="11" viewBox="0 0 11 11" aria-hidden="true"><circle cx="5.5" cy="5.5" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-                        </span>
-                        <span class="corner br" aria-hidden="true">
-                            <span class="corner-letter">${letra}</span>
-                            <svg class="corner-icon" width="11" height="11" viewBox="0 0 11 11"><circle cx="5.5" cy="5.5" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-                        </span>
-                        <span class="veil" aria-hidden="true"></span>
-                        <span class="opt-texto">${opt.texto}</span>
-                        <span class="check-ring" aria-hidden="true"></span>
-                    </label>
-                    <span class="opt-label">${opcion}</span>
-                </div>
-            `;
-        }).join('');
-    }
-
-    // Delegación de eventos: cambio de selección en cualquier tarjeta.
-    optionsContainer.addEventListener('change', (e) => {
-        if (e.target.classList && e.target.classList.contains('opt-input')) {
-            const q = preguntas[currentStep];
-            const idx = parseInt(e.target.value, 10);
-            const opt = q.opciones[idx];
-            answers[q.id] = { area: opt.area, opcion: opt.texto, pregunta: q.texto_pregunta };
-            nextBtn.disabled = false;
-        }
-    });
 
     function loadQuestion() {
         if (currentStep >= preguntas.length) {
@@ -388,7 +122,8 @@
         }
 
         const q = preguntas[currentStep];
-
+        const preguntaActual = q;
+        
         // Animación de salida y entrada
         const testContent = document.getElementById('test-content');
         testContent.classList.remove('animate__fadeInUp');
@@ -399,24 +134,33 @@
             optionsContainer.innerHTML = '';
             nextBtn.disabled = true;
 
-            // Actualizar panel
-            const padded = (n) => String(n).padStart(2, '0');
-            panelCounter.innerText = `${padded(currentStep + 1)} / ${padded(preguntas.length)}`;
-            escenarioNum.innerText = currentStep + 1;
-
             // Actualizar progreso
             const percent = Math.round((currentStep / preguntas.length) * 100);
-            progresoBar.style.width = `${percent}%`;
+            progressBar.style.width = `${percent}%`;
             progressText.innerText = `Pregunta ${currentStep + 1} de ${preguntas.length}`;
-            progressPercent.innerText = `${percent}% completado`;
+            progressPercent.innerText = `${percent}%`;
 
-            // Construir tarjetas
-            optionsContainer.innerHTML = buildOpciones(q.opciones);
-            for (let i = 0; i < q.opciones.length; i++) {
-                const slot = optionsContainer.children[i];
-                slot.classList.add('animate__animated', 'animate__fadeInUp');
-                slot.style.animationDelay = `${i * 0.1}s`;
-            }
+            q.opciones.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn option-btn text-start p-3 rounded-3 animate__animated animate__fadeInUp';
+                btn.style.animationDelay = `${index * 0.1}s`;
+                btn.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <div class="option-circle me-3"></div>
+                        <span class="fw-medium">${opt.texto}</span>
+                    </div>
+                `;
+                
+                btn.onclick = () => {
+                    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    answers[q.id] = { area: opt.area, opcion: opt.texto, pregunta: preguntaActual.texto_pregunta };
+                    nextBtn.disabled = false;
+                };
+                
+                optionsContainer.appendChild(btn);
+            });
 
             testContent.classList.remove('animate__fadeOutDown');
             testContent.classList.add('animate__fadeInUp');
@@ -459,7 +203,7 @@
             inputPregunta.value = ans.pregunta;
             finalForm.appendChild(inputPregunta);
         }
-
+        
         setTimeout(() => {
             finalForm.submit();
         }, 1000);
