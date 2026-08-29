@@ -5,29 +5,32 @@
    ========================================================= */
 
 :root {
-    --admin-primary:        #1E7FA3;   /* Azul principal */
-    --admin-primary-hover:  #1A6E8E;   /* Azul hover */
-    --admin-primary-dark:   #0B1B28;   /* Azul marino — texto oscuro */
+    --admin-primary:        #197A9A;   /* Azul de identidad Futuro 360 */
+    --admin-primary-hover:  #156A85;   /* Identidad más oscuro — hover */
+    --admin-primary-dark:   #172033;   /* Texto principal */
     --admin-accent:         #3BAFD0;   /* Acento cian */
---admin-bg:             #EAF4F9;   /* Fondo general: azul claro (imagen visible) */
-    --admin-bg-subtle:      #F0F6FB;   /* Fondo secundario */
-    --admin-surface:        #ACD4FB;   /* Superficie card/panel */
-    --admin-surface-alt:    #8FBEED;   /* Encabezados de tarjetas y secciones */
-    --admin-border:         #BCD8EB;   /* Borde nítido para separar tarjetas */
-    --admin-border-strong:  #8FBEDB;   /* Borde destacado */
-    --admin-text:           #0B1B28;   /* Texto principal — máximo contraste */
-    --admin-text-secondary: #244C66;   /* Texto secundario */
-    --admin-text-muted:     #3E6A85;   /* Texto atenuado */
+    --admin-action:         #2563EB;   /* Azul de acción para botones */
+    --admin-bg:             #F4F7FA;   /* Body: gris azulado extremadamente suave */
+    --admin-bg-subtle:      #F0F7FC;   /* Fondo secundario / destacado */
+    --admin-surface:        #FFFFFF;   /* Superficie card/panel */
+    --admin-surface-alt:    #F7FAFC;   /* Cabeceras de tarjetas e items internos */
+    --admin-border:         #DCE5EC;   /* Borde nítido para separar tarjetas */
+    --admin-border-strong:  #C2CEDB;   /* Borde destacado (inputs, tablas) */
+    --admin-text:           #172033;   /* Texto principal — máximo contraste */
+    --admin-text-secondary: #64748B;   /* Texto secundario */
+    --admin-text-muted:     #5E7189;   /* Texto atenuado */
     --admin-sidebar-w:      264px;
     --admin-radius:         14px;
-    --admin-shadow:         0 2px 6px 0 rgba(11, 27, 40, 0.05), 0 8px 24px -8px rgba(11, 27, 40, 0.10);
-    --admin-shadow-lg:      0 12px 32px -8px rgba(11, 27, 40, 0.16);
-    --admin-shadow-xl:      0 24px 48px -12px rgba(11, 27, 40, 0.22);
+    --admin-shadow:         0 1px 3px 0 rgba(23, 32, 51, 0.05), 0 4px 16px 0 rgba(15, 23, 42, 0.06);
+    --admin-shadow-lg:      0 8px 24px -6px rgba(15, 23, 42, 0.08);
+    --admin-shadow-xl:      0 12px 32px -8px rgba(15, 23, 42, 0.10);
 }
 
 .admin-body {
     background-color: var(--admin-bg);
-    background-image: url('img/body-modo-sol.png');
+    background-image:
+        linear-gradient(180deg, rgba(244, 247, 250, 0.72) 0%, rgba(244, 247, 250, 0.92) 100%),
+        url('img/body-modo-sol.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -89,7 +92,7 @@
     width: 40px;
     height: 40px;
     border-radius: 11px;
-    background: linear-gradient(135deg, #2F8EAB, #42A6C2);
+    background: linear-gradient(135deg, #197A9A, #42A6C2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -238,7 +241,7 @@
     position: sticky;
     top: 0;
     z-index: 1030;
-    background: rgba(227, 240, 248, 0.94);
+    background: rgba(255, 255, 255, 0.86);
     backdrop-filter: saturate(200%) blur(16px);
     -webkit-backdrop-filter: saturate(200%) blur(16px);
     border-bottom: 1px solid var(--admin-border);
@@ -248,7 +251,7 @@
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.05), 0 4px 12px -4px rgba(13,34,51,0.08);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 4px 12px -6px rgba(23,32,51,0.08);
 }
 
 .admin-topbar h1 {
@@ -420,7 +423,7 @@ html[data-theme="dark"] .chart-box {
 }
 
 /* Modo claro — iconos semánticos con fondo tintado */
-.stat-icon.primary { background: rgba(30, 127, 163, 0.12); color: #1E7FA3; }
+.stat-icon.primary { background: rgba(25, 122, 154, 0.12); color: #197A9A; }
 .stat-icon.success { background: rgba(22, 101, 52, 0.12);  color: #15803D; }
 .stat-icon.info    { background: rgba(14, 79, 107, 0.12);  color: #0369A1; }
 .stat-icon.warning { background: rgba(146, 64, 14, 0.12);  color: #B45309; }
@@ -482,7 +485,7 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
 }
 
 .admin-card .table thead th {
-    background: #D8ECF4;
+    background: #EEF4F8;
     border-bottom: 2px solid var(--admin-border-strong);
     color: var(--admin-primary-dark);
     font-size: 0.7rem;
@@ -558,7 +561,7 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
 }
 
 /* Modo claro — badges semánticos con contraste alto */
-.admin-badge-primary { background: rgba(30, 127, 163, 0.12); color: #155E7A; }
+.admin-badge-primary { background: rgba(25, 122, 154, 0.12); color: #197A9A; }
 .admin-badge-success { background: rgba(22, 101, 52, 0.12);  color: #15652F; }
 .admin-badge-danger  { background: rgba(153, 27, 27, 0.12);  color: #991B1B; }
 .admin-badge-muted   { background: #E4ECF1;                  color: #3A5568; }
@@ -571,7 +574,7 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
 }
 
 .admin-btn-primary {
-    background: var(--admin-primary);
+    background: var(--admin-action);
     color: #fff;
     border: none;
     border-radius: 10px;
@@ -581,10 +584,10 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
 }
 
 .admin-btn-primary:hover {
-    background: #27778F;
+    background: #1D4ED8;
     color: #fff;
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px -6px rgba(47, 142, 171, 0.5);
+    box-shadow: 0 6px 16px -6px rgba(37, 99, 235, 0.5);
 }
 
 .admin-btn-muted {
@@ -963,6 +966,7 @@ html[data-theme="dark"] {
     --admin-primary:        #3BAFD0;
     --admin-primary-dark:   #90D8EE;
     --admin-accent:         #5CC8E0;
+    --admin-action:         #3B82F6;
 
     /* Sombras dark */
     --admin-shadow:    0 1px 3px rgba(0,0,0,0.5), 0 8px 24px -12px rgba(0,0,0,0.55);

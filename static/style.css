@@ -6,11 +6,12 @@
 
 /* --- VARIABLES GLOBALES DEL SISTEMA DE DISEÑO --- */
 :root {
-    /* Paleta principal — Escala de azules teal */
-    --primary:        #1A6D8F;   /* Azul principal — links y botones (AA sobre cards azules) */
-    --primary-hover:  #155E7D;   /* Azul más oscuro para :hover */
-    --primary-dark:   #0D2233;   /* Azul marino profundo — texto destacado */
-    --primary-light:  #C8E8F2;   /* Azul celeste suave — fondos y chips */
+    /* Paleta principal — Identidad Futuro 360 */
+    --primary:        #197A9A;   /* Azul de identidad Futuro 360 */
+    --primary-hover:  #156A85;   /* Identidad más oscuro para :hover */
+    --primary-dark:   #12506B;   /* Azul profundo — texto destacado */
+    --primary-light:  #E8F4F8;   /* Azul muy suave — fondos y chips */
+    --primary-action: #2563EB;   /* Azul de acción — botones CTA */
     --secondary:      #3498B7;   /* Azul secundario — complementario */
     --accent:         #5BB8D4;   /* Acento claro — decorativo */
     --success:        #166534;   /* Verde oscuro — estados positivos */
@@ -22,22 +23,37 @@
     --info:           #0E4F6B;   /* Azul info oscuro */
     --info-bg:        #E0F2FE;   /* Azul info muy claro */
 
-    /* Superficies — Modo Claro (tarjetas #ACD4FB sobre la imagen del body) */
-    --bg-main:        #EAF4F9;   /* Original: azul claro para que la imagen se vea bien */
-    --bg-subtle:      #F0F6FB;   /* Fondo secundario para secciones/barras */
-    --bg-input:       #FFFFFF;   /* Inputs: blanco, diferenciado de la card */
-    --card-bg:        #ACD4FB;   /* Tarjetas/paneles/contenedores */
-    --card-bg-alt:    #8FBEED;   /* Encabezados: un tono más intenso */
+    /* Superficies — Modo Claro (body suave, superficies blancas) */
+    --bg-main:        #F4F7FA;   /* Body: gris azulado extremadamente suave */
+    --bg-subtle:      #F0F7FC;   /* Superficie destacada */
+    --bg-input:       #FFFFFF;   /* Inputs: blanco */
+    --card-bg:        #FFFFFF;   /* Cards/paneles/contenedores */
+    --card-bg-alt:    #F7FAFC;   /* Superficie secundaria (items internos) */
+    --surface-soft:   #F7FAFC;   /* Tarjeta interna (panel dentro de panel) */
+    --surface-highlight: #F0F7FC;/* Superficie destacada (bis sagrado) */
+    --border-soft:    #E2E8F0;   /* Borde interno de items */
 
-    /* Texto — Modo Claro (contraste WCAG AAA) */
-    --text-main:      #0B1B28;   /* Azul marino muy oscuro — máxima legibilidad */
-    --text-secondary: #244C66;   /* Texto secundario */
-    --text-muted:     #3E6A85;   /* Texto atenuado (AA sobre cards azul clarito) */
+    /* Texto — Modo Claro (contraste WCAG AA/AAA) */
+    --text-main:      #172033;   /* Texto principal */
+    --text-secondary: #64748B;   /* Texto secundario */
+    --text-muted:     #5E7189;   /* Texto atenuado (AA) */
     --text-on-dark:   #FFFFFF;   /* Texto sobre fondos oscuros */
 
     /* Bordes definidos para evitar sensación "todo blanco" */
-    --border:         #BCD8EB;   /* Borde de cards: azul medio visible */
-    --border-strong:  #8FBEDB;   /* Borde más definido (inputs, encabezados tabla) */
+    --border:         #DCE5EC;   /* Borde de paneles/cards */
+    --border-strong:  #C2CEDB;   /* Borde más definido (inputs, encabezados tabla) */
+
+    /* Overrides de Bootstrap para identidad (text-primary, links, badges) */
+    --bs-primary:              #197A9A;
+    --bs-primary-rgb:          25, 122, 154;
+    --bs-link-color:           #197A9A;
+    --bs-link-color-rgb:       25, 122, 154;
+    --bs-link-hover-color:     #156A85;
+    --bs-link-hover-color-rgb: 21, 106, 133;
+    --bs-primary-bg-subtle:    #E8F4F8;
+    --bs-primary-border-subtle:#BFE0EF;
+    --bs-primary-text-emphasis:#12506B;
+    --bs-focus-ring-color:     rgba(25, 122, 154, 0.35);
 
     /* Radios */
     --radius-xs:  4px;
@@ -46,12 +62,12 @@
     --radius-lg: 20px;
     --radius-xl: 28px;
 
-    /* Sombras elevadas para destacar tarjetas del fondo */
-    --shadow-xs: 0 1px 2px 0 rgb(11 27 40 / 0.05);
-    --shadow-sm: 0 2px 5px 0 rgb(11 27 40 / 0.06), 0 1px 2px -1px rgb(11 27 40 / 0.06);
-    --shadow-md: 0 6px 16px -2px rgb(11 27 40 / 0.09), 0 2px 6px -1px rgb(11 27 40 / 0.05);
-    --shadow-lg: 0 20px 30px -6px rgb(11 27 40 / 0.12), 0 8px 12px -4px rgb(11 27 40 / 0.08);
-    --shadow-xl: 0 25px 50px -12px rgb(11 27 40 / 0.18);
+    /* Sombras sutiles y profesionales */
+    --shadow-xs: 0 1px 2px 0 rgb(23 32 51 / 0.04);
+    --shadow-sm: 0 1px 3px 0 rgb(23 32 51 / 0.05), 0 1px 2px -1px rgb(23 32 51 / 0.05);
+    --shadow-md: 0 4px 16px 0 rgb(15 23 42 / 0.06);
+    --shadow-lg: 0 8px 24px -6px rgb(15 23 42 / 0.08);
+    --shadow-xl: 0 12px 32px -8px rgb(15 23 42 / 0.10);
 
     /* Transición estándar */
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -59,8 +75,8 @@
     /* Variables de componentes */
     --navbar-bg:     rgba(255, 255, 255, 0.8);
     --navbar-border: var(--border);
-    --navbar-menu-bg:#D8E3EE;   /* Menú colapsado móvil: no sigue el color de las cards */
-    --hover-bg:      var(--primary-light);
+    --navbar-menu-bg:var(--card-bg);   /* Menú móvil: panel blanco */
+    --hover-bg:      var(--primary-light);  /* Hover: azul muy suave */
     --card-border:   var(--border);
 }
 
@@ -87,8 +103,21 @@ html[data-theme="dark"] {
     --primary-hover:  #4EC2E0;
     --primary-dark:   #90D8EE;   /* Azul claro para headings en dark */
     --primary-light:  #1A3A4E;   /* Chip / badge bg en dark */
+    --primary-action: #3B82F6;   /* Azul de acción en dark (CTA) */
     --secondary:      #4ABDD8;
     --accent:         #72CCDE;
+
+    /* Overrides de Bootstrap para identidad — modo oscuro */
+    --bs-primary:              #4ABDD8;
+    --bs-primary-rgb:          74, 189, 216;
+    --bs-link-color:           #4EBFDB;
+    --bs-link-color-rgb:       78, 191, 219;
+    --bs-link-hover-color:     #72CCDE;
+    --bs-link-hover-color-rgb: 114, 204, 222;
+    --bs-primary-bg-subtle:    #0F2634;
+    --bs-primary-border-subtle:#245366;
+    --bs-primary-text-emphasis:#9BD7E8;
+    --bs-focus-ring-color:     rgba(78, 195, 224, 0.35);
 
     /* Semánticos ajustados para fondos oscuros */
     --success:        #4ADE80;   /* Verde claro legible sobre oscuro */
@@ -123,7 +152,9 @@ html[data-theme="dark"] {
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--bg-main);
-    background-image: url('img/body-modo-sol.png');
+    background-image:
+        linear-gradient(180deg, rgba(244, 247, 250, 0.68) 0%, rgba(244, 247, 250, 0.90) 100%),
+        url('img/body-modo-sol.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -630,7 +661,7 @@ html[data-theme="dark"] .input-group-text {
     letter-spacing: 0.06em;
     border-bottom-width: 2px;
     border-bottom-color: var(--border-strong);
-    background: #D9EBF6;
+    background: #EEF4F8;
     padding: 0.8rem 1rem;
 }
 
@@ -642,7 +673,7 @@ html[data-theme="dark"] .input-group-text {
 }
 
 .table-hover > tbody > tr:hover > * {
-    --bs-table-hover-bg: #C8E2F1;
+    --bs-table-hover-bg: #F0F7FC;
     --bs-table-hover-color: var(--text-main);
     color: var(--text-main);
 }
@@ -681,20 +712,20 @@ html[data-theme="dark"] .table-hover > tbody > tr:hover > * {
    BOTONES
    ========================================================= */
 .btn-primary {
-    background: var(--primary);
+    background: var(--primary-action);
     border: none;
     border-radius: var(--radius-md);
     padding: 0.7rem 1.75rem;
     font-weight: 700;
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(26, 109, 143, 0.35);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.30);
     transition: var(--transition);
 }
 
 .btn-primary:hover {
-    background: var(--primary-hover);
+    background: #1D4ED8;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(26, 109, 143, 0.4);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
     color: #ffffff;
 }
 
@@ -1070,28 +1101,19 @@ html[data-theme="dark"] #preloader { background: var(--bg-main); }
 }
 
 /* =========================================================
-   MODO CLARO — TARJETAS AZUL CLARO (#ACD4FB)
-   Texto oscuro sobre la superficie pastel (contraste AA).
+   MODO CLARO — JERARQUÍA DE SUPERFICIES
+   Body suave #F4F7FA + paneles blancos + cards internas suaves.
    El modo oscuro conserva sus propios valores (este bloque
    solo aplica a html sin data-theme=dark).
    ========================================================= */
 
-/* Superficie base ya oscura proviene de --card-bg; este bloque
-   solo redefine texturas que en modo claro no aplican. */
-
-/* Las cards escritas con bg-white/bg-light pasan a la superficie pastel */
-html:not([data-theme="dark"]) .card.bg-white,
-html:not([data-theme="dark"]) .card.bg-light {
-    background-color: var(--card-bg) !important;
-}
-
-/* Cabeceras de card: un tono de azul más intenso */
+/* Cabeceras de card: superficie secundaria suave (#F7FAFC) */
 html:not([data-theme="dark"]) .card-header {
     background-color: var(--card-bg-alt);
     color: var(--text-main);
 }
 
-/* Dropdown sobre superficie pastel */
+/* Dropdown: superficie blanca */
 html:not([data-theme="dark"]) .dropdown-menu .dropdown-item:hover,
 html:not([data-theme="dark"]) .dropdown-menu .dropdown-item:focus {
     background: var(--hover-bg);

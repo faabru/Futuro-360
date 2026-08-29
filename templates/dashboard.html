@@ -3,13 +3,13 @@
 {% block content %}
 <style>
     .dash-hero {
-        background: linear-gradient(135deg, #142B38 0%, #2F8EAB 100%);
+        background: linear-gradient(135deg, #12506B 0%, #197A9A 100%);
         border-radius: 24px;
         color: #fff;
         padding: 48px 40px;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 20px 40px -20px rgba(20, 43, 56, 0.5);
+        box-shadow: 0 20px 40px -20px rgba(18, 80, 107, 0.5);
     }
     .dash-hero::before {
         content: '';
@@ -69,19 +69,19 @@
 
     .kpi-card {
         background: var(--card-bg);
-        border: 1px solid var(--card-border);
+        border: 1px solid var(--border);
         border-radius: 18px;
         padding: 22px;
         height: 100%;
         display: flex;
         align-items: center;
         gap: 16px;
-        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.1);
+        box-shadow: var(--shadow-md);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .kpi-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 16px 32px -16px rgba(16, 24, 40, 0.2);
+        box-shadow: var(--shadow-lg);
     }
     .kpi-icon {
         width: 52px;
@@ -92,6 +92,8 @@
         justify-content: center;
         font-size: 1.4rem;
         flex-shrink: 0;
+        background: #E8F4F8;
+        color: #197A9A;
     }
     .kpi-label {
         font-size: 0.75rem;
@@ -106,6 +108,7 @@
         font-weight: 800;
         letter-spacing: -0.03em;
         line-height: 1.1;
+        color: #197A9A;
     }
     .kpi-value small {
         font-size: 0.8rem;
@@ -168,26 +171,27 @@
     .tool-card:hover .tool-btn {
         transform: translateX(4px);
     }
-    .tool-gradient-1 { background: linear-gradient(135deg, #2F8EAB, #142B38); }
+    .tool-gradient-1 { background: linear-gradient(135deg, #197A9A, #12506B); }
     .tool-gradient-2 { background: linear-gradient(135deg, #667eea, #764ba2); }
     .tool-gradient-3 { background: linear-gradient(135deg, #f59e0b, #ea580c); }
     .tool-gradient-4 { background: linear-gradient(135deg, #10b981, #047857); }
 
     .history-card {
-        border: 1px solid var(--card-border);
+        border: 1px solid var(--border);
         border-radius: 18px;
         background: var(--card-bg);
         overflow: hidden;
-        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.1);
+        box-shadow: var(--shadow-md);
     }
     .history-card .history-header {
         padding: 20px 24px;
-        border-bottom: 1px solid var(--card-border);
+        border-bottom: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
         flex-wrap: wrap;
+        background: var(--card-bg);
     }
     .history-card .history-header h5 {
         font-weight: 800;
@@ -195,26 +199,30 @@
     }
     .history-item {
         padding: 18px 24px;
-        border-bottom: 1px solid var(--card-border);
-        transition: background 0.15s ease;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: var(--card-bg-alt);
+        margin: 12px 16px;
+        transition: background 0.15s ease, border-color 0.15s ease;
     }
-    .history-item:last-child { border-bottom: none; }
-    .history-item:hover { background: var(--hover-bg); }
+    .history-item:last-child { margin-bottom: 16px; }
+    .history-item:hover { background: var(--card-bg); border-color: var(--primary); }
 
     .news-mini {
         display: flex;
         gap: 12px;
         padding: 14px 16px;
         border-radius: 14px;
-        border: 1px solid var(--card-border);
-        background: var(--card-bg);
+        border: 1px solid var(--border);
+        background: var(--card-bg-alt);
         transition: border-color 0.15s ease, transform 0.15s ease;
         min-width: 0;
         overflow: hidden;
     }
     .news-mini:hover {
-        border-color: #2F8EAB;
+        border-color: var(--primary);
         transform: translateX(4px);
+        background: var(--card-bg);
     }
     .news-mini .min-w-0 {
         min-width: 0;
@@ -249,7 +257,7 @@
     <div class="row g-3 mb-5">
         <div class="col-6 col-md-4">
             <div class="kpi-card">
-                <div class="kpi-icon" style="background:rgba(47,142,171,0.12);color:#2F8EAB;"><i class="bi bi-clipboard2-check"></i></div>
+                <div class="kpi-icon" style="background:#E8F4F8;color:#197A9A;"><i class="bi bi-clipboard2-check"></i></div>
                 <div>
                     <div class="kpi-label">Tests realizados</div>
                     <div class="kpi-value text-primary">{{ total_tests }}</div>
@@ -346,7 +354,7 @@
                 {% if historial %}
                     {% for test in historial %}
                     <div class="history-item d-flex align-items-center gap-3">
-                        <div class="kpi-icon flex-shrink-0" style="background:rgba(47,142,171,0.12);color:#2F8EAB;">
+                        <div class="kpi-icon flex-shrink-0" style="background:#E8F4F8;color:#197A9A;">
                             <i class="bi bi-compass"></i>
                         </div>
                         <div class="flex-grow-1 min-w-0">
@@ -361,7 +369,7 @@
                     {% endfor %}
                 {% else %}
                     <div class="admin-empty" style="padding:48px 24px;">
-                        <i class="bi bi-info-circle-fill" style="color:#2F8EAB;opacity:0.5;"></i>
+                        <i class="bi bi-info-circle-fill" style="color:#197A9A;opacity:0.5;"></i>
                         <h6 class="fw-bold text-dark mb-2">Aún no tenés resultados</h6>
                         <p class="text-muted small mb-3">¡Tu sesión está activa! Realizá el <strong>Test Pro</strong> para obtener tus primeras recomendaciones.</p>
                         <a href="{{ url_for('vocacional.test') }}" class="btn btn-primary rounded-pill px-4">Comenzar mi primer test</a>
@@ -381,7 +389,7 @@
                     {% if noticias_recientes %}
                         {% for n in noticias_recientes %}
                         <a href="{{ url_for('noticias.noticias') }}" class="news-mini text-decoration-none">
-                            <span class="dot" style="background: {{ ['#2F8EAB', '#7c3aed', '#10b981', '#f59e0b'][loop.index0 % 4] }};"></span>
+                            <span class="dot" style="background: {{ ['#197A9A', '#7c3aed', '#10b981', '#f59e0b'][loop.index0 % 4] }};"></span>
                             <div class="min-w-0 flex-grow-1">
                                 <div class="fw-bold text-dark small text-truncate">{{ n.titulo }}</div>
                                 <small class="text-muted d-block text-truncate">
