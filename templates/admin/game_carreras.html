@@ -66,7 +66,7 @@
                             <form action="{{ url_for('admin_juego.toggle_game_carrera', id=item.id) }}" method="POST" class="d-inline" data-ajax="toggle">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <button type="submit" class="admin-badge border-0 {{ 'admin-badge-success' if item.activo else 'admin-badge-muted' }}" title="Cambiar estado">
-                                    {% if item.activo %}✓ Activa{% else %}Inactiva{% endif %}
+                                    {% if item.activo %}<i class="bi bi-check-circle-fill me-1"></i>Activa{% else %}Inactiva{% endif %}
                                 </button>
                             </form>
                         </td>
@@ -112,15 +112,15 @@
                             <label class="form-label fw-bold">Textos de los 3 botones del juego</label>
                             <p class="text-muted small mb-2">Son los botones que ven los usuarios al descubrir esta carrera. Personalizá el texto de cada uno.</p>
                             <div class="input-group mb-2">
-                                <span class="input-group-text">🔴 No</span>
+                                <span class="input-group-text"><i class="bi bi-x-circle-fill text-danger"></i> No</span>
                                 <input type="text" name="boton_no" class="form-control" value="{{ item.boton_no or 'No es lo mío' }}" maxlength="50">
                             </div>
                             <div class="input-group mb-2">
-                                <span class="input-group-text">🔵 Info</span>
+                                <span class="input-group-text"><i class="bi bi-info-circle-fill text-primary"></i> Info</span>
                                 <input type="text" name="boton_info" class="form-control" value="{{ item.boton_info or 'Info' }}" maxlength="50">
                             </div>
                             <div class="input-group mb-2">
-                                <span class="input-group-text">🟢 Sí</span>
+                                <span class="input-group-text"><i class="bi bi-check-circle-fill text-success"></i> Sí</span>
                                 <input type="text" name="boton_yes" class="form-control" value="{{ item.boton_yes or 'Me interesa' }}" maxlength="50">
                             </div>
                         </div>

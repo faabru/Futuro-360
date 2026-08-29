@@ -103,7 +103,7 @@
     <!-- ENCABEZADO -->
     <div class="row mb-5">
         <div class="col-lg-8">
-            <h1 class="display-4 fw-bold text-primary mb-3">Guía de Carreras 🎓</h1>
+            <h1 class="display-4 fw-bold text-primary mb-3"><i class="bi bi-mortarboard-fill me-2"></i>Guía de Carreras</h1>
             <p class="lead text-muted">Explora las opciones académicas para tu futuro.</p>
         </div>
     </div>
@@ -114,7 +114,7 @@
         <div class="col-md-4">
             <label for="areaFilter" class="form-label fw-bold small text-uppercase text-muted mb-2">Área Profesional</label>
             <select id="areaFilter" name="filtro" class="form-select form-select-lg rounded-3 border-2 border-primary-subtle shadow-sm">
-                <option value="populares" {% if filtro_actual == 'populares' %}selected{% endif %}>⭐ Populares</option>
+                <option value="populares" {% if filtro_actual == 'populares' %}selected{% endif %}>Populares</option>
                 <option value="todas" {% if filtro_actual == 'todas' and area_actual == 'todas' %}selected{% endif %}>Todas las áreas</option>
                 {% for area in areas_disponibles %}
                 <option value="{{ area }}" {% if area_actual == area and filtro_actual != 'populares' %}selected{% endif %}>{{ area }}</option>

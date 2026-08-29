@@ -224,7 +224,7 @@
                 badge.classList.toggle('admin-badge-success');
                 badge.classList.toggle('admin-badge-muted');
                 const activo = badge.classList.contains('admin-badge-success');
-                badge.textContent = activo ? '✓ Activa' : 'Inactiva';
+                badge.innerHTML = activo ? '<i class="bi bi-check-circle-fill me-1"></i>Activa' : 'Inactiva';
                 actualizarStats(form);
                 return;
             }
@@ -232,7 +232,7 @@
             if (badgeBs) {
                 badgeBs.classList.toggle('bg-success');
                 badgeBs.classList.toggle('bg-secondary');
-                badgeBs.textContent = badgeBs.classList.contains('bg-success') ? '✓ Activa' : 'Inactiva';
+                badgeBs.innerHTML = badgeBs.classList.contains('bg-success') ? '<i class="bi bi-check-circle-fill me-1"></i>Activa' : 'Inactiva';
                 actualizarStats(form);
                 return;
             }
