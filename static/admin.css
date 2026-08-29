@@ -10,14 +10,14 @@
     --admin-primary-dark:   #0B1B28;   /* Azul marino — texto oscuro */
     --admin-accent:         #3BAFD0;   /* Acento cian */
     --admin-bg:             #F3F6F9;   /* Fondo general gris-azul muy sutil (NO blanco puro) */
-    --admin-bg-subtle:      #E9F0F6;   /* Fondo secundario */
-    --admin-surface:        #FFFFFF;   /* Superficie card crisp */
-    --admin-surface-alt:    #DCECF6;   /* Encabezados de tarjetas y secciones */
-    --admin-border:         #A8CCE0;   /* Borde nítido para separar tarjetas */
-    --admin-border-strong:  #75AECE;   /* Borde destacado */
+    --admin-bg-subtle:      #F0F6FB;   /* Fondo secundario */
+    --admin-surface:        #E3F0F8;   /* Superficie card: azul clarito */
+    --admin-surface-alt:    #D3E7F4;   /* Encabezados de tarjetas y secciones */
+    --admin-border:         #BCD8EB;   /* Borde nítido para separar tarjetas */
+    --admin-border-strong:  #8FBEDB;   /* Borde destacado */
     --admin-text:           #0B1B28;   /* Texto principal — máximo contraste */
     --admin-text-secondary: #244C66;   /* Texto secundario */
-    --admin-text-muted:     #46718C;   /* Texto atenuado */
+    --admin-text-muted:     #3E6A85;   /* Texto atenuado (AA sobre cards azules) */
     --admin-sidebar-w:      264px;
     --admin-radius:         14px;
     --admin-shadow:         0 2px 6px 0 rgba(11, 27, 40, 0.05), 0 8px 24px -8px rgba(11, 27, 40, 0.10);
@@ -240,7 +240,7 @@
     position: sticky;
     top: 0;
     z-index: 1030;
-    background: rgba(255, 255, 255, 0.96);
+    background: rgba(227, 240, 248, 0.94);
     backdrop-filter: saturate(200%) blur(16px);
     -webkit-backdrop-filter: saturate(200%) blur(16px);
     border-bottom: 1px solid var(--admin-border);
@@ -472,7 +472,7 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
     margin: 0;
     --bs-table-color: var(--admin-text);
     --bs-table-border-color: var(--admin-border);
-    --bs-table-hover-bg: #DFF0F7;
+    --bs-table-hover-bg: #CBE3F2;
     --bs-table-hover-color: var(--admin-text);
     color: var(--admin-text);
 }

@@ -7,8 +7,8 @@
 /* --- VARIABLES GLOBALES DEL SISTEMA DE DISEÑO --- */
 :root {
     /* Paleta principal — Escala de azules teal */
-    --primary:        #1E7FA3;   /* Azul principal — hover states */
-    --primary-hover:  #1A6E8E;   /* Azul más oscuro para :hover */
+    --primary:        #1A6D8F;   /* Azul principal — links y botones (AA sobre cards azules) */
+    --primary-hover:  #155E7D;   /* Azul más oscuro para :hover */
     --primary-dark:   #0D2233;   /* Azul marino profundo — texto destacado */
     --primary-light:  #C8E8F2;   /* Azul celeste suave — fondos y chips */
     --secondary:      #3498B7;   /* Azul secundario — complementario */
@@ -22,22 +22,22 @@
     --info:           #0E4F6B;   /* Azul info oscuro */
     --info-bg:        #E0F2FE;   /* Azul info muy claro */
 
-    /* Superficies — Modo Claro (tarjetas que flotan sobre fondo sutil) */
+    /* Superficies — Modo Claro (tarjetas azul clarito sobre la imagen blanca del body) */
     --bg-main:        #F3F6F9;   /* Fondo general: gris-azul muy sutil (NO blanco puro) */
-    --bg-subtle:      #E9F0F6;   /* Fondo secundario para secciones/barras */
-    --bg-input:       #F1F5F9;   /* Inputs: un tono gris diferenciado del contenedor */
-    --card-bg:        #FFFFFF;   /* Tarjetas: blanco puro destacado */
-    --card-bg-alt:    #DCECF6;   /* Encabezados y bloques secundarios */
+    --bg-subtle:      #F0F6FB;   /* Fondo secundario para secciones/barras */
+    --bg-input:       #FFFFFF;   /* Inputs: blanco, diferenciado de la card azul */
+    --card-bg:        #E3F0F8;   /* Tarjetas/paneles: azul clarito destacado */
+    --card-bg-alt:    #D3E7F4;   /* Encabezados y bloques secundarios, un tono más */
 
     /* Texto — Modo Claro (contraste WCAG AAA) */
     --text-main:      #0B1B28;   /* Azul marino muy oscuro — máxima legibilidad */
     --text-secondary: #244C66;   /* Texto secundario */
-    --text-muted:     #46718C;   /* Texto atenuado */
+    --text-muted:     #3E6A85;   /* Texto atenuado (AA sobre cards azul clarito) */
     --text-on-dark:   #FFFFFF;   /* Texto sobre fondos oscuros */
 
     /* Bordes definidos para evitar sensación "todo blanco" */
-    --border:         #ADCDE0;   /* Borde claro y marcado para bloques */
-    --border-strong:  #7CB3D1;   /* Borde más definido */
+    --border:         #BCD8EB;   /* Borde de cards: azul medio visible */
+    --border-strong:  #8FBEDB;   /* Borde más definido (inputs, encabezados tabla) */
 
     /* Radios */
     --radius-xs:  4px;
@@ -57,8 +57,8 @@
     --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Variables de componentes */
-    --navbar-bg:     rgba(255, 255, 255, 0.95);
-    --navbar-border: #ADCDE0;
+    --navbar-bg:     rgba(227, 240, 248, 0.94);
+    --navbar-border: #C2DBEC;
     --hover-bg:      #DCECF6;
     --card-border:   var(--border);
 }
@@ -232,7 +232,7 @@ html[data-theme="dark"] body {
     font-size: 1.2rem;
     color: #ffffff;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
-    box-shadow: 0 4px 12px rgba(30, 127, 163, 0.35);
+    box-shadow: 0 4px 12px rgba(26, 109, 143, 0.35);
     flex-shrink: 0;
 }
 
@@ -559,7 +559,7 @@ html[data-theme="dark"] .section-card h5 {
     background-color: var(--card-bg);
     color: var(--text-main);
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(30, 127, 163, 0.15);
+    box-shadow: 0 0 0 3px rgba(26, 109, 143, 0.15);
     outline: none;
 }
 
@@ -618,7 +618,7 @@ html[data-theme="dark"] .input-group-text {
 }
 
 .table-light {
-    --bs-table-bg: #E4EFF5;
+    --bs-table-bg: #E8F3FA;
     --bs-table-color: var(--text-main);
 }
 
@@ -630,7 +630,7 @@ html[data-theme="dark"] .input-group-text {
     letter-spacing: 0.06em;
     border-bottom-width: 2px;
     border-bottom-color: var(--border-strong);
-    background: #E8F2F8;
+    background: #D9EBF6;
     padding: 0.8rem 1rem;
 }
 
@@ -642,7 +642,7 @@ html[data-theme="dark"] .input-group-text {
 }
 
 .table-hover > tbody > tr:hover > * {
-    --bs-table-hover-bg: #D5EBF4;
+    --bs-table-hover-bg: #C8E2F1;
     --bs-table-hover-color: var(--text-main);
     color: var(--text-main);
 }
@@ -687,14 +687,14 @@ html[data-theme="dark"] .table-hover > tbody > tr:hover > * {
     padding: 0.7rem 1.75rem;
     font-weight: 700;
     color: #ffffff;
-    box-shadow: 0 4px 14px rgba(30, 127, 163, 0.35);
+    box-shadow: 0 4px 14px rgba(26, 109, 143, 0.35);
     transition: var(--transition);
 }
 
 .btn-primary:hover {
     background: var(--primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(30, 127, 163, 0.4);
+    box-shadow: 0 8px 20px rgba(26, 109, 143, 0.4);
     color: #ffffff;
 }
 
@@ -845,7 +845,7 @@ html[data-theme="dark"] .list-group-item {
 .hero-section {
     position: relative;
     padding: 160px 0 100px;
-    background: radial-gradient(circle at 0% 0%, rgba(30, 127, 163, 0.05) 0%, transparent 50%),
+    background: radial-gradient(circle at 0% 0%, rgba(26, 109, 143, 0.05) 0%, transparent 50%),
                 radial-gradient(circle at 100% 100%, rgba(53, 152, 183, 0.05) 0%, transparent 50%);
 }
 
