@@ -11,21 +11,35 @@
     .test-launch {
         min-height: calc(100vh - 72px);
         display: flex;
-        align-items: center;
+        flex-direction: column;
         justify-content: center;
-        background: var(--bg-main);
-        padding: 40px 24px;
-        overflow: hidden;
+        padding: 28px 24px 44px;
     }
     .test-launch *, .test-launch *::before, .test-launch *::after { box-sizing: border-box; }
+
+    /* --- Fila superior: botón volver (debajo del logo FUTURO 360) --- */
+    .tl-top {
+        width: 100%;
+        max-width: 980px;
+        margin: 0 auto 20px;
+    }
+
+    /* --- Bloque de contenido --- */
+    .tl-card {
+        width: 100%;
+        max-width: 980px;
+        margin: 0 auto;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        padding: 44px 48px;
+    }
 
     .tl-layout {
         display: flex;
         align-items: center;
         gap: 64px;
-        width: 100%;
-        max-width: 980px;
-        margin: 0 auto;
         color: var(--text-main);
         font-family: 'Inter', system-ui, sans-serif;
     }
@@ -138,15 +152,12 @@
 
     /* --- Responsive: una sola columna apilada --- */
     @media (max-width: 780px) {
-        .test-launch {
-            overflow: visible;
-            align-items: flex-start;
-            padding: 32px 20px;
-        }
+        .test-launch { justify-content: flex-start; padding: 24px 16px 40px; }
+        .tl-card { padding: 28px 22px; }
         .tl-layout {
             flex-direction: column;
             align-items: stretch;
-            gap: 32px;
+            gap: 28px;
         }
         .tl-left { flex: none; max-width: none; }
         .tl-meta { margin-bottom: 24px; }
@@ -155,56 +166,60 @@
 </style>
 
 <div class="test-launch">
-    <div class="tl-layout">
-        <div class="tl-left">
-            {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio', clases='mb-4') }}
+    <div class="tl-top">
+        {{ boton_volver(url_for('principal.dashboard'), etiqueta='Volver al inicio') }}
+    </div>
 
-            <h1 class="tl-title">Descubrí tu vocación</h1>
-            <p class="tl-sub">
-                Respondé situaciones cotidianas y encontrá el área profesional que
-                mejor se alinea con vos. No hay respuestas correctas: solo tu forma
-                de pensar.
-            </p>
+    <div class="tl-card">
+        <div class="tl-layout">
+            <div class="tl-left">
+                <h1 class="tl-title">Descubrí tu vocación</h1>
+                <p class="tl-sub">
+                    Respondé situaciones cotidianas y encontrá el área profesional que
+                    mejor se alinea con vos. No hay respuestas correctas: solo tu forma
+                    de pensar.
+                </p>
 
-            <p class="tl-meta">{{ total_preguntas }} preguntas · 5-8 minutos · Sin respuestas incorrectas</p>
+                <p class="tl-meta">{{ total_preguntas }} preguntas · 5-8 minutos · Sin respuestas incorrectas</p>
 
-            <form method="POST" action="{{ url_for('vocacional.test_iniciar') }}">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="tl-cta">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m8 5 11 7-11 7V5z"></path></svg>
-                    Comenzar el test
-                </button>
-            </form>
+                <form method="POST" action="{{ url_for('vocacional.test_iniciar') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="tl-cta">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m8 5 11 7-11 7V5z"></path></svg>
+                        Comenzar el test
+                    </button>
+                </form>
 
-            <p class="tl-nota">Tus respuestas se usan solo para calcular tu perfil.</p>
-        </div>
-
-        <div class="tl-divider"></div>
-
-        <div class="tl-right">
-            <h2 class="tl-steps-title">¿Cómo funciona?</h2>
-
-            <div class="tl-step">
-                <div class="tl-step-num">01</div>
-                <div>
-                    <h3>Elegí una opción</h3>
-                    <p>Leé cada situación cotidiana y elegí la alternativa que más se acerque a cómo pensás.</p>
-                </div>
+                <p class="tl-nota">Tus respuestas se usan solo para calcular tu perfil.</p>
             </div>
 
-            <div class="tl-step">
-                <div class="tl-step-num">02</div>
-                <div>
-                    <h3>Confirmá y avanzá</h3>
-                    <p>Cada elección suma puntos a un área profesional. Confirmá para pasar a la siguiente.</p>
-                </div>
-            </div>
+            <div class="tl-divider"></div>
 
-            <div class="tl-step">
-                <div class="tl-step-num">03</div>
-                <div>
-                    <h3>Descubrí tu área</h3>
-                    <p>Al finalizar vas a ver tu perfil vocacional y las carreras recomendadas para vos.</p>
+            <div class="tl-right">
+                <h2 class="tl-steps-title">¿Cómo funciona?</h2>
+
+                <div class="tl-step">
+                    <div class="tl-step-num">01</div>
+                    <div>
+                        <h3>Elegí una opción</h3>
+                        <p>Leé cada situación cotidiana y elegí la alternativa que más se acerque a cómo pensás.</p>
+                    </div>
+                </div>
+
+                <div class="tl-step">
+                    <div class="tl-step-num">02</div>
+                    <div>
+                        <h3>Confirmá y avanzá</h3>
+                        <p>Cada elección suma puntos a un área profesional. Confirmá para pasar a la siguiente.</p>
+                    </div>
+                </div>
+
+                <div class="tl-step">
+                    <div class="tl-step-num">03</div>
+                    <div>
+                        <h3>Descubrí tu área</h3>
+                        <p>Al finalizar vas a ver tu perfil vocacional y las carreras recomendadas para vos.</p>
+                    </div>
                 </div>
             </div>
         </div>
