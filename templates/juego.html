@@ -93,7 +93,7 @@
     .game-select-card:hover .game-emoji { transform: scale(1.12) rotate(-6deg); }
 
     /* ============================================================
-       ICON 1 — "Intuition Compass" (Intereses en Juego)
+       ICON 1 — "Intuition Compass" (Descubre tu orientación)
        Brújula en CSS puro: aguja con clip-path, ticks con
        conic-gradient; al pasar el mouse la aguja apunta al norte.
     ============================================================ */
@@ -964,6 +964,53 @@
     .btn-play:hover { transform: translateY(-3px); box-shadow: 0 18px 36px -12px rgba(47, 142, 171, 0.6); }
     .btn-play:active { transform: scale(0.97); }
 
+    /* --- Botón Start (borde ridge + tapas que se abren) --- */
+    .game-start {
+        position: relative;
+        width: 10em;
+        height: 3.5em;
+        border: 3px ridge #149CEA;
+        outline: none;
+        background-color: #202429;
+        color: #fff;
+        border-radius: 0.3em;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: box-shadow 1s ease;
+    }
+    .game-start::after {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: 3%;
+        width: 95%;
+        height: 40%;
+        background-color: #14171b;
+        transition: transform 0.5s ease;
+        transform-origin: center;
+    }
+    .game-start::before {
+        content: "";
+        position: absolute;
+        top: 80%;
+        left: 3%;
+        width: 95%;
+        height: 40%;
+        background-color: #14171b;
+        transition: transform 0.5s ease;
+        transform-origin: center;
+    }
+    .game-start:hover::before,
+    .game-start:hover::after { transform: scale(0); }
+    .game-start:hover { box-shadow: inset 0px 0px 25px #1479EA; }
+
     .empty-note {
         text-align: center;
         padding: 30px 20px;
@@ -1025,7 +1072,7 @@
                         <div class="compass-hub"></div>
                     </div>
                 </div>
-                <h4 class="fw-bold mb-2">Intereses en Juego</h4>
+                <h4 class="fw-bold mb-2">Descubre tu orientación</h4>
                 <p class="text-muted small mb-0" style="max-width:300px;">Elegí entre escenarios cotidianos y descubrí hacia dónde tira tu intuición.</p>
                 <span class="play-chip" style="background:rgba(124,58,237,0.12);color:#7c3aed;">
                     JUGAR <i class="bi bi-arrow-right"></i>
@@ -1056,7 +1103,7 @@
         <div class="game-topbar">
             <div class="game-logo">
                 <span class="logo-dot" style="background:linear-gradient(135deg,#7c3aed,#a855f7);"><i class="bi bi-joystick"></i></span>
-                Intereses en Juego
+                Descubre tu orientación
             </div>
             <div class="game-stats">
                 <span class="game-stat-pill"><i class="bi bi-shuffle text-primary"></i> <span id="q-counter">0 / 0</span></span>
@@ -1073,7 +1120,7 @@
                     sin pensarlo demasiado. Tu intuición es la que manda.
                 </p>
                 <div class="d-flex justify-content-center gap-3">
-                    <button class="btn-play" onclick="startGame()"><i class="bi bi-play-fill me-2"></i>Empezar</button>
+                    <button class="game-start" onclick="startGame()"><i class="bi bi-play-fill"></i>Empezar</button>
                 </div>
             </div>
 
@@ -1155,7 +1202,7 @@
                     Te presentamos profesiones una por una. Decí si te interesa, si querés saber más,
                     o pasá a la siguiente. Cuantos más matches, mejor tu perfil.
                 </p>
-                <button class="btn-play" onclick="startDiscoveryGame()"><i class="bi bi-play-fill me-2"></i>Comenzar</button>
+                <button class="game-start" onclick="startDiscoveryGame()"><i class="bi bi-play-fill"></i>Comenzar</button>
             </div>
 
             <!-- Carrera -->
