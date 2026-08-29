@@ -389,19 +389,6 @@
         position: relative;
     }
 
-    .game-start-icon {
-        width: 104px;
-        height: 104px;
-        margin: 0 auto 22px;
-        border-radius: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-size: 2.8rem;
-        box-shadow: 0 20px 44px -18px rgba(16, 24, 40, 0.5);
-    }
-
     /* --- Screens: fade / slide --- */
     .screen { display: none; }
     .screen.active { display: block; animation: screenIn 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
@@ -801,19 +788,6 @@
     .detail-hero::before { width: 190px; height: 190px; top: -70px; right: -50px; }
     .detail-hero::after { width: 120px; height: 120px; bottom: -50px; left: -30px; }
     .detail-hero > * { position: relative; z-index: 1; }
-    .detail-hero-emoji {
-        width: 78px;
-        height: 78px;
-        margin: 0 auto 14px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.16);
-        border: 1px solid rgba(255, 255, 255, 0.35);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.3rem;
-        backdrop-filter: blur(4px);
-    }
     .detail-area-chip {
         display: inline-flex;
         align-items: center;
@@ -987,16 +961,6 @@
         text-align: center;
         padding: 20px 10px 28px;
     }
-    .result-hero .trophy {
-        font-size: 4rem;
-        animation: trophyBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-        display: inline-block;
-    }
-    @keyframes trophyBounce {
-        0% { transform: scale(0); }
-        55% { transform: scale(1.25); }
-        100% { transform: scale(1); }
-    }
     .result-hero h2 {
         font-weight: 800;
         letter-spacing: -0.02em;
@@ -1064,7 +1028,6 @@
         padding: 22px 22px 16px;
         color: #fff;
     }
-    .result-career-card .cc-top .cc-emoji { font-size: 2rem; }
     .result-career-card .cc-top h6 {
         font-weight: 800;
         font-size: 1rem;
@@ -1324,7 +1287,6 @@
         <div class="game-body">
             <!-- Inicio -->
             <div id="start-screen" class="screen active text-center">
-                <div class="game-start-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7);animation:floaty 3s ease-in-out infinite;"><i class="bi bi-compass-fill"></i></div>
                 <h3 class="fw-bold mb-2">¿Listo para el desafío?</h3>
                 <p class="text-muted mb-4" style="max-width:420px;margin-inline:auto;">
                     Te mostramos escenarios de la vida real. Elegí la opción que más te represente,
@@ -1404,7 +1366,6 @@
             <!-- Resultado Intereses -->
             <div id="result-screen" class="screen">
                 <div class="result-hero">
-                    <span class="trophy"><i class="bi bi-trophy-fill" style="color:#7c3aed;"></i></span>
                     <h2>Tu perfil de intereses</h2>
                     <p id="game-result-text" class="lead"></p>
                 </div>
@@ -1452,7 +1413,6 @@
         <div class="game-body">
             <!-- Inicio -->
             <div id="discovery-start" class="screen active text-center">
-                <div class="game-start-icon" style="background:linear-gradient(135deg,#2F8EAB,#142B38);animation:floaty 3s ease-in-out infinite;"><i class="bi bi-suit-heart-fill"></i></div>
                 <h3 class="fw-bold mb-2">Encontrá tu match vocacional</h3>
                 <p class="text-muted mb-4" style="max-width:430px;margin-inline:auto;">
                     Te presentamos profesiones una por una. Decí si te interesa, si querés saber más,
@@ -1508,7 +1468,6 @@
             <!-- Resultado Discovery -->
             <div id="discovery-results" class="screen">
                 <div class="result-hero">
-                    <span class="trophy"><i class="bi bi-trophy-fill" style="color:#2F8EAB;"></i></span>
                     <h2>Tu perfil vocacional</h2>
                     <p id="discovery-summary" class="lead"></p>
                 </div>
@@ -1549,7 +1508,6 @@
                 </div>
 
                 <div class="detail-hero">
-                    <div class="detail-hero-emoji" id="details-icon"><i class="bi bi-mortarboard-fill"></i></div>
                     <div>
                         <span class="detail-area-chip"><i class="bi bi-patch-check-fill"></i> <span id="details-area"></span></span>
                     </div>
@@ -1753,17 +1711,10 @@
             'linear-gradient(135deg,#10b981,#047857)',
             'linear-gradient(135deg,#f59e0b,#ea580c)'
         ];
-        const emojis = [
-            '<i class="bi bi-mortarboard-fill"></i>',
-            '<i class="bi bi-briefcase-fill"></i>',
-            '<i class="bi bi-atom"></i>',
-            '<i class="bi bi-palette-fill"></i>'
-        ];
         return `
             <div class="col-md-4">
                 <div class="result-career-card">
                     <div class="cc-top" style="background:${gradients[idx % gradients.length]};">
-                        <div class="cc-emoji">${emojis[idx % emojis.length]}</div>
                         <h6>${career.nombre}</h6>
                         <div class="cc-area">${career.area_profesional}</div>
                     </div>
