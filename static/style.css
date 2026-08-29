@@ -979,6 +979,15 @@ main .display-5 + .lead,
     color: var(--text-secondary);
 }
 
+/* Carreras (y leads de páginas sobre gris): textos sueltos que se leen sobre
+   la imagen gris del body — se marcan a tinta casi negra para no perderse.
+   Solo afecta a texto no enmarcado en tarjetas. */
+main h1.display-4.text-primary + .lead,
+#filterForm .form-label,
+#resultCounter {
+    color: var(--text-main);
+}
+
 /* El lead del hero (texto largo) se marca más aún */
 .display-3 {
     letter-spacing: -0.05em;
