@@ -1,22 +1,28 @@
 /* =========================================================
-   FUTURO 360 — ADMIN PANEL DESIGN SYSTEM
+   FUTURO 360 — ADMIN PANEL DESIGN SYSTEM v2
    Layout profesional: sidebar + topbar + contenido
+   Contraste WCAG AA/AAA en modo claro y oscuro
    ========================================================= */
 
 :root {
-    --admin-primary: #2F8EAB;
-    --admin-primary-dark: #142B38;
-    --admin-accent: #42A6C2;
-    --admin-bg: #E9F2F7;
-    --admin-surface: #FFFFFF;
-    --admin-border: #C9DEE9;
-    --admin-border-strong: #A9CEDA;
-    --admin-text: #1E2A38;
-    --admin-text-muted: #5B7186;
-    --admin-sidebar-w: 264px;
-    --admin-radius: 14px;
-    --admin-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.12);
-    --admin-shadow-lg: 0 12px 32px -12px rgba(16, 24, 40, 0.18);
+    --admin-primary:        #1E7FA3;   /* Azul principal */
+    --admin-primary-hover:  #1A6E8E;   /* Azul hover */
+    --admin-primary-dark:   #0B1B28;   /* Azul marino — texto oscuro */
+    --admin-accent:         #3BAFD0;   /* Acento cian */
+    --admin-bg:             #E2EDF5;   /* Fondo general con tinte azul-gris claro */
+    --admin-bg-subtle:      #EDF5FA;   /* Fondo secundario */
+    --admin-surface:        #FFFFFF;   /* Superficie card crisp */
+    --admin-surface-alt:    #DCECF6;   /* Encabezados de tarjetas y secciones */
+    --admin-border:         #A8CCE0;   /* Borde nítido para separar tarjetas */
+    --admin-border-strong:  #75AECE;   /* Borde destacado */
+    --admin-text:           #0B1B28;   /* Texto principal — máximo contraste */
+    --admin-text-secondary: #244C66;   /* Texto secundario */
+    --admin-text-muted:     #46718C;   /* Texto atenuado */
+    --admin-sidebar-w:      264px;
+    --admin-radius:         14px;
+    --admin-shadow:         0 2px 6px 0 rgba(11, 27, 40, 0.05), 0 8px 24px -8px rgba(11, 27, 40, 0.10);
+    --admin-shadow-lg:      0 12px 32px -8px rgba(11, 27, 40, 0.16);
+    --admin-shadow-xl:      0 24px 48px -12px rgba(11, 27, 40, 0.22);
 }
 
 .admin-body {
@@ -232,8 +238,9 @@
     position: sticky;
     top: 0;
     z-index: 1030;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: saturate(180%) blur(12px);
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: saturate(200%) blur(16px);
+    -webkit-backdrop-filter: saturate(200%) blur(16px);
     border-bottom: 1px solid var(--admin-border);
     padding: 16px 32px;
     display: flex;
@@ -241,20 +248,23 @@
     justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.05), 0 4px 12px -4px rgba(13,34,51,0.08);
 }
 
 .admin-topbar h1 {
     font-size: 1.35rem;
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
     margin: 0;
     color: var(--admin-text);
+    line-height: 1.2;
 }
 
 .admin-topbar-subtitle {
     margin: 3px 0 0;
     color: var(--admin-text-muted);
-    font-size: 0.88rem;
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 
 .admin-topbar-actions {
@@ -312,25 +322,27 @@
     border: 1px solid var(--admin-border);
     border-radius: var(--admin-radius);
     box-shadow: var(--admin-shadow);
+    color: var(--admin-text);
 }
 
 .admin-card-header {
-    padding: 20px 24px;
+    padding: 18px 24px;
     border-bottom: 1px solid var(--admin-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
     flex-wrap: wrap;
-    background: #F3F8FB;
+    background: var(--admin-surface-alt);
     border-radius: var(--admin-radius) var(--admin-radius) 0 0;
 }
 
 .admin-card-header h5 {
     font-weight: 700;
     margin: 0;
-    font-size: 1.02rem;
+    font-size: 1rem;
     color: var(--admin-text);
+    letter-spacing: -0.015em;
 }
 
 .admin-card-header h5 i {
@@ -342,10 +354,12 @@
     color: var(--admin-text-muted);
     font-size: 0.8rem;
     margin-top: 2px;
+    font-weight: 500;
 }
 
 .admin-card-body {
     padding: 24px;
+    color: var(--admin-text);
 }
 
 /* ---------- GRÁFICOS DE ESTADÍSTICAS ---------- */
@@ -356,16 +370,20 @@
     padding: 20px;
     box-shadow: var(--admin-shadow);
     height: 100%;
+    color: var(--admin-text);
 }
 .chart-box canvas {
     max-height: 240px;
     width: 100% !important;
 }
 
-/* Se mantiene compatibilidad con la clase vieja */
-.admin-card.section-card {
-    padding: 0;
+html[data-theme="dark"] .chart-box {
+    background: var(--admin-surface);
+    border-color: var(--admin-border);
 }
+
+/* Compatibilidad con clase vieja */
+.admin-card.section-card { padding: 0; }
 
 /* ---------- STAT CARDS (KPI) ---------- */
 .stat-card {
@@ -378,14 +396,16 @@
     align-items: flex-start;
     gap: 14px;
     box-shadow: var(--admin-shadow);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
     position: relative;
     overflow: hidden;
+    color: var(--admin-text);
 }
 
 .stat-card:hover {
     transform: translateY(-3px);
     box-shadow: var(--admin-shadow-lg);
+    border-color: var(--admin-border-strong);
 }
 
 .stat-icon {
@@ -399,27 +419,29 @@
     flex-shrink: 0;
 }
 
-.stat-icon.primary { background: rgba(47, 142, 171, 0.12); color: var(--admin-primary); }
-.stat-icon.success { background: rgba(25, 135, 84, 0.12); color: #198754; }
-.stat-icon.info    { background: rgba(13, 202, 240, 0.14); color: #0891b2; }
-.stat-icon.warning { background: rgba(245, 158, 11, 0.14); color: #d97706; }
-.stat-icon.danger  { background: rgba(220, 53, 69, 0.12); color: #dc3545; }
-.stat-icon.violet  { background: rgba(124, 58, 237, 0.12); color: #7c3aed; }
+/* Modo claro — iconos semánticos con fondo tintado */
+.stat-icon.primary { background: rgba(30, 127, 163, 0.12); color: #1E7FA3; }
+.stat-icon.success { background: rgba(22, 101, 52, 0.12);  color: #15803D; }
+.stat-icon.info    { background: rgba(14, 79, 107, 0.12);  color: #0369A1; }
+.stat-icon.warning { background: rgba(146, 64, 14, 0.12);  color: #B45309; }
+.stat-icon.danger  { background: rgba(153, 27, 27, 0.12);  color: #B91C1C; }
+.stat-icon.violet  { background: rgba(109, 40, 217, 0.12); color: #6D28D9; }
 
 .stat-label {
     color: var(--admin-text-muted);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
     margin-bottom: 2px;
 }
 
 .stat-value {
-    font-size: 1.7rem;
+    font-size: 1.75rem;
     font-weight: 800;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.035em;
     line-height: 1.1;
+    color: var(--admin-text);
 }
 
 .stat-value small {
@@ -439,18 +461,18 @@
     gap: 6px;
 }
 
-.stat-sub i {
-    font-size: 0.85rem;
-    opacity: 0.75;
-}
+.stat-sub i { font-size: 0.85rem; opacity: 0.8; }
 
 html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
 
 /* ---------- TABLES ---------- */
 .admin-card .table {
     margin: 0;
-    --bs-table-hover-bg: #F6FAFC;
+    --bs-table-color: var(--admin-text);
+    --bs-table-border-color: var(--admin-border);
+    --bs-table-hover-bg: #DFF0F7;
     --bs-table-hover-color: var(--admin-text);
+    color: var(--admin-text);
 }
 
 .admin-card .table-hover > tbody > tr:hover > *,
@@ -460,27 +482,26 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
 }
 
 .admin-card .table thead th {
-    background: #E4EFF5;
-    border-bottom: 1px solid var(--admin-border);
+    background: #D8ECF4;
+    border-bottom: 2px solid var(--admin-border-strong);
     color: var(--admin-primary-dark);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 12px 16px;
+    letter-spacing: 0.08em;
+    padding: 11px 16px;
     white-space: nowrap;
 }
 
 .admin-card .table tbody td {
-    padding: 13px 16px;
+    padding: 12px 16px;
     vertical-align: middle;
-    border-color: #EEF3F6;
+    border-color: #E8F2F8;
     font-size: 0.9rem;
+    color: var(--admin-text);
 }
 
-.admin-card .table-responsive {
-    padding: 0;
-}
+.admin-card .table-responsive { padding: 0; }
 
 /* ---------- TABLA: AVATARES / EMAIL / FECHA ---------- */
 .user-avatar {
@@ -527,19 +548,21 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
 .admin-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
+    gap: 5px;
+    padding: 4px 11px;
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.025em;
+    line-height: 1.4;
 }
 
-.admin-badge-primary { background: rgba(47, 142, 171, 0.12); color: var(--admin-primary); }
-.admin-badge-success { background: rgba(25, 135, 84, 0.12); color: #198754; }
-.admin-badge-danger  { background: rgba(220, 53, 69, 0.12); color: #dc3545; }
-.admin-badge-muted   { background: #EEF2F6; color: #64748B; }
-.admin-badge-dueño  { background: rgba(255, 193, 7, 0.16); color: #B8860B; }
+/* Modo claro — badges semánticos con contraste alto */
+.admin-badge-primary { background: rgba(30, 127, 163, 0.12); color: #155E7A; }
+.admin-badge-success { background: rgba(22, 101, 52, 0.12);  color: #15652F; }
+.admin-badge-danger  { background: rgba(153, 27, 27, 0.12);  color: #991B1B; }
+.admin-badge-muted   { background: #E4ECF1;                  color: #3A5568; }
+.admin-badge-dueño   { background: rgba(180, 83, 9, 0.12);   color: #92400E; }
 
 /* ---------- BUTTONS ---------- */
 .admin-card .btn,
@@ -663,28 +686,29 @@ html[data-theme="dark"] .admin-btn-back:hover {
 
 /* Botones de icono en tablas (área de toque 44×44px) */
 .icon-btn {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 9px;
     border: 1px solid var(--admin-border);
-    background: #fff;
-    color: #64748B;
+    background: var(--admin-surface);
+    color: var(--admin-text-muted);
     transition: all 0.15s ease;
+    font-size: 0.95rem;
 }
 
 .icon-btn:hover {
     border-color: var(--admin-primary);
     color: var(--admin-primary);
-    background: #F0F9FC;
+    background: rgba(30, 127, 163, 0.06);
 }
 
 .icon-btn.danger:hover {
-    border-color: #dc3545;
-    color: #dc3545;
-    background: #FDF1F2;
+    border-color: #DC2626;
+    color: #DC2626;
+    background: rgba(220, 38, 38, 0.06);
 }
 
 /* ---------- FORMS ---------- */
@@ -920,14 +944,30 @@ html[data-theme="dark"] .admin-login .admin-login-card .border-top {
    Variables y componentes del panel bajo [data-theme="dark"]
    ========================================================= */
 html[data-theme="dark"] {
-    --admin-bg: #0B1620;
-    --admin-surface: #13232E;
-    --admin-border: #1E3A4A;
-    --admin-text: #E6F4F8;
-    --admin-text-muted: #9CC6D6;
-    --admin-sidebar-bg: #1E3A4A;
-    --admin-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.5);
-    --admin-shadow-lg: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+    /* Superficies dark — jerarquía de profundidad */
+    --admin-bg:             #09131D;   /* Fondo base: más oscuro */
+    --admin-bg-subtle:      #0D1B27;
+    --admin-surface:        #132130;   /* Card: un nivel más claro */
+    --admin-surface-alt:    #0F1C28;   /* Header de card: entre bg y surface */
+
+    /* Texto dark — contraste alto */
+    --admin-text:           #E8F4FA;   /* Blanco azulado */
+    --admin-text-secondary: #A8CEDF;   /* Texto secundario */
+    --admin-text-muted:     #6A9AB0;   /* Texto atenuado */
+
+    /* Bordes dark */
+    --admin-border:         #1B3648;
+    --admin-border-strong:  #274D66;
+
+    /* Colores ajustados para fondos oscuros */
+    --admin-primary:        #3BAFD0;
+    --admin-primary-dark:   #90D8EE;
+    --admin-accent:         #5CC8E0;
+
+    /* Sombras dark */
+    --admin-shadow:    0 1px 3px rgba(0,0,0,0.5), 0 8px 24px -12px rgba(0,0,0,0.55);
+    --admin-shadow-lg: 0 12px 32px -12px rgba(0,0,0,0.65);
+    --admin-shadow-xl: 0 24px 48px -12px rgba(0,0,0,0.75);
 }
 
 html[data-theme="dark"] .admin-body {
@@ -972,62 +1012,61 @@ html[data-theme="dark"] .admin-burger {
     color: var(--admin-text);
 }
 
-/* Tablas */
+/* Tablas dark */
 html[data-theme="dark"] .admin-card .table {
-    --bs-table-hover-bg: #1A2F3D;
+    --bs-table-color: var(--admin-text);
+    --bs-table-border-color: var(--admin-border);
+    --bs-table-hover-bg: rgba(59, 175, 208, 0.07);
     --bs-table-hover-color: var(--admin-text);
+    color: var(--admin-text);
 }
 html[data-theme="dark"] .admin-card .table thead th {
-    background: #101E2A;
-    border-bottom-color: var(--admin-border);
-    color: var(--admin-text-muted);
+    background: var(--admin-surface-alt);
+    border-bottom-color: var(--admin-border-strong);
+    color: var(--admin-text-secondary);
 }
-html[data-theme="dark"] .admin-card .table tbody td { border-color: #1A2F3D; }
+html[data-theme="dark"] .admin-card .table tbody td {
+    border-color: var(--admin-border);
+    color: var(--admin-text);
+}
 html[data-theme="dark"] .admin-card .table tbody tr:hover td {
-    background: rgba(47, 142, 171, 0.06);
+    background: rgba(59, 175, 208, 0.07);
     color: var(--admin-text);
 }
 html[data-theme="dark"] .admin-card .table tbody tr { color: var(--admin-text); }
 html[data-theme="dark"] .admin-card .table tbody tr .text-muted { color: var(--admin-text-muted) !important; }
+html[data-theme="dark"] .admin-card .table-hover > tbody > tr:hover > * { color: var(--admin-text); }
 html[data-theme="dark"] .admin-card .table tbody tr:hover td a,
-html[data-theme="dark"] .admin-card .table tbody tr:hover td span {
-    color: inherit;
-}
-html[data-theme="dark"] .user-avatar { border: 1px solid var(--admin-border); }
-html[data-theme="dark"] .admin-email { color: var(--admin-text-muted); }
+html[data-theme="dark"] .admin-card .table tbody tr:hover td span { color: inherit; }
+
+html[data-theme="dark"] .user-avatar   { border: 1px solid var(--admin-border); }
+html[data-theme="dark"] .admin-email   { color: var(--admin-text-muted); }
 html[data-theme="dark"] .admin-email:hover { color: #7FD3E6; }
-html[data-theme="dark"] .admin-date { color: var(--admin-text); }
+html[data-theme="dark"] .admin-date    { color: var(--admin-text); }
 html[data-theme="dark"] .admin-date-time { color: var(--admin-text-muted); }
-html[data-theme="dark"] .admin-card .table-hover > tbody > tr:hover > * {
-    color: var(--admin-text);
-}
-html[data-theme="dark"] .admin-card .table tbody tr:hover td a,
-html[data-theme="dark"] .admin-card .table tbody tr:hover td span {
-    color: inherit;
-}
 
-/* Badges */
-html[data-theme="dark"] .admin-badge-muted { background: #1E3A4A; color: #B7C9D4; }
-html[data-theme="dark"] .admin-badge-primary { background: rgba(47, 142, 171, 0.18); color: #7FD3E6; }
-html[data-theme="dark"] .admin-badge-success { background: rgba(25, 135, 84, 0.18); color: #4CD489; }
-html[data-theme="dark"] .admin-badge-danger { background: rgba(220, 53, 69, 0.18); color: #FF8A8A; }
-html[data-theme="dark"] .admin-badge-dueño { background: rgba(255, 193, 7, 0.16); color: #FFD25E; }
+/* Badges dark — colores claros con suficiente contraste sobre fondo oscuro */
+html[data-theme="dark"] .admin-badge-muted   { background: rgba(106, 154, 176, 0.15); color: #A8CEDF; }
+html[data-theme="dark"] .admin-badge-primary  { background: rgba(59, 175, 208, 0.16);  color: #7FD3E6; }
+html[data-theme="dark"] .admin-badge-success  { background: rgba(74, 222, 128, 0.14);  color: #86EFAC; }
+html[data-theme="dark"] .admin-badge-danger   { background: rgba(248, 113, 113, 0.14); color: #FCA5A5; }
+html[data-theme="dark"] .admin-badge-dueño    { background: rgba(251, 191, 36, 0.14);  color: #FCD34D; }
 
-/* Botones de icono */
+/* Botones de icono — dark */
 html[data-theme="dark"] .icon-btn {
     background: var(--admin-surface);
     border-color: var(--admin-border);
     color: var(--admin-text-muted);
 }
 html[data-theme="dark"] .icon-btn:hover {
-    background: #1A2F3D;
+    background: rgba(59, 175, 208, 0.12);
     color: #7FD3E6;
     border-color: var(--admin-primary);
 }
 html[data-theme="dark"] .icon-btn.danger:hover {
-    background: rgba(220, 53, 69, 0.12);
-    color: #FF8A8A;
-    border-color: #dc3545;
+    background: rgba(248, 113, 113, 0.12);
+    color: #FCA5A5;
+    border-color: rgba(248, 113, 113, 0.5);
 }
 
 /* Formularios */
@@ -1163,24 +1202,34 @@ html[data-theme="dark"] .admin-content .btn-warning {
     --bs-btn-active-color: #fff;
 }
 
-/* Cards, filtros, paneles */
+/* Cards, filtros, paneles — dark */
 html[data-theme="dark"] .admin-card,
 html[data-theme="dark"] .admin-panel,
 html[data-theme="dark"] .filter-bar {
     background: var(--admin-surface);
     border-color: var(--admin-border);
+    color: var(--admin-text);
 }
 html[data-theme="dark"] .admin-card-header {
     border-bottom-color: var(--admin-border);
-    background: #101E2A;
+    background: var(--admin-surface-alt);
 }
-html[data-theme="dark"] .admin-card-header h5 { color: var(--admin-text); }
+html[data-theme="dark"] .admin-card-header h5   { color: var(--admin-text); }
+html[data-theme="dark"] .admin-card-body         { color: var(--admin-text); }
 html[data-theme="dark"] .game-option-card .text-dark { color: var(--admin-text) !important; }
 
-/* Stats */
-html[data-theme="dark"] .stat-card { background: var(--admin-surface); border-color: var(--admin-border); }
+/* Stat cards — dark */
+html[data-theme="dark"] .stat-card  { background: var(--admin-surface); border-color: var(--admin-border); color: var(--admin-text); }
 html[data-theme="dark"] .stat-value { color: var(--admin-text); }
 html[data-theme="dark"] .stat-label { color: var(--admin-text-muted); }
+
+/* Stat icons — dark (más brillo para fondos oscuros) */
+html[data-theme="dark"] .stat-icon.primary { background: rgba(59, 175, 208, 0.14); color: #7FD3E6; }
+html[data-theme="dark"] .stat-icon.success { background: rgba(74, 222, 128, 0.14); color: #86EFAC; }
+html[data-theme="dark"] .stat-icon.info    { background: rgba(56, 189, 248, 0.14); color: #7DD3F4; }
+html[data-theme="dark"] .stat-icon.warning { background: rgba(251, 191, 36, 0.14);  color: #FCD34D; }
+html[data-theme="dark"] .stat-icon.danger  { background: rgba(248, 113, 113, 0.14); color: #FCA5A5; }
+html[data-theme="dark"] .stat-icon.violet  { background: rgba(167, 139, 250, 0.14); color: #C4B5FD; }
 
 /* Empty state */
 html[data-theme="dark"] .admin-empty { color: var(--admin-text-muted); }
@@ -1194,12 +1243,12 @@ html[data-theme="dark"] .admin-content .flecha-arriba:hover {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%237FD3E6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10.5 L8 6.5 L12 10.5'/%3E%3C/svg%3E");
 }
 
-/* Alertas */
-html[data-theme="dark"] .alert { color: var(--admin-text); }
-html[data-theme="dark"] .alert-success { background-color: rgba(25, 135, 84, 0.15); border-color: rgba(25, 135, 84, 0.4); color: #7CE0A8; }
-html[data-theme="dark"] .alert-danger { background-color: rgba(220, 53, 69, 0.15); border-color: rgba(220, 53, 69, 0.4); color: #FFA2A2; }
-html[data-theme="dark"] .alert-warning { background-color: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #F5C96B; }
-html[data-theme="dark"] .alert-info { background-color: rgba(13, 202, 240, 0.15); border-color: rgba(13, 202, 240, 0.4); color: #7FD3E6; }
+/* Alertas — dark (fondo tintado + texto claro con buen contraste) */
+html[data-theme="dark"] .alert         { color: var(--admin-text); }
+html[data-theme="dark"] .alert-success  { background-color: rgba(74, 222, 128, 0.10); border-color: rgba(74, 222, 128, 0.30);  color: #86EFAC; }
+html[data-theme="dark"] .alert-danger   { background-color: rgba(248, 113, 113, 0.10); border-color: rgba(248, 113, 113, 0.30); color: #FCA5A5; }
+html[data-theme="dark"] .alert-warning  { background-color: rgba(251, 191, 36, 0.10);  border-color: rgba(251, 191, 36, 0.30);  color: #FCD34D; }
+html[data-theme="dark"] .alert-info     { background-color: rgba(59, 175, 208, 0.10);  border-color: rgba(59, 175, 208, 0.30);  color: #93D9F0; }
 
 /* =========================================================
    MEDIA UPLOADER — carga de imágenes/videos (drag & drop)
