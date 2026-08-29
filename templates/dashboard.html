@@ -239,8 +239,9 @@
     /* Título de herramientas: azul identidad */
     #herramientas h2 { color: var(--primary); }
 
-    /* Subtítulo de herramientas: azul profundo legible sobre el body gris */
-    #herramientas .text-muted { color: var(--primary-dark); }
+    /* Subtítulo de herramientas: azul profundo/marcado sobre el body gris.
+       El !important vence al .text-muted de Bootstrap para que se note. */
+    #herramientas .text-muted { color: var(--primary-dark) !important; }
 </style>
 
 <div class="container py-4 py-lg-5">
