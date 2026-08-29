@@ -11,13 +11,16 @@
     --admin-accent:         #3BAFD0;   /* Acento cian */
     --admin-bg:             #F3F6F9;   /* Fondo general gris-azul muy sutil (NO blanco puro) */
     --admin-bg-subtle:      #F0F6FB;   /* Fondo secundario */
-    --admin-surface:        #E3F0F8;   /* Superficie card: azul clarito */
-    --admin-surface-alt:    #D3E7F4;   /* Encabezados de tarjetas y secciones */
+    --admin-surface:        #0077B6;   /* Superficie card: azul intenso */
+    --admin-surface-alt:    #0C6AA5;   /* Encabezados de tarjetas y secciones */
     --admin-border:         #BCD8EB;   /* Borde nítido para separar tarjetas */
     --admin-border-strong:  #8FBEDB;   /* Borde destacado */
     --admin-text:           #0B1B28;   /* Texto principal — máximo contraste */
     --admin-text-secondary: #244C66;   /* Texto secundario */
-    --admin-text-muted:     #3E6A85;   /* Texto atenuado (AA sobre cards azules) */
+    --admin-text-muted:     #3E6A85;   /* Texto atenuado (contextos claros) */
+    --admin-card-text:      #FFFFFF;   /* Texto principal sobre cards azules */
+    --admin-card-text-muted:#F2F9FD;   /* Texto atenuado sobre cards azules (AA) */
+    --admin-card-link:      #F7FBFF;   /* Links sobre cards azules (AA) */
     --admin-sidebar-w:      264px;
     --admin-radius:         14px;
     --admin-shadow:         0 2px 6px 0 rgba(11, 27, 40, 0.05), 0 8px 24px -8px rgba(11, 27, 40, 0.10);
@@ -1731,4 +1734,133 @@ html[data-theme="dark"] .crop-ratio-btn.active { background: #1E3A4A; color: #7F
 @media (max-width: 575.98px) {
     .crop-stage { height: 300px; }
     .crop-reset-btn { margin-left: 0; }
+}
+
+/* =========================================================
+   MODO CLARO — PANEL AZUL INTENSO (#0077B6)
+   Texto claro sobre las superficies azules (WCAG AA).
+   El modo oscuro conserva sus propios valores (este bloque
+   solo aplica a html sin data-theme=dark).
+   ========================================================= */
+
+/* Texto base claro sobre las superficies azules del panel */
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) {
+    color: var(--admin-card-text);
+}
+
+/* Headings dentro de las superficies azules */
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) h1,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) h2,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) h3,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) h4,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) h5,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) h6 {
+    color: var(--admin-card-text);
+}
+
+/* Encabezado de tarjetas del panel: azul más oscuro con texto claro */
+html:not([data-theme="dark"]) .admin-card-header {
+    background: var(--admin-surface-alt);
+    color: var(--admin-card-text);
+}
+html:not([data-theme="dark"]) .admin-card-header h4,
+html:not([data-theme="dark"]) .admin-card-header h5,
+html:not([data-theme="dark"]) .admin-card-title { color: var(--admin-card-text); }
+
+/* Subtítulos, labels y textos atenuados dentro de superficies azules */
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) .admin-card-subtitle,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) .stat-label,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) .stat-sub,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) .admin-date-time,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) .admin-email,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) .admin-empty,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) .form-label,
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) .text-muted {
+    color: var(--admin-card-text-muted) !important;
+}
+
+/* Links dentro de superficies azules del panel */
+html:not([data-theme="dark"]) :is(.admin-card, .stat-card, .chart-box, .filter-bar,
+                                   .admin-panel, .admin-login-card, .game-option-card,
+                                   .media-preview, .crop-controls) a:not(.btn):not(.admin-nav-link) {
+    color: var(--admin-card-link);
+}
+
+/* Tablas dentro de tarjetas del panel: recuadro claro con texto oscuro */
+html:not([data-theme="dark"]) .admin-card .table {
+    background-color: #EAF4FB;
+}
+html:not([data-theme="dark"]) .admin-card .table tbody td { color: var(--admin-text); }
+html:not([data-theme="dark"]) .admin-card .table thead th { color: var(--admin-text-secondary); }
+
+/* Iconos de estadística: tintes blanco translúcido sobre la superficie azul */
+html:not([data-theme="dark"]) .stat-icon.primary,
+html:not([data-theme="dark"]) .stat-icon.success,
+html:not([data-theme="dark"]) .stat-icon.info,
+html:not([data-theme="dark"]) .stat-icon.warning,
+html:not([data-theme="dark"]) .stat-icon.danger,
+html:not([data-theme="dark"]) .stat-icon.violet {
+    background: rgba(255, 255, 255, 0.16);
+    color: #FFFFFF;
+}
+
+/* Botones cuadrados de iconos en el panel: fondo blanco con icono azul */
+html:not([data-theme="dark"]) .icon-btn { color: #0A5D93; }
+html:not([data-theme="dark"]) .icon-btn:hover { border-color: var(--admin-primary); color: var(--admin-primary); }
+html:not([data-theme="dark"]) .icon-btn.danger:hover,
+html:not([data-theme="dark"]) .icon-btn.danger:focus { border-color: #C93A2B; color: #C93A2B; background: #FDECEB; }
+
+/* Pestañas de medios activas sobre la superficie azul */
+html:not([data-theme="dark"]) .media-tab.active { color: var(--admin-card-text); }
+html:not([data-theme="dark"]) .crop-ratio-btn.active { color: var(--admin-card-text); }
+
+/* Botones outline dentro de superficies azules del panel: contorno blanco */
+html:not([data-theme="dark"]) :is(.admin-card, .admin-panel, .filter-bar,
+                                   .stat-card, .admin-login-card) .btn-outline-primary,
+html:not([data-theme="dark"]) :is(.admin-card, .admin-panel, .filter-bar,
+                                   .stat-card, .admin-login-card) .btn-outline-secondary,
+html:not([data-theme="dark"]) :is(.admin-card, .admin-panel, .filter-bar,
+                                   .stat-card, .admin-login-card) .btn-outline-danger {
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.85);
+}
+html:not([data-theme="dark"]) :is(.admin-card, .admin-panel, .filter-bar,
+                                   .stat-card, .admin-login-card) .btn-outline-primary:hover,
+html:not([data-theme="dark"]) :is(.admin-card, .admin-panel, .filter-bar,
+                                   .stat-card, .admin-login-card) .btn-outline-secondary:hover,
+html:not([data-theme="dark"]) :is(.admin-card, .admin-panel, .filter-bar,
+                                   .stat-card, .admin-login-card) .btn-outline-danger:hover {
+    background: #FFFFFF;
+    color: #0A5D93;
+    border-color: #FFFFFF;
 }
