@@ -148,14 +148,12 @@
                 <img
                     src="{{ carrera.imagen_portada|media }}"
                     onerror="this.onerror=null; this.src='{{ fallback_final }}';"
-                    class="card-img-top object-fit-cover"
-                    style="height: 220px; object-position: center;"
+                    class="card-img-top"
                     alt="{{ carrera.nombre }}">
                 {% else %}
                 <img
                     src="{{ fallback_final }}"
-                    class="card-img-top object-fit-cover"
-                    style="height: 220px; object-position: center;"
+                    class="card-img-top"
                     alt="{{ carrera.nombre }}">
                 {% endif %}
 
