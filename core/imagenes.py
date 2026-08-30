@@ -80,7 +80,11 @@ def guardar_archivo(archivo, prefijo, carpeta='', es_video=False):
                 'Cloudinary no disponible: %s. Guardando local.', e)
 
     # Fallback local: mismo comportamiento que antes de Cloudinary.
+    # Crear SIEMPRE static/imagenes (y la subcarpeta si corresponde) antes de
+    # guardar: si la carpeta no existe, archivo.save() lanza FileNotFoundError
+    # y rompe el alta de carreras/noticias con 500.
     base = os.path.join(current_app.static_folder, 'imagenes')
+    os.makedirs(base, exist_ok=True)
     if carpeta:
         base = os.path.join(base, carpeta)
         os.makedirs(base, exist_ok=True)
