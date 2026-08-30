@@ -144,9 +144,10 @@
         <div class="col-md-6 col-lg-4 career-item" data-id="{{ carrera.id }}" data-areas="{{ carrera.areas|join(',') }}">
             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden section-card p-0 career-card">
                 <!-- IMAGEN DE LA CARRERA -->
-                {% if carrera.imagen_portada %}
+                {% set img_lista = carrera.imagen_portada or carrera.imagen_principal %}
+                {% if img_lista %}
                 <img
-                    src="{{ carrera.imagen_portada|media }}"
+                    src="{{ img_lista|media }}"
                     onerror="this.onerror=null; this.src='{{ fallback_final }}';"
                     class="card-img-top"
                     alt="{{ carrera.nombre }}">

@@ -112,9 +112,10 @@
                 <div class="row g-0" style="align-items: flex-start;">
                     <!-- COLUMNA DE IMAGEN -->
                     <div class="col-md-6">
-                        {% if carrera.imagen_principal %}
+                        {% set img_detalle = carrera.imagen_principal or carrera.imagen_portada %}
+                        {% if img_detalle %}
                         <img
-                            src="{{ carrera.imagen_principal|media }}"
+                            src="{{ img_detalle|media }}"
                             onerror="this.onerror=null; this.src='{{ fallback_final_detalle }}';"
                             class="img-fluid carrera-img"
                             alt="{{ carrera.nombre }}">

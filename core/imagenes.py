@@ -26,7 +26,13 @@ def cloudinary_configurado():
 
 
 def _configurar_cloudinary():
-    """Configura el SDK de Cloudinary (idempotente)."""
+    """Configura el SDK de Cloudinary (idempotente).
+
+    Se fija un timeout acotado para las llamadas a la API: si Cloudinary está
+    lento o inaccesible, la subida no bloquea el request durante mucho tiempo y
+    se cae rápido al guardado local (evita la "demora" al crear carreras con
+    imágenes/videos).
+    """
     if not getattr(_configurar_cloudinary, '_listo', False):
         import cloudinary as cloud
         cloud.config(
@@ -35,6 +41,12 @@ def _configurar_cloudinary():
             api_secret=Config.CLOUDINARY_API_SECRET,
             secure=True,
         )
+        # Timeout de la API (segundos). Config soporta `api_request_timeout`
+        # en versiones recientes; si no, se ignora con try/except.
+        try:
+            cloud.config(api_request_timeout=60)
+        except Exception:
+            pass
         _configurar_cloudinary._listo = True
 
 
@@ -63,21 +75,30 @@ def guardar_archivo(archivo, prefijo, carpeta='', es_video=False):
     nombre_unico = f"{prefijo}_{int(time.time())}_{nombre_original}"
 
     if cloudinary_configurado():
-        try:
-            _configurar_cloudinary()
-            import cloudinary.uploader
-            resultado = cloudinary.uploader.upload(
-                archivo,
-                folder=carpeta or None,
-                public_id=os.path.splitext(nombre_unico)[0],
-                resource_type='video' if es_video else 'image',
-            )
-            return resultado.get('secure_url')
-        except Exception as e:
-            # Si Cloudinary rechaza la subida (credenciales, permisos, red),
-            # seguimos funcionando guardando el archivo localmente.
-            current_app.logger.warning(
-                'Cloudinary no disponible: %s. Guardando local.', e)
+        # Un reintento: los fallos transitorios de red/Cloudinary suelen ser
+        # pasajeros y no conviene caer al guardado local (que no persiste en
+        # Render) si se puede subir a la nube.
+        import cloudinary.uploader
+        for intento in range(2):
+            try:
+                _configurar_cloudinary()
+                resultado = cloudinary.uploader.upload(
+                    archivo,
+                    folder=carpeta or None,
+                    public_id=os.path.splitext(nombre_unico)[0],
+                    resource_type='video' if es_video else 'image',
+                )
+                return resultado.get('secure_url')
+            except Exception as e:
+                if intento == 0:
+                    # Reintenta una vez; si vuelve a fallar, guarda local.
+                    archivo.seek(0)  # resetea el stream antes del reintento
+                    current_app.logger.warning(
+                        'Cloudinary falló (intento %d): %s. Reintentando...',
+                        intento + 1, e)
+                else:
+                    current_app.logger.warning(
+                        'Cloudinary no disponible: %s. Guardando local.', e)
 
     # Fallback local: mismo comportamiento que antes de Cloudinary.
     # Crear SIEMPRE static/imagenes (y la subcarpeta si corresponde) antes de
