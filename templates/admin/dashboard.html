@@ -70,10 +70,6 @@
             </div>
         </div>
     </div>
-</div>
-
-<!-- Tarjetas adicionales: usuarios activos y tests -->
-<div class="row g-3 mb-4">
     <div class="col-6 col-md-4 col-xl-2">
         <div class="stat-card">
             <div class="stat-icon success"><i class="bi bi-person-check"></i></div>
@@ -194,49 +190,6 @@
         </div>
         {% else %}
         <p class="text-muted mb-0 small">Aún no hay orientaciones. Agregá la primera.</p>
-        {% endif %}
-    </div>
-</div>
-
-<!-- Carreras más vistas (ranking automático de Populares) -->
-<div class="admin-card mb-4">
-    <div class="admin-card-header">
-        <div>
-            <h5><i class="bi bi-fire"></i>Carreras más vistas</h5>
-            <div class="admin-card-subtitle">Las 6 carreras más visitadas por los usuarios. Este ranking alimenta el filtro "Populares" del sitio.</div>
-        </div>
-        <span class="admin-badge admin-badge-primary">{{ carreras_mas_vistas|length }} top</span>
-    </div>
-    <div class="admin-card-body">
-        {% if carreras_mas_vistas %}
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="fw-bold text-muted small text-uppercase" style="width: 40px;">#</th>
-                        <th class="fw-bold text-muted small text-uppercase">Carrera</th>
-                        <th class="fw-bold text-muted small text-uppercase">Área</th>
-                        <th class="fw-bold text-muted small text-uppercase text-end">Visitas</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for c in carreras_mas_vistas %}
-                    <tr>
-                        <td class="fw-bold text-muted">{{ loop.index }}</td>
-                        <td class="fw-semibold">{{ c['nombre'] }}</td>
-                        <td>
-                            {% if c['area_profesional'] %}
-                            <span class="admin-badge admin-badge-muted">{{ c['area_profesional'] }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-end fw-bold">{{ c['visitas'] }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <p class="text-muted mb-0 small"><i class="bi bi-info-circle me-1"></i> Todavía no hay visitas registradas. Las visitas se cuentan cada vez que un usuario abre el detalle de una carrera.</p>
         {% endif %}
     </div>
 </div>
