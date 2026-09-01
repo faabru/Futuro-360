@@ -6,10 +6,12 @@
 <style>
 /* =========================================================
    FUENTES
-   Se usa fuentes web por defecto (Poppins/Inter vía Google Fonts)
-   con fallback a fuentes del sistema para el render en servidor.
+   Se usan fuentes del sistema (se evita el fetch externo a
+   Google Fonts en tiempo de render, que puede fallar en el
+   servidor y romper la generacion del PDF). Para usar las
+   fuentes exactas Poppins/Inter, copia los .ttf a
+   static/fonts/ y agrega los @font-face.
    ========================================================= */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&amp;family=Inter:wght@400;500;600;700&amp;display=swap');
 
 /* =========================================================
    VARIABLES DE DISEÑO

@@ -338,8 +338,8 @@ def _construir_contexto(resultado, usuario, carreras=None):
     respuestas_detalle = detalle_data.get('respuestas') or []
     total_preguntas = len(respuestas_detalle)
 
-    area_principal = resultado.get('area_profesional_sugerida', 'Sin determinar')
-    notas = resultado.get('notas_personales', '').strip()
+    area_principal = resultado.get('area_profesional_sugerida') or 'Sin determinar'
+    notas = (resultado.get('notas_personales') or '').strip()
     fecha_test = resultado.get('fecha_realizacion', datetime.now())
     if hasattr(fecha_test, 'strftime'):
         fecha_str = f"{fecha_test.day} de {MESES_ES[fecha_test.month - 1]} de {fecha_test.year}"
@@ -528,7 +528,14 @@ def descargar_resultado_pdf(resultado_id):
         cursor.execute("SELECT * FROM carreras LIMIT 6")
         carreras_sugeridas = cursor.fetchall()
 
-    buffer = generar_pdf_resultado(resultado, g.user, carreras_sugeridas)
+    try:
+        buffer = generar_pdf_resultado(resultado, g.user, carreras_sugeridas)
+    except Exception as e:
+        current_app.logger.error('Error al generar PDF del resultado %s: %s',
+                                 resultado_id, e, exc_info=True)
+        traceback.print_exc()
+        flash('No se pudo generar tu PDF. Intentá de nuevo en unos minutos.', 'danger')
+        return redirect(url_for('vocacional.ver_resultado', resultado_id=resultado_id))
 
     return send_file(
         buffer,
