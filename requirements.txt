@@ -15,7 +15,7 @@ openpyxl==3.1.5
 # Generación de PDF del resultado vocacional.
 reportlab==4.2.0
 # Subida de imágenes/videos a Cloudinary (fallback local sin claves).
-cloudinary==1.40.0
+cloudinary==1.46.2
 # Servidor WSGI para producción (Render). 25.3.0 publicado en PyPI.
 # Serie 22.x/23.x también disponibles; 25.3.0 es la que usamos por su soporte.
 gunicorn==25.3.0

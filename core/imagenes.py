@@ -97,8 +97,15 @@ def guardar_archivo(archivo, prefijo, carpeta='', es_video=False):
                         'Cloudinary falló (intento %d): %s. Reintentando...',
                         intento + 1, e)
                 else:
-                    current_app.logger.warning(
-                        'Cloudinary no disponible: %s. Guardando local.', e)
+                    # Log con traceback completo para ver en Render el error
+                    # exacto de Cloudinary (credenciales, versión, red, etc.).
+                    current_app.logger.exception(
+                        'Cloudinary no disponible tras %d intentos (config: '
+                        'cloud=%s, key=%s). Guardando local. Error: %s',
+                        intento + 1,
+                        Config.CLOUDINARY_CLOUD_NAME,
+                        Config.CLOUDINARY_API_KEY,
+                        e)
 
     # Fallback local: mismo comportamiento que antes de Cloudinary.
     # Crear SIEMPRE static/imagenes (y la subcarpeta si corresponde) antes de
