@@ -34,6 +34,14 @@ def admin_usuarios():
         total_en_linea = cursor.fetchone()['total']
     except Exception:
         total_en_linea = 0
+    try:
+        cursor.execute(
+            "SELECT COUNT(DISTINCT s.user_id) AS total FROM sesiones_activas s "
+            "JOIN usuarios u ON u.id = s.user_id "
+            "WHERE s.last_seen >= NOW() - INTERVAL 3 MINUTE AND u.rol = 'admin'")
+        admins_en_linea = cursor.fetchone()['total']
+    except Exception:
+        admins_en_linea = 0
 
     f_nombre = request.args.get('nombre', '').strip()
     f_email = request.args.get('email', '').strip()
@@ -73,7 +81,7 @@ def admin_usuarios():
 
     return render_template('admin/usuarios.html', usuarios=usuarios,
                            total_usuarios=total_usuarios, total_admins=total_admins,
-                           total_en_linea=total_en_linea,
+                           total_en_linea=total_en_linea, admins_en_linea=admins_en_linea,
                            f_nombre=f_nombre, f_email=f_email, f_fecha=f_fecha,
                            f_estado=f_estado,
                            email_dueño=Config.ADMIN_EMAIL,

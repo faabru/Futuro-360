@@ -168,8 +168,8 @@ def admin_dashboard():
 @bp.route('/admin/usuarios-en-linea')
 @requiere_admin
 def admin_usuarios_en_linea():
-    """Devuelve (JSON) la cantidad de usuarios conectados en los últimos 3 min
-    y el total de tests realizados (para mostrar en tiempo real)."""
+    """Devuelve (JSON) la cantidad de usuarios conectados en los últimos 3 min,
+    el total de tests realizados y los administradores en línea."""
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
     try:
@@ -184,4 +184,12 @@ def admin_usuarios_en_linea():
         total_tests = cursor.fetchone()['total']
     except Exception:
         total_tests = 0
-    return jsonify(total=total, tests=total_tests)
+    try:
+        cursor.execute(
+            "SELECT COUNT(DISTINCT s.user_id) AS total FROM sesiones_activas s "
+            "JOIN usuarios u ON u.id = s.user_id "
+            "WHERE s.last_seen >= NOW() - INTERVAL 3 MINUTE AND u.rol = 'admin'")
+        admins = cursor.fetchone()['total']
+    except Exception:
+        admins = 0
+    return jsonify(total=total, tests=total_tests, admins=admins)

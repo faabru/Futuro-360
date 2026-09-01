@@ -65,6 +65,16 @@
             </div>
         </div>
     </div>
+    <div class="col-6 col-md-4 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-icon violet"><i class="bi bi-shield-check"></i></div>
+            <div>
+                <div class="stat-label">Administradores en línea</div>
+                <div class="stat-value text-violet" id="adminsEnLineaValue">{{ admins_en_linea }}</div>
+                <div class="stat-sub"><i class="bi bi-activity"></i> conectados ahora</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Filtro por estado de conexión -->
@@ -356,6 +366,8 @@
         .then(function (d) {
             const v = document.getElementById('enLineaValue');
             if (v) v.textContent = d.total;
+            const adm = document.getElementById('adminsEnLineaValue');
+            if (adm && typeof d.admins !== 'undefined') adm.textContent = d.admins;
             const tab = document.querySelector('#estadoTabs button[data-estado="en_linea"]');
             if (tab) tab.innerHTML = '<i class="bi bi-circle-fill text-success me-1"></i> En línea (' + d.total + ')';
         })
