@@ -112,14 +112,21 @@
     <form method="GET" action="{{ url_for('carreras.carreras') }}" id="filterForm" class="row mb-5 g-3">
         <!-- DROPDOWN DE ÁREAS (Incluye Populares) -->
         <div class="col-md-4">
-            <label for="areaFilter" class="form-label fw-bold small text-uppercase text-muted mb-2">Área Profesional</label>
-            <select id="areaFilter" name="filtro" class="form-select form-select-lg rounded-3 border-2 border-primary-subtle shadow-sm">
-                <option value="populares" {% if filtro_actual == 'populares' %}selected{% endif %}>Populares</option>
-                <option value="todas" {% if filtro_actual == 'todas' and area_actual == 'todas' %}selected{% endif %}>Todas las áreas</option>
-                {% for area in areas_disponibles %}
-                <option value="{{ area }}" {% if area_actual == area and filtro_actual != 'populares' %}selected{% endif %}>{{ area }}</option>
-                {% endfor %}
-            </select>
+            <label for="areaFilterBtn" class="form-label fw-bold small text-uppercase text-muted mb-2">Área Profesional</label>
+            <input type="hidden" name="filtro" id="areaFilterHidden" value="{{ filtro_actual }}">
+            <div class="dropdown w-100" id="areaFilterWrap">
+                <button class="btn area-dropdown-btn w-100 text-start d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" id="areaFilterBtn">
+                    <span class="fw-semibold" id="areaFilterLabel">{% if filtro_actual == 'todas' %}Todas las áreas{% elif filtro_actual == 'populares' %}Populares{% else %}{{ filtro_actual or 'Populares' }}{% endif %}</span>
+                    <i class="bi bi-chevron-down ms-2"></i>
+                </button>
+                <ul class="dropdown-menu area-dropdown-menu w-100 shadow-lg border-0 rounded-3" id="areaFilterMenu">
+                    <li><a class="dropdown-item" href="#" data-val="populares">Populares</a></li>
+                    <li><a class="dropdown-item" href="#" data-val="todas">Todas las áreas</a></li>
+                    {% for area in areas_disponibles %}
+                    <li><a class="dropdown-item" href="#" data-val="{{ area }}">{{ area }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
 
         <!-- BÚSQUEDA POR NOMBRE -->
@@ -188,7 +195,10 @@
 <!-- LÓGICA DE FILTRADO EN CLIENTE (SIN RECARGAR LA PÁGINA) -->
 <script>
     const searchInput = document.getElementById('careerSearch');
-    const areaFilter = document.getElementById('areaFilter');
+    const areaFilterHidden = document.getElementById('areaFilterHidden');
+    const areaFilterBtn = document.getElementById('areaFilterBtn');
+    const areaFilterLabel = document.getElementById('areaFilterLabel');
+    const areaFilterMenu = document.getElementById('areaFilterMenu');
     const careerItems = Array.from(document.querySelectorAll('.career-item'));
     const emptyState = document.getElementById('emptyState');
     const resultCounter = document.getElementById('resultCounter');
@@ -199,9 +209,33 @@
     if (urlParams.get('q')) {
         searchInput.value = urlParams.get('q');
     }
-    if (urlParams.get('filtro') && urlParams.get('filtro') !== 'populares') {
-        areaFilter.value = urlParams.get('filtro');
+    if (urlParams.get('filtro')) {
+        areaFilterHidden.value = urlParams.get('filtro');
     }
+
+    // Sincroniza la etiqueta del botón con el área activa del dropdown.
+    function sincronizarAreaLabel() {
+        const val = areaFilterHidden.value;
+        const activeItem = areaFilterMenu.querySelector(`[data-val="${CSS.escape(val)}"]`);
+        if (activeItem) {
+            areaFilterLabel.textContent = activeItem.textContent.trim();
+        } else {
+            areaFilterLabel.textContent = val === 'todas' ? 'Todas las áreas' : (val === 'populares' || !val ? 'Populares' : val);
+        }
+        areaFilterMenu.querySelectorAll('.dropdown-item').forEach(it => {
+            it.classList.toggle('active', it.getAttribute('data-val') === val);
+        });
+    }
+
+    // Cada opción del dropdown actualiza el valor y re-filtra.
+    areaFilterMenu.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', function (e) {
+            e.preventDefault();
+            areaFilterHidden.value = this.getAttribute('data-val');
+            sincronizarAreaLabel();
+            filterCareers();
+        });
+    });
 
     function updateCareerCount() {
         const visible = careerItems.filter(item => item.style.display !== 'none').length;
@@ -220,7 +254,7 @@
     // van primero (en el orden del ranking generado en el backend).
     function reorderCareers() {
         const container = document.getElementById('careerList');
-        const activeArea = areaFilter.value;
+        const activeArea = areaFilterHidden.value;
         const query = searchInput.value.toLowerCase().trim();
         if (query !== '' || activeArea !== 'populares') {
             originalOrder.forEach(node => container.appendChild(node));
@@ -235,7 +269,7 @@
 
     function filterCareers() {
         const query = searchInput.value.toLowerCase().trim();
-        const activeArea = areaFilter.value;
+        const activeArea = areaFilterHidden.value;
 
         // La búsqueda por nombre ignora el filtro de área; el filtro de área
         // solo aplica cuando no hay búsqueda activa.
@@ -264,21 +298,39 @@
     }
 
     searchInput.addEventListener('input', filterCareers);
-    areaFilter.addEventListener('change', filterCareers);
 
-    // Inicializar: aplicar filtros de la URL y contador
+    // Inicializar: aplicar filtros de la URL, etiqueta del botón y contador
+    sincronizarAreaLabel();
     filterCareers();
     updateCareerCount();
 </script>
 
 <style>
-    #areaFilter {
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%230d6efd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-        background-repeat: no-repeat;
-        background-position: right 0.75rem center;
-        background-size: 16px 12px;
-        padding-right: 2.5rem;
+    .area-dropdown-btn {
+        background-color: var(--card-bg) !important;
+        color: var(--text-main) !important;
+        border: 2px solid var(--card-border) !important;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 1.15rem;
+        line-height: 1.5;
+        box-shadow: var(--shadow-sm);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
+    .area-dropdown-btn:hover, .area-dropdown-btn[aria-expanded="true"] {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 0.25rem rgba(47, 142, 171, 0.15);
+        color: var(--text-main) !important;
+    }
+    .area-dropdown-btn .bi-chevron-down { transition: transform 0.25s ease; color: var(--text-muted); }
+    .area-dropdown-btn[aria-expanded="true"] .bi-chevron-down { transform: rotate(180deg); }
+    .area-dropdown-menu {
+        background-color: var(--card-bg) !important;
+        margin-top: 0.25rem;
+    }
+    .area-dropdown-menu .dropdown-item { color: var(--text-main); }
+    .area-dropdown-menu .dropdown-item:hover { background-color: rgba(47,142,171,0.1); }
+    .area-dropdown-menu .dropdown-item.active { background-color: rgba(47,142,171,0.12); color: var(--primary); }
 
     .career-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
