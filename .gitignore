@@ -12,6 +12,10 @@ check_db.py
 lista_imagenes.txt
 .env
 
+# Salida del script de ejemplo del comprobante (render_ejemplo.py).
+comprobante_ejemplo.html
+comprobante_ejemplo.pdf
+
 # Certificados SSL de Aiven — nunca subir a GitHub
 certs/
 *.pem

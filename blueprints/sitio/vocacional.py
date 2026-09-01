@@ -7,17 +7,9 @@ import json
 import re
 import traceback
 from datetime import datetime
-from xml.sax.saxutils import escape as escapar_xml
 
 from flask import (Blueprint, Response, current_app, flash, g, redirect,
                    render_template, request, send_file, session, url_for)
-from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.units import cm, mm
-from reportlab.platypus import (HRFlowable, Paragraph, SimpleDocTemplate,
-                                Spacer, Table, TableStyle)
 
 from core.decoradores import requiere_login
 from database_handler import obtener_db
@@ -258,66 +250,75 @@ def ver_resultado(resultado_id):
         respuestas_usuario=respuestas_usuario)
 
 
-# --- INFORME PDF DEL RESULTADO VOCACIONAL (mejora TFI: reportes en PDF) ---
-def generar_pdf_resultado(resultado, usuario, carreras=None):
-    """Genera un informe PDF profesional del resultado vocacional."""
-    buffer = io.BytesIO()
+# --- INFORME PDF DEL RESULTADO VOCACIONAL (generado con WeasyPrint) ---
 
-    # ── Configuración del documento ──
-    doc = SimpleDocTemplate(
-        buffer,
-        pagesize=A4,
-        rightMargin=2*cm,
-        leftMargin=2*cm,
-        topMargin=2*cm,
-        bottomMargin=2*cm,
-        title=f"Informe Vocacional — {usuario['nombre']}",
-        author="Futuro 360",
-        subject="Resultado del Test Vocacional"
-    )
+# Descripciones y colores por área para el comprobante PDF.
+DESCRIPCIONES_AREA = {
+    'Arte y Diseño': 'Tu perfil muestra una fuerte afinidad por la creatividad, '
+                     'el diseño y la expresión visual. Este campo valora la '
+                     'originalidad, la sensibilidad estética y la capacidad de '
+                     'materializar ideas en propuestas concretas.',
+    'Tecnología e Ingeniería': 'Tu perfil apunta a la resolución de problemas, la '
+                               'lógica y el mundo digital. Valorás la innovación, '
+                               'el razonamiento técnico y construir soluciones '
+                               'que impactan en la vida cotidiana.',
+    'Salud': 'Tu perfil destaca el cuidado de las personas, la empatía y el '
+             'interés por el bienestar. Este campo recompensa la responsabilidad, '
+             'la vocación de servicio y el trabajo metódico.',
+    'Derecho y Ciencias Sociales': 'Tu perfil muestra sensibilidad por la '
+                                   'sociedad, las normas y el vínculo entre las '
+                                   'personas. Valorás la justicia, el análisis '
+                                   'crítico y la comunicación clara.',
+    'Humanidades y Comunicación': 'Tu perfil valora la palabra, el conocimiento y '
+                                  'la comunicación. Este campo recompensa la '
+                                  'curiosidad, la expresión y la reflexión.',
+    'Ciencias Naturales y Agronomía': 'Tu perfil apunta al estudio del entorno, '
+                                      'la vida y los procesos naturales. Valorás '
+                                      'la investigación y el trabajo de campo.',
+    'Negocios y Economía': 'Tu perfil se orienta a la gestión, el dinero y la '
+                           'estrategia. Valorás la iniciativa, la organización y '
+                           'la toma de decisiones.',
+}
 
-    # ── Paleta de colores ──
-    AZUL_PRIMARIO   = colors.HexColor('#1a56db')   # azul principal
-    AZUL_OSCURO     = colors.HexColor('#1e3a5f')   # encabezado
-    AZUL_CLARO      = colors.HexColor('#e8f0fe')   # fondo suave
-    GRIS_TEXTO      = colors.HexColor('#374151')   # texto principal
-    GRIS_SUAVE      = colors.HexColor('#6b7280')   # texto secundario
-    VERDE_EXITO     = colors.HexColor('#059669')   # destacado positivo
-    BLANCO          = colors.white
 
-    # ── Estilos ──
-    styles = getSampleStyleSheet()
+def _area_slug(area):
+    """Devuelve el slug usado por los colores del anexo y del mapa."""
+    a = (area or '').lower()
+    if 'arte' in a or 'dise' in a:
+        return 'arte'
+    if 'humanidades' in a or 'comunicaci' in a:
+        return 'comunicacion'
+    if 'naturales' in a or 'agronom' in a:
+        return 'agronomia'
+    if 'salud' in a:
+        return 'salud'
+    if 'negocios' in a or 'econom' in a:
+        return 'negocios'
+    if 'derecho' in a or 'social' in a:
+        return 'derecho'
+    if 'tecnolog' in a or 'ingenier' in a:
+        return 'tecnologia'
+    return 'ciencias'
 
-    estilo_nombre = ParagraphStyle(
-        'nombre', fontSize=22, fontName='Helvetica-Bold',
-        textColor=BLANCO, alignment=TA_LEFT, leading=28
-    )
-    estilo_subtitulo_header = ParagraphStyle(
-        'subtitulo_header', fontSize=11, fontName='Helvetica',
-        textColor=colors.HexColor('#bfdbfe'), alignment=TA_LEFT, leading=16
-    )
-    estilo_area = ParagraphStyle(
-        'area', fontSize=28, fontName='Helvetica-Bold',
-        textColor=AZUL_PRIMARIO, alignment=TA_CENTER, leading=36
-    )
-    estilo_seccion = ParagraphStyle(
-        'seccion', fontSize=13, fontName='Helvetica-Bold',
-        textColor=AZUL_OSCURO, alignment=TA_LEFT, leading=18,
-        spaceBefore=12, spaceAfter=6
-    )
-    estilo_cuerpo = ParagraphStyle(
-        'cuerpo', fontSize=10, fontName='Helvetica',
-        textColor=GRIS_TEXTO, alignment=TA_LEFT, leading=16
-    )
-    estilo_nota = ParagraphStyle(
-        'nota', fontSize=9, fontName='Helvetica-Oblique',
-        textColor=GRIS_SUAVE, alignment=TA_LEFT, leading=14
-    )
-    estilo_pie = ParagraphStyle(
-        'pie', fontSize=8, fontName='Helvetica',
-        textColor=GRIS_SUAVE, alignment=TA_CENTER, leading=12
-    )
 
+def _area_color(area):
+    """Colores por área para el mapa de intereses."""
+    slug = _area_slug(area)
+    colores = {
+        'arte':        '#22b8d8',
+        'comunicacion': '#7c5cf0',
+        'agronomia':   '#4a8a3e',
+        'salud':       '#c98a1f',
+        'negocios':    '#c25b3f',
+        'derecho':     '#5c6b7d',
+        'tecnologia':  '#2f52ad',
+        'ciencias':    '#17a673',
+    }
+    return colores.get(slug, '#b9c2cf')
+
+
+def _construir_contexto(resultado, usuario, carreras=None):
+    """Construye el contexto de datos para el template del comprobante PDF."""
     # ── Parsear el detalle JSON: puntajes, respuestas y texto ──
     puntajes = {}
     respuestas_detalle = []
@@ -328,390 +329,163 @@ def generar_pdf_resultado(resultado, usuario, carreras=None):
 
     resumen = detalle_data.get('resumen') or []
     if resumen:
-        puntajes = {r['area']: r['puntos'] for r in resumen if r.get('area')}
+        puntajes = {r['area']: int(r['puntos']) for r in resumen if r.get('area')}
     else:
-        # Fallback para resultados viejos: extraer del texto "Área: N pts".
         detalle_texto = detalle_data.get('texto') or resultado.get('detalle') or ''
         matches = re.findall(r'([^:,]+):\s*(\d+)\s*pts', detalle_texto)
         puntajes = {m[0].strip(): int(m[1]) for m in matches}
 
     respuestas_detalle = detalle_data.get('respuestas') or []
+    total_preguntas = len(respuestas_detalle)
 
     area_principal = resultado.get('area_profesional_sugerida', 'Sin determinar')
-    notas = resultado.get('notas_personales', '')
+    notas = resultado.get('notas_personales', '').strip()
     fecha_test = resultado.get('fecha_realizacion', datetime.now())
     if hasattr(fecha_test, 'strftime'):
         fecha_str = f"{fecha_test.day} de {MESES_ES[fecha_test.month - 1]} de {fecha_test.year}"
     else:
         fecha_str = str(fecha_test)
 
-    # ── Contenido del PDF ──
-    elementos = []
-
-    # ╔══════════════════════════════╗
-    # ║  CABECERA con fondo azul     ║
-    # ╚══════════════════════════════╝
-    datos_header = [
-        [
-            Paragraph("Futuro 360", estilo_nombre),
-            Paragraph(f"Fecha: {fecha_str}", ParagraphStyle(
-                'fecha', fontSize=9, fontName='Helvetica',
-                textColor=colors.HexColor('#bfdbfe'), alignment=TA_RIGHT
-            ))
-        ],
-        [
-            Paragraph("Informe de Orientación Vocacional", estilo_subtitulo_header),
-            ''
-        ],
-        [
-            Paragraph(f"Estudiante: {usuario.get('nombre', '')}", ParagraphStyle(
-                'est', fontSize=10, fontName='Helvetica',
-                textColor=BLANCO, alignment=TA_LEFT
-            )),
-            ''
-        ],
-        [
-            Paragraph(f"Correo: {usuario.get('email') or '-'}", ParagraphStyle(
-                'est_mail', fontSize=10, fontName='Helvetica',
-                textColor=colors.HexColor('#bfdbfe'), alignment=TA_LEFT
-            )),
-            ''
-        ],
-    ]
-    tabla_header = Table(datos_header, colWidths=[13*cm, 4*cm])
-    tabla_header.setStyle(TableStyle([
-        ('BACKGROUND',  (0,0), (-1,-1), AZUL_OSCURO),
-        ('TEXTCOLOR',   (0,0), (-1,-1), BLANCO),
-        ('TOPPADDING',  (0,0), (-1,-1), 16),
-        ('BOTTOMPADDING',(0,-1),(-1,-1), 16),
-        ('LEFTPADDING', (0,0), (-1,-1), 20),
-        ('RIGHTPADDING',(0,0), (-1,-1), 16),
-        ('ROUNDEDCORNERS', [8]),
-        ('SPAN', (0,1), (-1,1)),
-        ('SPAN', (0,2), (-1,2)),
-        ('SPAN', (0,3), (-1,3)),
-    ]))
-    elementos.append(tabla_header)
-    elementos.append(Spacer(1, 0.5*cm))
-
-    # ╔══════════════════════════════╗
-    # ║  ÁREA PRINCIPAL DESTACADA    ║
-    # ╚══════════════════════════════╝
-    tabla_area = Table(
-        [[Paragraph("Área de Mayor Afinidad", ParagraphStyle(
-            'lbl', fontSize=10, fontName='Helvetica',
-            textColor=AZUL_PRIMARIO, alignment=TA_CENTER
-          ))],
-         [Paragraph(area_principal, estilo_area)],
-         [Paragraph(
-            "Esta es el área profesional con mayor afinidad según tus respuestas.",
-            ParagraphStyle('sub', fontSize=9, fontName='Helvetica',
-            textColor=GRIS_SUAVE, alignment=TA_CENTER)
-          )]],
-        colWidths=[17*cm]
+    # ── Área líder y descripción ──
+    descripcion = DESCRIPCIONES_AREA.get(
+        area_principal,
+        'Tu perfil refleja tus intereses vocacionales. Este es el campo donde '
+        'más afinidad mostraste según tus respuestas.'
     )
-    tabla_area.setStyle(TableStyle([
-        ('BACKGROUND',    (0,0), (-1,-1), AZUL_CLARO),
-        ('TOPPADDING',    (0,0), (-1,-1), 14),
-        ('BOTTOMPADDING', (0,-1),(-1,-1), 14),
-        ('LEFTPADDING',   (0,0), (-1,-1), 12),
-        ('RIGHTPADDING',  (0,0), (-1,-1), 12),
-        ('ROUNDEDCORNERS', [8]),
-    ]))
-    elementos.append(tabla_area)
-    elementos.append(Spacer(1, 0.4*cm))
 
-    # ╔══════════════════════════════╗
-    # ║  DESGLOSE DE PUNTAJES        ║
-    # ╚══════════════════════════════╝
-    if puntajes:
-        elementos.append(Paragraph("Desglose por área", estilo_seccion))
-        elementos.append(HRFlowable(width="100%", thickness=1,
-                                     color=AZUL_CLARO, spaceAfter=8))
+    # ── Empate del primer puesto ──
+    ordenado = sorted(puntajes.items(), key=lambda x: x[1], reverse=True)
+    top_areas = []
+    empate = False
+    if len(ordenado) >= 2 and ordenado[0][1] == ordenado[1][1] and ordenado[0][1] > 0:
+        empate = True
+        valor_max = ordenado[0][1]
+        for area, pts in ordenado[:2]:
+            top_areas.append({'nombre': area, 'puntaje': pts, 'max': valor_max})
+    nota_empate = (
+        'Detectamos un empate entre dos áreas. Esto significa que tenés intereses '
+        'repartidos y muchas opciones valiosas: podés explorar ambas o combinarlas '
+        'en tu recorrido académico.'
+    )
 
-        max_puntaje = max(puntajes.values()) if puntajes else 1
-        filas_puntajes = []
+    # ── Mapa de intereses (ordenado de mayor a menor) ──
+    max_pts = ordenado[0][1] if ordenado else 1
+    mapa_intereses = []
+    for area, pts in ordenado:
+        pct = int(pts / max_pts * 100) if max_pts else 0
+        mapa_intereses.append({
+            'nombre': area,
+            'puntaje': pts,
+            'color': _area_color(area),
+            'pct': pct,
+        })
+    nota_mapa = (
+        'Las barras muestran tu afinidad relativa en cada área. La más larga es '
+        'tu área con mayor cantidad de respuestas alineadas.'
+    )
 
-        for area, pts in sorted(puntajes.items(), key=lambda x: x[1], reverse=True):
-            porcentaje = int((pts / max_puntaje) * 100)
-            es_principal = area == area_principal
-
-            # Barra de progreso como tabla anidada
-            barra_llena  = int(porcentaje * 0.10)  # max 10 celdas
-            barra_vacia  = 10 - barra_llena
-
-            celdas_barra = ([['']*barra_llena + ['']*barra_vacia])
-            barra = Table(celdas_barra, colWidths=[0.8*cm]*10, rowHeights=[0.35*cm])
-            estilo_barra = [
-                ('BACKGROUND', (0,0), (barra_llena-1, 0), AZUL_PRIMARIO if not es_principal else VERDE_EXITO),
-                ('BACKGROUND', (barra_llena,0), (-1,0), colors.HexColor('#e5e7eb')),
-                ('ROUNDEDCORNERS', [4]),
-                ('LEFTPADDING',  (0,0),(-1,-1), 0),
-                ('RIGHTPADDING', (0,0),(-1,-1), 1),
-                ('TOPPADDING',   (0,0),(-1,-1), 0),
-                ('BOTTOMPADDING',(0,0),(-1,-1), 0),
-            ]
-            barra.setStyle(TableStyle(estilo_barra))
-
-            nombre_estilo = ParagraphStyle(
-                'an', fontSize=10,
-                fontName='Helvetica-Bold' if es_principal else 'Helvetica',
-                textColor=VERDE_EXITO if es_principal else GRIS_TEXTO
-            )
-            pts_estilo = ParagraphStyle(
-                'pts', fontSize=10, fontName='Helvetica-Bold',
-                textColor=AZUL_PRIMARIO, alignment=TA_RIGHT
-            )
-
-            filas_puntajes.append([
-                Paragraph(f"{'★ ' if es_principal else ''}{area}", nombre_estilo),
-                barra,
-                Paragraph(f"{pts} pts", pts_estilo)
-            ])
-
-        tabla_puntajes = Table(filas_puntajes, colWidths=[6*cm, 8.5*cm, 2.5*cm])
-        tabla_puntajes.setStyle(TableStyle([
-            ('ROWBACKGROUNDS', (0,0), (-1,-1), [BLANCO, colors.HexColor('#f9fafb')]),
-            ('TOPPADDING',    (0,0), (-1,-1), 8),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-            ('LEFTPADDING',   (0,0), (-1,-1), 8),
-            ('RIGHTPADDING',  (0,0), (-1,-1), 8),
-            ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
-            ('LINEBELOW',     (0,0), (-1,-2), 0.5, colors.HexColor('#e5e7eb')),
-        ]))
-        elementos.append(tabla_puntajes)
-        elementos.append(Spacer(1, 0.4*cm))
-
-    # ╔══════════════════════════════╗
-    # ║  CÓMO SE LLEGA AL RESULTADO  ║
-    # ╚══════════════════════════════╝
-    elementos.append(Paragraph("¿Cómo llegamos a este resultado?", estilo_seccion))
-    elementos.append(HRFlowable(width="100%", thickness=1,
-                                 color=AZUL_CLARO, spaceAfter=8))
-
-    explicacion = [
-        ("1", "Respondés preguntas de la vida real.",
-         "Cada pregunta te enfrenta a una situación cotidiana. Tu elección refleja "
-         "qué tipo de tareas y ambientes te atraen de forma natural."),
-        ("2", "Cada respuesta suma a un área profesional.",
-         "Al elegir una opción, sumás un punto a su área (Tecnología, Salud, Arte y "
-         "Diseño, etc.). La opción \"Ninguna de las anteriores\" no suma puntos."),
-        ("3", "Se comparan los puntajes.",
-         "Al final contamos cuántos puntos reunió cada área. La que más juntó se "
-         "convierte en tu área dominante, y con ella buscamos tus carreras recomendadas."),
+    # ── Metodología ──
+    pasos_metodologia = [
+        {
+            'titulo': 'Respondé tus preferencias',
+            'descripcion': 'Cada pregunta suma puntos a las áreas con las que vos '
+                           'más te identificás.',
+        },
+        {
+            'titulo': 'Contamos afinidades',
+            'descripcion': 'Sumamos tus respuestas y ordenamos las áreas según la '
+                           'cantidad de elecciones alineadas.',
+        },
+        {
+            'titulo': 'Te sugerimos carreras',
+            'descripcion': 'Relacionamos tu área líder con carreras del catálogo '
+                           'para darte opciones para empezar a mirar.',
+        },
     ]
-    for num, titulo, texto in explicacion:
-        fila = Table([[
-            Paragraph(num, ParagraphStyle('num_expl', fontSize=11,
-                      fontName='Helvetica-Bold', textColor=BLANCO,
-                      alignment=TA_CENTER)),
-            Paragraph(f"<b>{titulo}</b> {texto}", estilo_cuerpo)
-        ]], colWidths=[0.8*cm, 16.2*cm])
-        fila.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0), (0,0), AZUL_PRIMARIO),
-            ('TOPPADDING',    (0,0), (-1,-1), 7),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 7),
-            ('LEFTPADDING',   (0,0), (-1,-1), 8),
-            ('RIGHTPADDING',  (0,0), (-1,-1), 8),
-            ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
-            ('ROUNDEDCORNERS', [4]),
-        ]))
-        elementos.append(fila)
-        elementos.append(Spacer(1, 0.2*cm))
-    elementos.append(Spacer(1, 0.2*cm))
 
-    # ╔══════════════════════════════╗
-    # ║  TODAS LAS RESPUESTAS        ║
-    # ╚══════════════════════════════╝
-    if respuestas_detalle:
-        elementos.append(Paragraph("Tus respuestas", estilo_seccion))
-        elementos.append(HRFlowable(width="100%", thickness=1,
-                                     color=AZUL_CLARO, spaceAfter=8))
-        elementos.append(Paragraph(
-            f"Respondiste {len(respuestas_detalle)} preguntas. Este es el detalle completo "
-            "de lo que elegiste:", estilo_nota))
-        elementos.append(Spacer(1, 0.15*cm))
+    # ── Carreras sugeridas ──
+    carreras_sugeridas = []
+    for c in (carreras or []):
+        carreras_sugeridas.append({
+            'area': c.get('area_profesional') or area_principal,
+            'nombre': c.get('nombre') or '',
+            'descripcion': (c.get('descripcion') or c.get('a_que_se_dedica') or ''),
+        })
 
-        estilo_th = ParagraphStyle('th_resp', fontSize=9, fontName='Helvetica-Bold',
-                                   textColor=BLANCO, alignment=TA_LEFT, leading=12)
-        estilo_td = ParagraphStyle('td_resp', fontSize=8.5, fontName='Helvetica',
-                                   textColor=GRIS_TEXTO, alignment=TA_LEFT, leading=12)
-        estilo_td_num = ParagraphStyle('td_num', fontSize=8.5, fontName='Helvetica-Bold',
-                                       textColor=GRIS_SUAVE, alignment=TA_CENTER, leading=12)
-        estilo_td_area = ParagraphStyle('td_area', fontSize=8.5, fontName='Helvetica-Bold',
-                                        textColor=AZUL_PRIMARIO, alignment=TA_LEFT, leading=12)
-        estilo_td_neutral = ParagraphStyle('td_neutral', fontSize=8.5,
-                                           fontName='Helvetica-Oblique',
-                                           textColor=GRIS_SUAVE, alignment=TA_LEFT,
-                                           leading=12)
+    # ── Respuestas destacadas (primeras 4 con elección) ──
+    respuestas_destacadas = []
+    for i, r in enumerate(respuestas_detalle[:4], start=1):
+        respuestas_destacadas.append({
+            'numero': i,
+            'pregunta': r.get('pregunta', ''),
+            'respuesta': r.get('opcion', ''),
+        })
 
-        filas_resp = [[
-            Paragraph("N°", estilo_th),
-            Paragraph("Pregunta", estilo_th),
-            Paragraph("Tu elección", estilo_th),
-            Paragraph("Área", estilo_th),
-        ]]
-        for i, r in enumerate(respuestas_detalle, 1):
-            area_r = r.get('area')
-            filas_resp.append([
-                Paragraph(str(i), estilo_td_num),
-                Paragraph(escapar_xml(r.get('pregunta') or ''), estilo_td),
-                Paragraph(escapar_xml(r.get('opcion') or ''), estilo_td),
-                Paragraph(escapar_xml(area_r), estilo_td_area) if area_r
-                    else Paragraph("Neutral", estilo_td_neutral),
-            ])
+    # ── Anexo: todas las respuestas ──
+    todas_las_respuestas = []
+    for i, r in enumerate(respuestas_detalle, start=1):
+        area = r.get('area') or None
+        todas_las_respuestas.append({
+            'numero': i,
+            'pregunta': r.get('pregunta', ''),
+            'eleccion': r.get('opcion', ''),
+            'area': area,
+            'area_slug': _area_slug(area) if area else '',
+        })
 
-        tabla_resp = Table(filas_resp,
-                           colWidths=[0.9*cm, 6.9*cm, 5.7*cm, 3.5*cm],
-                           repeatRows=1)
-        tabla_resp.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0), (-1,0), AZUL_OSCURO),
-            ('ROWBACKGROUNDS',(0,1), (-1,-1), [BLANCO, colors.HexColor('#f9fafb')]),
-            ('GRID',          (0,0), (-1,-1), 0.5, colors.HexColor('#e5e7eb')),
-            ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
-            ('TOPPADDING',    (0,0), (-1,-1), 5),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-            ('LEFTPADDING',   (0,0), (-1,-1), 6),
-            ('RIGHTPADDING',  (0,0), (-1,-1), 6),
-        ]))
-        elementos.append(tabla_resp)
-        elementos.append(Spacer(1, 0.4*cm))
-    else:
-        elementos.append(Paragraph("Tus respuestas", estilo_seccion))
-        elementos.append(HRFlowable(width="100%", thickness=1,
-                                     color=AZUL_CLARO, spaceAfter=8))
-        elementos.append(Paragraph(
-            "Este informe corresponde a un test realizado con una versión anterior; "
-            "el detalle de respuestas individuales no está disponible.", estilo_nota))
-        elementos.append(Spacer(1, 0.4*cm))
-
-    # ╔══════════════════════════════╗
-    # ║  CARRERAS RECOMENDADAS       ║
-    # ╚══════════════════════════════╝
-    if carreras:
-        elementos.append(Paragraph("Carreras recomendadas para vos", estilo_seccion))
-        elementos.append(HRFlowable(width="100%", thickness=1,
-                                     color=AZUL_CLARO, spaceAfter=8))
-        elementos.append(Paragraph(
-            f"Seleccionamos {len(carreras)} carreras alineadas con tu perfil. "
-            "Encontrás cada una en el catálogo de Futuro 360:", estilo_nota))
-        elementos.append(Spacer(1, 0.15*cm))
-
-        estilo_car_nombre = ParagraphStyle('car_nombre', fontSize=11,
-                                           fontName='Helvetica-Bold',
-                                           textColor=AZUL_OSCURO, leading=14)
-        estilo_car_area = ParagraphStyle('car_area', fontSize=8.5,
-                                         fontName='Helvetica-Bold',
-                                         textColor=AZUL_PRIMARIO, leading=11)
-        estilo_car_desc = ParagraphStyle('car_desc', fontSize=9,
-                                         fontName='Helvetica',
-                                         textColor=GRIS_TEXTO, leading=13)
-
-        for i, c in enumerate(carreras, 1):
-            nombre_c = escapar_xml(c.get('nombre') or '')
-            area_c = escapar_xml(c.get('area_profesional') or '')
-            desc_c = (c.get('descripcion') or '').strip()
-            if len(desc_c) > 150:
-                desc_c = desc_c[:150].rsplit(' ', 1)[0] + '…'
-            desc_c = escapar_xml(desc_c)
-
-            contenido = [
-                Paragraph(nombre_c, estilo_car_nombre),
-                Spacer(1, 0.08*cm),
-                Paragraph(area_c.upper(), estilo_car_area),
-                Spacer(1, 0.08*cm),
-                Paragraph(desc_c, estilo_car_desc),
-            ]
-            fila = Table([[
-                Paragraph(str(i), ParagraphStyle('num_car', fontSize=12,
-                          fontName='Helvetica-Bold', textColor=BLANCO,
-                          alignment=TA_CENTER)),
-                contenido
-            ]], colWidths=[0.9*cm, 16.1*cm])
-            fila.setStyle(TableStyle([
-                ('BACKGROUND',    (0,0), (0,0), AZUL_PRIMARIO),
-                ('BACKGROUND',    (1,0), (1,0), colors.HexColor('#f8fafc')),
-                ('TOPPADDING',    (0,0), (-1,-1), 8),
-                ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-                ('LEFTPADDING',   (0,0), (-1,-1), 10),
-                ('RIGHTPADDING',  (0,0), (-1,-1), 10),
-                ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
-                ('LINEBELOW',     (0,0), (-1,-1), 0.75, AZUL_CLARO),
-            ]))
-            elementos.append(fila)
-            elementos.append(Spacer(1, 0.25*cm))
-        elementos.append(Spacer(1, 0.15*cm))
-
-    # ╔══════════════════════════════╗
-    # ║  NOTAS PERSONALES            ║
-    # ╚══════════════════════════════╝
-    if notas and notas.strip():
-        elementos.append(Paragraph("Mis notas personales", estilo_seccion))
-        elementos.append(HRFlowable(width="100%", thickness=1,
-                                     color=AZUL_CLARO, spaceAfter=8))
-        tabla_notas = Table(
-            [[Paragraph(notas, estilo_cuerpo)]],
-            colWidths=[17*cm]
-        )
-        tabla_notas.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0), (-1,-1), colors.HexColor('#f0fdf4')),
-            ('TOPPADDING',    (0,0), (-1,-1), 12),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 12),
-            ('LEFTPADDING',   (0,0), (-1,-1), 14),
-            ('RIGHTPADDING',  (0,0), (-1,-1), 14),
-            ('ROUNDEDCORNERS', [6]),
-        ]))
-        elementos.append(tabla_notas)
-        elementos.append(Spacer(1, 0.4*cm))
-
-    # ╔══════════════════════════════╗
-    # ║  PRÓXIMOS PASOS              ║
-    # ╚══════════════════════════════╝
-    elementos.append(Paragraph("¿Qué sigue?", estilo_seccion))
-    elementos.append(HRFlowable(width="100%", thickness=1,
-                                 color=AZUL_CLARO, spaceAfter=8))
-
-    pasos = [
-        ("1", "Explorá las carreras del área en el catálogo de Futuro 360."),
-        ("2", "Usá el buscador por carrera para ver universidades en Tucumán."),
-        ("3", "Consultá los requisitos de ingreso de cada facultad."),
-        ("4", "Si tenés dudas, repetí el test en otro momento para comparar resultados."),
+    # ── Próximos pasos ──
+    proximos_pasos = [
+        'Investigá las carreras sugeridas en la sección Carreras y mirá sus '
+        'planes de estudio y campo laboral.',
+        'Anotá tus dudas y hablalas con docentes, profesionales o la orientadora '
+        'vocacional de tu escuela.',
+        'Explorá el test varias veces: tus intereses pueden evolucionar con el '
+        'tiempo y la experiencia.',
     ]
-    for num, texto in pasos:
-        fila = Table([[
-            Paragraph(num, ParagraphStyle('num', fontSize=11, fontName='Helvetica-Bold',
-                      textColor=BLANCO, alignment=TA_CENTER)),
-            Paragraph(texto, estilo_cuerpo)
-        ]], colWidths=[0.8*cm, 16.2*cm])
-        fila.setStyle(TableStyle([
-            ('BACKGROUND',    (0,0), (0,0), AZUL_PRIMARIO),
-            ('TOPPADDING',    (0,0), (-1,-1), 6),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 6),
-            ('LEFTPADDING',   (0,0), (-1,-1), 8),
-            ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
-            ('ROUNDEDCORNERS', [4]),
-        ]))
-        elementos.append(fila)
-        elementos.append(Spacer(1, 0.2*cm))
+    if notas:
+        proximos_pasos.insert(0, f'Seguí desarrollando tus notas personales: {notas}')
 
-    # ╔══════════════════════════════╗
-    # ║  PIE DE PÁGINA               ║
-    # ╚══════════════════════════════╝
-    elementos.append(Spacer(1, 0.6*cm))
-    elementos.append(HRFlowable(width="100%", thickness=0.5, color=AZUL_CLARO))
-    elementos.append(Spacer(1, 0.2*cm))
-    elementos.append(Paragraph(
-        f"Futuro 360 · Plataforma de Orientación Vocacional · Tucumán, Argentina · "
-        f"futuro-360.onrender.com · {datetime.now().strftime('%Y')}",
-        estilo_pie
-    ))
-    elementos.append(Paragraph(
-        "Este informe es orientativo y no reemplaza el asesoramiento profesional.",
-        estilo_pie
-    ))
+    # ── Contexto del template ──
+    primer_nombre = (usuario.get('nombre') or '').strip().split(' ')[0]
+    inicial = primer_nombre[:1].upper() if primer_nombre else 'U'
+    contexto = {
+        'usuario': {
+            'nombre': (usuario.get('nombre') or '').strip(),
+            'primer_nombre': primer_nombre,
+            'inicial': inicial,
+            'email': usuario.get('email') or '',
+        },
+        'resultado': {
+            'fecha': fecha_str,
+            'area_lider': area_principal,
+            'descripcion': descripcion,
+            'total_preguntas': total_preguntas,
+            'carreras': carreras_sugeridas,
+            'empate': empate,
+            'top_areas': top_areas,
+            'nota_empate': nota_empate,
+            'mapa_intereses': mapa_intereses,
+            'nota_mapa': nota_mapa,
+            'pasos_metodologia': pasos_metodologia,
+            'respuestas_destacadas': respuestas_destacadas,
+            'proximos_pasos': proximos_pasos,
+            'todas_las_respuestas': todas_las_respuestas,
+        },
+    }
 
-    # ── Construir el PDF ──
-    doc.build(elementos)
+    return contexto
+
+
+def generar_pdf_resultado(resultado, usuario, carreras=None):
+    """Genera un informe PDF profesional del resultado vocacional con WeasyPrint."""
+    contexto = _construir_contexto(resultado, usuario, carreras)
+
+    # Importación diferida: WeasyPrint exige Pango en el SO; al importarlo solo
+    # cuando se genera un PDF, la app arranca igual si falta en el entorno.
+    from weasyprint import HTML
+    html = render_template('comprobante.html', **contexto)
+    buffer = io.BytesIO()
+    HTML(string=html).write_pdf(buffer)
     buffer.seek(0)
     return buffer
 

@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Comprobante de Test Vocacional — {{ usuario.nombre }}</title>
+<style>
+/* =========================================================
+   FUENTES
+   Se usa fuentes web por defecto (Poppins/Inter vía Google Fonts)
+   con fallback a fuentes del sistema para el render en servidor.
+   ========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&amp;family=Inter:wght@400;500;600;700&amp;display=swap');
+
+/* =========================================================
+   VARIABLES DE DISEÑO
+   ========================================================= */
+:root {
+    --navy-950: #0b1220;
+    --navy-900: #0f1b2d;
+    --bg-page:  #f4f6f9;
+    --white:    #ffffff;
+
+    --teal-700: #0e5f77;
+    --teal-500: #0f7fa0;
+    --cyan-400: #22b8d8;
+    --cyan-300: #4fc9e6;
+
+    --purple-500: #7c5cf0;
+    --green-500:  #17a673;
+    --gray-track: #e7ebf1;
+    --gray-bar:   #b9c2cf;
+
+    --text-dark:   #12202f;
+    --text-body:   #45505e;
+    --text-muted:  #8792a1;
+
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --radius-sm: 6px;
+}
+
+* { box-sizing: border-box; }
+
+@page {
+    size: A4;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 9.8px;
+    color: var(--text-body);
+    background: var(--bg-page);
+}
+
+.page {
+    position: relative;
+    width: 595.28pt;
+    min-height: 841.89pt;
+    background: var(--bg-page);
+    page-break-after: always;
+}
+.page:last-child { page-break-after: avoid; }
+
+.page-content {
+    padding: 28px 45px 40px 45px;
+}
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+.navbar {
+    background: var(--navy-950);
+    color: var(--white);
+    padding: 18px 45px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+}
+.navbar .logo .badge-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, var(--cyan-400), var(--teal-700));
+    display: inline-block;
+}
+.navbar .logo .accent { color: var(--cyan-400); }
+.navbar .meta { text-align: right; }
+.navbar .meta .title {
+    font-weight: 700;
+    font-size: 10.5px;
+    letter-spacing: .04em;
+}
+.navbar .meta .subtitle {
+    font-size: 8.5px;
+    color: #9aa5b3;
+    margin-top: 2px;
+}
+
+/* =========================================================
+   HERO / RESULTADO (bloque azul)
+   ========================================================= */
+.hero {
+    position: relative;
+    margin-top: 22px;
+    padding: 24px 28px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--teal-700) 0%, var(--teal-500) 45%, var(--cyan-400) 100%);
+    color: var(--white);
+    overflow: hidden;
+}
+.hero .avatar {
+    position: absolute;
+    top: 22px;
+    right: 26px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+}
+.hero .pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.18);
+    font-size: 7.6px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    margin-bottom: 14px;
+}
+.hero h1 {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 15.75px;
+    line-height: 1.35;
+    margin: 0 0 4px 0;
+    max-width: 430px;
+}
+.hero h1 .accent-line {
+    text-decoration: underline;
+    text-decoration-color: rgba(255,255,255,.85);
+    text-underline-offset: 4px;
+}
+.hero p.description {
+    font-size: 9.8px;
+    line-height: 1.55;
+    color: rgba(255,255,255,.92);
+    max-width: 320px;
+    margin: 10px 0 20px 0;
+}
+.hero .stats {
+    display: flex;
+    gap: 14px;
+}
+.hero .stat-card {
+    flex: 1;
+    background: rgba(255,255,255,.15);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+}
+.hero .stat-card .label {
+    font-size: 7px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.75);
+    margin-bottom: 4px;
+}
+.hero .stat-card .value {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--white);
+}
+
+/* =========================================================
+   COMPARACIÓN (empate primer puesto)
+   ========================================================= */
+.tie-row {
+    display: flex;
+    gap: 14px;
+    margin-top: 18px;
+}
+.tie-card {
+    flex: 1;
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    border-left: 4px solid var(--cyan-400);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 10.5px;
+    color: var(--text-dark);
+}
+.tie-card.alt { border-left-color: var(--purple-500); }
+.tie-card .score { color: var(--cyan-400); }
+.tie-card.alt .score { color: var(--purple-500); }
+
+.tie-note {
+    font-size: 8.6px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 10px 0 22px 0;
+}
+
+/* =========================================================
+   SECTION LABEL + HEADING
+   ========================================================= */
+.eyebrow {
+    font-size: 7.6px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    color: var(--cyan-400);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+.section-title {
+    font-family: 'Poppins', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 12.6px;
+    color: var(--text-dark);
+    margin: 0 0 14px 0;
+}
+
+/* =========================================================
+   MAPA DE INTERESES
+   ========================================================= */
+.map-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+}
+.map-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 9px;
+}
+.map-row .name {
+    width: 92px;
+    font-size: 8.6px;
+    font-weight: 600;
+    color: var(--text-dark);
+    flex-shrink: 0;
+}
+.map-row.top .name { font-weight: 700; }
+.map-row .track {
+    flex: 1;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--gray-track);
+    overflow: hidden;
+}
+.map-row .fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--gray-bar);
+}
+.map-row .score {
+    width: 14px;
+    text-align: right;
+    font-size: 8.6px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+.map-card .footnote {
+    border-top: 1px dashed #dfe4ea;
+    margin-top: 10px;
+    padding-top: 10px;
+    font-size: 8.2px;
+    color: var(--text-muted);
+}
+
+/* =========================================================
+   TRANSPARENCIA
+   ========================================================= */
+.steps-row {
+    display: flex;
+    gap: 14px;
+    margin-top: 26px;
+}
+.step-card {
+    flex: 1;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    border: 1px solid #eceff3;
+}
+.step-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: var(--navy-900);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 9.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.step-card .step-title {
+    font-weight: 700;
+    font-size: 9.4px;
+    color: var(--text-dark);
+    margin-bottom: 5px;
+}
+.step-card .step-desc {
+    font-size: 8.2px;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+
+.page-footer {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 8px;
+    color: var(--text-muted);
+}
+
+/* =========================================================
+   PÁGINA 2 — EN TUS PALABRAS / CARRERAS / ACCIÓN
+   ========================================================= */
+.quotes-grid, .career-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.quote-card {
+    width: calc(50% - 6px);
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    border: 1px solid #eceff3;
+}
+.quote-card .qnum {
+    display: inline-block;
+    font-size: 7.6px;
+    font-weight: 700;
+    color: var(--cyan-400);
+    margin-right: 6px;
+}
+.quote-card .qlabel {
+    font-size: 8px;
+    color: var(--text-muted);
+}
+.quote-card .qanswer {
+    margin-top: 4px;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.4;
+}
+
+.career-card {
+    width: calc(50% - 6px);
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    border: 1px solid #eceff3;
+}
+.career-card .tag {
+    display: inline-block;
+    font-size: 6.8px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    color: var(--teal-500);
+    background: #e6f6fa;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 6px;
+}
+.career-card .name {
+    font-weight: 700;
+    font-size: 10px;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+.career-card .desc {
+    font-size: 8.2px;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
+.next-steps {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    margin-bottom: 30px;
+}
+.next-steps ul {
+    margin: 0;
+    padding-left: 16px;
+}
+.next-steps li {
+    font-size: 8.8px;
+    color: var(--text-body);
+    line-height: 1.6;
+}
+
+.footer-brand {
+    border-top: 1px solid #e3e7ee;
+    padding-top: 14px;
+    text-align: center;
+    font-size: 7.6px;
+    color: var(--text-muted);
+}
+.footer-brand .brand-line {
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 3px;
+}
+
+/* =========================================================
+   PÁGINA 3 — ANEXO
+   ========================================================= */
+.annex-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 8px;
+}
+.annex-table thead th {
+    background: var(--navy-900);
+    color: var(--white);
+    text-align: left;
+    font-size: 7.4px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+}
+.annex-table thead th.col-n { width: 24px; }
+.annex-table thead th.col-area { width: 90px; }
+.annex-table tbody td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #eceff3;
+    color: var(--text-body);
+    vertical-align: top;
+}
+.annex-table tbody tr:nth-child(even) { background: #fafbfd; }
+.annex-table td.col-n { color: var(--text-muted); font-weight: 600; }
+.annex-table td.col-area { font-weight: 700; }
+.annex-table td.col-area.na { color: var(--text-muted); font-weight: 500; }
+
+.annex-table tbody td.area-arte        { color: var(--cyan-400); }
+.annex-table tbody td.area-humanidades { color: var(--purple-500); }
+.annex-table tbody td.area-ciencias    { color: var(--green-500); }
+.annex-table tbody td.area-salud       { color: #c98a1f; }
+.annex-table tbody td.area-negocios    { color: #c25b3f; }
+.annex-table tbody td.area-derecho     { color: #5c6b7d; }
+.annex-table tbody td.area-ingenieria  { color: #3d5a7a; }
+.annex-table tbody td.area-agronomia   { color: #4a8a3e; }
+.annex-table tbody td.area-tecnologia  { color: #2f52ad; }
+.annex-table tbody td.area-comunicacion{ color: #9c4677; }
+
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     PÁGINA 1
+     ========================================================= -->
+<div class="page">
+    <div class="navbar">
+        <div class="logo">
+            <span class="badge-icon"></span>
+            <span class="wordmark">FUTURO<span class="accent">360</span></span>
+        </div>
+        <div class="meta">
+            <div class="title">COMPROBANTE DE TEST VOCACIONAL</div>
+            <div class="subtitle">{{ usuario.nombre|upper }} · {{ resultado.fecha }}</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="hero">
+            <div class="avatar">{{ usuario.inicial }}</div>
+            <span class="pill">RESULTADO OFICIAL</span>
+            <h1>
+                Hola, {{ usuario.primer_nombre }}: tu perfil apunta hacia<br>
+                <span class="accent-line">{{ resultado.area_lider }}</span>
+            </h1>
+            <p class="description">{{ resultado.descripcion }}</p>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="label">Preguntas respondidas</div>
+                    <div class="value">{{ resultado.total_preguntas }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Área líder</div>
+                    <div class="value">{{ resultado.area_lider }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Carreras sugeridas</div>
+                    <div class="value">{{ resultado.carreras|length }}</div>
+                </div>
+            </div>
+        </div>
+
+        {% if resultado.empate %}
+        <div class="tie-row">
+            {% for area in resultado.top_areas %}
+            <div class="tie-card {{ 'alt' if loop.index0 == 1 else '' }}">
+                <span>{{ area.nombre }}</span>
+                <span class="score">{{ area.puntaje }}/{{ area.max }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <p class="tie-note">{{ resultado.nota_empate }}</p>
+        {% endif %}
+
+        <div class="eyebrow">Panorama completo</div>
+        <div class="section-title">Tu mapa de intereses</div>
+        <div class="map-card">
+            {% for area in resultado.mapa_intereses %}
+            <div class="map-row {{ 'top' if loop.index <= 2 else '' }}">
+                <div class="name">{{ area.nombre }}</div>
+                <div class="track">
+                    <div class="fill" style="width: {{ area.pct }}%; background: {{ area.color }};"></div>
+                </div>
+                <div class="score">{{ area.puntaje }}</div>
+            </div>
+            {% endfor %}
+            <div class="footnote">{{ resultado.nota_mapa }}</div>
+        </div>
+
+        <div class="eyebrow" style="margin-top:26px;">Transparencia</div>
+        <div class="section-title">¿Cómo llegamos a este resultado?</div>
+        <div class="steps-row">
+            {% for paso in resultado.pasos_metodologia %}
+            <div class="step-card">
+                <div class="step-num">{{ loop.index }}</div>
+                <div class="step-title">{{ paso.titulo }}</div>
+                <div class="step-desc">{{ paso.descripcion }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="page-footer">Página 1 de 3</div>
+</div>
+
+<!-- =========================================================
+     PÁGINA 2
+     ========================================================= -->
+<div class="page">
+    <div class="page-content" style="padding-top:40px;">
+
+        <div class="eyebrow">En tus palabras</div>
+        <div class="section-title">Lo que tus respuestas dicen de vos</div>
+        <div class="quotes-grid">
+            {% for q in resultado.respuestas_destacadas %}
+            <div class="quote-card">
+                <span class="qnum">P{{ q.numero }}</span>
+                <span class="qlabel">{{ q.pregunta }}</span>
+                <div class="qanswer">{{ q.respuesta }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="eyebrow">{{ resultado.carreras|length }} opciones para empezar a mirar</div>
+        <div class="section-title">Carreras recomendadas para vos</div>
+        <div class="career-grid">
+            {% for carrera in resultado.carreras %}
+            <div class="career-card">
+                <span class="tag">{{ carrera.area|upper }}</span>
+                <div class="name">{{ carrera.nombre }}</div>
+                <div class="desc">{{ carrera.descripcion }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="eyebrow">Acción</div>
+        <div class="section-title">Tus próximos pasos</div>
+        <div class="next-steps">
+            <ul>
+                {% for paso in resultado.proximos_pasos %}
+                <li>{{ paso }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="footer-brand">
+            <div class="brand-line">FUTURO 360</div>
+            <div>futuro-360.onrender.com · Tucumán, Argentina</div>
+            <div>Este informe es orientativo y no reemplaza el asesoramiento profesional.</div>
+        </div>
+    </div>
+    <div class="page-footer">Página 2 de 3</div>
+</div>
+
+<!-- =========================================================
+     PÁGINA 3 — ANEXO
+     ========================================================= -->
+<div class="page">
+    <div class="navbar">
+        <div class="logo">
+            <span class="badge-icon"></span>
+            <span class="wordmark">FUTURO<span class="accent">360</span></span>
+        </div>
+        <div class="meta">
+            <div class="title">ANEXO</div>
+            <div class="subtitle">DETALLE DE TUS {{ resultado.total_preguntas }} RESPUESTAS</div>
+        </div>
+    </div>
+
+    <div class="page-content">
+        <div class="eyebrow">Anexo</div>
+        <div class="section-title">Detalle completo de tus respuestas</div>
+
+        <table class="annex-table">
+            <thead>
+                <tr>
+                    <th class="col-n">N°</th>
+                    <th>Pregunta</th>
+                    <th>Tu elección</th>
+                    <th class="col-area">Área</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in resultado.todas_las_respuestas %}
+                <tr>
+                    <td class="col-n">{{ r.numero }}</td>
+                    <td>{{ r.pregunta }}</td>
+                    <td>{{ r.eleccion }}</td>
+                    <td class="col-area {{ 'na' if not r.area else 'area-' + r.area_slug }}">
+                        {{ r.area if r.area else '— (sin puntos)' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="page-footer">Página 3 de 3</div>
+</div>
+
+</body>
+</html>
