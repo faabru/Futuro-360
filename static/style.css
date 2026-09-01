@@ -1101,11 +1101,13 @@ html[data-theme="dark"] .page-hero-bg { background: transparent; }
     border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* En modo claro el blanco puro del título se ve demasiado brillante/saturado:
-   se suaviza a un tono neutro para que se lea con naturalidad.
-   Se necesita !important para ganar a Bootstrap .text-white */
+/* En modo claro el título "Futuro 360" del footer saca el blanco puro y el
+   halo/resplandor (text-shadow de h1.display-5) para que se vea normal,
+   igual que el footer en modo oscuro. Se usa !important para ganar a
+   Bootstrap .text-white y a la regla de text-shadow de los títulos. */
 html:not([data-theme="dark"]) .footer-brand h1 {
     color: #E6EEF5 !important;
+    text-shadow: none !important;
 }
 
 .footer-slogan {
