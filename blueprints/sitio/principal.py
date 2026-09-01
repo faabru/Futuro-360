@@ -47,14 +47,27 @@ def dashboard():
 
     historial = []
     for item in historial_raw:
+        detalle_corto = ''
         try:
             detalle_data = json.loads(item['detalle'])
-            texto = detalle_data.get('texto', item['detalle'])
+            resumen = detalle_data.get('resumen') or []
+            texto = detalle_data.get('texto') or ''
         except Exception:
-            texto = item['detalle']
-        # Seguridad contra None (si el JSON tiene "texto": null no romper).
-        texto = texto or item['detalle'] or ''
-        item['detalle_texto'] = texto if len(texto) <= 160 else texto[:160].rsplit(' ', 1)[0] + '…'
+            resumen = []
+            texto = item['detalle'] or ''
+
+        if resumen:
+            # Texto corto para el historial: solo las 2-3 áreas principales.
+            top = resumen[:3]
+            detalle_corto = ' · '.join(
+                f"{r.get('area', '').strip()}: {r.get('puntos', 0)}" for r in top
+            ).strip()
+        if not detalle_corto:
+            detalle_corto = (texto or '').strip() or (item['detalle'] or '')
+        # Límite de seguridad: nunca más de 90 caracteres para no desbordar el bloque.
+        if len(detalle_corto) > 90:
+            detalle_corto = detalle_corto[:90].rsplit(' ', 1)[0] + '…'
+        item['detalle_texto'] = detalle_corto
         historial.append(item)
 
     # Total de tests realizados por el usuario.
