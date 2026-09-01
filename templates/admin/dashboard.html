@@ -56,8 +56,17 @@
         <div class="stat-card">
             <div class="stat-icon violet"><i class="bi bi-controller"></i></div>
             <div>
-                <div class="stat-label">Juego (Car/Preg)</div>
-                <div class="stat-value text-violet">{{ carreras_juego_activas }}<small>/{{ preguntas_juego_activas }}</small></div>
+                <div class="stat-label">Descubre tu Carrera</div>
+                <div class="stat-value text-violet">{{ carreras_juego_activas }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <div class="stat-icon violet"><i class="bi bi-puzzle"></i></div>
+            <div>
+                <div class="stat-label">Intereses en Juego</div>
+                <div class="stat-value text-violet">{{ preguntas_juego_activas }}</div>
             </div>
         </div>
     </div>
@@ -88,8 +97,8 @@
             <div class="stat-icon info"><i class="bi bi-clipboard-check"></i></div>
             <div>
                 <div class="stat-label">Tests realizados</div>
-                <div class="stat-value text-info">{{ total_tests }}</div>
-                <div class="stat-sub"><i class="bi bi-people"></i> {{ usuarios_con_tests }} usuarios</div>
+                <div class="stat-value text-info" data-tests>{{ total_tests }}</div>
+                <div class="stat-sub"><i class="bi bi-activity"></i> en tiempo real</div>
             </div>
         </div>
     </div>
@@ -127,6 +136,24 @@
                 <div class="chart-box">
                     <h6 class="fw-bold mb-3"><i class="bi bi-tags me-1 text-info"></i> Noticias por categoría</h6>
                     <canvas id="chartCategorias" height="220"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-box">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-calendar-week me-1 text-primary"></i> Tests por día (últimos 30 días)</h6>
+                    <canvas id="chartTestsDia" height="220"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-box">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-fire me-1 text-danger"></i> Carreras más vistas</h6>
+                    <canvas id="chartCarrerasVistas" height="220"></canvas>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="chart-box">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-trophy me-1 text-warning"></i> Rendimiento: puntaje por área</h6>
+                    <canvas id="chartPuntajeArea" height="220"></canvas>
                 </div>
             </div>
         </div>
@@ -425,22 +452,107 @@
                 }
             });
         }
+
+        // 5. Barras: tests por día (últimos 30 días)
+        const datosTestsDia = {{ tests_por_dia | tojson }};
+        const ctxTestsDia = document.getElementById('chartTestsDia');
+        if (ctxTestsDia) {
+            new Chart(ctxTestsDia, {
+                type: 'bar',
+                data: {
+                    labels: datosTestsDia.map(function (d) { return d.dia; }),
+                    datasets: [{
+                        label: 'Tests',
+                        data: datosTestsDia.map(function (d) { return d.total; }),
+                        backgroundColor: 'rgba(47,142,171,0.75)',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: colorLinea } },
+                        x: { grid: { display: false }, ticks: { maxTicksLimit: 10, maxRotation: 45 } }
+                    }
+                }
+            });
+        }
+
+        // 6. Barras horizontales: carreras más vistas
+        const datosCarrerasVistas = {{ carreras_mas_vistas | tojson }};
+        const ctxCarrerasVistas = document.getElementById('chartCarrerasVistas');
+        if (ctxCarrerasVistas) {
+            new Chart(ctxCarrerasVistas, {
+                type: 'bar',
+                data: {
+                    labels: datosCarrerasVistas.map(function (d) { return d.nombre; }),
+                    datasets: [{
+                        label: 'Visitas',
+                        data: datosCarrerasVistas.map(function (d) { return d.visitas; }),
+                        backgroundColor: 'rgba(239,68,68,0.75)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: colorLinea } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        // 7. Rendimiento: puntaje promedio por área
+        const datosPuntajeArea = {{ puntaje_por_area | tojson }};
+        const ctxPuntajeArea = document.getElementById('chartPuntajeArea');
+        if (ctxPuntajeArea) {
+            new Chart(ctxPuntajeArea, {
+                type: 'bar',
+                data: {
+                    labels: datosPuntajeArea.map(function (d) { return d.area || 'Sin área'; }),
+                    datasets: [{
+                        label: 'Puntaje prom.',
+                        data: datosPuntajeArea.map(function (d) { return d.promedio; }),
+                        backgroundColor: 'rgba(245,158,11,0.75)',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { beginAtZero: true, grid: { color: colorLinea } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+        }
     });
 </script>
 <script>
-    // Usuarios en línea: refresco automático cada 30 segundos.
-    function refrescarUsuariosEnLinea() {
+    // Usuarios en línea y tests: refresco automático cada 30 segundos.
+    function refrescarEnLinea() {
         fetch('/admin/usuarios-en-linea', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
             .then(function (res) { return res.json(); })
             .then(function (data) {
-                const el = document.querySelector('[data-online]');
-                if (el) el.textContent = data.total;
+                const online = document.querySelector('[data-online]');
+                if (online) online.textContent = data.total;
+                const tests = document.querySelector('[data-tests]');
+                if (tests && typeof data.tests !== 'undefined') tests.textContent = data.tests;
             })
             .catch(function () {});
     }
     document.addEventListener('DOMContentLoaded', function () {
-        refrescarUsuariosEnLinea();
-        setInterval(refrescarUsuariosEnLinea, 30000);
+        refrescarEnLinea();
+        setInterval(refrescarEnLinea, 30000);
     });
 </script>
 {% endblock %}

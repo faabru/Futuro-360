@@ -2,7 +2,7 @@
 Dashboard del panel de administración: tablas resumen y estadísticas.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import Blueprint, jsonify, render_template
 
@@ -125,6 +125,29 @@ def admin_dashboard():
            LIMIT 6""")
     carreras_mas_vistas = cursor.fetchall()
 
+    # Tests por día (últimos 30 días).
+    cursor.execute(
+        """SELECT DATE(fecha_realizacion) AS dia, COUNT(*) AS total
+           FROM tests
+           WHERE fecha_realizacion >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
+           GROUP BY dia ORDER BY dia""")
+    _cuentas_dia = {r['dia'].strftime('%d/%m') if r['dia'] else '': r['total']
+                    for r in cursor.fetchall()}
+    tests_por_dia = []
+    for i in range(29, -1, -1):
+        d = (datetime.now() - timedelta(days=i)).strftime('%d/%m')
+        tests_por_dia.append({'dia': d, 'total': _cuentas_dia.get(d, 0)})
+
+    # Rendimiento: puntaje promedio por área profesional sugerida.
+    cursor.execute(
+        """SELECT COALESCE(area_profesional_sugerida, 'Sin área') AS area,
+                  ROUND(AVG(COALESCE(puntaje, 0)), 1) AS promedio
+           FROM resultados
+           GROUP BY area
+           ORDER BY promedio DESC
+           LIMIT 8""")
+    puntaje_por_area = cursor.fetchall()
+
     return render_template('admin/dashboard.html',
         total_usuarios=total_usuarios,
         carreras=carreras, preguntas=preguntas,
@@ -138,13 +161,15 @@ def admin_dashboard():
         tests_por_mes=series_tests, usuarios_por_area=usuarios_por_area,
         noticias_por_fuente=noticias_por_fuente,
         noticias_por_categoria=noticias_por_categoria,
-        carreras_mas_vistas=carreras_mas_vistas)
+        carreras_mas_vistas=carreras_mas_vistas,
+        tests_por_dia=tests_por_dia, puntaje_por_area=puntaje_por_area)
 
 
 @bp.route('/admin/usuarios-en-linea')
 @requiere_admin
 def admin_usuarios_en_linea():
-    """Devuelve (JSON) la cantidad de usuarios conectados en los últimos 3 min."""
+    """Devuelve (JSON) la cantidad de usuarios conectados en los últimos 3 min
+    y el total de tests realizados (para mostrar en tiempo real)."""
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
     try:
@@ -154,4 +179,9 @@ def admin_usuarios_en_linea():
         total = cursor.fetchone()['total']
     except Exception:
         total = 0
-    return jsonify(total=total)
+    try:
+        cursor.execute("SELECT COUNT(*) AS total FROM tests")
+        total_tests = cursor.fetchone()['total']
+    except Exception:
+        total_tests = 0
+    return jsonify(total=total, tests=total_tests)
