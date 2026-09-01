@@ -75,48 +75,57 @@ def admin_carreras():
 @requiere_admin
 def nueva_carrera():
     if request.method == 'POST':
-        nombre = request.form.get('nombre', '')
-        descripcion = request.form.get('descripcion', '')
-        areas = request.form.getlist('area_profesional')
-        areas = [a.strip() for a in areas if a and a.strip()]
-        area_profesional = areas[0] if areas else ''
-        a_que_se_dedica = request.form.get('a_que_se_dedica', '')
+        try:
+            nombre = request.form.get('nombre', '')
+            descripcion = request.form.get('descripcion', '')
+            areas = request.form.getlist('area_profesional')
+            areas = [a.strip() for a in areas if a and a.strip()]
+            area_profesional = areas[0] if areas else ''
+            a_que_se_dedica = request.form.get('a_que_se_dedica', '')
 
-        # Imágenes: si se sube un archivo, se usa en lugar de la URL.
-        imagen_portada = request.form.get('imagen_portada', '')
-        imagen_principal = request.form.get('imagen_principal', '')
-        if imagen_portada == 'None':
-            imagen_portada = ''
-        if imagen_principal == 'None':
-            imagen_principal = ''
-        imagen_portada_subida = guardar_imagen_carrera(request.files.get('imagen_portada_file'))
-        imagen_principal_subida = guardar_imagen_carrera(request.files.get('imagen_principal_file'))
-        if imagen_portada_subida:
-            imagen_portada = imagen_portada_subida
-        if imagen_principal_subida:
-            imagen_principal = imagen_principal_subida
+            # Imágenes: si se sube un archivo, se usa en lugar de la URL.
+            imagen_portada = request.form.get('imagen_portada', '')
+            imagen_principal = request.form.get('imagen_principal', '')
+            if imagen_portada == 'None':
+                imagen_portada = ''
+            if imagen_principal == 'None':
+                imagen_principal = ''
+            imagen_portada_subida = guardar_imagen_carrera(request.files.get('imagen_portada_file'))
+            imagen_principal_subida = guardar_imagen_carrera(request.files.get('imagen_principal_file'))
+            if imagen_portada_subida:
+                imagen_portada = imagen_portada_subida
+            if imagen_principal_subida:
+                imagen_principal = imagen_principal_subida
 
-        # Video: archivo o URL.
-        video = request.form.get('video', '')
-        if video == 'None':
-            video = ''
-        video_subido = guardar_video_carrera(request.files.get('video_file'))
-        if video_subido:
-            video = video_subido
+            # Video: archivo o URL.
+            video = request.form.get('video', '')
+            if video == 'None':
+                video = ''
+            video_subido = guardar_video_carrera(request.files.get('video_file'))
+            if video_subido:
+                video = video_subido
 
-        db = obtener_db()
-        cursor = db.cursor()
-        cursor.execute(
-            "INSERT INTO carreras (nombre, descripcion, area_profesional, instituciones, imagen_portada, imagen_principal, a_que_se_dedica, video) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-            (nombre, descripcion, area_profesional, '', imagen_portada, imagen_principal, a_que_se_dedica, video)
-        )
-        carrera_id_nueva = cursor.lastrowid
-        db.commit()
-        # Registrar en el juego (inactiva por defecto, admin la activa).
-        asegurar_tabla_game_carreras()
-        guardar_areas_carrera(carrera_id_nueva, areas)
-        flash('Carrera creada. Las instituciones se completarán con el buscador web en el detalle de la carrera.', 'success')
-        return redirect(url_for('admin_carreras.admin_carreras'))
+            db = obtener_db()
+            cursor = db.cursor()
+            cursor.execute(
+                "INSERT INTO carreras (nombre, descripcion, area_profesional, instituciones, imagen_portada, imagen_principal, a_que_se_dedica, video) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                (nombre, descripcion, area_profesional, '', imagen_portada, imagen_principal, a_que_se_dedica, video)
+            )
+            carrera_id_nueva = cursor.lastrowid
+            db.commit()
+            # Registrar en el juego (inactiva por defecto, admin la activa).
+            asegurar_tabla_game_carreras()
+            guardar_areas_carrera(carrera_id_nueva, areas)
+            flash('Carrera creada. Las instituciones se completarán con el buscador web en el detalle de la carrera.', 'success')
+            return redirect(url_for('admin_carreras.admin_carreras'))
+        except Exception as e:
+            # Log con traceback completo para ver en Render el error real del 500
+            current_app.logger.exception(
+                'Error 500 al crear carrera (nombre=%s): %s',
+                request.form.get('nombre', ''), e)
+            db.rollback() if 'db' in locals() and db else None
+            flash('Error interno al crear la carrera. Revisá los logs.', 'danger')
+            return redirect(url_for('admin_carreras.nueva_carrera'))
 
     asegurar_tabla_orientaciones()
     db = obtener_db()
