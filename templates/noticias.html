@@ -27,7 +27,9 @@
         
         <div class="col-md-7">
           <div class="input-group">
-            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+            <button type="button" id="noticiasSearchBtn" class="input-group-text bg-white border-end-0" title="Buscar" aria-label="Buscar">
+              <i class="bi bi-search"></i>
+            </button>
             <input type="text" name="q" id="noticiasSearch" class="form-control border-start-0" placeholder="Buscar por título, contenido o fuente..." value="{{ busqueda }}" autocomplete="off">
           </div>
         </div>
@@ -218,7 +220,18 @@
   }
   .cat-dropdown-btn .bi-chevron-down { transition: transform 0.25s ease; color: var(--text-muted); }
   .cat-dropdown-btn[aria-expanded="true"] .bi-chevron-down { transform: rotate(180deg); }
+  .cat-dropdown-menu {
+    background-color: var(--card-bg) !important;
+    margin-top: 0.25rem;
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 1060;
+  }
+  .cat-dropdown-menu .dropdown-item { color: var(--text-main); }
+  .cat-dropdown-menu .dropdown-item:hover { background-color: rgba(47,142,171,0.1); }
   .cat-dropdown-menu .dropdown-item.active { background-color: rgba(47,142,171,0.12); color: var(--primary); }
+  .cat-dropdown-menu::-webkit-scrollbar { width: 8px; }
+  .cat-dropdown-menu::-webkit-scrollbar-thumb { background: rgba(47,142,171,0.4); border-radius: 6px; }
 </style>
 
 <!-- FILTRADO EN CLIENTE: búsqueda y categoría sin recargar la página -->
@@ -287,6 +300,13 @@
   }
 
   newsSearch.addEventListener('input', filtrarNoticias);
+  const newsSearchBtn = document.getElementById('noticiasSearchBtn');
+  if (newsSearchBtn) {
+    newsSearchBtn.addEventListener('click', function () {
+      newsSearch.focus();
+      filtrarNoticias();
+    });
+  }
   if (newsCategoriaBtn) {
     newsCategoriaBtn.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') {
