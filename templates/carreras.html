@@ -115,7 +115,7 @@
             <label for="areaFilterBtn" class="form-label fw-bold small text-uppercase text-muted mb-2">Área Profesional</label>
             <input type="hidden" name="filtro" id="areaFilterHidden" value="{{ filtro_actual }}">
             <div class="dropdown w-100" id="areaFilterWrap">
-                <button class="btn area-dropdown-btn w-100 text-start d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" id="areaFilterBtn">
+                <button class="btn area-dropdown-btn w-100 text-start d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="areaFilterBtn">
                     <span class="fw-semibold" id="areaFilterLabel">{% if filtro_actual == 'todas' %}Todas las áreas{% elif filtro_actual == 'populares' %}Populares{% else %}{{ filtro_actual or 'Populares' }}{% endif %}</span>
                     <i class="bi bi-chevron-down ms-2"></i>
                 </button>
@@ -325,10 +325,15 @@
     .area-dropdown-btn .bi-chevron-down { transition: transform 0.25s ease; color: var(--text-muted); }
     .area-dropdown-btn[aria-expanded="true"] .bi-chevron-down { transform: rotate(180deg); }
     .area-dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: 0;
+        right: 0;
         background-color: var(--card-bg) !important;
         margin-top: 0.25rem;
         max-height: 320px;
         overflow-y: auto;
+        z-index: 1070;
     }
     .area-dropdown-menu::-webkit-scrollbar { width: 8px; }
     .area-dropdown-menu::-webkit-scrollbar-thumb { background: rgba(47,142,171,0.4); border-radius: 6px; }

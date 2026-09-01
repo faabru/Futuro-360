@@ -37,7 +37,7 @@
         <div class="col-md-5">
           <input type="hidden" name="categoria" id="noticiasCategoriaHidden" value="{{ filtro_categoria }}">
           <div class="dropdown w-100" id="noticiasCategoriaWrap">
-            <button class="btn cat-dropdown-btn w-100 text-start d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" id="noticiasCategoriaBtn">
+            <button class="btn cat-dropdown-btn w-100 text-start d-flex align-items-center justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="noticiasCategoriaBtn">
               <span class="fw-semibold" id="noticiasCategoriaLabel">{% if filtro_categoria == 'todas' %}Todas las áreas{% else %}{{ filtro_categoria }}{% endif %}</span>
               <i class="bi bi-chevron-down ms-2"></i>
             </button>
@@ -221,11 +221,15 @@
   .cat-dropdown-btn .bi-chevron-down { transition: transform 0.25s ease; color: var(--text-muted); }
   .cat-dropdown-btn[aria-expanded="true"] .bi-chevron-down { transform: rotate(180deg); }
   .cat-dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0;
+    right: 0;
     background-color: var(--card-bg) !important;
     margin-top: 0.25rem;
     max-height: 320px;
     overflow-y: auto;
-    z-index: 1060;
+    z-index: 1070;
   }
   .cat-dropdown-menu .dropdown-item { color: var(--text-main); }
   .cat-dropdown-menu .dropdown-item:hover { background-color: rgba(47,142,171,0.1); }
