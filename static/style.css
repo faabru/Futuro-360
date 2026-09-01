@@ -1101,6 +1101,12 @@ html[data-theme="dark"] .page-hero-bg { background: transparent; }
     border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* En modo claro el blanco puro del título se ve demasiado brillante/saturado:
+   se suaviza a un tono neutro para que se lea con naturalidad. */
+html:not([data-theme="dark"]) .footer-brand h1 {
+    color: #E6EEF5;
+}
+
 .footer-slogan {
     font-size: 1.05rem;
     color: rgba(255, 255, 255, 0.65);
