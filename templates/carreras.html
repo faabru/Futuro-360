@@ -327,7 +327,11 @@
     .area-dropdown-menu {
         background-color: var(--card-bg) !important;
         margin-top: 0.25rem;
+        max-height: 320px;
+        overflow-y: auto;
     }
+    .area-dropdown-menu::-webkit-scrollbar { width: 8px; }
+    .area-dropdown-menu::-webkit-scrollbar-thumb { background: rgba(47,142,171,0.4); border-radius: 6px; }
     .area-dropdown-menu .dropdown-item { color: var(--text-main); }
     .area-dropdown-menu .dropdown-item:hover { background-color: rgba(47,142,171,0.1); }
     .area-dropdown-menu .dropdown-item.active { background-color: rgba(47,142,171,0.12); color: var(--primary); }
