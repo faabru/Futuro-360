@@ -473,34 +473,7 @@ body {
 </div>
 
 <!-- =========================================================
-     PÁGINA 2
-     ========================================================= -->
-<div class="page">
-    <div class="page-content" style="padding-top:40px;">
-
-        <div class="eyebrow">{{ resultado.carreras|length }} opciones para empezar a mirar</div>
-        <div class="section-title">Carreras recomendadas para vos</div>
-        <div class="career-grid">
-            {% for carrera in resultado.carreras %}
-            <div class="career-card">
-                <span class="tag">{{ carrera.area|upper }}</span>
-                <div class="name">{{ carrera.nombre }}</div>
-                <div class="desc">{{ carrera.descripcion }}</div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="footer-brand">
-            <div class="brand-line">FUTURO 360</div>
-            <div>futuro-360.onrender.com · Tucumán, Argentina</div>
-            <div>Este informe es orientativo y no reemplaza el asesoramiento profesional.</div>
-        </div>
-    </div>
-    <div class="page-footer">Página 2 de 3</div>
-</div>
-
-<!-- =========================================================
-     PÁGINA 3 — ANEXO
+     PÁGINA 2 — ANEXO
      ========================================================= -->
 <div class="page">
     <div class="navbar">
@@ -540,6 +513,33 @@ body {
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    <div class="page-footer">Página 2 de 3</div>
+</div>
+
+<!-- =========================================================
+     PÁGINA 3 — CARRERAS
+     ========================================================= -->
+<div class="page">
+    <div class="page-content" style="padding-top:40px;">
+
+        <div class="eyebrow">{{ resultado.carreras|length }} opciones para empezar a mirar</div>
+        <div class="section-title">Carreras recomendadas para vos</div>
+        <div class="career-grid">
+            {% for carrera in resultado.carreras %}
+            <div class="career-card">
+                <span class="tag">{{ carrera.area|upper }}</span>
+                <div class="name">{{ carrera.nombre }}</div>
+                <div class="desc">{{ carrera.descripcion }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="footer-brand">
+            <div class="brand-line">FUTURO 360</div>
+            <div>futuro-360.onrender.com · Tucumán, Argentina</div>
+            <div>Este informe es orientativo y no reemplaza el asesoramiento profesional.</div>
+        </div>
     </div>
     <div class="page-footer">Página 3 de 3</div>
 </div>
