@@ -245,17 +245,17 @@ body {
 .map-card {
     background: var(--white);
     border-radius: var(--radius-md);
-    padding: 18px 20px;
+    padding: 20px 22px;
 }
 .map-row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 9px;
+    gap: 14px;
+    margin-bottom: 13px;
 }
 .map-row .name {
-    width: 92px;
-    font-size: 8.6px;
+    width: 96px;
+    font-size: 9px;
     font-weight: 600;
     color: var(--text-dark);
     flex-shrink: 0;
@@ -263,7 +263,7 @@ body {
 .map-row.top .name { font-weight: 700; }
 .map-row .track {
     flex: 1;
-    height: 8px;
+    height: 13px;
     border-radius: 999px;
     background: var(--gray-track);
     overflow: hidden;
@@ -274,58 +274,19 @@ body {
     background: var(--gray-bar);
 }
 .map-row .score {
-    width: 14px;
+    width: 18px;
     text-align: right;
-    font-size: 8.6px;
+    font-size: 9.6px;
     font-weight: 700;
     color: var(--text-dark);
 }
 .map-card .footnote {
     border-top: 1px dashed #dfe4ea;
-    margin-top: 10px;
-    padding-top: 10px;
-    font-size: 8.2px;
+    margin-top: 14px;
+    padding-top: 12px;
+    font-size: 8.4px;
     color: var(--text-muted);
-}
-
-/* =========================================================
-   TRANSPARENCIA
-   ========================================================= */
-.steps-row {
-    display: flex;
-    gap: 14px;
-    margin-top: 26px;
-}
-.step-card {
-    flex: 1;
-    background: var(--white);
-    border-radius: var(--radius-md);
-    padding: 14px 16px;
-    border: 1px solid #eceff3;
-}
-.step-num {
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
-    background: var(--navy-900);
-    color: var(--white);
-    font-weight: 700;
-    font-size: 9.5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-}
-.step-card .step-title {
-    font-weight: 700;
-    font-size: 9.4px;
-    color: var(--text-dark);
-    margin-bottom: 5px;
-}
-.step-card .step-desc {
-    font-size: 8.2px;
     line-height: 1.5;
-    color: var(--text-muted);
 }
 
 .page-footer {
@@ -544,18 +505,6 @@ body {
             </div>
             {% endfor %}
             <div class="footnote">{{ resultado.nota_mapa }}</div>
-        </div>
-
-        <div class="eyebrow" style="margin-top:26px;">Transparencia</div>
-        <div class="section-title">¿Cómo llegamos a este resultado?</div>
-        <div class="steps-row">
-            {% for paso in resultado.pasos_metodologia %}
-            <div class="step-card">
-                <div class="step-num">{{ loop.index }}</div>
-                <div class="step-title">{{ paso.titulo }}</div>
-                <div class="step-desc">{{ paso.descripcion }}</div>
-            </div>
-            {% endfor %}
         </div>
     </div>
 
