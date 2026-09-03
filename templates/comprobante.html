@@ -300,88 +300,49 @@ body {
 }
 
 /* =========================================================
-   PÁGINA 2 — EN TUS PALABRAS / CARRERAS / ACCIÓN
+   PÁGINA 2 — CARRERAS
    ========================================================= */
-.quotes-grid, .career-grid {
+.career-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 24px;
+    gap: 14px;
+    margin-top: 6px;
 }
-.quote-card {
-    width: calc(50% - 6px);
-    background: var(--white);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    border: 1px solid #eceff3;
-}
-.quote-card .qnum {
-    display: inline-block;
-    font-size: 7.6px;
-    font-weight: 700;
-    color: var(--cyan-400);
-    margin-right: 6px;
-}
-.quote-card .qlabel {
-    font-size: 8px;
-    color: var(--text-muted);
-}
-.quote-card .qanswer {
-    margin-top: 4px;
-    font-size: 9px;
-    font-weight: 600;
-    color: var(--text-dark);
-    line-height: 1.4;
-}
-
 .career-card {
-    width: calc(50% - 6px);
+    width: calc(50% - 7px);
     background: var(--white);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
     border: 1px solid #eceff3;
+    display: flex;
+    flex-direction: column;
 }
 .career-card .tag {
-    display: inline-block;
-    font-size: 6.8px;
+    align-self: flex-start;
+    font-size: 7.4px;
     font-weight: 700;
     letter-spacing: .05em;
     color: var(--teal-500);
     background: #e6f6fa;
-    padding: 2px 8px;
+    padding: 3px 10px;
     border-radius: 999px;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
 }
 .career-card .name {
     font-weight: 700;
-    font-size: 10px;
+    font-size: 11.5px;
     color: var(--text-dark);
-    margin-bottom: 4px;
+    margin-bottom: 6px;
 }
 .career-card .desc {
-    font-size: 8.2px;
-    color: var(--text-muted);
-    line-height: 1.45;
-}
-
-.next-steps {
-    background: var(--white);
-    border-radius: var(--radius-md);
-    padding: 16px 18px;
-    margin-bottom: 30px;
-}
-.next-steps ul {
-    margin: 0;
-    padding-left: 16px;
-}
-.next-steps li {
     font-size: 8.8px;
-    color: var(--text-body);
-    line-height: 1.6;
+    color: var(--text-muted);
+    line-height: 1.5;
 }
 
 .footer-brand {
     border-top: 1px solid #e3e7ee;
+    margin-top: 34px;
     padding-top: 14px;
     text-align: center;
     font-size: 7.6px;
@@ -517,18 +478,6 @@ body {
 <div class="page">
     <div class="page-content" style="padding-top:40px;">
 
-        <div class="eyebrow">En tus palabras</div>
-        <div class="section-title">Lo que tus respuestas dicen de vos</div>
-        <div class="quotes-grid">
-            {% for q in resultado.respuestas_destacadas %}
-            <div class="quote-card">
-                <span class="qnum">P{{ q.numero }}</span>
-                <span class="qlabel">{{ q.pregunta }}</span>
-                <div class="qanswer">{{ q.respuesta }}</div>
-            </div>
-            {% endfor %}
-        </div>
-
         <div class="eyebrow">{{ resultado.carreras|length }} opciones para empezar a mirar</div>
         <div class="section-title">Carreras recomendadas para vos</div>
         <div class="career-grid">
@@ -539,16 +488,6 @@ body {
                 <div class="desc">{{ carrera.descripcion }}</div>
             </div>
             {% endfor %}
-        </div>
-
-        <div class="eyebrow">Acción</div>
-        <div class="section-title">Tus próximos pasos</div>
-        <div class="next-steps">
-            <ul>
-                {% for paso in resultado.proximos_pasos %}
-                <li>{{ paso }}</li>
-                {% endfor %}
-            </ul>
         </div>
 
         <div class="footer-brand">
