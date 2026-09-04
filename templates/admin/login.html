@@ -29,7 +29,12 @@
 
                     <div class="mb-4">
                         <label for="password" class="form-label small fw-800 text-uppercase text-muted">Contraseña</label>
-                        <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword" tabindex="-1" aria-label="Mostrar u ocultar contraseña">
+                                <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="text-center mb-2">
@@ -54,4 +59,19 @@
         </div>
     </div>
 </div>
+<!--- Mostrar/ocultar la contraseña -->
+<script>
+document.getElementById('togglePassword')?.addEventListener('click', function () {
+    const input = document.getElementById('password');
+    const icon = document.getElementById('togglePasswordIcon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+});
+</script>
+
 {% endblock %}
