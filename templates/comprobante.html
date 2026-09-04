@@ -214,10 +214,32 @@ body {
 .tie-card.alt .score { color: var(--purple-500); }
 
 .tie-note {
-    font-size: 8.6px;
-    color: var(--text-muted);
-    line-height: 1.5;
-    margin: 10px 0 22px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #fff7e6;
+    border: 1px solid #f0d9a6;
+    border-left: 4px solid #e8a33d;
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    margin: 12px 0 22px 0;
+    font-size: 9.2px;
+    line-height: 1.55;
+    color: #5a4a24;
+    font-weight: 500;
+}
+.tie-note .tie-ico {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #e8a33d;
+    color: #fff;
+    font-weight: 800;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 /* =========================================================
@@ -281,22 +303,60 @@ body {
     color: var(--text-dark);
 }
 .map-card .footnote {
-    border-top: 1px dashed #dfe4ea;
-    margin-top: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    border-top: 1px dashed #cfd6df;
+    margin-top: 16px;
     padding-top: 12px;
-    font-size: 8.4px;
-    color: var(--text-muted);
+    font-size: 9px;
+    color: #3b4754;
     line-height: 1.5;
+    font-weight: 500;
+}
+.map-card .footnote .info-ico {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--cyan-400);
+    color: #fff;
+    font-weight: 800;
+    font-size: 10.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
 }
 
 .page-footer {
     position: absolute;
-    bottom: 20px;
+    bottom: 16px;
     left: 0;
     right: 0;
-    text-align: center;
-    font-size: 8px;
-    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+.page-footer .dots {
+    display: inline-flex;
+    gap: 5px;
+}
+.page-footer .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #c9d2dd;
+}
+.page-footer .dot.on {
+    background: var(--teal-500);
+}
+.page-footer .plabel {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    color: var(--text-dark);
 }
 
 /* =========================================================
@@ -335,23 +395,39 @@ body {
     margin-bottom: 6px;
 }
 .career-card .desc {
-    font-size: 8.8px;
-    color: var(--text-muted);
-    line-height: 1.5;
+    font-size: 9.2px;
+    color: #33404d;
+    line-height: 1.55;
+    font-weight: 500;
 }
 
 .footer-brand {
-    border-top: 1px solid #e3e7ee;
-    margin-top: 34px;
-    padding-top: 14px;
+    border-top: 1px solid #dfe4ea;
+    margin-top: 46px;
+    padding-top: 16px;
     text-align: center;
-    font-size: 7.6px;
-    color: var(--text-muted);
+    color: var(--text-body);
 }
 .footer-brand .brand-line {
-    font-weight: 700;
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: .08em;
+    color: var(--teal-700);
+    margin-bottom: 5px;
+}
+.footer-brand .brand-site {
+    font-size: 9px;
+    font-weight: 600;
     color: var(--text-dark);
-    margin-bottom: 3px;
+    margin-bottom: 5px;
+}
+.footer-brand .brand-note {
+    font-size: 8px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    font-style: italic;
+    max-width: 76%;
+    margin: 0 auto;
 }
 
 /* =========================================================
@@ -361,27 +437,29 @@ body {
     width: 100%;
     border-collapse: collapse;
     margin-top: 12px;
-    font-size: 8px;
+    font-size: 8.4px;
 }
 .annex-table thead th {
     background: var(--navy-900);
     color: var(--white);
     text-align: left;
-    font-size: 7.4px;
-    letter-spacing: .04em;
+    font-size: 7.6px;
+    letter-spacing: .05em;
     text-transform: uppercase;
-    padding: 8px 10px;
+    padding: 9px 12px;
 }
-.annex-table thead th.col-n { width: 24px; }
-.annex-table thead th.col-area { width: 90px; }
+.annex-table thead th.col-n { width: 30px; }
+.annex-table thead th.col-area { width: 96px; }
 .annex-table tbody td {
-    padding: 7px 10px;
-    border-bottom: 1px solid #eceff3;
+    padding: 9px 12px;
+    border-bottom: 1px solid #e3e7ee;
     color: var(--text-body);
     vertical-align: top;
 }
 .annex-table tbody tr:nth-child(even) { background: #fafbfd; }
-.annex-table td.col-n { color: var(--text-muted); font-weight: 600; }
+.annex-table td.col-n { color: var(--text-muted); font-weight: 700; }
+.annex-table td.c-pregunta { font-weight: 600; color: var(--text-dark); }
+.annex-table td.c-eleccion { font-weight: 700; color: var(--teal-700); }
 .annex-table td.col-area { font-weight: 700; }
 .annex-table td.col-area.na { color: var(--text-muted); font-weight: 500; }
 
@@ -450,7 +528,7 @@ body {
             </div>
             {% endfor %}
         </div>
-        <p class="tie-note">{{ resultado.nota_empate }}</p>
+        <p class="tie-note"><span class="tie-ico">!</span><span>{{ resultado.nota_empate }}</span></p>
         {% endif %}
 
         <div class="eyebrow">Panorama completo</div>
@@ -465,11 +543,14 @@ body {
                 <div class="score">{{ area.puntaje }}</div>
             </div>
             {% endfor %}
-            <div class="footnote">{{ resultado.nota_mapa }}</div>
+            <div class="footnote"><span class="info-ico">i</span><span>{{ resultado.nota_mapa }}</span></div>
         </div>
     </div>
 
-    <div class="page-footer">Página 1 de 3</div>
+    <div class="page-footer">
+        <span class="dots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></span>
+        <span class="plabel">Página 1 de 3</span>
+    </div>
 </div>
 
 <!-- =========================================================
@@ -504,8 +585,8 @@ body {
                 {% for r in resultado.todas_las_respuestas %}
                 <tr>
                     <td class="col-n">{{ r.numero }}</td>
-                    <td>{{ r.pregunta }}</td>
-                    <td>{{ r.eleccion }}</td>
+                    <td class="c-pregunta">{{ r.pregunta }}</td>
+                    <td class="c-eleccion">{{ r.eleccion }}</td>
                     <td class="col-area {{ 'na' if not r.area else 'area-' + r.area_slug }}">
                         {{ r.area if r.area else '— (sin puntos)' }}
                     </td>
@@ -514,7 +595,10 @@ body {
             </tbody>
         </table>
     </div>
-    <div class="page-footer">Página 2 de 3</div>
+    <div class="page-footer">
+        <span class="dots"><span class="dot"></span><span class="dot on"></span><span class="dot"></span></span>
+        <span class="plabel">Página 2 de 3</span>
+    </div>
 </div>
 
 <!-- =========================================================
@@ -537,11 +621,14 @@ body {
 
         <div class="footer-brand">
             <div class="brand-line">FUTURO 360</div>
-            <div>futuro-360.onrender.com · Tucumán, Argentina</div>
-            <div>Este informe es orientativo y no reemplaza el asesoramiento profesional.</div>
+            <div class="brand-site">futuro-360.onrender.com · Tucumán, Argentina</div>
+            <div class="brand-note">Este informe es orientativo y no reemplaza el asesoramiento profesional.</div>
         </div>
     </div>
-    <div class="page-footer">Página 3 de 3</div>
+    <div class="page-footer">
+        <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot on"></span></span>
+        <span class="plabel">Página 3 de 3</span>
+    </div>
 </div>
 
 </body>
