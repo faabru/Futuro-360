@@ -53,10 +53,16 @@
       </form>
     </div>
 
-    <div class="row g-4">
-      
+<div class="d-flex justify-content-end mb-3">
+      <button type="button" id="newsFiltrosToggle" class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm" aria-expanded="true" aria-controls="newsSidebar">
+        <i class="bi bi-layout-sidebar-inset-reverse me-2" id="newsFiltrosToggleIcon"></i><span id="newsFiltrosToggleLabel">Ocultar filtros</span>
+      </button>
+    </div>
+
+    <div class="row g-4" id="newsRow">
+
       <!-- Barra Lateral de Filtros del area de noticias -->
-      <div class="col-lg-3">
+      <div class="col-lg-3" id="newsSidebar">
         <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 20px;">
           <!--filtrado de fecha de noticias-->
           <h5 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2"></i>Filtrar por Fecha</h5>
@@ -91,7 +97,7 @@
 
 
       <!-- Resultados de Noticias -->
-      <div class="col-lg-9" id="newsResults">
+      <div class="col-lg-9 news-column" id="newsResults">
         {% if noticias %}
           <div class="row g-4">
 
@@ -243,6 +249,11 @@
   .cat-dropdown-menu .dropdown-item.active { background-color: rgba(47,142,171,0.12); color: var(--primary); }
   .cat-dropdown-menu::-webkit-scrollbar { width: 8px; }
   .cat-dropdown-menu::-webkit-scrollbar-thumb { background: rgba(47,142,171,0.4); border-radius: 6px; }
+
+  #newsRow.sidebar-oculta #newsSidebar { display: none; }
+  #newsRow.sidebar-oculta .news-column { flex: 0 0 100%; max-width: 100%; }
+  #newsFiltrosToggle { transition: all 0.2s ease; }
+  #newsFiltrosToggle:hover { transform: translateY(-2px); }
 </style>
 
 <!-- FILTRADO EN CLIENTE: búsqueda y categoría sin recargar la página -->
@@ -255,6 +266,34 @@
   const newsCategoriaMenu = document.getElementById('noticiasCategoriaMenu');
   const newsContainer = document.getElementById('newsResults');
   const newsEmpty = document.getElementById('newsEmpty');
+
+  // Toggle: ocultar/mostrar la barra lateral de filtros (persistido)
+  const newsRow = document.getElementById('newsRow');
+  const newsFiltrosToggle = document.getElementById('newsFiltrosToggle');
+  const newsFiltrosToggleLabel = document.getElementById('newsFiltrosToggleLabel');
+  const newsFiltrosToggleIcon = document.getElementById('newsFiltrosToggleIcon');
+  const SIDEBAR_KEY = 'futuro360.noticias.sidebar.oculta';
+
+  function aplicarEstadoSidebar(oculta) {
+    newsRow.classList.toggle('sidebar-oculta', oculta);
+    if (newsFiltrosToggle) {
+      newsFiltrosToggle.setAttribute('aria-expanded', String(!oculta));
+      newsFiltrosToggleLabel.textContent = oculta ? 'Mostrar filtros' : 'Ocultar filtros';
+      newsFiltrosToggleIcon.classList.toggle('bi-layout-sidebar-inset-reverse', oculta);
+      newsFiltrosToggleIcon.classList.toggle('bi-layout-sidebar-inset', !oculta);
+    }
+  }
+
+  if (newsFiltrosToggle) {
+    newsFiltrosToggle.addEventListener('click', function () {
+      const oculta = !newsRow.classList.contains('sidebar-oculta');
+      aplicarEstadoSidebar(oculta);
+      try { localStorage.setItem(SIDEBAR_KEY, oculta ? '1' : '0'); } catch (e) {}
+    });
+    let inicial = false;
+    try { inicial = localStorage.getItem(SIDEBAR_KEY) === '1'; } catch (e) {}
+    aplicarEstadoSidebar(inicial);
+  }
 
   const bootstrapDropdown = window.bootstrap && bootstrap.Dropdown.getOrCreateInstance ?
     bootstrap.Dropdown.getOrCreateInstance(newsCategoriaBtn) : null;
