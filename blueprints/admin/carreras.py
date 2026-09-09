@@ -194,11 +194,14 @@ def editar_carrera(id):
 
     cursor.execute("SELECT * FROM carreras WHERE id = %s", (id,))
     carrera = cursor.fetchone()
+    if not carrera:
+        flash('No pudimos encontrar esa carrera.', 'warning')
+        return redirect(url_for('admin_carreras.admin_carreras'))
     asegurar_tabla_orientaciones()
     cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
     orientaciones = [r['nombre'] for r in cursor.fetchall()]
     areas_carrera = obtener_areas_carrera(id)
-        # Si la carrera solo tiene área en el campo clásico (sin carrera_areas).
+    # Si la carrera solo tiene área en el campo clásico (sin carrera_areas).
     if not areas_carrera and carrera.get('area_profesional'):
         areas_carrera = [carrera['area_profesional']]
     return render_template('admin/carrera_form.html', carrera=carrera,
