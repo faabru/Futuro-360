@@ -284,7 +284,7 @@
                     fila.classList.toggle('table-active', !nuevo);
                     const nombre = fila.querySelector('td.fw-bold');
                     if (nombre) nombre.classList.toggle('text-muted', !nuevo);
-                    const badge = fila.querySelector('td .admin-badge');
+                    const badge = fila.querySelector('td.text-center .admin-badge');
                     if (badge) {
                         badge.textContent = nuevo ? 'Activo' : 'Inactivo';
                         badge.style.background = nuevo ? '#d4edda' : '#f8d7da';
