@@ -5,13 +5,12 @@ y activación/desactivación).
 
 import re
 
-from flask import (Blueprint, current_app, flash, g, redirect, render_template,
+from flask import (Blueprint, current_app, flash, redirect, render_template,
                    request, session, url_for)
 from werkzeug.security import generate_password_hash
 
 from config import Config
 from core.decoradores import ajax_o_redirect, es_usuario_dueño, requiere_admin
-from core.mailer import notificar_cuenta_eliminada
 from database_handler import obtener_db
 
 bp = Blueprint('admin_usuarios', __name__)
@@ -220,41 +219,9 @@ def admin_usuario_eliminar(id):
         flash('El usuario no existe.', 'warning')
         return redirect(url_for('admin_usuarios.admin_usuarios'))
 
-    # Solo la cuenta principal (dueño) puede eliminar usuarios.
-    if not es_usuario_dueño():
-        flash('Solo la cuenta principal puede eliminar usuarios.', 'danger')
-        return redirect(url_for('admin_usuarios.admin_usuarios'))
-
-    # Evita que el admin se elimine a sí mismo o al dueño del panel.
-    if (g.user and usuario['id'] == g.user['id']) or usuario['id'] == session.get('admin_id'):
-        flash('No podés eliminar tu propia cuenta desde el panel.', 'danger')
-        return redirect(url_for('admin_usuarios.admin_usuarios'))
-    if usuario.get('es_dueño'):
-        flash('No podés eliminar al dueño del panel.', 'danger')
-        return redirect(url_for('admin_usuarios.admin_usuarios'))
-    # Solo el dueño puede eliminar a otros administradores.
-    if usuario.get('rol') == 'admin' and not es_usuario_dueño():
-        flash('Solo el dueño puede eliminar administradores.', 'danger')
-        return redirect(url_for('admin_usuarios.admin_usuarios'))
-
-    try:
-        cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
-        db.commit()
-        # Aviso por correo a la cuenta eliminada. No bloquea la operación:
-        # si el envío falla (ej. dirección inexistente) solo queda en logs.
-        try:
-            notificar_cuenta_eliminada(
-                usuario['email'], usuario['nombre'],
-                usuario.get('rol') == 'admin')
-        except Exception as e:
-            current_app.logger.warning(
-                'Cuenta %s eliminada pero fallo el aviso por correo: %s',
-                usuario['email'], e)
-        flash('Usuario eliminado correctamente.', 'success')
-    except Exception as e:
-        db.rollback()
-        current_app.logger.error('Error al eliminar usuario: %s', e)
-        flash('No se pudo eliminar el usuario. Intentá de nuevo.', 'danger')
+    # La eliminación de cuentas está deshabilitada para todos (dueño y admins):
+    # los accesos se administran suspendiendo o quitando el rol de administrador.
+    flash('La eliminación de cuentas no está disponible. Podés suspender el acceso o quitar el rol de administrador.', 'warning')
     return redirect(url_for('admin_usuarios.admin_usuarios'))
 
 
