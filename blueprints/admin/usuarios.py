@@ -114,7 +114,7 @@ def admin_usuario_nuevo():
     nombre = request.form.get('nombre', '')
     apellido = request.form.get('apellido', '')
     email = request.form.get('email', '')
-    rol = request.form.get('rol', 'usuario')
+    rol = 'admin'
     password = request.form.get('password', '')
 
     error, msg = _validar_usuario_formulario(nombre, apellido, email, rol)
@@ -137,7 +137,7 @@ def admin_usuario_nuevo():
             "INSERT INTO usuarios (nombre, apellido, email, password, rol) VALUES (%s, %s, %s, %s, %s)",
             (nombre, apellido.strip(), email.strip(), password_hash, rol))
         db.commit()
-        flash('Usuario creado correctamente.', 'success')
+        flash('Administrador creado correctamente.', 'success')
     except Exception as e:
         db.rollback()
         current_app.logger.error('Error al crear usuario: %s', e)
