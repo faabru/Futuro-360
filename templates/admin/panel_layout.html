@@ -264,6 +264,37 @@
                     btn.classList.toggle('text-success', !activo);
                     btn.classList.toggle('text-secondary', activo);
                 }
+                return;
+            }
+            const btnPausa = form.querySelector('button.icon-btn i.bi-pause-circle, button.icon-btn i.bi-play-circle');
+            if (btnPausa) {
+                const btn = btnPausa.closest('button');
+                const fila = form.closest('tr');
+                const activo = btnPausa.classList.contains('bi-pause-circle');
+                // Nuevo estado = !activo
+                const nuevo = !activo;
+                if (btn) {
+                    btn.classList.toggle('warning', nuevo);
+                    btn.classList.toggle('success', !nuevo);
+                    btn.title = nuevo ? 'Desactivar' : 'Activar';
+                }
+                btnPausa.classList.toggle('bi-pause-circle', nuevo);
+                btnPausa.classList.toggle('bi-play-circle', !nuevo);
+                if (fila) {
+                    fila.classList.toggle('table-active', !nuevo);
+                    const nombre = fila.querySelector('td.fw-bold');
+                    if (nombre) nombre.classList.toggle('text-muted', !nuevo);
+                    const badge = fila.querySelector('td .admin-badge');
+                    if (badge) {
+                        badge.textContent = nuevo ? 'Activo' : 'Inactivo';
+                        badge.style.background = nuevo ? '#d4edda' : '#f8d7da';
+                        badge.style.color = nuevo ? '#155724' : '#721c24';
+                    }
+                }
+                const confirm = form.dataset.confirm;
+                if (confirm) {
+                    form.dataset.confirm = (nuevo ? '¿Desactivar esta carrera?' : '¿Activar esta carrera?');
+                }
             }
         }
 

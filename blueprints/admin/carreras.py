@@ -217,3 +217,22 @@ def eliminar_carrera(id):
     db.commit()
     flash('Carrera eliminada exitosamente.', 'info')
     return redirect(url_for('admin_carreras.admin_carreras'))
+
+
+@bp.route('/admin/carreras/toggle/<int:id>', methods=['POST'])
+@requiere_admin
+@ajax_o_redirect
+def toggle_carrera(id):
+    db = obtener_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT id, activo FROM carreras WHERE id = %s", (id,))
+    carrera = cursor.fetchone()
+    if not carrera:
+        flash('Carrera no encontrada.', 'warning')
+        return redirect(url_for('admin_carreras.admin_carreras'))
+    nuevo_estado = 0 if carrera.get('activo') else 1
+    cursor.execute("UPDATE carreras SET activo = %s WHERE id = %s", (nuevo_estado, id))
+    db.commit()
+    estado_texto = 'activada' if nuevo_estado else 'desactivada'
+    flash(f'Carrera {estado_texto} exitosamente.', 'success')
+    return redirect(url_for('admin_carreras.admin_carreras'))

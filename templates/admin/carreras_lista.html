@@ -1,7 +1,7 @@
 {% extends "admin/panel_layout.html" %}
 
 {% block panel_title %}Gestión de Carreras{% endblock %}
-{% block panel_subtitle %}Creá, editá y eliminá las carreras del catálogo.{% endblock %}
+{% block panel_subtitle %}Creá, editá, activá o desactivá las carreras del catálogo.{% endblock %}
 
 {% block panel_actions %}
 <a href="{{ url_for('admin_reportes.admin_exportar', entidad='carreras') }}" class="admin-btn-back">
@@ -57,24 +57,32 @@
                     <th>Nombre</th>
                     <th>Área Profesional</th>
                     <th>Descripción</th>
+                    <th class="text-center">Estado</th>
                     <th class="text-end">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for carrera in carreras %}
-                <tr>
-                    <td class="fw-bold">{{ carrera.nombre }}</td>
+                <tr{% if not carrera.activo %} class="table-active"{% endif %}>
+                    <td class="fw-bold{% if not carrera.activo %} text-muted{% endif %}">{{ carrera.nombre }}</td>
                     <td><span class="admin-badge admin-badge-primary">{{ carrera.area_profesional }}</span></td>
                     <td><small class="text-muted text-truncate d-inline-block" style="max-width: 300px;">{{ carrera.descripcion }}</small></td>
+                    <td class="text-center">
+                        {% if carrera.activo %}
+                        <span class="admin-badge" style="background: #d4edda; color: #155724;">Activo</span>
+                        {% else %}
+                        <span class="admin-badge" style="background: #f8d7da; color: #721c24;">Inactivo</span>
+                        {% endif %}
+                    </td>
                     <td class="text-end">
                         <div class="d-flex gap-2 justify-content-end">
                             <a href="{{ url_for('admin_carreras.editar_carrera', id=carrera.id) }}" class="icon-btn" title="Editar">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <form action="{{ url_for('admin_carreras.eliminar_carrera', id=carrera.id) }}" method="POST" style="display:inline;" data-ajax="delete" data-confirm="¿Estás seguro de que deseas eliminar esta carrera?">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                <button type="submit" class="icon-btn danger" title="Eliminar">
-                                    <i class="bi bi-trash"></i>
+                            <form action="{{ url_for('admin_carreras.toggle_carrera', id=carrera.id) }}" method="POST" style="display:inline;" data-ajax="toggle" data-confirm="{% if carrera.activo %}¿Desactivar esta carrera?{% else %}¿Activar esta carrera?{% endif %}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="icon-btn{% if carrera.activo %} warning{% else %} success{% endif %}" title="{% if carrera.activo %}Desactivar{% else %}Activar{% endif %}">
+                                    <i class="bi bi-{% if carrera.activo %}pause-circle{% else %}play-circle{% endif %}"></i>
                                 </button>
                             </form>
                         </div>
@@ -82,7 +90,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="4"><div class="admin-empty"><i class="bi bi-mortarboard"></i>{% if q or area_actual %}No hay carreras que coincidan con los filtros.{% else %}No hay carreras cargadas todavía.{% endif %}</div></td>
+                    <td colspan="5"><div class="admin-empty"><i class="bi bi-mortarboard"></i>{% if q or area_actual %}No hay carreras que coincidan con los filtros.{% else %}No hay carreras cargadas todavía.{% endif %}</div></td>
                 </tr>
                 {% endfor %}
             </tbody>
