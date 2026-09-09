@@ -180,7 +180,7 @@
                     de pensar.
                 </p>
 
-                <p class="tl-meta">{{ total_preguntas }} preguntas · 5-8 minutos · Sin respuestas incorrectas</p>
+                <p class="tl-meta">{{ total_preguntas }} preguntas · 5-8 minutos</p>
 
                 <form method="POST" action="{{ url_for('vocacional.test_iniciar') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
