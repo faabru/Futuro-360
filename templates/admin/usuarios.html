@@ -9,7 +9,7 @@
 </a>
 {% if es_dueño %}
 <button type="button" class="admin-btn-primary" data-bs-toggle="modal" data-bs-target="#nuevoUsuarioModal">
-    <i class="bi bi-person-plus me-1"></i> Nuevo Usuario
+    <i class="bi bi-person-plus me-1"></i> Nuevo Administrador
 </button>
 {% endif %}
 {% endblock %}
@@ -164,7 +164,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold"><i class="bi bi-person-plus me-2 text-primary"></i>Nuevo Usuario</h5>
+                <h5 class="modal-title fw-bold"><i class="bi bi-person-plus me-2 text-primary"></i>Nuevo Administrador</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <form action="{{ url_for('admin_usuarios.admin_usuario_nuevo') }}" method="POST">
