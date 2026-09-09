@@ -158,7 +158,8 @@
     </div>
 </div>
 
-<!-- Modal Nuevo Usuario -->
+<!-- Modal Nuevo Usuario (solo visible para la cuenta principal) -->
+{% if es_dueño %}
 <div class="modal fade" id="nuevoUsuarioModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -203,6 +204,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Modal Editar Administrador -->
 <div class="modal fade" id="editarUsuarioModal" tabindex="-1" aria-hidden="true">
