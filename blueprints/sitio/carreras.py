@@ -31,15 +31,15 @@ def carreras():
     asegurar_tabla_orientaciones()
     cursor.execute("SELECT nombre FROM orientaciones ORDER BY nombre")
     areas_registradas = [r['nombre'] for r in cursor.fetchall()]
-    cursor.execute("SELECT DISTINCT area_profesional FROM carreras ORDER BY area_profesional")
+    cursor.execute("SELECT DISTINCT area_profesional FROM carreras WHERE activo = 1 ORDER BY area_profesional")
     areas_carreras = [r['area_profesional'] for r in cursor.fetchall()]
     areas_disponibles = list(dict.fromkeys(areas_registradas + areas_carreras))
 
     area_actual = 'todas'
     filtro_actual = filtro
 
-    # Se traen todas las carreras; el filtrado por área y búsqueda se hace en JS.
-    query = "SELECT * FROM carreras ORDER BY nombre ASC"
+    # Se traen las carreras activas; el filtrado por área y búsqueda se hace en JS.
+    query = "SELECT * FROM carreras WHERE activo = 1 ORDER BY nombre ASC"
     cursor.execute(query)
     lista_carreras = cursor.fetchall()
 
@@ -59,6 +59,7 @@ def carreras():
     # abre el detalle). Se muestran como máximo 6, ordenadas por visitas.
     cursor.execute("""
         SELECT id FROM carreras
+        WHERE activo = 1
         ORDER BY visitas DESC, nombre ASC
         LIMIT 6
     """)
@@ -79,7 +80,7 @@ def carreras():
 def detalle_carrera(carrera_id):
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM carreras WHERE id = %s", (carrera_id,))
+    cursor.execute("SELECT * FROM carreras WHERE id = %s AND activo = 1", (carrera_id,))
     carrera = cursor.fetchone()
     if not carrera:
         flash('No pudimos encontrar información sobre esa carrera.', 'danger')
@@ -129,7 +130,7 @@ def buscar_universidades(carrera_id):
 
     db = obtener_db()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM carreras WHERE id = %s", (carrera_id,))
+    cursor.execute("SELECT * FROM carreras WHERE id = %s AND activo = 1", (carrera_id,))
     carrera = cursor.fetchone()
 
     if not carrera:

@@ -81,7 +81,7 @@ def dashboard():
     ultima_fecha_test = stats_tests['ultima_fecha'] if stats_tests else None
 
     # Total de carreras y de noticias recientes para la sección de novedades.
-    cursor.execute("SELECT COUNT(*) AS total FROM carreras")
+    cursor.execute("SELECT COUNT(*) AS total FROM carreras WHERE activo = 1")
     total_carreras = cursor.fetchone()['total']
 
     cursor.execute("""

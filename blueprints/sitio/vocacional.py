@@ -226,7 +226,7 @@ def ver_resultado(resultado_id):
     cursor.execute(
         """SELECT c.* FROM carreras c
            LEFT JOIN carrera_areas ca ON ca.carrera_id = c.id
-           WHERE c.area_profesional = %s OR ca.area = %s
+           WHERE (c.area_profesional = %s OR ca.area = %s) AND c.activo = 1
            GROUP BY c.id LIMIT 6""",
         (area, area)
     )
@@ -234,13 +234,13 @@ def ver_resultado(resultado_id):
 
     if not carreras_sugeridas:
         cursor.execute(
-            "SELECT * FROM carreras WHERE area_profesional LIKE %s LIMIT 6",
+            "SELECT * FROM carreras WHERE area_profesional LIKE %s AND activo = 1 LIMIT 6",
             (f"%{area}%",)
         )
         carreras_sugeridas = cursor.fetchall()
 
     if not carreras_sugeridas:
-        cursor.execute("SELECT * FROM carreras LIMIT 6")
+        cursor.execute("SELECT * FROM carreras WHERE activo = 1 LIMIT 6")
         carreras_sugeridas = cursor.fetchall()
 
     return render_template('resultado_detalle.html',
@@ -513,19 +513,19 @@ def descargar_resultado_pdf(resultado_id):
     cursor.execute(
         """SELECT c.* FROM carreras c
            LEFT JOIN carrera_areas ca ON ca.carrera_id = c.id
-           WHERE c.area_profesional = %s OR ca.area = %s
+           WHERE (c.area_profesional = %s OR ca.area = %s) AND c.activo = 1
            GROUP BY c.id LIMIT 6""",
         (area, area)
     )
     carreras_sugeridas = cursor.fetchall()
     if not carreras_sugeridas:
         cursor.execute(
-            "SELECT * FROM carreras WHERE area_profesional LIKE %s LIMIT 6",
+            "SELECT * FROM carreras WHERE area_profesional LIKE %s AND activo = 1 LIMIT 6",
             (f"%{area}%",)
         )
         carreras_sugeridas = cursor.fetchall()
     if not carreras_sugeridas:
-        cursor.execute("SELECT * FROM carreras LIMIT 6")
+        cursor.execute("SELECT * FROM carreras WHERE activo = 1 LIMIT 6")
         carreras_sugeridas = cursor.fetchall()
 
     try:
