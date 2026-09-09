@@ -1405,7 +1405,6 @@
                 Descubrí Tu Carrera
             </div>
             <div class="game-stats">
-                <span class="game-stat-pill"><i class="bi bi-suit-heart-fill text-danger"></i> <span id="d-matches">0</span> match</span>
                 <span class="game-stat-pill"><i class="bi bi-shuffle text-primary"></i> <span id="d-counter">0 / 0</span></span>
             </div>
         </div>
@@ -1732,17 +1731,14 @@
     const careers = {{ carreras_json | safe }};
     let discoveryCurrentIdx = 0;
     let discoveryScores = {};
-    let discoveryMatches = 0;
     let currentCareerDetails = null;
     let lockDiscovery = false;
 
     function initDiscoveryGame() {
         discoveryCurrentIdx = 0;
         discoveryScores = {};
-        discoveryMatches = 0;
         currentCareerDetails = null;
         lockDiscovery = false;
-        document.getElementById('d-matches').innerText = '0';
         document.getElementById('d-counter').innerText = `0 / ${careers.length}`;
         showScreen('discovery-start');
     }
@@ -1792,8 +1788,6 @@
 
         if (choice === 'yes') {
             discoveryScores[career.area_profesional] = (discoveryScores[career.area_profesional] || 0) + 3;
-            discoveryMatches++;
-            document.getElementById('d-matches').innerText = discoveryMatches;
         } else if (choice === 'info') {
             currentCareerDetails = career;
             showScreen('discovery-details');
