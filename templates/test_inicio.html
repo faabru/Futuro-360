@@ -96,6 +96,21 @@
         margin: 14px 0 0;
     }
 
+    .tl-verificadas {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--primary);
+        background: rgba(13, 110, 253, 0.08);
+        border: 1px solid rgba(13, 110, 253, 0.18);
+        border-radius: 999px;
+        padding: 7px 14px;
+        margin: 0 0 22px;
+    }
+    .tl-verificadas svg { flex-shrink: 0; }
+
     /* --- Divisor vertical --- */
     .tl-divider {
         align-self: stretch;
@@ -181,6 +196,11 @@
                 </p>
 
                 <p class="tl-meta">{{ total_preguntas }} preguntas · 5-8 minutos</p>
+
+                <p class="tl-verificadas">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3zm-1.2 14.4-3.6-3.6 1.4-1.4 2.2 2.2 4.6-4.6 1.4 1.4-6 6z"></path></svg>
+                    Preguntas verificadas por profesionales en orientación vocacional
+                </p>
 
                 <form method="POST" action="{{ url_for('vocacional.test_iniciar') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
