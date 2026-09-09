@@ -259,9 +259,16 @@ Catálogo de carreras de la plataforma.
 | `area_profesional`                               | VARCHAR(100) |       | Área principal                                   |
 | `instituciones`                                  | TEXT         |       | Instituciones donde se dicta                     |
 | `popular`                                        | TINYINT(1)   |       | Marca si es popular                              |
+| `visitas`                                        | INT UNSIGNED |       | Contador de visitas al detalle (alimenta el filtro "Populares") |
+| `activo`                                         | TINYINT(1)   |       | 1 = visible en el sitio, 0 = desactivada (baja lógica) |
 | `imagen` / `imagen_portada` / `imagen_principal` | VARCHAR(500) |       | Rutas de imágenes (local o URL de Cloudinary)    |
 | `video`                                          | VARCHAR(500) |       | Video de la carrera (URL, local o de Cloudinary) |
 | `a_que_se_dedica`                                | TEXT         |       | Descripción del campo laboral                    |
+
+> **Baja lógica:** las carreras no se eliminan de la base; se **activan/desactivan** con el campo
+> `activo` desde el panel. Las desactivadas (`activo = 0`) se ocultan del catálogo público, del
+> detalle, del filtro de áreas, de "Populares", de las sugerencias del test vocacional y del
+> contador de carreras del dashboard.
 
 #### `carrera_areas`
 Tabla puente entre carreras y áreas.

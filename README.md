@@ -24,8 +24,12 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 
 ### Sitio público
 - **Test vocacional** de 30 preguntas con puntaje por área profesional y recomendación de carreras.
+  Las preguntas están **verificadas por profesionales en orientación vocacional** (destacado en el
+  inicio del sitio y en la pantalla previa al test).
 - **Informe PDF** descargable del resultado vocacional (área dominante, afinidad por área y carreras recomendadas).
 - **Exploración de carreras** (40+ carreras) por área profesional, con detalle, descripción e instituciones.
+  Las carreras **desactivadas** desde el panel no se muestran en el catálogo público ni en las
+  sugerencias del test.
 - **Búsqueda de universidades** por carrera (DuckDuckGo sobre universidades verificadas en Tucumán + búsqueda personalizada en Google).
 - **Juego interactivo** de descubrimiento de carreras.
 - **Noticias educativas** con fuentes, categorías y filtros por fecha.
@@ -35,8 +39,11 @@ Plataforma web de orientación vocacional para estudiantes de la provincia de Tu
 - **Sección de comentarios / contacto**.
 
 ### Panel de administración (`/admin`)
-- ABM completo de **usuarios** (alta, baja, modificación, activar/desactivar, roles).
-- ABM de **carreras**, **orientaciones**, **preguntas y opciones** del test.
+- ABM de **usuarios** (creación de nuevos **administradores**, modificación, activar/desactivar y roles).
+  La creación de usuarios es exclusiva del **dueño**, y las cuentas no se eliminan: los accesos se
+  gestionan suspendiendo (activo = 0) o quitando el rol de administrador.
+- ABM de **carreras** (con **activar/desactivar** de baja lógica en vez de eliminación),
+  **orientaciones**, **preguntas y opciones** del test.
 - Gestión del **juego** (carreras y preguntas).
 - Gestión de **noticias**, **fuentes** y **filtros de fecha**.
 - **Estadísticas con gráficos** (usuarios por área sugerida, tests por mes, noticias por fuente y categoría).
@@ -249,7 +256,7 @@ el tráfico SMTP saliente:
 | Funcionalidad | Proveedor | Variables |
 |---|---|---|
 | PIN de recuperación de contraseña | Brevo (API v3) | `BREVO_API_KEY`, `SENDER_EMAIL` |
-| Aviso por correo al eliminar una cuenta (usuario o admin) | Brevo (API v3) | `BREVO_API_KEY`, `SENDER_EMAIL` |
+| Aviso por correo al eliminar una cuenta (usuario que se da de baja desde su perfil) | Brevo (API v3) | `BREVO_API_KEY`, `SENDER_EMAIL` |
 | Formulario de contacto / soporte | Resend | `RESEND_API_KEY`, `MAIL_FROM` |
 
 Todo el código de envío está centralizado en `core/mailer.py`. Si falta la
@@ -279,9 +286,12 @@ La base se prepara **sola al primer arranque** (no hace falta importar nada):
   otra persona solo hace `git pull` y arranca la app: la toma sola.
 - El modelo de datos completo (entidades, relaciones, claves) está documentado en
   [`docs/modelo_datos.md`](docs/modelo_datos.md).
-- Las migraciones históricas ya no son manuales: las columnas nuevas (p. ej. `popular`)
-  y los datos iniciales (opción "Ninguna de las anteriores") se aseguran
+- Las migraciones históricas ya no son manuales: las columnas nuevas (p. ej. `popular`, `visitas`,
+  `activo` en carreras) y los datos iniciales (opción "Ninguna de las anteriores") se aseguran
   automáticamente al arrancar desde `core/migraciones.py`.
+- Las **carreras** se administran con baja lógica: el campo `carreras.activo` (TINYINT) indica si la
+  carrera es visible en el sitio. Las desactivadas (`activo = 0`) no aparecen en el catálogo público
+  ni en las sugerencias del test, pero permanecen en la tabla por si se quieren reactivar.
 
 ## Imágenes y videos (Cloudinary)
 
@@ -349,9 +359,11 @@ CLOUDINARY_API_SECRET=tu_api_secret
 
 |           Capacidad                    |     Dueño         | Administrador |
 |----------------------------------------|------------------ |---------------|
-| ABM de usuarios                        |   ✅             |      ✅       |
-| Editar/eliminar otros administradores  |   ✅             |      ❌       |
-| Editar/eliminar la cuenta del dueño    |   ❌ protegida   |      ❌       |
+| ABM de usuarios                        |   ✅             |      ❌       |
+| Crear nuevos administradores           |   ✅             |      ❌       |
+| Editar / suspender administradores     |   ✅             |      ❌       |
+| Eliminar cuentas (cualquier rol)       |   ❌ deshabilitado|      ❌       |
+| Editar la cuenta del dueño             |   ❌ protegida   |      ❌       |
 | Carreras, noticias, juego, exportación |   ✅             |      ✅       |
 
 ## Exportación de reportes

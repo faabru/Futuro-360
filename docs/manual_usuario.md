@@ -52,9 +52,14 @@ Desde **Mi perfil**, el usuario puede:
 Es la funcionalidad principal de la plataforma:
 
 1. Entrar a la sección **Test vocacional**.
-2. Responder las **29 preguntas** eligiendo la opción que mejor describa sus intereses.
-3. Al finalizar, el sistema calcula el **área profesional** más afín según el puntaje acumulado.
-4. El resultado se guarda y muestra las **carreras recomendadas** dentro de esa área.
+2. En la pantalla previa se indican la cantidad de preguntas, el tiempo estimado y que las
+   **preguntas están verificadas por profesionales en orientación vocacional**.
+3. Responder las **30 preguntas** eligiendo la opción que mejor describa sus intereses.
+4. Al finalizar, el sistema calcula el **área profesional** más afín según el puntaje acumulado.
+5. El resultado se guarda y muestra las **carreras recomendadas** dentro de esa área.
+
+> Las carreras que fueron **desactivadas** desde el panel no aparecen en el catálogo público,
+> en el área de carreras ni en las sugerencias del test.
 
 #### 2.2 Mis resultados
 
@@ -115,13 +120,16 @@ de una cuenta con rol `admin` activa.
 | **Dueño**                  | Administrador con permisos exclusivos (gestión de otros administradores). |
 
 El **dueño** puede:
-- Editar o eliminar a **otros administradores**.
-- Desactivar cuentas de administradores.
+- Crear usuarios (**nuevos administradores**) y editar o suspender a **otros administradores**.
 
 El **dueño no puede** (la cuenta está protegida):
 - Eliminarse a sí mismo.
 - Desactivar su propia cuenta.
 - Editarse a sí mismo desde el panel.
+
+Ningún rol (ni el dueño ni un administrador) puede **eliminar cuentas**: la eliminación de
+usuarios está deshabilitada en el sistema. Los accesos se administran **suspendiendo** la cuenta
+(activo/desactivo) o **quitando el rol de administrador**.
 
 #### 1.2 Dashboard
 
@@ -149,7 +157,9 @@ Desde **Carreras** se gestiona el catálogo de carreras:
 - Listado con búsqueda/filtro.
 - **Alta** de carrera: nombre, descripción, área profesional e instituciones.
 - **Edición** de carrera: todos sus datos e **imágenes** (portada/principal) y **video** opcional.
-- **Baja** de carrera.
+- **Activar / Desactivar** carreras: el botón conmuta el estado de la carrera **al instante** (AJAX).
+  Una carrera **desactivada** deja de mostrarse en el sitio público (catálogo, detalle, áreas,
+  "Populares" y sugerencias del test), pero se conserva en el sistema para poder reactivarla.
 - **Exportar Excel** de la lista de carreras.
 
 **Imágenes y video:** en el alta/edición se puede **subir un archivo** desde el
@@ -202,17 +212,24 @@ Al igual que las carreras, cada noticia admite una **imagen** y un **video**:
 subirlos desde el dispositivo o pegar una URL. Si Cloudinary está configurado,
 quedan en la nube (URL pública); si no, localmente.
 
-### 4. Gestión de usuarios
+### 4. Gestión de usuarios / Roles
 
-Desde **Usuarios** se realiza el ABM completo (Alta, Baja, Modificación y Consulta):
+Desde **Usuarios** (menú "Roles") se administran las cuentas:
+
+> La gestión de usuarios es **exclusiva del dueño** del panel: los administradores solo ven el
+> listado con las acciones bloqueadas (candado) y no se les muestra la opción de crear usuarios.
 
 - **Listado**: tabla con nombre, email, rol y estado. Incluye indicador **DUEÑO** cuando corresponde.
-- **Alta**: formulario para crear un nuevo usuario (nombre, apellido, email, contraseña, rol, estado).
-- **Modificación**: editar datos de un usuario (nombre, apellido, email, contraseña, rol).
-- **Baja**: eliminar un usuario de la base.
-- **Activar / Desactivar**: conmutar el estado `activo` de una cuenta. Un usuario desactivado no
-  puede iniciar sesión.
+- **Alta ("Nuevo Administrador")**: botón reservado al **dueño**. Crea una cuenta nueva que
+  siempre queda con rol **administrador** (el sistema no ofrece otra opción de rol al crear).
+- **Modificación**: editar datos de un administrador (nombre, apellido, email, contraseña).
+- **Activar / Desactivar (suspender)**: conmutar el estado `activo` de un administrador. Un
+  administrador suspendido no puede ingresar al panel.
+- **Quitar administrador**: revoca el rol `admin` y deja la cuenta como **usuario** del sitio.
+- **Hacer administrador**: promueve a **usuario** del sitio a administrador.
 - **Exportar Excel**: genera un archivo `.xlsx` con la lista completa de usuarios.
+
+Las cuentas **no se eliminan**: no existe opción de alta/baja física de usuarios.
 
 ### 5. Herramientas del admin
 
@@ -245,8 +262,14 @@ Revisar la carpeta de spam y esperar unos minutos. El código expira a los 15 mi
 
 ### Panel de administración
 
-**¿Por qué un administrador no puede eliminar a otro administrador?**
-Por seguridad, esa acción es exclusiva del **dueño** del sistema.
+**¿Por qué un administrador no puede crear o gestionar usuarios?**
+La gestión de usuarios (crear administradores, editar, suspender, cambiar roles) es **exclusiva del
+dueño** del sistema. Los administradores solo ven el listado con las acciones bloqueadas.
+
+**¿Se pueden eliminar cuentas de usuarios o administradores?**
+No. La eliminación de cuentas está **deshabilitada** para todos los roles (incluido el dueño). Para
+quitar el acceso a un administrador se lo **suspende** (Activar/Desactivar) o se le **quita el rol
+de administrador**.
 
 **¿Qué pasa si desactivo mi propia cuenta de administrador?**
 No es posible: el sistema bloquea la auto-desactivación y la auto-eliminación para evitar dejar el
