@@ -134,6 +134,7 @@
         border: none;
         border-radius: 20px;
         overflow: hidden;
+        background: var(--admin-surface);
         box-shadow: 0 24px 60px -16px rgba(16, 24, 40, 0.4);
     }
     .pregunta-modal-head {
@@ -169,7 +170,8 @@
     }
     .pq-input {
         border-radius: 12px;
-        border: 1.5px solid #dbe2e8;
+        border: 1.5px solid var(--admin-border);
+        background: var(--admin-surface);
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .pq-input:focus {
@@ -207,8 +209,8 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        background: #F7FAFC;
-        border: 1px solid #E4EAEF;
+        background: var(--admin-bg);
+        border: 1px solid var(--admin-border);
         border-radius: 14px;
         padding: 12px 14px;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -232,7 +234,8 @@
     }
     .pq-option .form-control {
         border-radius: 10px;
-        border: 1.5px solid #dbe2e8;
+        border: 1.5px solid var(--admin-border);
+        background: var(--admin-surface);
     }
     .pq-option .form-control:focus {
         border-color: #2F8EAB;
@@ -250,9 +253,9 @@
         color: #4A5B66;
     }
     .pq-info-note i { color: #2F8EAB; margin-top: 1px; }
-    .pq-modal-foot { background: #fff; border-top: 1px solid #EDF1F4; }
+    .pq-modal-foot { background: var(--admin-surface); border-top: 1px solid var(--admin-border); }
     .pq-cancel-btn {
-        background: #F1F4F7;
+        background: var(--admin-bg-subtle);
         color: #4A5B66;
         border: none;
         border-radius: 10px;
@@ -260,7 +263,7 @@
         font-weight: 600;
         transition: all 0.15s ease;
     }
-    .pq-cancel-btn:hover { background: #E5EAEE; color: #22303A; }
+    .pq-cancel-btn:hover { background: var(--admin-bg); color: #22303A; }
     .pq-save-btn {
         background: #2F8EAB;
         color: #fff;
@@ -294,20 +297,22 @@
     html[data-theme="dark"] .pq-cancel-btn { background: #0B1620; color: #B7C9D4; }
     html[data-theme="dark"] .pq-cancel-btn:hover { background: #1E3A4A; color: #E6EDF2; }
     .pregunta-modal .area-dropdown {
-        border: 1px solid #E4EAEF;
+        border: 1px solid var(--admin-border);
         max-height: 200px;
         overflow-y: auto;
-        background: #fff;
+        background: var(--admin-surface);
     }
     .pregunta-modal .area-dropdown .list-group-item {
         border: none;
-        border-bottom: 1px solid #F1F4F7;
+        border-bottom: 1px solid var(--admin-border);
         padding: 9px 14px;
         cursor: pointer;
         font-size: 0.85rem;
+        background: var(--admin-surface);
+        color: var(--admin-text);
     }
     .pregunta-modal .area-dropdown .list-group-item:hover {
-        background: #F0F7FA;
+        background: var(--admin-bg);
         color: #2F8EAB;
     }
     html[data-theme="dark"] .pregunta-modal .area-dropdown { background: #13232E; border-color: #1E3A4A; }

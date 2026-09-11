@@ -115,8 +115,8 @@
 {% block admin_scripts %}
 <style>
     .areas-btn {
-        background: #fff;
-        border: 1.5px solid #dbe2e8;
+        background: var(--admin-surface);
+        border: 1.5px solid var(--admin-border);
         border-radius: 12px;
         padding: 0.7rem 1rem;
         color: #22303A;
@@ -130,7 +130,7 @@
         border-color: #2F8EAB;
         box-shadow: 0 0 0 4px rgba(47, 142, 171, 0.12);
         color: #2F8EAB;
-        background: #fff;
+        background: var(--admin-surface);
     }
     .areas-btn-icon { color: #2F8EAB; font-size: 1rem; }
     .areas-btn-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -150,7 +150,7 @@
         box-shadow: 0 20px 40px -12px rgba(16, 24, 40, 0.25) !important;
     }
     .areas-menu-head {
-        background: linear-gradient(135deg, #F0F7FA 0%, #E9F3F7 100%);
+        background: var(--admin-surface-alt);
         border-radius: 14px 14px 0 0;
     }
     .areas-menu-title { font-size: 0.88rem; color: #22303A; }
@@ -178,7 +178,7 @@
         transition: background 0.15s ease;
         margin-bottom: 2px;
     }
-    .areas-option:hover { background: #f1f6f9; }
+    .areas-option:hover { background: var(--admin-bg); }
     .areas-option .form-check-input {
         margin: 0;
         flex-shrink: 0;
@@ -199,7 +199,7 @@
         color: #22303A;
         cursor: pointer;
     }
-    .areas-menu-foot { background: #fff; border-radius: 0 0 14px 14px; }
+    .areas-menu-foot { background: var(--admin-surface); border-radius: 0 0 14px 14px; }
     #areaChips .badge {
         background: rgba(47, 142, 171, 0.1);
         color: #2F8EAB;

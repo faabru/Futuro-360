@@ -5,20 +5,22 @@
    ========================================================= */
 
 :root {
+    /* Modo claro "suave": superficies hueso/crema, sin blancos puros,
+       para reducir el resplandor de luz blanca y el cansancio ocular. */
     --admin-primary:        #197A9A;   /* Azul de identidad Futuro 360 */
     --admin-primary-hover:  #156A85;   /* Identidad más oscuro — hover */
     --admin-primary-dark:   #172033;   /* Texto principal */
     --admin-accent:         #3BAFD0;   /* Acento cian */
     --admin-action:         #2563EB;   /* Azul de acción para botones */
-    --admin-bg:             #F3F6FA;   /* Body: gris azulado extremadamente suave */
-    --admin-bg-subtle:      #EDF2F8;   /* Fondo secundario / destacado */
-    --admin-surface:        #FBFCFE;   /* Superficie card/panel: blanco apenas azulado */
-    --admin-surface-alt:    #F2F6FA;   /* Cabeceras de tarjetas e items internos */
-    --admin-border:         #D9E2EC;   /* Borde nítido para separar tarjetas */
-    --admin-border-strong:  #C3D0DD;   /* Borde destacado (inputs, tablas) */
-    --admin-text:           #16203A;   /* Texto principal — máximo contraste */
+    --admin-bg:             #ECEBE6;   /* Body: tono cálido apagado (sin azul brillante) */
+    --admin-bg-subtle:      #E3E1DB;   /* Fondo secundario / destacado */
+    --admin-surface:        #F6F3ED;   /* Superficie card/panel: blanco hueso */
+    --admin-surface-alt:    #E9E5DE;   /* Cabeceras de tarjetas e items internos */
+    --admin-border:         #D5D1C8;   /* Borde nítido para separar tarjetas */
+    --admin-border-strong:  #BCB8AE;   /* Borde destacado (inputs, tablas) */
+    --admin-text:           #1B2433;   /* Texto principal — máximo contraste */
     --admin-text-secondary: #42566C;   /* Texto secundario — gris medio-oscuro */
-    --admin-text-muted:     #5A6E82;   /* Texto atenuado — siempre legible */
+    --admin-text-muted:     #5C6F82;   /* Texto atenuado — siempre legible */
     --admin-sidebar-w:      264px;
     --admin-radius:         14px;
     --admin-shadow:         0 1px 3px 0 rgba(23, 32, 51, 0.05), 0 4px 16px 0 rgba(15, 23, 42, 0.06);
@@ -29,7 +31,7 @@
 .admin-body {
     background-color: var(--admin-bg);
     background-image:
-        var(--body-overlay, linear-gradient(180deg, rgba(243,246,250,0.9), rgba(243,246,250,0.9))),
+        var(--body-overlay, linear-gradient(180deg, rgba(236,235,230,0.92), rgba(236,235,230,0.92))),
         url('img/body-modo-blanco.png');
     background-size: cover;
     background-position: center center;
@@ -241,9 +243,9 @@
     position: sticky;
     top: 0;
     z-index: 1030;
-    background: rgba(247, 249, 252, 0.86);
-    backdrop-filter: saturate(200%) blur(16px);
-    -webkit-backdrop-filter: saturate(200%) blur(16px);
+    background: rgba(240, 238, 233, 0.9);
+    backdrop-filter: saturate(160%) blur(16px);
+    -webkit-backdrop-filter: saturate(160%) blur(16px);
     border-bottom: 1px solid var(--admin-border);
     padding: 16px 32px;
     display: flex;
@@ -483,8 +485,10 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
     margin: 0;
     --bs-table-color: var(--admin-text);
     --bs-table-border-color: var(--admin-border);
-    --bs-table-hover-bg: #CBE3F2;
+    --bs-table-hover-bg: #DDE5EA;
     --bs-table-hover-color: var(--admin-text);
+    --bs-table-bg: var(--admin-surface);
+    background-color: var(--admin-surface);
     color: var(--admin-text);
 }
 
@@ -495,7 +499,7 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
 }
 
 .admin-card .table thead th {
-    background: #EEF4F8;
+    background: var(--admin-surface-alt);
     border-bottom: 2px solid var(--admin-border-strong);
     color: var(--admin-primary-dark);
     font-size: 0.7rem;
@@ -509,7 +513,7 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
 .admin-card .table tbody td {
     padding: 12px 16px;
     vertical-align: middle;
-    border-color: #E8F2F8;
+    border-color: var(--admin-border);
     font-size: 0.9rem;
     color: var(--admin-text);
 }
@@ -571,11 +575,11 @@ html[data-theme="dark"] .stat-sub { color: var(--admin-text-muted); }
 }
 
 /* Modo claro — badges semánticos con contraste alto */
-.admin-badge-primary { background: rgba(25, 122, 154, 0.12); color: #197A9A; }
-.admin-badge-success { background: rgba(22, 101, 52, 0.12);  color: #15652F; }
-.admin-badge-danger  { background: rgba(153, 27, 27, 0.12);  color: #991B1B; }
-.admin-badge-muted   { background: #E4ECF1;                  color: #3A5568; }
-.admin-badge-dueño   { background: rgba(180, 83, 9, 0.12);   color: #92400E; }
+.admin-badge-primary { background: rgba(25, 122, 154, 0.14); color: #197A9A; }
+.admin-badge-success { background: rgba(22, 101, 52, 0.14);  color: #15652F; }
+.admin-badge-danger  { background: rgba(153, 27, 27, 0.14);  color: #991B1B; }
+.admin-badge-muted   { background: var(--admin-surface-alt); color: #3A5568; }
+.admin-badge-dueño   { background: rgba(180, 83, 9, 0.14);   color: #92400E; }
 
 /* ---------- BUTTONS ---------- */
 .admin-card .btn,
@@ -757,6 +761,72 @@ html[data-theme="dark"] .admin-btn-back:hover {
     color: var(--admin-text);
 }
 
+/* En modo claro los inputs/modales de Bootstrap son blanco puro (#fff).
+   Se usan los tonos hueso del panel para reducir el resplandor. */
+html:not([data-theme="dark"]) .admin-content .form-control,
+html:not([data-theme="dark"]) .admin-content .form-select {
+    background-color: var(--admin-surface);
+    color: var(--admin-text);
+}
+html:not([data-theme="dark"]) .admin-content .form-control:focus,
+html:not([data-theme="dark"]) .admin-content .form-select:focus {
+    background-color: var(--admin-surface);
+    color: var(--admin-text);
+}
+html:not([data-theme="dark"]) .admin-content .form-control::placeholder {
+    color: var(--admin-text-muted);
+}
+html:not([data-theme="dark"]) .admin-content .input-group-text,
+html:not([data-theme="dark"]) .admin-content .input-group .btn {
+    background-color: var(--admin-surface-alt);
+    border-color: var(--admin-border);
+    color: var(--admin-text-secondary);
+}
+
+/* Utilidades blancas de Bootstrap en modo claro: tono hueso para no encandilar. */
+html:not([data-theme="dark"]) .admin-content .bg-white,
+html:not([data-theme="dark"]) .admin-content .bg-light,
+html:not([data-theme="dark"]) .admin-content .table-light,
+html:not([data-theme="dark"]) .admin-content .thead-light th {
+    background-color: var(--admin-surface-alt) !important;
+    color: var(--admin-text);
+}
+html:not([data-theme="dark"]) .admin-content .table {
+    --bs-table-bg: var(--admin-surface);
+    background-color: var(--admin-surface);
+}
+html:not([data-theme="dark"]) .admin-content .table tbody td {
+    background-color: var(--admin-surface);
+}
+html:not([data-theme="dark"]) .admin-content .table-light td {
+    background-color: var(--admin-surface) !important;
+    color: var(--admin-text);
+}
+html:not([data-theme="dark"]) .admin-content .table-light th {
+    background-color: var(--admin-surface-alt) !important;
+}
+
+/* Login / recuperar / nueva contraseña (usan base.html, sin .admin-content) */
+html:not([data-theme="dark"]) .admin-login-card {
+    background-color: var(--admin-surface);
+    color: var(--admin-text);
+}
+html:not([data-theme="dark"]) .admin-login-card .form-control,
+html:not([data-theme="dark"]) .admin-login-card .form-control.bg-light,
+html:not([data-theme="dark"]) .admin-login-card .input-group-text,
+html:not([data-theme="dark"]) .admin-login-card .input-group-text.bg-light {
+    background-color: var(--admin-surface-alt);
+    border-color: var(--admin-border);
+    color: var(--admin-text);
+}
+html:not([data-theme="dark"]) .admin-login-card .form-control::placeholder {
+    color: var(--admin-text-muted);
+}
+html:not([data-theme="dark"]) .admin-login-card .form-control:focus {
+    background-color: var(--admin-surface);
+    color: var(--admin-text);
+}
+
 /* Select con flecha hacia arriba (indica que se despliega hacia arriba) */
 .admin-content .flecha-arriba {
     appearance: none;
@@ -780,6 +850,23 @@ html[data-theme="dark"] .admin-btn-back:hover {
     border: none;
     border-radius: 18px;
     box-shadow: var(--admin-shadow-lg);
+}
+
+/* En modo claro el fondo del modal de Bootstrap es blanco puro.
+   Usamos la superficie hueso del panel. */
+html:not([data-theme="dark"]) .admin-content .modal-content,
+html:not([data-theme="dark"]) .modal-content {
+    background-color: var(--admin-surface);
+    color: var(--admin-text);
+}
+
+html:not([data-theme="dark"]) .admin-content .modal-header,
+html:not([data-theme="dark"]) .admin-content .modal-body,
+html:not([data-theme="dark"]) .admin-content .modal-footer,
+html:not([data-theme="dark"]) .modal-header,
+html:not([data-theme="dark"]) .modal-body,
+html:not([data-theme="dark"]) .modal-footer {
+    color: var(--admin-text);
 }
 
 .admin-content .modal-header,
@@ -1295,7 +1382,7 @@ html[data-theme="dark"] .alert-info     { background-color: rgba(59, 175, 208, 0
 .media-source-tabs {
     display: flex;
     width: 100%;
-    background: #EFF4F7;
+    background: var(--admin-surface-alt);
     border-radius: 10px;
     padding: 3px;
     gap: 3px;
@@ -1335,9 +1422,9 @@ html[data-theme="dark"] .media-tab.active { background: #1E3A4A; color: #7FD3E6;
 
 .drop-zone {
     position: relative;
-    border: 2px dashed #C9D6DE;
+    border: 2px dashed var(--admin-border);
     border-radius: 12px;
-    background: #F8FAFC;
+    background: var(--admin-bg);
     min-height: 150px;
     padding: 26px 16px;
     display: flex;
@@ -1423,7 +1510,7 @@ html[data-theme="dark"] .drop-zone.drag-over {
     height: 48px;
     border-radius: 8px;
     overflow: hidden;
-    background: #EFF4F7;
+    background: var(--admin-bg-subtle);
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -1668,7 +1755,7 @@ html[data-theme="dark"] .crop-btn { background: #101E2A; }
     font-size: 0.8rem;
     font-weight: 700;
     color: var(--admin-text);
-    background: #EFF4F7;
+    background: var(--admin-bg-subtle);
     border-radius: 8px;
     padding: 6px 8px;
 }
@@ -1679,7 +1766,7 @@ html[data-theme="dark"] .crop-angle { background: #0B1620; }
     appearance: none;
     height: 6px;
     border-radius: 999px;
-    background: #D7E2E8;
+    background: var(--admin-border);
     outline: none;
     cursor: pointer;
 }
@@ -1706,13 +1793,13 @@ html[data-theme="dark"] .crop-angle { background: #0B1620; }
     border: 3px solid var(--admin-primary);
     cursor: pointer;
 }
-.crop-range::-moz-range-track { height: 6px; border-radius: 999px; background: #D7E2E8; }
+.crop-range::-moz-range-track { height: 6px; border-radius: 999px; background: var(--admin-border); }
 html[data-theme="dark"] .crop-range { background: #1E3A4A; }
 html[data-theme="dark"] .crop-range::-moz-range-track { background: #1E3A4A; }
 
 .crop-ratio-btns {
     display: inline-flex;
-    background: #EFF4F7;
+    background: var(--admin-bg-subtle);
     border-radius: 9px;
     padding: 2px;
     gap: 2px;
