@@ -177,9 +177,34 @@
 </div>
 
 <style>
-  .news-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+  .news-card {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
   .news-card:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,0.1) !important; }
   .object-fit-cover { object-fit: cover; }
+
+  .news-card .card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+  }
+  .news-card .card-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 3rem;
+  }
+  .news-card .card-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 6.08rem;
+    white-space: pre-line;
+  }
 
   .news-media.has-video { cursor: pointer; }
   .news-play-overlay {
