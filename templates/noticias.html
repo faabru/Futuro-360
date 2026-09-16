@@ -142,7 +142,7 @@
 
                   {% endif %}
                   <div class="position-absolute top-0 end-0 p-3">
-                    <span class="badge bg-primary rounded-pill shadow-sm">{{ noticia.categoria }}</span>
+                    <span class="badge news-area-badge"><i class="bi bi-stars me-1"></i>{{ noticia.categoria }}</span>
                   </div>
                 </div>
 
@@ -213,6 +213,22 @@
   }
 
   .news-media.has-video { cursor: pointer; }
+  .news-area-badge {
+    background: #197A9A;
+    color: #FFFFFF;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 0.42rem 0.9rem;
+    border-radius: 50rem;
+    box-shadow: 0 6px 16px rgba(10, 25, 35, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+  }
+  html[data-theme="dark"] .news-area-badge {
+    background: #3BAFD0;
+    color: #0A2430;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+  }
   .news-play-overlay {
     pointer-events: none;
     background: rgba(10, 25, 35, 0.15);
