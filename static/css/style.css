@@ -1,0 +1,1281 @@
+/* =========================================================
+   FUTURO 360 — DESIGN SYSTEM v2
+   Sistema de tokens de color con contraste WCAG AA/AAA
+   Autor: Sistema de diseño senior / Futuro 360
+   ========================================================= */
+
+/* --- VARIABLES GLOBALES DEL SISTEMA DE DISEÑO --- */
+:root {
+    /* Paleta principal — Identidad Futuro 360 */
+    --primary:        #197A9A;   /* Azul de identidad Futuro 360 */
+    --primary-hover:  #156A85;   /* Identidad más oscuro para :hover */
+    --primary-dark:   #12506B;   /* Azul profundo — texto destacado */
+    --primary-light:  #E8F4F8;   /* Azul muy suave — fondos y chips */
+    --primary-action: #2563EB;   /* Azul de acción — botones CTA */
+    --secondary:      #3498B7;   /* Azul secundario — complementario */
+    --accent:         #5BB8D4;   /* Acento claro — decorativo */
+    --success:        #166534;   /* Verde oscuro — estados positivos */
+    --success-bg:     #DCFCE7;   /* Verde muy claro — fondo de alertas */
+    --danger:         #991B1B;   /* Rojo oscuro — errores */
+    --danger-bg:      #FEE2E2;   /* Rojo muy claro — fondo de alertas */
+    --warning:        #92400E;   /* Ámbar oscuro — advertencias */
+    --warning-bg:     #FEF3C7;   /* Ámbar muy claro — fondo de alertas */
+    --info:           #0E4F6B;   /* Azul info oscuro */
+    --info-bg:        #E0F2FE;   /* Azul info muy claro */
+
+    /* Superficies — Modo Claro (jerarquía sutil de profundidad; sin blanco puro)
+       Body suave → cards → superficies internas → destacado/hover.
+       Cada nivel se diferencia por luminosidad, temperatura y borde. */
+    --bg-main:        #F3F6FA;   /* Body: gris azulado extremadamente suave */
+    --bg-subtle:      #EDF2F8;   /* Fondo secundario / bandas */
+    --bg-input:       #FFFFFF;   /* Inputs: blanco para destacarse (ver texto §16) */
+    --card-bg:        #FBFCFE;   /* Surface/card: blanco apenas azulado (menos brillo
+                                    puro, se diferencia claramente del body) */
+    --card-bg-alt:    #F2F6FA;   /* Surface interna (items, filas) */
+    --surface-soft:   #EDF2F8;   /* Superficie interna (panel dentro de panel) */
+    --surface-hover:  #EDF3FA;   /* Hover sutil de surfaces (interactivas) */
+    --surface-highlight: #E6EFF8;/* Superficie destacada */
+    --surface-active: #E1ECF6;   /* Estado activo / seleccionado */
+    --border-soft:    #E3EAF1;   /* Borde interno de items */
+
+    /* Texto — Modo Claro (escala de grises profesional, contraste WCAG AA/AAA)
+       Títulos casi negros → descripciones gris medio-oscuro → auxiliares gris medio.
+       Nada de grises demasiado claros sobre fondos claros. */
+    --text-main:      #16203A;   /* Títulos/texto principal — casi negro */
+    --text-secondary: #42566C;   /* Subtítulos/descripciones — gris medio-oscuro */
+    --text-muted:     #5A6E82;   /* Texto auxiliar/metadata — gris medio legible */
+    --text-faint:     #6E8296;   /* Placeholder / disabled — siempre distinguible */
+    --text-on-dark:   #FFFFFF;   /* Texto sobre fondos oscuros */
+
+    /* Halo para textos que van directamente sobre la imagen de fondo del body
+       (fuera de tarjetas). Despega el texto del patrón geométrico en ambos temas
+       sin tocar la imagen ni bajar opacidad. Claro: halo claro; oscuro: el suyo. */
+    --text-halo:
+        0 1px 2px rgba(255, 255, 255, 0.7),
+        0 2px 12px rgba(243, 246, 250, 0.98);
+
+    /* Bordes definidos para evitar sensación "todo blanco" */
+    --border:         #D9E2EC;   /* Borde de paneles/cards */
+    --border-strong:  #C3D0DD;   /* Borde más definido (inputs, encabezados tabla) */
+
+    /* HERO (componente autónomo del dashboard) */
+    --hero-bg-1:      #12506B;   /* Color de inicio del gradiente del hero */
+    --hero-bg-2:      #197A9A;   /* Color final del gradiente del hero */
+    --hero-text:      #FFFFFF;   /* Texto principal del hero */
+    --hero-text-secondary: rgba(255, 255, 255, 0.92); /* Descripción del hero */
+    --hero-accent:    #A9E0F2;   /* Acentos dentro del hero (iconos, badges) */
+    --hero-border:    rgba(255, 255, 255, 0.16); /* Bordes internos del hero */
+
+    /* Overrides de Bootstrap para identidad (text-primary, links, badges) */
+    --bs-primary:              #197A9A;
+    --bs-primary-rgb:          25, 122, 154;
+    --bs-link-color:           #197A9A;
+    --bs-link-color-rgb:       25, 122, 154;
+    --bs-link-hover-color:     #156A85;
+    --bs-link-hover-color-rgb: 21, 106, 133;
+    --bs-primary-bg-subtle:    #E8F4F8;
+    --bs-primary-border-subtle:#BFE0EF;
+    --bs-primary-text-emphasis:#12506B;
+    --bs-focus-ring-color:     rgba(25, 122, 154, 0.35);
+
+    /* Radios */
+    --radius-xs:  4px;
+    --radius-sm:  8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+
+    /* Sombras sutiles y profesionales */
+    --shadow-xs: 0 1px 2px 0 rgb(23 32 51 / 0.04);
+    --shadow-sm: 0 1px 3px 0 rgb(23 32 51 / 0.05), 0 1px 2px -1px rgb(23 32 51 / 0.05);
+    --shadow-md: 0 4px 16px 0 rgb(15 23 42 / 0.06);
+    --shadow-lg: 0 8px 24px -6px rgb(15 23 42 / 0.08);
+    --shadow-xl: 0 12px 32px -8px rgb(15 23 42 / 0.10);
+
+    /* Transición estándar */
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Variables de componentes */
+    --navbar-bg:     rgba(247, 249, 252, 0.8);
+    --navbar-border: var(--border);
+    --navbar-menu-bg:var(--card-bg);   /* Menú móvil: panel blanco */
+    --hover-bg:      var(--primary-light);  /* Hover: azul muy suave */
+    --card-border:   var(--border);
+
+    /* Overlay del body: velo que atenúa la imagen de fondo sin perder
+       la textura. Se controla con esta única variable (claro/oscuro). */
+    --body-overlay:  linear-gradient(180deg,
+                       rgba(243, 246, 250, 0.78) 0%,
+                       rgba(243, 246, 250, 0.78) 50%,
+                       rgba(243, 246, 250, 0.78) 100%);
+}
+
+/* =========================================================
+   MODO OSCURO — Variables de override
+   Superficie oscura con jerarquía de profundidad clara:
+     bg-main (más oscuro) → card-bg → card-bg-alt (más claro)
+   ========================================================= */
+html[data-theme="dark"] {
+    /* Superficies */
+    --bg-main:        #0A1520;   /* Fondo base: azul muy oscuro */
+    --bg-subtle:      #0F1D2C;   /* Fondo secundario */
+    --bg-input:       #0A1520;   /* Inputs: un tono más oscuro que la card */
+    --card-bg:        #152030;   /* Tarjeta: un nivel más claro que el fondo */
+    --card-bg-alt:    #1C2D3E;   /* Tarjeta alternativa: más clara aún */
+    --surface-soft:   #1C2D3E;   /* Superficie interna (panel dentro de panel) */
+    --surface-hover:  #1B2C3C;   /* Hover sutil de surfaces en dark */
+    --surface-highlight: #1F3244;/* Superficie destacada en dark */
+    --surface-active: #22405A;   /* Estado activo / seleccionado en dark */
+    --border-soft:    #24384A;   /* Borde interno de items en dark */
+
+    /* Texto — contraste alto sobre fondos oscuros (WCAG AA) */
+    --text-main:      #E8F4FA;   /* Blanco azulado — muy legible */
+    --text-secondary: #A8CEDF;   /* Azul claro — texto secundario */
+    --text-muted:     #6A9AB0;   /* Azul grisáceo — texto atenuado */
+    --text-faint:     #55849C;   /* Placeholder / disabled en dark */
+
+    /* Halo para textos sobre la imagen de fondo (modo oscuro) */
+    --text-halo:
+        0 1px 2px rgba(10, 21, 32, 0.6),
+        0 2px 10px rgba(10, 21, 32, 0.95);
+
+    /* Hero — el hero del dashboard mantiene su gradiente azul en ambos temas */
+    --hero-bg-1:      #12506B;
+    --hero-bg-2:      #197A9A;
+    --hero-text:      #FFFFFF;
+    --hero-text-secondary: rgba(255, 255, 255, 0.92);
+    --hero-accent:    #A9E0F2;
+    --hero-border:    rgba(255, 255, 255, 0.16);
+
+    /* Paleta ajustada para fondos oscuros */
+    --primary:        #3BAFD0;   /* Azul más claro sobre fondos oscuros */
+    --primary-hover:  #4EC2E0;
+    --primary-dark:   #90D8EE;   /* Azul claro para headings en dark */
+    --primary-light:  #1A3A4E;   /* Chip / badge bg en dark */
+    --primary-action: #3B82F6;   /* Azul de acción en dark (CTA) */
+    --secondary:      #4ABDD8;
+    --accent:         #72CCDE;
+
+    /* Overrides de Bootstrap para identidad — modo oscuro */
+    --bs-primary:              #4ABDD8;
+    --bs-primary-rgb:          74, 189, 216;
+    --bs-link-color:           #4EBFDB;
+    --bs-link-color-rgb:       78, 191, 219;
+    --bs-link-hover-color:     #72CCDE;
+    --bs-link-hover-color-rgb: 114, 204, 222;
+    --bs-primary-bg-subtle:    #0F2634;
+    --bs-primary-border-subtle:#245366;
+    --bs-primary-text-emphasis:#9BD7E8;
+    --bs-focus-ring-color:     rgba(78, 195, 224, 0.35);
+
+    /* Semánticos ajustados para fondos oscuros */
+    --success:        #4ADE80;   /* Verde claro legible sobre oscuro */
+    --success-bg:     rgba(74, 222, 128, 0.12);
+    --danger:         #F87171;   /* Rojo claro sobre oscuro */
+    --danger-bg:      rgba(248, 113, 113, 0.12);
+    --warning:        #FBBF24;   /* Ámbar claro sobre oscuro */
+    --warning-bg:     rgba(251, 191, 36, 0.12);
+    --info:           #7DD3F0;
+    --info-bg:        rgba(125, 211, 240, 0.12);
+
+    /* Bordes */
+    --border:         #1E3A4E;
+    --border-strong:  #2A4F68;
+
+    /* Overlay del body en dark: atenúa la imagen nocturna */
+    --body-overlay:  linear-gradient(180deg,
+                       rgba(10, 21, 32, 0.88) 0%,
+                       rgba(10, 21, 32, 0.78) 50%,
+                       rgba(10, 21, 32, 0.86) 100%);
+
+    /* Sombras más pronunciadas en dark */
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+    --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.7);
+
+    /* Componentes */
+    --navbar-bg:     rgba(10, 21, 32, 0.92);
+    --navbar-border: rgba(30, 58, 78, 0.9);
+    --navbar-menu-bg:var(--card-bg);
+    --hover-bg:      rgba(26, 58, 78, 0.7);
+    --card-border:   var(--border);
+}
+
+/* --- FONDO DEL BODY CON IMAGEN + OVERLAY --- */
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-main);
+    background-image:
+        var(--body-overlay),
+        url('img/body-modo-blanco.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: var(--text-main);
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    line-height: 1.6;
+}
+
+html[data-theme="dark"] body {
+    background-color: var(--bg-main);
+    background-image:
+        var(--body-overlay),
+        url('img/body-modo-noche.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: var(--text-main);
+}
+
+/* --- ACCESIBILIDAD --- */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* --- ÁREA DE TOQUE MÍNIMA EN TÁCTIL --- */
+@media (max-width: 991.98px) {
+    a.btn,
+    button:not(.btn-close),
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea { min-height: 44px; }
+}
+
+/* =========================================================
+   PRELOADER
+   ========================================================= */
+#preloader {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-main);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* =========================================================
+   BARRA DE NAVEGACIÓN (NAVBAR)
+   ========================================================= */
+.navbar {
+    background: var(--navbar-bg) !important;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--navbar-border);
+    padding: 0.8rem 0;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    z-index: 1030;
+}
+
+/* Sombra sutil que separa la navbar del contenido */
+.navbar::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+    opacity: 0.5;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: -0.025em;
+    text-decoration: none;
+}
+
+.brand-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    box-shadow: 0 4px 12px rgba(26, 109, 143, 0.35);
+    flex-shrink: 0;
+}
+
+.brand-name {
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: var(--text-main);
+}
+
+.brand-accent {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-link {
+    font-weight: 600;
+    color: var(--text-main) !important;
+    padding: 0.45rem 0.9rem !important;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    letter-spacing: -0.01em;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: var(--hover-bg);
+    color: var(--primary) !important;
+}
+
+html[data-theme="dark"] .nav-link { color: var(--text-main) !important; }
+html[data-theme="dark"] .nav-link:hover,
+html[data-theme="dark"] .nav-link.active {
+    background: var(--hover-bg);
+    color: var(--primary) !important;
+}
+
+.navbar-nav {
+    display: flex;
+    flex-direction: row;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.navbar-toggler {
+    color: var(--text-main) !important;
+    font-size: 1.35rem;
+    border: none;
+    padding: 0.3rem 0.5rem;
+}
+.navbar-toggler:focus { box-shadow: none; outline: none; }
+
+/* --- CHIP DE USUARIO --- */
+.user-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: var(--hover-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    border-radius: 999px !important;
+    padding: 0.35rem 0.95rem 0.35rem 0.35rem !important;
+    transition: var(--transition);
+}
+
+.user-chip:hover {
+    border-color: var(--primary) !important;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.user-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+/* --- BOTÓN MODO OSCURO --- */
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+    background: var(--hover-bg);
+    transform: translateY(-1px);
+}
+
+/* --- DROPDOWN MENÚ --- */
+.dropdown-menu {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    padding: 0.4rem;
+}
+
+.dropdown-item {
+    color: var(--text-main);
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0.9rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--hover-bg);
+    color: var(--primary);
+}
+
+.dropdown-item.text-danger { color: #DC2626 !important; }
+.dropdown-item.text-danger:hover { background: rgba(220, 38, 38, 0.08); color: #DC2626 !important; }
+
+html[data-theme="dark"] .dropdown-item.text-danger { color: #F87171 !important; }
+html[data-theme="dark"] .dropdown-item.text-danger:hover { background: rgba(248, 113, 113, 0.1); color: #F87171 !important; }
+
+.dropdown-divider { border-color: var(--border); margin: 0.3rem 0; }
+
+/* Responsive navbar */
+@media (max-width: 991.98px) {
+    .navbar-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.3rem;
+        padding: 0.75rem 0;
+    }
+    .navbar-collapse {
+        background: var(--navbar-menu-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-top: 0.5rem;
+        padding: 0.75rem 1rem;
+        box-shadow: var(--shadow-lg);
+    }
+}
+
+/* =========================================================
+   TIPOGRAFÍA — Headings y textos
+   ========================================================= */
+h1, h2, h3, h4, h5, h6 { color: var(--text-main); letter-spacing: -0.025em; }
+
+.text-muted    { color: var(--text-muted)     !important; }
+.text-primary  { color: var(--primary)        !important; }
+
+html[data-theme="dark"] .text-dark   { color: var(--text-main)  !important; }
+html[data-theme="dark"] .text-muted  { color: var(--text-muted) !important; }
+html[data-theme="dark"] .text-primary{ color: var(--primary)    !important; }
+html[data-theme="dark"] .text-info   { color: var(--accent)     !important; }
+
+/* =========================================================
+   FONDOS UTILITARIOS — bootstrap overrides
+   ========================================================= */
+html[data-theme="dark"] .bg-white  { background-color: var(--card-bg)   !important; }
+html[data-theme="dark"] .bg-light  { background-color: var(--card-bg-alt)!important; }
+html[data-theme="dark"] .bg-dark   { background-color: #050C14           !important; }
+html[data-theme="dark"] .border-light{ border-color: var(--border)       !important; }
+
+/* =========================================================
+   TARJETAS (CARDS)
+   ========================================================= */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+/* Las tarjetas usadas con `border-0` siguen destacándose del fondo:
+   se les restaura un borde sutil para que "floten" sobre el body */
+.card.border-0 {
+    border: 1px solid var(--border) !important;
+}
+
+.card-header {
+    background-color: var(--card-bg-alt);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.card-footer {
+    background-color: var(--bg-subtle);
+    border-top: 1px solid var(--border);
+    padding: 0.85rem 1.25rem;
+}
+
+html[data-theme="dark"] .card {
+    background-color: var(--card-bg);
+    border-color: var(--border);
+    color: var(--text-main);
+    box-shadow: var(--shadow-md);
+}
+
+html[data-theme="dark"] .card-header {
+    background-color: #0F1D2C;
+    border-bottom-color: var(--border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .card-footer {
+    background-color: #0A1520;
+    border-top-color: var(--border);
+}
+
+/* Headings dentro de cards — contraste alto */
+.card h1, .card h2, .card h3, .card h4, .card h5 { color: var(--text-main); }
+html[data-theme="dark"] .card h1,
+html[data-theme="dark"] .card h2,
+html[data-theme="dark"] .card h3,
+html[data-theme="dark"] .card h4,
+html[data-theme="dark"] .card h5 { color: var(--text-main); }
+
+/* Glass card — efecto glassmorfismo */
+.glass-card {
+    position: relative;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+}
+
+.glass-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary);
+}
+
+html[data-theme="dark"] .glass-card,
+html[data-theme="dark"] .auth-card {
+    background: var(--card-bg);
+    border-color: var(--border);
+    color: var(--text-main);
+}
+
+/* Section card — tarjeta de sección grande */
+.section-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    color: var(--text-main);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Headings de sección */
+.section-title,
+.card h1, .card h2, .card h3, .card h4,
+.section-card h1, .section-card h2, .section-card h3,
+.section-card h4, .section-card h5 {
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .section-title,
+html[data-theme="dark"] .section-card h1,
+html[data-theme="dark"] .section-card h2,
+html[data-theme="dark"] .section-card h3,
+html[data-theme="dark"] .section-card h4,
+html[data-theme="dark"] .section-card h5 {
+    color: var(--text-main);
+}
+
+/* Tarjeta de autenticación */
+.auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 3rem;
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition);
+}
+
+.auth-card:hover { border-color: var(--primary); }
+
+/* =========================================================
+   FORMULARIOS
+   ========================================================= */
+.form-control,
+.form-select {
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-strong);
+    color: var(--text-main);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem 0.9rem;
+    font-size: 0.95rem;
+    transition: var(--transition);
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26, 109, 143, 0.15);
+    outline: none;
+}
+
+.form-control::placeholder { color: var(--text-faint); opacity: 1; }
+
+.form-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.4rem;
+}
+
+.form-text { color: var(--text-muted); font-size: 0.8rem; }
+
+.input-group-text {
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Modo oscuro — formularios */
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select {
+    background-color: var(--bg-input);
+    border-color: var(--border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .form-control::placeholder { color: var(--text-muted); opacity: 1; }
+
+html[data-theme="dark"] .form-control:focus,
+html[data-theme="dark"] .form-select:focus {
+    background-color: var(--bg-input);
+    color: var(--text-main);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 175, 208, 0.18);
+}
+
+html[data-theme="dark"] .form-label  { color: var(--text-secondary); }
+html[data-theme="dark"] .form-text   { color: var(--text-muted); }
+
+html[data-theme="dark"] .input-group-text {
+    background-color: #0F1D2C;
+    border-color: var(--border);
+    color: var(--text-muted);
+}
+
+/* =========================================================
+   TABLAS
+   ========================================================= */
+.table {
+    --bs-table-color: var(--text-main);
+    --bs-table-border-color: var(--border);
+    color: var(--text-main);
+}
+
+.table-light {
+    --bs-table-bg: #E8F3FA;
+    --bs-table-color: var(--text-main);
+}
+
+.table thead th {
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom-width: 2px;
+    border-bottom-color: var(--border-strong);
+    background: #EEF4F8;
+    padding: 0.8rem 1rem;
+}
+
+.table tbody td {
+    color: var(--text-main);
+    padding: 0.8rem 1rem;
+    vertical-align: middle;
+    border-color: var(--border);
+}
+
+.table-hover > tbody > tr:hover > * {
+    --bs-table-hover-bg: #F0F7FC;
+    --bs-table-hover-color: var(--text-main);
+    color: var(--text-main);
+}
+
+/* Modo oscuro — tablas */
+html[data-theme="dark"] .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-main);
+    --bs-table-border-color: var(--border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .table-light {
+    --bs-table-bg: #1C2D3E;
+    --bs-table-color: var(--text-main);
+}
+
+html[data-theme="dark"] .table thead th {
+    background: #0F1D2C;
+    border-bottom-color: var(--border);
+    color: var(--text-secondary);
+}
+
+html[data-theme="dark"] .table tbody td {
+    border-color: var(--border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+    --bs-table-hover-bg: rgba(59, 175, 208, 0.08);
+    --bs-table-hover-color: var(--text-main);
+    color: var(--text-main);
+}
+
+/* =========================================================
+   BOTONES
+   ========================================================= */
+.btn-primary {
+    background: var(--primary-action);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.7rem 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.30);
+    transition: var(--transition);
+}
+
+.btn-primary:hover {
+    background: #1D4ED8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+    color: #ffffff;
+}
+
+/* Botón outline danger en navbar */
+html[data-theme="dark"] .navbar .btn-outline-danger {
+    color: #FCA5A5;
+    border-color: rgba(220, 53, 69, 0.45);
+}
+html[data-theme="dark"] .navbar .btn-outline-danger:hover {
+    background: rgba(220, 53, 69, 0.15);
+    color: #FCA5A5;
+}
+
+/* =========================================================
+   ALERTAS
+   ========================================================= */
+.alert {
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+}
+
+/* Modo claro — alertas semánticas */
+.alert-success {
+    background-color: var(--success-bg);
+    border-color: rgba(22, 101, 52, 0.25);
+    color: var(--success);
+}
+
+.alert-danger {
+    background-color: var(--danger-bg);
+    border-color: rgba(153, 27, 27, 0.25);
+    color: var(--danger);
+}
+
+.alert-warning {
+    background-color: var(--warning-bg);
+    border-color: rgba(146, 64, 14, 0.25);
+    color: var(--warning);
+}
+
+.alert-info {
+    background-color: var(--info-bg);
+    border-color: rgba(14, 79, 107, 0.25);
+    color: var(--info);
+}
+
+/* Modo oscuro — alertas semánticas */
+html[data-theme="dark"] .alert {
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .alert-success {
+    background-color: rgba(74, 222, 128, 0.10);
+    border-color: rgba(74, 222, 128, 0.30);
+    color: #86EFAC;
+}
+
+html[data-theme="dark"] .alert-danger {
+    background-color: rgba(248, 113, 113, 0.10);
+    border-color: rgba(248, 113, 113, 0.30);
+    color: #FCA5A5;
+}
+
+html[data-theme="dark"] .alert-warning {
+    background-color: rgba(251, 191, 36, 0.10);
+    border-color: rgba(251, 191, 36, 0.30);
+    color: #FCD34D;
+}
+
+html[data-theme="dark"] .alert-info {
+    background-color: rgba(125, 211, 240, 0.10);
+    border-color: rgba(125, 211, 240, 0.30);
+    color: #93D9F0;
+}
+
+/* =========================================================
+   MODALES
+   ========================================================= */
+.modal-content {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+}
+
+.modal-header { border-bottom-color: var(--border); padding: 1.25rem 1.5rem; }
+.modal-body   { padding: 1.5rem; color: var(--text-main); }
+.modal-footer { border-top-color: var(--border); padding: 1rem 1.5rem; }
+.modal-title  { color: var(--text-main); font-weight: 700; }
+
+html[data-theme="dark"] .modal-content {
+    background-color: var(--card-bg);
+    border-color: var(--border);
+    color: var(--text-main);
+}
+
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer { border-color: var(--border); }
+html[data-theme="dark"] .modal-title  { color: var(--text-main); }
+html[data-theme="dark"] .modal-body   { color: var(--text-main); }
+html[data-theme="dark"] .modal .text-muted { color: var(--text-muted) !important; }
+html[data-theme="dark"] .modal .text-dark  { color: var(--text-main)  !important; }
+html[data-theme="dark"] .modal hr          { border-color: var(--border); }
+html[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+.badge {
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+html[data-theme="dark"] .badge.bg-secondary { background-color: #1C2D3E !important; color: var(--text-secondary) !important; }
+html[data-theme="dark"] .badge.bg-success   { background-color: rgba(74, 222, 128, 0.15) !important; color: #86EFAC !important; }
+html[data-theme="dark"] .badge.bg-danger    { background-color: rgba(248, 113, 113, 0.15) !important; color: #FCA5A5 !important; }
+html[data-theme="dark"] .badge.bg-warning   { background-color: rgba(251, 191, 36, 0.15)  !important; color: #FCD34D !important; }
+html[data-theme="dark"] .badge.bg-info      { background-color: rgba(125, 211, 240, 0.15) !important; color: #93D9F0 !important; }
+html[data-theme="dark"] .badge.bg-primary   { background-color: rgba(59, 175, 208, 0.15)  !important; color: #7DD3F0 !important; }
+
+html[data-theme="dark"] .step-number {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+html[data-theme="dark"] .stat-number { color: var(--primary); }
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+html[data-theme="dark"] .progress { background-color: #1C2D3E; }
+
+/* =========================================================
+   LIST GROUP
+   ========================================================= */
+html[data-theme="dark"] .list-group-item {
+    background-color: var(--card-bg);
+    border-color: var(--border);
+    color: var(--text-main);
+}
+
+/* =========================================================
+   SECCIÓN HERO
+   ========================================================= */
+.hero-section {
+    position: relative;
+    padding: 160px 0 100px;
+    background: radial-gradient(circle at 0% 0%, rgba(26, 109, 143, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(53, 152, 183, 0.05) 0%, transparent 50%);
+}
+
+/* Texto que vive directamente sobre la imagen de fondo del body (fuera de cards):
+   se le aplica un halo del color del fondo del tema para que no compita con la
+   geometría del patrón ni se pierda en ninguno de los dos modos. El halo es
+   imperceptible sobre superficies sólidas (cards) y solo se nota donde hay
+   variación de fondo. */
+.hero-section h1,
+.hero-section .lead,
+.page-title h1,
+h1.display-3, h1.display-4, h1.display-5,
+main > .container > .lead,
+main .container .section-heading h2,
+main .container .section-heading > h2,
+#herramientas h2,
+#herramientas .text-muted,
+main h1.text-primary,
+main h2.text-primary,
+#filterForm .form-label,
+#resultCounter,
+main .display-3 + .lead,
+main .display-4 + .lead,
+main .display-5 + .lead {
+    text-shadow: var(--text-halo);
+}
+
+/* Textos que van directamente sobre la imagen de fondo del body (sin
+   contenedor/tarjeta): además del halo, se les refuerza la oscuridad para
+   que se "marquen" más y compitan menos con la geometría. Solo se refuerzan
+   los tonos secundarios/muted de esos textos sueltos; lo de dentro de cards
+   no se toca. */
+.hero-section .lead,
+main > .container > .lead,
+main .container .section-heading .text-muted,
+main .container .text-center.mb-5 > p.text-muted,
+main .display-3 + .lead,
+main .display-4 + .lead,
+main .display-5 + .lead,
+#herramientas .text-muted,
+#filterForm .form-label,
+#resultCounter {
+    color: var(--text-secondary);
+}
+
+/* Carreras (y leads de páginas sobre gris): textos sueltos que se leen sobre
+   la imagen gris del body — se marcan a tinta casi negra para no perderse.
+   Solo afecta a texto no enmarcado en tarjetas. El !important vence al
+   .text-muted de Bootstrap (que usa !important sobre estos elementos). */
+main h1.display-4.text-primary + .lead,
+#filterForm .form-label,
+#resultCounter {
+    color: var(--text-main) !important;
+}
+
+/* El lead del hero (texto largo) se marca más aún */
+.display-3 {
+    letter-spacing: -0.05em;
+    line-height: 1.1;
+}
+
+html[data-theme="dark"] .hero-section {
+    background: radial-gradient(circle at 0% 0%, rgba(59, 175, 208, 0.07) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(74, 189, 216, 0.07) 0%, transparent 50%);
+}
+
+/* Credencial de confianza sobre el hero: "preguntas verificadas" */
+.badge-verificado {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--primary);
+    background: rgba(13, 110, 253, 0.08);
+    border: 1px solid rgba(13, 110, 253, 0.18);
+    border-radius: 999px;
+    padding: 7px 16px;
+}
+html[data-theme="dark"] .badge-verificado {
+    background: rgba(110, 168, 254, 0.1);
+    border-color: rgba(110, 168, 254, 0.22);
+}
+
+/* =========================================================
+   PASOS / STEPS
+   ========================================================= */
+.step-number {
+    width: 50px;
+    height: 50px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   ESTADÍSTICAS
+   ========================================================= */
+.stat-item { padding: 2rem; }
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.04em;
+}
+
+/* =========================================================
+   TARJETAS DE CARRERAS
+   ========================================================= */
+.career-card {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    border-radius: 16px;
+    background-color: var(--card-bg);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .career-card {
+    border-color: var(--border);
+    background-color: var(--card-bg);
+}
+
+.career-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary);
+}
+
+.career-card .card-img-top {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.6s ease;
+}
+.career-card:hover .card-img-top { transform: scale(1.06); }
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* =========================================================
+   FONDO DE PÁGINA (HERO BG para interiores)
+   ========================================================= */
+.page-hero-bg {
+    min-height: 100vh;
+    background: transparent;
+    transition: background 0.3s ease;
+}
+
+html[data-theme="dark"] .page-hero-bg { background: transparent; }
+
+/* =========================================================
+   IMAGEN DE CARRERA (DETALLE)
+   ========================================================= */
+.carrera-img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    object-position: center;
+    min-height: 400px;
+    max-height: 680px;
+}
+
+/* =========================================================
+   FOOTER MODERNO
+   ========================================================= */
+.footer-modern {
+    background: #050A10;
+    color: #ffffff;
+    position: relative;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* En modo claro el título "Futuro 360" del footer saca el blanco puro y el
+   halo/resplandor (text-shadow de h1.display-5) para que se vea normal,
+   igual que el footer en modo oscuro. Se usa !important para ganar a
+   Bootstrap .text-white y a la regla de text-shadow de los títulos. */
+html:not([data-theme="dark"]) .footer-brand h1 {
+    color: #E6EEF5 !important;
+    text-shadow: none !important;
+}
+
+.footer-slogan {
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.65);
+    max-width: 600px;
+    line-height: 1.65;
+}
+
+.text-info { color: #22D3EE !important; }
+
+.icon-box-footer {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #22D3EE;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+
+.footer-links-new a {
+    color: rgba(255, 255, 255, 0.72);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+}
+
+.footer-links-new a:hover {
+    color: #22D3EE;
+    transform: translateX(6px);
+}
+
+.contact-icon-circle {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #22D3EE;
+    flex-shrink: 0;
+}
+
+.social-circle-link {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    font-size: 1rem;
+}
+
+.social-circle-link:hover {
+    background: #22D3EE;
+    color: #050A10;
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(34, 211, 238, 0.35);
+    border-color: transparent;
+}
+
+.footer-bottom-new {
+    background: rgba(255, 255, 255, 0.02) !important;
+    backdrop-filter: blur(10px);
+}
+
+.footer-bottom-new .text-secondary { color: rgba(255, 255, 255, 0.62) !important; }
+
+.contact-card { background: rgba(255, 255, 255, 0.03) !important; }
+
+.ls-2 { letter-spacing: 0.1em; }
+
+/* =========================================================
+   UTILIDADES
+   ========================================================= */
+.rounded-4  { border-radius: var(--radius-lg) !important; }
+.transition { transition: var(--transition); }
+.hover-lift:hover { transform: translateY(-4px); }
+
+/* =========================================================
+   PRELOADER — dark override
+   ========================================================= */
+html[data-theme="dark"] #preloader { background: var(--bg-main); }
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 991.98px) {
+    .hero-section  { padding: 110px 0 70px; }
+    .stat-number   { font-size: 2.4rem; }
+    .auth-card     { padding: 2.5rem; }
+    .glass-card    { padding: 1.75rem; }
+}
+
+@media (max-width: 575.98px) {
+    .hero-section  { padding: 80px 0 50px; }
+    .stat-number   { font-size: 2rem; }
+    .auth-card     { padding: 2rem 1.25rem; }
+    .glass-card    { padding: 1.25rem; }
+    .step-number   { width: 44px; height: 44px; font-size: 0.95rem; }
+    .carrera-img   { min-height: 260px; max-height: 420px; }
+    .form-control-lg { font-size: 1rem; }
+}
+
+/* =========================================================
+   ALCANCES DE BOOTSTRAP EN MODO CLARO
+   Solo se interfiere donde una utilidad de Bootstrap choca con
+   el sistema de superficies de Futuro 360. El resto del tema se
+   resuelve con tokens (el claro es :root; el oscuro redefine).
+   ========================================================= */
+
+/* Cabeceras de card: superficie interna suave */
+.card-header {
+    background-color: var(--card-bg-alt);
+    color: var(--text-main);
+}
+
+/* Cards/bandas con bg-white o bg-light de Bootstrap: pasan a la
+   superficie del sistema (evita "parches" de blanco puro aislados) */
+html:not([data-theme="dark"]) .card.bg-white,
+html:not([data-theme="dark"]) .card.bg-light {
+    background-color: var(--card-bg) !important;
+}
+
+/* Banda de secciones con bg-white en claro: usa el fondo secundario
+   del sistema en lugar de blanco puro (integra la sección al body) */
+html:not([data-theme="dark"]) section.bg-white {
+    background-color: var(--bg-subtle) !important;
+}
+
+/* Input group text blanco: coherente con los inputs del sistema */
+html:not([data-theme="dark"]) .input-group-text.bg-white {
+    background-color: var(--bg-input) !important;
+}
+
+/* Dropdown: hover/focus con superficie interactiva del sistema */
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+    background: var(--surface-hover);
+}
