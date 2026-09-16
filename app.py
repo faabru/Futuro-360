@@ -3,6 +3,7 @@ Punto de entrada de Futuro 360.
 Construye la app Flask y arranca el servidor. Toda la lógica está en módulos.
 """
 
+import re
 import time
 
 from flask import Flask, g, render_template, session, url_for
@@ -51,6 +52,18 @@ def create_app():
         if valor.startswith('imagenes/') or valor.startswith('static/'):
             return url_for('static', filename=valor)
         return valor
+
+    @app.template_filter('youtube_id')
+    def youtube_id(valor):
+        """Extrae el ID de video de una URL de YouTube (watch, youtu.be, shorts,
+        embed, live). Devuelve '' si no es una URL de YouTube reconocible."""
+        if not valor:
+            return ''
+        m = re.search(
+            r'(?:youtube(?:-nocookie)?\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/|live/)|youtu\.be/)'
+            r'([A-Za-z0-9_-]{11})',
+            valor)
+        return m.group(1) if m else ''
 
     @app.before_request
     def cargar_usuario_logueado():

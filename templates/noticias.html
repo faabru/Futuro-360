@@ -114,15 +114,22 @@
                      style="height: 200px;"
                      {% if noticia.video %}role="button" tabindex="0" aria-label="Reproducir video de la noticia"{% endif %}>
                   {% if noticia.video %}
-                    <video class="w-100 h-100 object-fit-cover"
-                           {% if noticia.imagen %}poster="{{ noticia.imagen|media }}"{% endif %}
-                           preload="{% if noticia.imagen %}none{% else %}metadata{% endif %}"
-                           playsinline
-                           style="background:#000;"
-                           data-noticia-video>
-                      <source src="{{ noticia.video|media }}" type="video/mp4">
-                      Tu navegador no soporta el reproductor de video.
-                    </video>
+                    {% set yt_id = noticia.video|youtube_id %}
+                    {% if yt_id %}
+                      <div class="w-100 h-100"
+                           {% if noticia.imagen %}style="background-image:url('{{ noticia.imagen|media }}');background-size:cover;background-position:center;background-color:#000;"{% else %}style="background-image:url('https://img.youtube.com/vi/{{ yt_id }}/hqdefault.jpg');background-size:cover;background-position:center;background-color:#000;"{% endif %}
+                           data-youtube-id="{{ yt_id }}"></div>
+                    {% else %}
+                      <video class="w-100 h-100 object-fit-cover"
+                             {% if noticia.imagen %}poster="{{ noticia.imagen|media }}"{% endif %}
+                             preload="{% if noticia.imagen %}none{% else %}metadata{% endif %}"
+                             playsinline
+                             style="background:#000;"
+                             data-noticia-video>
+                        <source src="{{ noticia.video|media }}" type="video/mp4">
+                        Tu navegador no soporta el reproductor de video.
+                      </video>
+                    {% endif %}
                     <div class="news-play-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" aria-hidden="true">
                       <span class="news-play-btn"><i class="bi bi-play-fill"></i></span>
                     </div>
@@ -393,13 +400,31 @@
   filtrarNoticias();
 
   // Videos en cards: el poster/imagen es el estado inicial y el video solo se
-  // carga y reproduce al hacer clic (patrón YouTube/Netflix).
+  // carga y reproduce al hacer clic (patrón YouTube/Netflix). Si el video es un
+  // link de YouTube se embebe un iframe; si no, se usa el reproductor <video>.
   document.querySelectorAll('.news-media.has-video').forEach(wrap => {
     const video = wrap.querySelector('video[data-noticia-video]');
+    const yt = wrap.querySelector('[data-youtube-id]');
     const overlay = wrap.querySelector('.news-play-overlay');
-    if (!video) return;
+    if (!video && !yt) return;
 
     function iniciarReproduccion() {
+      if (yt) {
+        if (!yt.querySelector('iframe')) {
+          const iframe = document.createElement('iframe');
+          iframe.src = 'https://www.youtube-nocookie.com/embed/' + yt.dataset.youtubeId + '?autoplay=1';
+          iframe.className = 'w-100 h-100';
+          iframe.setAttribute('frameborder', '0');
+          iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+          iframe.setAttribute('allowfullscreen', '');
+          iframe.title = 'Video de YouTube';
+          yt.innerHTML = '';
+          yt.style.backgroundImage = 'none';
+          yt.appendChild(iframe);
+        }
+        overlay.classList.add('oculto');
+        return;
+      }
       if (video.paused) {
         video.setAttribute('controls', '');
         if (video.ended) video.currentTime = 0;
