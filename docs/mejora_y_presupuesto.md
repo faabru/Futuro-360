@@ -40,6 +40,12 @@
 
 **Tecnología:** integración con la API de un proveedor de inteligencia artificial, endpoint propio en el backend para gestionar la conversación y el contexto del usuario, y un widget de chat en el frontend.
 
+#### 1.6 Formulación y validación profesional del test vocacional
+
+**Alcance:** contratación de un orientador vocacional / psicólogo para reformular y validar las preguntas y las opciones de respuesta del test profesional, asegurando que el instrumento tenga rigor psicológico, lenguaje claro y adecuado para adolescentes, y criterios de corrección coherentes con los objetivos de orientación vocacional.
+
+**Entregable:** cuestionario revisado (preguntas, opciones y claves de puntaje) listo para cargarse en la plataforma.
+
 ---
 
 ## 2. Estimación de horas
@@ -135,10 +141,20 @@ Valor hora de desarrollo: **$ 7.000 ARS / hora**
 | Proveedor único de correo           | 16      | $ 7.000    | $ 112.000       |
 | Escalado de base de datos           | 10      | $ 7.000    | $ 70.000        |
 | Asistente de IA para el estudiante  | 36      | $ 7.000    | $ 252.000       |
-| **PRESUPUESTO TOTAL DE DESARROLLO** | **343** | $ 7.000    | **$ 2.401.000** |
+| **Subtotal de desarrollo**          | **343** | $ 7.000    | **$ 2.401.000** |
+
+**Servicios profesionales**
+
+| Concepto                                                                  | Costo       |
+|---------------------------------------------------------------------------|-------------|
+| Formulación y validación del test vocacional (orientador / psicólogo)     | $ 50.000    |
+
+**PRESUPUESTO TOTAL DE DESARROLLO: $ 2.451.000**
 
 ```
-Presupuesto total = 343 hs × $ 7.000 = $ 2.401.000
+Presupuesto de desarrollo = 343 hs × $ 7.000 = $ 2.401.000
+Honorario orientador / psicólogo (test vocacional) = $ 50.000
+Total = $ 2.401.000 + $ 50.000 = $ 2.451.000
 ```
 
 ---
@@ -159,7 +175,9 @@ Son valores de referencia; el valor final se define al contratar cada servicio s
 ## 6. Resumen ejecutivo
 
 - **Producto:** Futuro 360, plataforma de orientación vocacional (test vocacional, catálogo de carreras, juego interactivo, noticias, panel de administración con estadísticas y reportes).
-- **Mejoras incluidas en esta propuesta:** recomendador inteligente por Machine Learning, buscador de universidades propio, proveedor único de correo, escalado de base de datos y asistente de IA de ayuda al estudiante.
+- **Mejoras incluidas en esta propuesta:** recomendador inteligente por Machine Learning, buscador de universidades propio, proveedor único de correo, escalado de base de datos, asistente de IA de ayuda al estudiante y formulación del test vocacional con un orientador / psicólogo.
 - **Horas totales de desarrollo:** 343 hs.
 - **Presupuesto total de desarrollo:** **$ 2.401.000 ARS**.
+- **Honorario orientador / psicólogo (test vocacional):** **$ 50.000 ARS**.
+- **Presupuesto total del proyecto:** **$ 2.451.000 ARS**.
 - **Costos recurrentes estimados:** entre USD 49 y USD 110 por mes, según los proveedores y planes elegidos.
