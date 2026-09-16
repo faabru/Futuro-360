@@ -342,14 +342,6 @@ CLOUDINARY_API_SECRET=tu_api_secret
 > más o de menos produce `Invalid Signature`. La API key y su secret deben ser
 > **del mismo par** (mezclarlos con otra key da exactamente ese error).
 
-### Solución de problemas
-
-| Error | Causa | Solución |
-|---|---|---|
-| `Invalid Signature` | API key y API secret no son del mismo par, o el secret quedó incompleto al escribirse a mano | Copiar el secret con el botón de copiar en Settings → API Keys (no escribirlo a mano) |
-| `Request forbidden` | La API key tiene rol "Media Library User" que no permite subir | Cambiar el rol de la key a **Master Admin** |
-| `Invalid image file` | El archivo no es una imagen/video válido | Verificar que el archivo no esté corrupto |
-
 ## Panel de administración
 
 - **URL:** `http://localhost:5000/admin`
